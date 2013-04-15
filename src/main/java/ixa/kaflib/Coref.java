@@ -38,4 +38,16 @@ public class Coref {
     public void addReference(List<Target> span) {
 	references.add(span);
     }
+
+    public String getSpanStr(List<Target> targets) {
+	String str = "";
+	for (Target target : targets) {
+	    Term term = target.getTerm();
+	    if (!str.isEmpty()) {
+		str += " ";
+	    }
+	    str += term.getStr();
+	}
+	return str;
+    }
 }

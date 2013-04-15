@@ -2,6 +2,8 @@ package ixa.kaflib;
 
 import org.jdom2.Document;
 import org.jdom2.Element;
+import org.jdom2.Comment;
+import org.jdom2.Namespace;
 import org.jdom2.output.XMLOutputter;
 import org.jdom2.output.Format;
 import org.jdom2.input.SAXBuilder;
@@ -24,30 +26,34 @@ import java.nio.charset.Charset;
 class ReadWriteManager {
     
     /** Loads the content of a KAF file into the given KAFDocument object */
-    static void load(KAFDocument kaf, File file) {
+    static KAFDocument load(File file) throws IOException, JDOMException {
 	SAXBuilder builder = new SAXBuilder();
 	try {
 	    Document document = (Document) builder.build(file);
 	    Element rootElem = document.getRootElement();
-	    DOMToKAF(kaf, document);
+	    return DOMToKAF(document);
 	} catch (IOException io) {
 	    System.out.println(io.getMessage());
+	    throw io;
 	} catch (JDOMException jdomex) {
 	    System.out.println(jdomex.getMessage());
+	    throw jdomex;
 	}
     }
 
     /** Loads the content of a String in KAF format into the given KAFDocument object */
-    static void load(KAFDocument kaf, Reader stream) {
+    static KAFDocument load(Reader stream) throws IOException, JDOMException {
 	SAXBuilder builder = new SAXBuilder();
 	try {
 	    Document document = (Document) builder.build(stream);
 	    Element rootElem = document.getRootElement();
-	    DOMToKAF(kaf, document);
+	    return DOMToKAF(document);
 	} catch (IOException io) {
 	    System.out.println(io.getMessage());
+	    throw io;
 	} catch (JDOMException jdomex) {
 	    System.out.println(jdomex.getMessage());
+	    throw jdomex;
 	}
     }
 
@@ -82,10 +88,14 @@ class ReadWriteManager {
     }
 
     /** Loads a KAFDocument object from XML content in DOM format */
-    private static void DOMToKAF(KAFDocument kaf, Document dom) {
+    private static KAFDocument DOMToKAF(Document dom) {
 	HashMap<String, WF> wfIndex = new HashMap<String, WF>();
 	HashMap<String, Term> termIndex = new HashMap<String, Term>();
 	Element rootElem = dom.getRootElement();
+	String lang = getAttribute("lang", rootElem, Namespace.XML_NAMESPACE);
+	String kafVersion = getAttribute("version", rootElem);
+	KAFDocument kaf = new KAFDocument(lang, kafVersion);
+
 	List<Element> rootChildrenElems = rootElem.getChildren();
 	for (Element elem : rootChildrenElems) {
 	    if (elem.getName().equals("kafHeader")) {
@@ -334,6 +344,8 @@ class ReadWriteManager {
 		}
 	    }
 	}
+
+	return kaf;
     }
 
     private static List<ExternalRef> getExternalReferences(Element externalReferencesElem, KAFDocument kaf) {
@@ -371,6 +383,14 @@ class ReadWriteManager {
 	return value;
     }
 
+    private static String getAttribute(String attName, Element elem, Namespace nmspace) {
+	String value = elem.getAttributeValue(attName, nmspace);
+	if (value==null) {
+	    throw new IllegalStateException(attName+" attribute must be defined for element "+elem.getName());
+	}
+	return value;
+    }
+
     private static String getOptAttribute(String attName, Element elem) {
 	String value = elem.getAttributeValue(attName);
 	if (value==null || value.equals("")) {
@@ -383,6 +403,9 @@ class ReadWriteManager {
     private static Document KAFToDOM(KAFDocument kaf) {
 	AnnotationContainer annotationContainer = kaf.getAnnotationContainer();
 	Element root = new Element("KAF");
+	root.setAttribute("lang", kaf.getLang(), Namespace.XML_NAMESPACE);
+	root.setAttribute("version", kaf.getVersion());
+
 	Document doc = new Document(root);
 
 	Element kafHeaderElem = new Element("kafHeader");
@@ -439,6 +462,8 @@ class ReadWriteManager {
 		String morphofeat;
 		Term.Component head;
 		String termcase;
+		Comment termComment = new Comment(term.getStr());
+		termsElem.addContent(termComment);
 		Element termElem = new Element("term");
 		termElem.setAttribute("tid", term.getId());
 		termElem.setAttribute("type", term.getType());
@@ -521,6 +546,8 @@ class ReadWriteManager {
 	if (deps.size() > 0) {
 	    Element depsElem = new Element("deps");
 	    for (Dep dep : deps) {
+		Comment depComment = new Comment(dep.getStr());
+		depsElem.addContent(depComment);
 		Element depElem = new Element("dep");
 		depElem.setAttribute("from", dep.getFrom().getId());
 		depElem.setAttribute("to", dep.getTo().getId());
@@ -537,6 +564,8 @@ class ReadWriteManager {
 	if (chunks.size() > 0) {
 	    Element chunksElem = new Element("chunks");
 	    for (Chunk chunk : chunks) {
+		Comment chunkComment = new Comment(chunk.getStr());
+		chunksElem.addContent(chunkComment);
 		Element chunkElem = new Element("chunk");
 		chunkElem.setAttribute("cid", chunk.getId());
 		chunkElem.setAttribute("head", chunk.getHead().getId());
@@ -565,6 +594,8 @@ class ReadWriteManager {
 		entityElem.setAttribute("type", entity.getType());
 		Element referencesElem = new Element("references");
 		for (List<Term> span : entity.getReferences()) {
+		    Comment spanComment = new Comment(entity.getSpanStr(span));
+		    referencesElem.addContent(spanComment);
 		    Element spanElem = new Element("span");
 		    for (Term term : span) {
 			Element targetElem = new Element("target");
@@ -592,6 +623,8 @@ class ReadWriteManager {
 		corefElem.setAttribute("coid", coref.getId());
 		Element referencesElem = new Element("references");
 		for (List<Target> span : coref.getReferences()) {
+		    Comment spanComment = new Comment(coref.getSpanStr(span));
+		    referencesElem.addContent(spanComment);
 		    Element spanElem = new Element("span");
 		    for (Target target : span) {
 			Element targetElem = new Element("target");

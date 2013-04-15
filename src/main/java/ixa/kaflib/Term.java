@@ -41,6 +41,9 @@ public class Term {
     /** Declension case of the term (optional) */
     private String termcase;
 
+    /** Comment string for debugging purposes */
+    private String strValue;
+
     /** Sentiment features (optional) */
     private Sentiment sentiment;
 
@@ -290,11 +293,12 @@ public class Term {
 	this.type = type;
 	this.lemma = lemma;
 	this.pos = pos;
+	this.strValue = "";
 	this.components = new ArrayList();
 	this.componentIndex = new HashMap<String, Integer>();
 	this.targets = new ArrayList<String>();
 	for (WF target : wfs) {
-	    this.targets.add(target.getId());
+	    this.addWF(target);
 	}
 	this.externalReferences = new ArrayList<ExternalRef>();
     }
@@ -351,6 +355,17 @@ public class Term {
 	this.termcase = termcase;
     }
 
+    private void updateStr(String str) {
+	if (!this.strValue.isEmpty()) {
+	    this.strValue += " ";
+	}
+	this.strValue += str;
+    }
+
+    public String getStr() {
+	return strValue;
+    }
+
     public boolean hasHead() {
 	return head != null;
     }
@@ -395,6 +410,7 @@ public class Term {
 
     public void addWF(WF wf) {
 	targets.add(wf.getId());
+	this.updateStr(wf.getForm());
     }
 
     public int getSent() {

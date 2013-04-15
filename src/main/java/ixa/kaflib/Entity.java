@@ -95,4 +95,15 @@ public class Entity {
     public void addExternalRefs(List<ExternalRef> externalRefs) {
 	externalReferences.addAll(externalRefs);
     }
+
+    public String getSpanStr(List<Term> terms) {
+	String str = "";
+	for (Term term : terms) {
+	    if (!str.isEmpty()) {
+		str += " ";
+	    }
+	    str += term.getStr();
+	}
+	return str;
+    }
 }

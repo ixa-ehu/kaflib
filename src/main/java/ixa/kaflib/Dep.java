@@ -60,7 +60,7 @@ public class Dep {
     }
 
      public void setRfunc(String rfunc) {
-	this.rfunc = rfunc;
+	 this.rfunc = rfunc;
     }
 
     public boolean hasCase() {
@@ -73,5 +73,9 @@ public class Dep {
 
     public void setCase(String depcase) {
 	this.depcase = depcase;
+    }
+
+    public String getStr() {
+	return rfunc + "(" + annotationContainer.getTermById(from).getStr() + ", " + annotationContainer.getTermById(to).getStr() + ")";
     }
 }

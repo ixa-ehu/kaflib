@@ -34,7 +34,7 @@ public class Chunk {
 	this.phrase = phrase;
 	this.targets = new ArrayList<String>();
 	for (Term target : terms) {
-	    this.targets.add(target.getId());
+	    this.addTerm(target);
 	}
     }
 
@@ -80,5 +80,17 @@ public class Chunk {
 
     public void addTerm(Term term) {
 	targets.add(term.getId());
+    }
+
+    public String getStr() {
+	String str = "";
+	for (String termId : targets) {
+	    Term term = annotationContainer.getTermById(termId);
+	    if (!str.isEmpty()) {
+		str += " ";
+	    }
+	    str += term.getStr();
+	}
+	return str;
     }
 }

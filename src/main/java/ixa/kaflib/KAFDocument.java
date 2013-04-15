@@ -23,6 +23,12 @@ public class KAFDocument {
 	}
     }
 
+    /** Language identifier */
+    private String lang;
+
+    /** KAF version */
+    private String version;
+
     /** Linguistic processors */
     private HashMap<String, List<LinguisticProcessor>> lps;
 
@@ -33,7 +39,9 @@ public class KAFDocument {
     private AnnotationContainer annotationContainer;
     
     /** Creates an empty KAFDocument element */
-    public KAFDocument() {
+    public KAFDocument(String lang, String version) {
+	this.lang = lang;
+	this.version = version;
 	lps = new HashMap<String, List<LinguisticProcessor>>();
 	idManager = new IdManager();
 	annotationContainer = new AnnotationContainer();
@@ -42,17 +50,35 @@ public class KAFDocument {
     /** Creates a new KAFDocument and loads the contents of the file passed as argument
      * @param file an existing KAF file to be loaded into the library.
      */
-    public KAFDocument(File file) {
-	this();
-	ReadWriteManager.load(this, file);
+    public static KAFDocument createFromFile(File file) {
+	return ReadWriteManager.load(file);
     }
 
     /** Creates a new KAFDocument loading the content read from the reader given on argument.
      * @param stream Reader to read KAF content.
      */
-    public KAFDocument(Reader stream) {
-	this();
-	ReadWriteManager.load(this, stream);
+    public static KAFDocument createFromStream(Reader stream) {
+	return ReadWriteManager.load(stream);
+    }
+
+    /** Sets the language of the processed document */
+    public void setLang(String lang) {
+	this.lang = lang;
+    }
+
+    /** Returns the language of the processed document */
+    public String getLang() {
+	return lang;
+    }
+
+    /** Sets the KAF version */
+    public void setVersion(String version) {
+	this.version = version;
+    }
+
+    /** Returns the KAF version */
+    public String getVersion() {
+	return version;
     }
 
     /** Adds a linguistic processor to the document header. The timestamp is added implicitly. */
