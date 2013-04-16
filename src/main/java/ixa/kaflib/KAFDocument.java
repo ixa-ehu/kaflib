@@ -7,6 +7,9 @@ import java.io.File;
 import java.io.Reader;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.io.IOException;
+import org.jdom2.JDOMException;
+
 
 /** Respresents a KAF document. It's the main class of the library, as it keeps all elements of the document (word forms, terms, entities...) and manages all object creations. The document can be created by the user calling it's methods, or loading from an existing XML file.*/
 public class KAFDocument {
@@ -50,14 +53,14 @@ public class KAFDocument {
     /** Creates a new KAFDocument and loads the contents of the file passed as argument
      * @param file an existing KAF file to be loaded into the library.
      */
-    public static KAFDocument createFromFile(File file) {
+    public static KAFDocument createFromFile(File file) throws IOException, JDOMException {
 	return ReadWriteManager.load(file);
     }
 
     /** Creates a new KAFDocument loading the content read from the reader given on argument.
      * @param stream Reader to read KAF content.
      */
-    public static KAFDocument createFromStream(Reader stream) {
+    public static KAFDocument createFromStream(Reader stream) throws IOException, JDOMException {
 	return ReadWriteManager.load(stream);
     }
 
@@ -321,6 +324,11 @@ public class KAFDocument {
     /** Returns a list with all sentences. Each sentence is a list of WFs. */
     public List<List<WF>> getSentences() {
 	return annotationContainer.getSentences();
+    }
+
+    /** Returns a list with all entities in the document */
+    public List<Entity> getEntities() {
+	return annotationContainer.getEntities();
     }
 
     /** Returns a list of terms containing the word forms given on argument.
