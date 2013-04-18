@@ -7,11 +7,11 @@ import java.util.HashMap;
 class IdManager {
 
     /* Prefix of each type of ids */
-    private static final String WF_PREFIX = "wid";
-    private static final String TERM_PREFIX = "tid";
-    private static final String CHUNK_PREFIX = "cid";
-    private static final String ENTITY_PREFIX = "eid";
-    private static final String COREF_PREFIX = "coid";
+    private static final String WF_PREFIX = "w";
+    private static final String TERM_PREFIX = "t";
+    private static final String CHUNK_PREFIX = "c";
+    private static final String ENTITY_PREFIX = "e";
+    private static final String COREF_PREFIX = "co";
 
     /* Counters for each type of annotations */
     private int wfCounter;
@@ -93,7 +93,7 @@ class IdManager {
 
     void updateComponentCounter(String id, String termId) {
 	int componentInd;
-	Matcher matcher = Pattern.compile("^tid\\d+\\.(\\d+)$").matcher(id);
+	Matcher matcher = Pattern.compile("^t\\d+\\.(\\d+)$").matcher(id);
 	if (!matcher.find()) {
 	    throw new IllegalStateException("IdManager doesn't recognise the given id's (" + id + ") format. Should be t[0-9]+\\.[0-9]+");
 	}
