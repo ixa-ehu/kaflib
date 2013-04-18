@@ -12,6 +12,9 @@ class AnnotationContainer {
     /** List to keep all word forms */
     private List<WF> text;
 
+    /** Next offset: sum of all words' length plus one char per word */
+    private int nextOffset;
+
     /** List to keep all terms */
     private List<Term> terms;
 
@@ -45,6 +48,7 @@ class AnnotationContainer {
     /** This creates a new AnnotationContainer object */
     AnnotationContainer() {
 	text = new ArrayList();
+	nextOffset = 0;
 	terms = new ArrayList();
 	deps = new ArrayList();
 	chunks = new ArrayList();
@@ -91,6 +95,7 @@ class AnnotationContainer {
     /** Adds a word form to the container */
     void add(WF wf) {
 	text.add(wf);
+	nextOffset += wf.getLength() + 1;
 	textIndexedById.put(wf.getId(), text.size() - 1);
 
 	/* Index by sentence */
@@ -218,5 +223,10 @@ class AnnotationContainer {
 	    terms.add(getTermByWFId(wfId));
 	}
 	return new ArrayList<Term>(terms);
+    }
+
+    /** Returns next WF's offset. */
+    int getNextOffset() {
+	return nextOffset;
     }
 }
