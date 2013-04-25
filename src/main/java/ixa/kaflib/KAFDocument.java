@@ -329,9 +329,9 @@ public class KAFDocument {
 	return annotationContainer.getSentences();
     }
 
-    /** Returns a list with all entities in the document */
-    public List<Entity> getEntities() {
-	return annotationContainer.getEntities();
+    /** Returns a list with all terms in the document. */
+    public List<Term> getTerms() {
+	return annotationContainer.getTerms();
     }
 
     /** Returns a list of terms containing the word forms given on argument.
@@ -341,7 +341,11 @@ public class KAFDocument {
     public List<Term> getTermsFromWFs(List<String> wfIds) {
 	return annotationContainer.getTermsFromWFs(wfIds);
     }
-	
+
+    /** Returns a list with all entities in the document */
+    public List<Entity> getEntities() {
+	return annotationContainer.getEntities();
+    }
 
     /** Returns current timestamp. */
     public String getTimestamp() { 
