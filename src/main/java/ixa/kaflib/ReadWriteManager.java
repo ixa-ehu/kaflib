@@ -360,7 +360,7 @@ class ReadWriteManager {
 
     private static ExternalRef getExternalRef(Element externalRefElem, KAFDocument kaf) {
 	String resource = getAttribute("resource", externalRefElem);
-	String references = getAttribute("references", externalRefElem);
+	String references = getAttribute("reference", externalRefElem);
 	ExternalRef newExternalRef = kaf.createExternalRef(resource, references);
 	String confidence = getOptAttribute("confidence", externalRefElem);
 	if (confidence != null) {
@@ -657,7 +657,7 @@ class ReadWriteManager {
     private static Element externalRefToDOM(ExternalRef externalRef) {
 	Element externalRefElem = new Element("externalRef");
 	externalRefElem.setAttribute("resource", externalRef.getResource());
-	externalRefElem.setAttribute("references", externalRef.getReference());
+	externalRefElem.setAttribute("reference", externalRef.getReference());
 	if (externalRef.hasConfidence()) {
 	    externalRefElem.setAttribute("confidence", Float.toString(externalRef.getConfidence()));
 	}
