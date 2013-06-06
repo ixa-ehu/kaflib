@@ -303,6 +303,27 @@ public class Term {
 	this.externalReferences = new ArrayList<ExternalRef>();
     }
 
+    /** To create a new Term, the annotationContainer reference is necessary apart from the id, type, lemma, pos and, at least, one word form reference. */
+    Term(AnnotationContainer annotationContainer, String id, String type, String lemma, String pos, String morphofeat, List<WF> wfs) {
+	if (wfs.size() < 1) {
+	    throw new IllegalStateException("A Term must have at least one WF");
+	}
+	this.annotationContainer = annotationContainer;
+	this.tid = id;
+	this.type = type;
+	this.lemma = lemma;
+	this.pos = pos;
+	this.morphofeat = morphofeat;
+	this.strValue = "";
+	this.components = new ArrayList();
+	this.componentIndex = new HashMap<String, Integer>();
+	this.targets = new ArrayList<String>();
+	for (WF target : wfs) {
+	    this.addWF(target);
+	}
+	this.externalReferences = new ArrayList<ExternalRef>();
+    }
+    
     public String getId() {
 	return tid;
     }
@@ -361,9 +382,14 @@ public class Term {
 	}
 	this.strValue += str;
     }
-
-    public String getStr() {
-	return strValue;
+   
+   public String getStr() {
+   	if (strValue.startsWith("-") || strValue.endsWith("-")) { 
+   		return strValue.replace("-", "dash");
+   	}
+   	else { 
+   		return strValue;
+   	}
     }
 
     public boolean hasHead() {

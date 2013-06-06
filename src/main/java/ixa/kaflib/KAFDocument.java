@@ -187,6 +187,20 @@ public class KAFDocument {
 	annotationContainer.add(newTerm);
 	return newTerm;
     }
+    
+    /** Creates a new Term. It assigns an appropriate ID to it. The Term is added to the document object.
+     * @param type the type of the term. There are two types of term: open and close.
+     * @param lemma the lemma of the term.
+     * @param pos part of speech of the term.
+     * @param wfs the list of word forms this term is formed by.
+     * @return a new term.
+     */	
+    public Term createTermOptions(String type, String lemma, String pos, String morphofeat, List<WF> wfs) {
+	String newId = idManager.getNextTermId();
+	Term newTerm = new Term(annotationContainer, newId, type, lemma, pos, morphofeat, wfs);
+	annotationContainer.add(newTerm);
+	return newTerm;
+    }
 
     /** Creates a Sentiment object.
      * @return a new sentiment.
