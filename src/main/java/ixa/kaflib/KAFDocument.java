@@ -367,6 +367,7 @@ public class KAFDocument {
     public String getTimestamp() { 
 	Date date = new Date();
 	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd H:mm:ss");
+	//SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-DD'T'kk:mm:ssZ");
 	String formattedDate = sdf.format(date);
 	return formattedDate;
     }
