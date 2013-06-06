@@ -12,6 +12,7 @@ import org.jdom2.JDOMException;
 
 
 /** Respresents a KAF document. It's the main class of the library, as it keeps all elements of the document (word forms, terms, entities...) and manages all object creations. The document can be created by the user calling it's methods, or loading from an existing XML file.*/
+
 public class KAFDocument {
 
     public class LinguisticProcessor {

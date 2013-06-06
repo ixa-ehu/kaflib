@@ -95,7 +95,7 @@ class AnnotationContainer {
     /** Adds a word form to the container */
     void add(WF wf) {
 	text.add(wf);
-	nextOffset += wf.getLength() + 1;
+	//nextOffset += wf.getLength() + 1;
 	textIndexedById.put(wf.getId(), text.size() - 1);
 
 	/* Index by sentence */
