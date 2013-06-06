@@ -136,9 +136,24 @@ public class KAFDocument {
      */
     public WF createWF(String form) {
 	String newId = idManager.getNextWFId();
-	int offset = annotationContainer.getNextOffset();
+	//int offset = annotationContainer.getNextOffset();
 	WF newWF = new WF(newId, form);
-	newWF.setOffset(offset);
+	//newWF.setOffset(offset);
+	//newWF.setLength(form.length());
+	annotationContainer.add(newWF);
+	return newWF;
+    }
+    
+    /** Creates a new WF object. It assigns an appropriate ID to it and it also assigns offset and length
+     * attributes. The WF is added to the document object.
+     * @param form text of the word form itself.
+     * @return a new word form.
+     */
+    public WF createWF(String form, int offset) {
+	String newId = idManager.getNextWFId();
+	int offsetVal = offset; 
+	WF newWF = new WF(newId, form);
+	newWF.setOffset(offsetVal);
 	newWF.setLength(form.length());
 	annotationContainer.add(newWF);
 	return newWF;
