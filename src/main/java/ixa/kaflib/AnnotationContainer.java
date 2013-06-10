@@ -1,10 +1,17 @@
 package ixa.kaflib;
 
+import java.io.IOException;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.SortedSet;
+import java.util.TreeSet;
+
+import org.jdom2.Element;
+import org.jdom2.JDOMException;
 
 /** A container to keep all annotations of a document (word forms, terms, dependencies, chunks, entities and coreferences). There are different hash maps to index annotations by different properties as ID, sentence... It enables to retrieve annotations by different properties in an effective way. Performance is very important. */
 class AnnotationContainer {
@@ -184,16 +191,31 @@ class AnnotationContainer {
     /** Returns all tokens classified by sentences */
     List<List<WF>> getSentences() {
 	List<List<WF>> sentences = new ArrayList<List<WF>>();
-	for (Map.Entry entry : this.textIndexedBySent.entrySet()) {
+	for (Map.Entry<Integer,List<String>> entry : this.textIndexedBySent.entrySet()) {
 	    List<String> wfIds = (List<String>) entry.getValue();
 	    List<WF> wfs = new ArrayList<WF>();
 	    for (String wfId : wfIds) {
-		wfs.add(this.getWFById(wfId));
+		  wfs.add(this.getWFById(wfId));
 	    }
 	    sentences.add(wfs);
 	}
 	return sentences;
     }
+
+ /** Returns all tokens classified by sentences */
+    List<List<WF>> getSentencesX() {
+	List<List<WF>> sentences = new ArrayList<List<WF>>();
+	for (Map.Entry<Integer,List<String>> entry : this.textIndexedBySent.entrySet()) {
+	    List<String> wfIds = (List<String>) entry.getValue();
+            List<WF> wfs = new ArrayList<WF>();
+	    for (String wfId : wfIds) {
+		  wfs.add(this.getWFById(wfId));
+	    }
+        sentences.add(wfs);
+	}
+	return sentences;
+    }
+
 
     /** Returns WFs from a sentence */
     List<WF> getSentenceWFs(int sent) {
