@@ -360,10 +360,6 @@ public class KAFDocument {
 	return annotationContainer.getSentences();
     }
 
-    public List<List<WF>> getSentencesX() {
-        return annotationContainer.getSentencesX();
-    }
-
     /** Returns a list with all terms in the document. */
     public List<Term> getTerms() {
 	return annotationContainer.getTerms();
