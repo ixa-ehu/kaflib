@@ -47,7 +47,7 @@ public class Term {
     /** Sentiment features (optional) */
     private Sentiment sentiment;
 
-    /** If it's a compound term, it's components (optional) */ 
+    /** If it's a compound term, it's components (optional) */
     private List<Component> components;
 
     /** Hash map indexing components by their ID */
@@ -69,14 +69,14 @@ public class Term {
 	/** Identifier and reference to an external sentiment resource (optional) */
 	private String resource;
 
-	/** Refers to the property of a word to express positive, negative or no sentiment (optional). These values are possible: 
+	/** Refers to the property of a word to express positive, negative or no sentiment (optional). These values are possible:
 	 * - Positive
 	 * - Negative
 	 * - Neutral
 	 * - Or numerical value on a numerical scale
 	 */
 	private String polarity;
-	
+
 	/** Refers to the strength of the polarity (optional). These values are possible:
 	 * - Weak
 	 * - Average
@@ -323,7 +323,7 @@ public class Term {
 	}
 	this.externalReferences = new ArrayList<ExternalRef>();
     }
-    
+
     public String getId() {
 	return tid;
     }
@@ -382,12 +382,12 @@ public class Term {
 	}
 	this.strValue += str;
     }
-   
+
    public String getStr() {
-   	if (strValue.startsWith("-") || strValue.endsWith("-")) { 
-   		return strValue.replace("-", "dash");
+   	if (strValue.startsWith("-") || strValue.endsWith("-")) {
+   		return strValue.replace("-", "- ");
    	}
-   	else { 
+   	else {
    		return strValue;
    	}
     }
@@ -404,7 +404,7 @@ public class Term {
     public void setHead(String id) {
 	head = id;
     }
-    
+
     public void setHead(Component component) {
 	head = component.getId();
     }
@@ -455,4 +455,3 @@ public class Term {
 	externalReferences.addAll(externalRefs);
     }
 }
-    
