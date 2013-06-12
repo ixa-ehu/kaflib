@@ -106,8 +106,45 @@ class ReadWriteManager {
 		    for (Element lpElem : lpElems) {
 			String name = getAttribute("name", lpElem);
 			String timestamp = getOptAttribute("timestamp", lpElem);
-			String version = getAttribute("version", lpElem);
+			String version = getOptAttribute("version", lpElem);
 			kaf.addLinguisticProcessor(layer, name, timestamp, version);
+		    }
+		}
+		Element fileDescElem = elem.getChild("fileDesc");
+		if (fileDescElem != null) {
+		    KAFDocument.FileDesc fd = kaf.createFileDesc();
+		    String author = getOptAttribute("author", fileDescElem);
+		    if (author != null) {
+			fd.author = author;
+		    }
+		    String title = getOptAttribute("title", fileDescElem);
+		    if (title != null) {
+			fd.title = title;
+		    }
+		    String creationtime = getOptAttribute("creationtime", fileDescElem);
+		    if (creationtime != null) {
+			fd.creationtime = creationtime;
+		    }
+		    String filename = getOptAttribute("filename", fileDescElem);
+		    if (filename != null) {
+			fd.filename = filename;
+		    }
+		    String filetype = getOptAttribute("filetype", fileDescElem);
+		    if (filetype != null) {
+			fd.filetype = filetype;
+		    }
+		    String pages = getOptAttribute("pages", fileDescElem);
+		    if (pages != null) {
+			fd.pages = Integer.parseInt(pages);
+		    }
+		}
+		Element publicElem = elem.getChild("public");
+		if (publicElem != null) {
+		    String publicId = getAttribute("publicId", publicElem);
+		    KAFDocument.Public pub = kaf.createPublic(publicId);
+		    String uri = getOptAttribute("uri", publicElem);
+		    if (uri != null) {
+			pub.uri = uri;
 		    }
 		}
 	    }
@@ -410,6 +447,40 @@ class ReadWriteManager {
 
 	Element kafHeaderElem = new Element("kafHeader");
 	root.addContent(kafHeaderElem);
+
+	KAFDocument.FileDesc fd = kaf.getFileDesc();
+	if (fd != null) {
+	    Element fdElem = new Element("fileDesc");
+	    if (fd.author != null) {
+		fdElem.setAttribute("author", fd.author);
+	    }
+	    if (fd.author != null) {
+		fdElem.setAttribute("title", fd.title);
+	    }
+	    if (fd.creationtime != null) {
+		fdElem.setAttribute("creationtime", fd.creationtime);
+	    }
+	    if (fd.author != null) {
+		fdElem.setAttribute("filename", fd.filename);
+	    }
+	    if (fd.author != null) {
+		fdElem.setAttribute("filetype", fd.filetype);
+	    }
+	    if (fd.author != null) {
+		fdElem.setAttribute("pages", Integer.toString(fd.pages));
+	    }
+	    kafHeaderElem.addContent(fdElem);
+	}
+
+	KAFDocument.Public pub = kaf.getPublic();
+	if (pub != null) {
+	    Element pubElem = new Element("public");
+	    pubElem.setAttribute("publicId", pub.publicId);
+	    if (pub.uri != null) {
+		pubElem.setAttribute("uri", pub.uri);
+	    }
+	    kafHeaderElem.addContent(pubElem);
+	}
 
 	HashMap<String, List<KAFDocument.LinguisticProcessor>> lps = kaf.getLinguisticProcessors();
 	for (Map.Entry entry : lps.entrySet()) {

@@ -14,6 +14,27 @@ import org.jdom2.JDOMException;
 /** Respresents a KAF document. It's the main class of the library, as it keeps all elements of the document (word forms, terms, entities...) and manages all object creations. The document can be created by the user calling it's methods, or loading from an existing XML file.*/
 public class KAFDocument {
 
+
+    public class FileDesc {
+	String author;
+	String title;
+	String creationtime;
+	String filename;
+	String filetype;
+	Integer pages;
+
+	private FileDesc() {}
+    }
+
+    public class Public {
+	String publicId;
+	String uri;
+    
+	private Public(String publicId) {
+	    this.publicId = publicId;
+	}
+    }
+
     public class LinguisticProcessor {
 	String name;
 	String timestamp;
@@ -34,6 +55,10 @@ public class KAFDocument {
 
     /** Linguistic processors */
     private HashMap<String, List<LinguisticProcessor>> lps;
+
+    private FileDesc fileDesc;
+
+    private Public _public;
 
     /** Identifier manager */
     private IdManager idManager;
@@ -85,7 +110,7 @@ public class KAFDocument {
     }
 
     /** Adds a linguistic processor to the document header. The timestamp is added implicitly. */
-    public void addLinguisticProcessor(String layer, String name, String version) {
+    public LinguisticProcessor addLinguisticProcessor(String layer, String name, String version) {
 	String timestamp = this.getTimestamp();
 	LinguisticProcessor lp = new LinguisticProcessor(name, timestamp, version);
 	List<LinguisticProcessor> layerLps = lps.get(layer);
@@ -94,10 +119,11 @@ public class KAFDocument {
 	    lps.put(layer, layerLps);
 	}
 	layerLps.add(lp);
+	return lp;
     }
 
     /** Adds a linguistic processor to the document header */
-    public void addLinguisticProcessor(String layer, String name, String timestamp, String version) {
+    public LinguisticProcessor addLinguisticProcessor(String layer, String name, String timestamp, String version) {
 	LinguisticProcessor lp = new LinguisticProcessor(name, timestamp, version);
 	List<LinguisticProcessor> layerLps = lps.get(layer);
 	if (layerLps == null) {
@@ -105,11 +131,30 @@ public class KAFDocument {
 	    lps.put(layer, layerLps);
 	}
 	layerLps.add(lp);
-    }
+	return lp;
+    }	
 
     /** Returns a list of linguistic processors from the document */
     public HashMap<String, List<LinguisticProcessor>> getLinguisticProcessors() {
 	return lps;
+    }
+
+    public FileDesc createFileDesc() {
+	this.fileDesc = new FileDesc();
+	return this.fileDesc;
+    }
+
+    public FileDesc getFileDesc() {
+	return this.fileDesc;
+    }
+
+    public Public createPublic(String publicId) {
+	this._public = new Public(publicId);
+	return this._public;
+    }
+
+    public Public getPublic() {
+	return this._public;
     }
 
     /** Returns the annotation container used by this object */
@@ -297,7 +342,6 @@ public class KAFDocument {
     public Target createTarget(Term term) {
 	return new Target(annotationContainer, term.getId(), false);
     }
-
 
     /** Creates a new target. This method is overloaded. In this case, it receives a boolean argument which defines whether the target term is the head or not.
      * @param term target term.
