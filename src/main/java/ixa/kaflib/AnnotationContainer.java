@@ -97,12 +97,18 @@ class AnnotationContainer {
 	text.add(wf);
 	nextOffset += wf.getLength() + 1;
 	textIndexedById.put(wf.getId(), text.size() - 1);
+    }
 
-	/* Index by sentence */
-	List<String> sentWfs = textIndexedBySent.get(wf.getSent());
+    /** Index a WF by its sentence number */
+    void indexWFBySent(WF wf) {
+	Integer sent = wf.getSent();
+	if (sent == -1) {
+	    throw new IllegalStateException("You can't call indexWFBySent not having defined the sentence for this token");
+	}
+	List<String> sentWfs = textIndexedBySent.get(sent);
 	if (sentWfs == null) {
 	    sentWfs = new ArrayList<String>();
-	    textIndexedBySent.put(wf.getSent(), sentWfs);
+	    textIndexedBySent.put(sent, sentWfs);
 	}
 	sentWfs.add(wf.getId());
     }
@@ -116,11 +122,21 @@ class AnnotationContainer {
 	}
 
 	/* Index by sentence */
-	int sent = term.getSent();
-	    List<String> sentTerms = termsIndexedBySent.get(sent);
+        if (term.getSent() != -1) {
+	    indexTermBySent(term);
+	}
+    }
+
+    /** Index a Term by its sentence number */
+    void indexTermBySent(Term term) {
+	Integer sent = term.getSent();
+	if (sent == -1) {
+	    throw new IllegalStateException("You can't call indexTermBySent not having defined the sentence for its WFs");
+	}
+	List<String> sentTerms = termsIndexedBySent.get(sent);
 	if (sentTerms == null) {
 	    sentTerms = new ArrayList<String>();
-	    termsIndexedBySent.put(term.getSent(), sentTerms);
+	    termsIndexedBySent.put(sent, sentTerms);
 	}
 	sentTerms.add(term.getId());
     }

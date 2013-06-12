@@ -124,7 +124,7 @@ public class KAFDocument {
      */
     public WF createWF(String id, String form) {
 	idManager.updateWFCounter(id);
-	WF newWF = new WF(id, form);
+	WF newWF = new WF(annotationContainer, id, form);
 	annotationContainer.add(newWF);
 	return newWF;
     }
@@ -135,9 +135,7 @@ public class KAFDocument {
      */
     public WF createWF(String form) {
 	String newId = idManager.getNextWFId();
-	int offset = annotationContainer.getNextOffset();
-	WF newWF = new WF(newId, form);
-	newWF.setOffset(offset);
+	WF newWF = new WF(annotationContainer, newId, form);
 	newWF.setLength(form.length());
 	annotationContainer.add(newWF);
 	return newWF;

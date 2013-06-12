@@ -3,6 +3,8 @@ package ixa.kaflib;
 /** Class for representing word forms. These are the result of the tokenization process. */
 public class WF {
 
+    private AnnotationContainer annotationContainer;
+
     /** ID of the word form (required) */
     private String wid;
 
@@ -27,7 +29,8 @@ public class WF {
     /** The word form text (required) */
     private String form;
 
-    WF(String wid, String form) {
+    WF(AnnotationContainer annotationContainer, String wid, String form) {
+	this.annotationContainer = annotationContainer;
 	this.wid = wid;
 	this.form = form;
 	this.sent = -1;
@@ -51,6 +54,12 @@ public class WF {
 
     public void setSent(int sent) {
 	this.sent = sent;
+	annotationContainer.indexWFBySent(this);
+	// If there's a term associated with this WF, index it as well
+	Term term = annotationContainer.getTermByWFId(this.wid);
+	if (term != null) {
+	    annotationContainer.indexTermBySent(term);
+	}
     }
 
     public boolean hasPara() {
