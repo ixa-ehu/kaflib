@@ -36,6 +36,9 @@ class AnnotationContainer {
     /** List to keep all coreferences */
     private List<Coref> coreferences;
 
+    /** List to keep all trees */
+    private List<Tree> trees;
+
     /** Hash map to index word forms by their ID. It maps IDs to the corresponding token's index in the main list of tokens. */
     private HashMap<String, Integer> textIndexedById;
 
@@ -62,6 +65,7 @@ class AnnotationContainer {
 	coreferences = new ArrayList();
 
 	textIndexedById = new HashMap<String, Integer>();
+	trees = new ArrayList();
 	textIndexedBySent = new HashMap<Integer, List<String>>();
 	termsIndexedById = new HashMap<String, Integer>();
 	termsIndexedBySent = new HashMap<Integer, List<String>>();
@@ -93,18 +97,23 @@ class AnnotationContainer {
 	return entities;
     }
 
-    /** Returns all coreferences */
-    List<Coref> getCorefs() {
-	return coreferences;
-    }
-
-    /** Adds a word form to the container */
     /** Returns all properties */
     List<Feature> getProperties() {
 	return properties;
     }
 
     /** Returns all categories */
+    /** Returns all coreferences */
+    List<Coref> getCorefs() {
+	return coreferences;
+    }
+
+    /** Returns all trees */
+    List<Tree> getTrees() {
+	return trees;
+    }
+
+    /** Adds a word form to the container */
     List<Feature> getCategories() {
 	return categories;
     }
@@ -189,6 +198,11 @@ class AnnotationContainer {
     }
 
     /** Adds a category feature to the container */
+    /** Adds a tree to the container */
+    void add(Tree tree) {
+	trees.add(tree);
+    }
+
     void addCategory(Feature category) {
 	categories.add(category);
     }

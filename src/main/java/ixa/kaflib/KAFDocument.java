@@ -411,6 +411,18 @@ public class KAFDocument {
 	return new ExternalRef(resource, reference);
     }
 
+    public Tree createParsingTree(String id) {
+	Tree tree = new Tree(annotationContainer, id);
+	annotationContainer.add(tree);
+	return tree;
+    }
+
+    public Tree createParsingTree() {
+	Tree tree = new Tree(annotationContainer, "idX");
+	annotationContainer.add(tree);
+	return tree;
+    }
+
     /** Returns a list containing all WFs in the document */
     public List<WF> getWFs() {
 	return annotationContainer.getText();
