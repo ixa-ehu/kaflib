@@ -76,7 +76,7 @@ class ReadWriteManager {
 	    out.write(kafToStr(kaf));
 	    out.flush();
 	} catch (Exception e) {
-	    System.out.println("Encoding error");
+	    System.out.println(e);
 	}
     }
 
@@ -341,6 +341,80 @@ class ReadWriteManager {
 		    if (externalReferencesElems.size() > 0) {
 			List<ExternalRef> externalRefs = getExternalReferences(externalReferencesElems.get(0), kaf);
 			newEntity.addExternalRefs(externalRefs);
+		    }
+		}
+	    }
+	    if (elem.getName().equals("features")) {
+		Element propertiesElem = elem.getChild("properties");
+		Element categoriesElem = elem.getChild("categories");
+		if (propertiesElem != null) {
+		    List<Element> propertyElems = propertiesElem.getChildren("property");
+		    for (Element propertyElem : propertyElems) {
+			String pid = getAttribute("pid", propertyElem);
+			String lemma = getAttribute("lemma", propertyElem);
+			Element referencesElem = propertyElem.getChild("references");
+			if (referencesElem == null) {
+			    throw new IllegalStateException("Every property must contain a 'references' element");
+			}
+			List<Element> spanElems = referencesElem.getChildren("span");
+			if (spanElems.size() < 1) {
+			    throw new IllegalStateException("Every property must contain a 'span' element inside 'references'");
+			}
+			List<List<Term>> references = new ArrayList<List<Term>>();
+			for (Element spanElem : spanElems) {
+			    List<Term> span = new ArrayList<Term>();
+			    List<Element> targetElems = spanElem.getChildren();
+			    if (targetElems.size() < 1) {
+				throw new IllegalStateException("Every span in a property must contain at least one target inside");  
+			    }
+			    for (Element targetElem : targetElems) {
+				String targetTermId = getAttribute("id", targetElem);
+				Term targetTerm = termIndex.get(targetTermId);
+				span.add(targetTerm);
+			    }
+			    references.add(span);
+			}
+			Feature newProperty = kaf.createProperty(pid, lemma, references);
+			List<Element> externalReferencesElems = propertyElem.getChildren("externalReferences");
+			if (externalReferencesElems.size() > 0) {
+			    List<ExternalRef> externalRefs = getExternalReferences(externalReferencesElems.get(0), kaf);
+			    newProperty.addExternalRefs(externalRefs);
+			}
+		    }
+		}
+		if (categoriesElem != null) {
+		    List<Element> categoryElems = categoriesElem.getChildren("category");
+		    for (Element categoryElem : categoryElems) {
+			String cid = getAttribute("cid", categoryElem);
+			String lemma = getAttribute("lemma", categoryElem);
+			Element referencesElem = categoryElem.getChild("references");
+			if (referencesElem == null) {
+			    throw new IllegalStateException("Every category must contain a 'references' element");
+			}
+			List<Element> spanElems = referencesElem.getChildren("span");
+			if (spanElems.size() < 1) {
+			    throw new IllegalStateException("Every category must contain a 'span' element inside 'references'");
+			}
+			List<List<Term>> references = new ArrayList<List<Term>>();
+			for (Element spanElem : spanElems) {
+			    List<Term> span = new ArrayList<Term>();
+			    List<Element> targetElems = spanElem.getChildren();
+			    if (targetElems.size() < 1) {
+				throw new IllegalStateException("Every span in a property must contain at least one target inside");  
+			    }
+			    for (Element targetElem : targetElems) {
+				String targetTermId = getAttribute("id", targetElem);
+				Term targetTerm = termIndex.get(targetTermId);
+				span.add(targetTerm);
+			    }
+			    references.add(span);
+			}
+			Feature newCategory = kaf.createCategory(cid, lemma, references);
+			List<Element> externalReferencesElems = categoryElem.getChildren("externalReferences");
+			if (externalReferencesElems.size() > 0) {
+			    List<ExternalRef> externalRefs = getExternalReferences(externalReferencesElems.get(0), kaf);
+			    newCategory.addExternalRefs(externalRefs);
+			}
 		    }
 		}
 	    }
@@ -723,6 +797,55 @@ class ReadWriteManager {
 	    externalReferencesElem.addContent(externalRefElem);
 	}
 	return externalReferencesElem;
+	Element featuresElem = new Element("features");
+	List<Feature> properties = annotationContainer.getProperties();
+	if (properties.size() > 0) {
+	    Element propertiesElem = new Element("properties");
+	    for (Feature property : properties) {
+		Element propertyElem = new Element("property");
+		propertyElem.setAttribute("pid", property.getId());
+		propertyElem.setAttribute("lemma", property.getLemma());
+		List<List<Term>> references = property.getReferences();
+		Element referencesElem = new Element("references");
+		for (List<Term> span : references) {
+		    Element spanElem = new Element("span");
+		    for (Term term : span) {
+			Element targetElem = new Element("target");
+			targetElem.setAttribute("id", term.getId());
+			spanElem.addContent(targetElem);
+		    }
+		    referencesElem.addContent(spanElem);
+		}
+		propertyElem.addContent(referencesElem);
+		propertiesElem.addContent(propertyElem);
+	    }
+	    featuresElem.addContent(propertiesElem);
+	}
+	List<Feature> categories = annotationContainer.getCategories();
+	if (categories.size() > 0) {
+	    Element categoriesElem = new Element("categories");
+	    for (Feature category : categories) {
+		Element categoryElem = new Element("category");
+		categoryElem.setAttribute("cid", category.getId());
+		categoryElem.setAttribute("lemma", category.getLemma());
+		List<List<Term>> references = category.getReferences();
+		Element referencesElem = new Element("references");
+		for (List<Term> span : references) {
+		    Element spanElem = new Element("span");
+		    for (Term term : span) {
+			Element targetElem = new Element("target");
+			targetElem.setAttribute("id", term.getId());
+			spanElem.addContent(targetElem);
+		    }
+		    referencesElem.addContent(spanElem);
+		}
+		categoryElem.addContent(referencesElem);
+		categoriesElem.addContent(categoryElem);
+	    }
+	    featuresElem.addContent(categoriesElem);
+	}
+	root.addContent(featuresElem);
+
     }
 
     private static Element externalRefToDOM(ExternalRef externalRef) {

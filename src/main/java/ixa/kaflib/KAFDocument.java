@@ -335,6 +335,56 @@ public class KAFDocument {
 	return newCoref;
     }
 
+    /** Creates a new property. It receives it's ID as an argument. The property is added to the document.
+     * @param id the ID of the property.
+     * @param lemma the lemma of the property.
+     * @param references different mentions (list of targets) to the same property.
+     * @return a new coreference.
+     */
+    public Feature createProperty(String id, String lemma, List<List<Term>> references) {
+	idManager.updatePropertyCounter(id);
+	Feature newProperty = new Feature(annotationContainer, id, lemma, references);
+	annotationContainer.addProperty(newProperty);
+	return newProperty;
+    }
+
+    /** Creates a new property. It assigns an appropriate ID to it. The property is added to the document.
+     * @param lemma the lemma of the property.
+     * @param references different mentions (list of targets) to the same property.
+     * @return a new coreference.
+     */
+    public Feature createProperty(String lemma, List<List<Term>> references) {
+	String newId = idManager.getNextPropertyId();
+	Feature newProperty = new Feature(annotationContainer, newId, lemma, references);
+	annotationContainer.addProperty(newProperty);
+	return newProperty;
+    }
+
+    /** Creates a new category. It receives it's ID as an argument. The category is added to the document.
+     * @param id the ID of the category.
+     * @param lemma the lemma of the category.
+     * @param references different mentions (list of targets) to the same category.
+     * @return a new coreference.
+     */
+    public Feature createCategory(String id, String lemma, List<List<Term>> references) {
+	idManager.updateCategoryCounter(id);
+	Feature newCategory = new Feature(annotationContainer, id, lemma, references);
+	annotationContainer.addCategory(newCategory);
+	return newCategory;
+    }
+
+    /** Creates a new category. It assigns an appropriate ID to it. The category is added to the document.
+     * @param lemma the lemma of the category.
+     * @param references different mentions (list of targets) to the same category.
+     * @return a new coreference.
+     */
+    public Feature createCategory(String lemma, List<List<Term>> references) {
+	String newId = idManager.getNextCategoryId();
+	Feature newCategory = new Feature(annotationContainer, newId, lemma, references);
+	annotationContainer.addCategory(newCategory);
+	return newCategory;
+    }
+
     /** Creates a new target. This method is overloaded. Any target created by calling this method won't be the head term.
      * @param term target term.
      * @return a new target.

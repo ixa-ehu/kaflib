@@ -27,6 +27,12 @@ class AnnotationContainer {
     /** List to keep all named entities */
     private List<Entity> entities;
 
+    /** List to keep all properties */
+    private List<Feature> properties;
+
+    /** List to keep all categories */
+    private List<Feature> categories;
+
     /** List to keep all coreferences */
     private List<Coref> coreferences;
 
@@ -93,6 +99,16 @@ class AnnotationContainer {
     }
 
     /** Adds a word form to the container */
+    /** Returns all properties */
+    List<Feature> getProperties() {
+	return properties;
+    }
+
+    /** Returns all categories */
+    List<Feature> getCategories() {
+	return categories;
+    }
+
     void add(WF wf) {
 	text.add(wf);
 	nextOffset += wf.getLength() + 1;
@@ -167,6 +183,16 @@ class AnnotationContainer {
 	return text.get(ind);
     }
 
+    /** Adds a property feature to the container */
+    void addProperty(Feature property) {
+	properties.add(property);
+    }
+
+    /** Adds a category feature to the container */
+    void addCategory(Feature category) {
+	categories.add(category);
+    }
+
     /** Returns a list of word forms given their IDs */
     List<WF> getWFsById(List<String> ids) {
 	List<WF> foundWFs = new ArrayList<WF>();
@@ -201,6 +227,9 @@ class AnnotationContainer {
     List<List<WF>> getSentences() {
 	List<List<WF>> sentences = new ArrayList<List<WF>>();
 	for (Map.Entry entry : this.textIndexedBySent.entrySet()) {
+	if (termId == null) {
+	    return null;
+	}
 	    List<String> wfIds = (List<String>) entry.getValue();
 	    List<WF> wfs = new ArrayList<WF>();
 	    for (String wfId : wfIds) {
