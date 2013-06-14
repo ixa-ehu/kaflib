@@ -47,7 +47,7 @@ public class Term {
     /** Sentiment features (optional) */
     private Sentiment sentiment;
 
-    /** If it's a compound term, it's components (optional) */ 
+    /** If it's a compound term, it's components (optional) */
     private List<Component> components;
 
     /** Hash map indexing components by their ID */
@@ -69,14 +69,14 @@ public class Term {
 	/** Identifier and reference to an external sentiment resource (optional) */
 	private String resource;
 
-	/** Refers to the property of a word to express positive, negative or no sentiment (optional). These values are possible: 
+	/** Refers to the property of a word to express positive, negative or no sentiment (optional). These values are possible:
 	 * - Positive
 	 * - Negative
 	 * - Neutral
 	 * - Or numerical value on a numerical scale
 	 */
 	private String polarity;
-	
+
 	/** Refers to the strength of the polarity (optional). These values are possible:
 	 * - Weak
 	 * - Average
@@ -303,6 +303,27 @@ public class Term {
 	this.externalReferences = new ArrayList<ExternalRef>();
     }
 
+    /** To create a new Term, the annotationContainer reference is necessary apart from the id, type, lemma, pos and, at least, one word form reference. */
+    Term(AnnotationContainer annotationContainer, String id, String type, String lemma, String pos, String morphofeat, List<WF> wfs) {
+	if (wfs.size() < 1) {
+	    throw new IllegalStateException("A Term must have at least one WF");
+	}
+	this.annotationContainer = annotationContainer;
+	this.tid = id;
+	this.type = type;
+	this.lemma = lemma;
+	this.pos = pos;
+	this.morphofeat = morphofeat;
+	this.strValue = "";
+	this.components = new ArrayList();
+	this.componentIndex = new HashMap<String, Integer>();
+	this.targets = new ArrayList<String>();
+	for (WF target : wfs) {
+	    this.addWF(target);
+	}
+	this.externalReferences = new ArrayList<ExternalRef>();
+    }
+
     public String getId() {
 	return tid;
     }
@@ -362,8 +383,13 @@ public class Term {
 	this.strValue += str;
     }
 
-    public String getStr() {
-	return strValue;
+   public String getStr() {
+   	if (strValue.startsWith("-") || strValue.endsWith("-")) {
+   		return strValue.replace("-", "- ");
+   	}
+   	else {
+   		return strValue;
+   	}
     }
 
     public boolean hasHead() {
@@ -378,7 +404,7 @@ public class Term {
     public void setHead(String id) {
 	head = id;
     }
-    
+
     public void setHead(Component component) {
 	head = component.getId();
     }
@@ -429,4 +455,3 @@ public class Term {
 	externalReferences.addAll(externalRefs);
     }
 }
-    

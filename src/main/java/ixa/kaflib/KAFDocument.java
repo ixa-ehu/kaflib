@@ -1,5 +1,6 @@
 package ixa.kaflib;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,6 +13,7 @@ import org.jdom2.JDOMException;
 
 
 /** Respresents a KAF document. It's the main class of the library, as it keeps all elements of the document (word forms, terms, entities...) and manages all object creations. The document can be created by the user calling it's methods, or loading from an existing XML file.*/
+
 public class KAFDocument {
 
 
@@ -65,7 +67,7 @@ public class KAFDocument {
 
     /** Keeps all the annotations of the document */
     private AnnotationContainer annotationContainer;
-    
+
     /** Creates an empty KAFDocument element */
     public KAFDocument(String lang, String version) {
 	this.lang = lang;
@@ -180,7 +182,24 @@ public class KAFDocument {
      */
     public WF createWF(String form) {
 	String newId = idManager.getNextWFId();
+	//int offset = annotationContainer.getNextOffset();
 	WF newWF = new WF(annotationContainer, newId, form);
+	//newWF.setOffset(offset);
+	//newWF.setLength(form.length());
+	annotationContainer.add(newWF);
+	return newWF;
+    }
+
+    /** Creates a new WF object. It assigns an appropriate ID to it and it also assigns offset and length
+     * attributes. The WF is added to the document object.
+     * @param form text of the word form itself.
+     * @return a new word form.
+     */
+    public WF createWF(String form, int offset) {
+	String newId = idManager.getNextWFId();
+	int offsetVal = offset;
+	WF newWF = new WF(annotationContainer, newId, form);
+	newWF.setOffset(offsetVal);
 	newWF.setLength(form.length());
 	annotationContainer.add(newWF);
 	return newWF;
@@ -207,10 +226,24 @@ public class KAFDocument {
      * @param pos part of speech of the term.
      * @param wfs the list of word forms this term is formed by.
      * @return a new term.
-     */	
+     */
     public Term createTerm(String type, String lemma, String pos, List<WF> wfs) {
 	String newId = idManager.getNextTermId();
 	Term newTerm = new Term(annotationContainer, newId, type, lemma, pos, wfs);
+	annotationContainer.add(newTerm);
+	return newTerm;
+    }
+
+    /** Creates a new Term. It assigns an appropriate ID to it. The Term is added to the document object.
+     * @param type the type of the term. There are two types of term: open and close.
+     * @param lemma the lemma of the term.
+     * @param pos part of speech of the term.
+     * @param wfs the list of word forms this term is formed by.
+     * @return a new term.
+     */
+    public Term createTermOptions(String type, String lemma, String pos, String morphofeat, List<WF> wfs) {
+	String newId = idManager.getNextTermId();
+	Term newTerm = new Term(annotationContainer, newId, type, lemma, pos, morphofeat, wfs);
 	annotationContainer.add(newTerm);
 	return newTerm;
     }
@@ -452,13 +485,14 @@ public class KAFDocument {
     }
 
     /** Returns current timestamp. */
-    public String getTimestamp() { 
+    public String getTimestamp() {
 	Date date = new Date();
 	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd H:mm:ss");
+	//SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-DD'T'kk:mm:ssZ");
 	String formattedDate = sdf.format(date);
 	return formattedDate;
     }
-    
+
     /** Saves the KAF document to an XML file.
      * @param filename name of the file in which the document will be saved.
      */
