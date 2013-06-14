@@ -62,10 +62,12 @@ class AnnotationContainer {
 	deps = new ArrayList();
 	chunks = new ArrayList();
 	entities = new ArrayList();
+	properties = new ArrayList();
+	categories = new ArrayList();
 	coreferences = new ArrayList();
+	trees = new ArrayList();
 
 	textIndexedById = new HashMap<String, Integer>();
-	trees = new ArrayList();
 	textIndexedBySent = new HashMap<Integer, List<String>>();
 	termsIndexedById = new HashMap<String, Integer>();
 	termsIndexedBySent = new HashMap<Integer, List<String>>();
@@ -103,6 +105,10 @@ class AnnotationContainer {
     }
 
     /** Returns all categories */
+    List<Feature> getCategories() {
+	return categories;
+    }
+
     /** Returns all coreferences */
     List<Coref> getCorefs() {
 	return coreferences;
@@ -114,10 +120,6 @@ class AnnotationContainer {
     }
 
     /** Adds a word form to the container */
-    List<Feature> getCategories() {
-	return categories;
-    }
-
     void add(WF wf) {
 	text.add(wf);
 	nextOffset += wf.getLength() + 1;
@@ -181,30 +183,30 @@ class AnnotationContainer {
 	entities.add(entity);
     }
 
-    /** Adds a coreference to the container */
-    void add(Coref coref) {
-	coreferences.add(coref);
-    }
-
-    /** Returns a word form given it's ID */
-    WF getWFById(String id) {
-	int ind = textIndexedById.get(id);
-	return text.get(ind);
-    }
-
     /** Adds a property feature to the container */
     void addProperty(Feature property) {
 	properties.add(property);
     }
 
     /** Adds a category feature to the container */
+    void addCategory(Feature category) {
+	categories.add(category);
+    }
+
+    /** Adds a coreference to the container */
+    void add(Coref coref) {
+	coreferences.add(coref);
+    }
+
     /** Adds a tree to the container */
     void add(Tree tree) {
 	trees.add(tree);
     }
 
-    void addCategory(Feature category) {
-	categories.add(category);
+    /** Returns a word form given it's ID */
+    WF getWFById(String id) {
+	int ind = textIndexedById.get(id);
+	return text.get(ind);
     }
 
     /** Returns a list of word forms given their IDs */
@@ -225,6 +227,9 @@ class AnnotationContainer {
     /** Returns the terms which corresponds to the given word form */
     Term getTermByWFId(String wfId) {
 	String termId = termsIndexedByWF.get(wfId);
+	if (termId == null) {
+	    return null;
+	}
 	return getTermById(termId);
     }
 
@@ -241,9 +246,6 @@ class AnnotationContainer {
     List<List<WF>> getSentences() {
 	List<List<WF>> sentences = new ArrayList<List<WF>>();
 	for (Map.Entry entry : this.textIndexedBySent.entrySet()) {
-	if (termId == null) {
-	    return null;
-	}
 	    List<String> wfIds = (List<String>) entry.getValue();
 	    List<WF> wfs = new ArrayList<WF>();
 	    for (String wfId : wfIds) {
