@@ -454,9 +454,46 @@ class ReadWriteManager {
 		    Coref newCoref = kaf.createCoref(coId, references);
 		}
 	    }
+	    if (elem.getName().equals("parsing")) {
+		List<Element> treeElems = elem.getChildren();
+		for (Element treeElem : treeElems) {
+		    String treeid = getAttribute("treeid", treeElem);
+		    Tree tree = kaf.createParsingTree(treeid);
+		    Element treeRootElem = treeElem.getChildren().get(0);
+		    if (treeRootElem.getName().equals("nt")) {
+			String rootLabel = getAttribute("label", treeRootElem);
+			NonTerminal root = tree.createNRoot(rootLabel);
+			for (Element childElem : treeRootElem.getChildren()) {
+			    loadNodeElement(childElem, root, termIndex);
+			}
+		    }
+		    else {
+			String termId = getAttribute("id", treeRootElem.getChildren().get(0).getChildren().get(0));
+			Term term = termIndex.get(termId);
+			Terminal t = tree.createTRoot(term);
+		    }
+		}
+	    }
 	}
 
 	return kaf;
+    }
+
+    private static void loadNodeElement(Element nodeElem, NonTerminal parentNode, HashMap<String, Term> termIndex) {
+	if (nodeElem.getName().equals("nt")) {
+	    String label = getAttribute("label", nodeElem);
+	    NonTerminal nt = parentNode.createNonTerminal(label);
+	    for (Element childElem : nodeElem.getChildren()) {
+		loadNodeElement(childElem, nt, termIndex);
+	    }
+	}
+	else {
+	    String headAttr = getOptAttribute("head", nodeElem);
+	    boolean isHead = (headAttr != null);
+	    String termId = getAttribute("id", nodeElem.getChildren().get(0).getChildren().get(0));
+	    Term term = termIndex.get(termId);	    
+	    Terminal t = parentNode.createTerminal(term, isHead);
+	}
     }
 
     private static List<ExternalRef> getExternalReferences(Element externalReferencesElem, KAFDocument kaf) {
@@ -760,43 +797,6 @@ class ReadWriteManager {
 	    root.addContent(entitiesElem);
 	}
 
-	List<Coref> corefs = annotationContainer.getCorefs();
-	if (corefs.size() > 0) {
-	    Element corefsElem = new Element("coreferences");
-	    for (Coref coref : corefs) {
-		Element corefElem = new Element("coref");
-		corefElem.setAttribute("coid", coref.getId());
-		Element referencesElem = new Element("references");
-		for (List<Target> span : coref.getReferences()) {
-		    Comment spanComment = new Comment(coref.getSpanStr(span));
-		    referencesElem.addContent(spanComment);
-		    Element spanElem = new Element("span");
-		    for (Target target : span) {
-			Element targetElem = new Element("target");
-			targetElem.setAttribute("id", target.getTerm().getId());
-			if (target.isHead()) {
-			    targetElem.setAttribute("head", "yes");
-			}
-			spanElem.addContent(targetElem);
-		    }
-		    referencesElem.addContent(spanElem);
-		}
-		corefElem.addContent(referencesElem);
-		corefsElem.addContent(corefElem);
-	    }
-	    root.addContent(corefsElem);
-	}
-
-	return doc;
-    }
-
-    private static Element externalReferencesToDOM(List<ExternalRef> externalRefs) {
-	Element externalReferencesElem = new Element("externalReferences");
-	for (ExternalRef externalRef : externalRefs) {
-	    Element externalRefElem = externalRefToDOM(externalRef);
-	    externalReferencesElem.addContent(externalRefElem);
-	}
-	return externalReferencesElem;
 	Element featuresElem = new Element("features");
 	List<Feature> properties = annotationContainer.getProperties();
 	if (properties.size() > 0) {
@@ -846,6 +846,57 @@ class ReadWriteManager {
 	}
 	root.addContent(featuresElem);
 
+	List<Coref> corefs = annotationContainer.getCorefs();
+	if (corefs.size() > 0) {
+	    Element corefsElem = new Element("coreferences");
+	    for (Coref coref : corefs) {
+		Element corefElem = new Element("coref");
+		corefElem.setAttribute("coid", coref.getId());
+		Element referencesElem = new Element("references");
+		for (List<Target> span : coref.getReferences()) {
+		    Comment spanComment = new Comment(coref.getSpanStr(span));
+		    referencesElem.addContent(spanComment);
+		    Element spanElem = new Element("span");
+		    for (Target target : span) {
+			Element targetElem = new Element("target");
+			targetElem.setAttribute("id", target.getTerm().getId());
+			if (target.isHead()) {
+			    targetElem.setAttribute("head", "yes");
+			}
+			spanElem.addContent(targetElem);
+		    }
+		    referencesElem.addContent(spanElem);
+		}
+		corefElem.addContent(referencesElem);
+		corefsElem.addContent(corefElem);
+	    }
+	    root.addContent(corefsElem);
+	}
+
+	List<Tree> trees = annotationContainer.getTrees();
+	if (trees.size() > 0) {
+	    Element treesElem = new Element("parsing");
+	    for (Tree tree : trees) {
+		Element treeElem = new Element("tree");
+		treeElem.setAttribute("treeid", tree.getId());
+		TreeNode rootNode = tree.getRoot();
+	        Element rootElem = rootNode.getDOMElem();
+		treeElem.addContent(rootElem);
+		treesElem.addContent(treeElem);
+	    }
+	    root.addContent(treesElem);
+	}
+	
+	return doc;
+    }
+
+    private static Element externalReferencesToDOM(List<ExternalRef> externalRefs) {
+	Element externalReferencesElem = new Element("externalReferences");
+	for (ExternalRef externalRef : externalRefs) {
+	    Element externalRefElem = externalRefToDOM(externalRef);
+	    externalReferencesElem.addContent(externalRefElem);
+	}
+	return externalReferencesElem;
     }
 
     private static Element externalRefToDOM(ExternalRef externalRef) {
