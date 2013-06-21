@@ -387,6 +387,9 @@ public class Term {
    	if (strValue.startsWith("-") || strValue.endsWith("-")) {
    		return strValue.replace("-", "- ");
    	}
+   	else if (strValue.contains("--")) { 
+   		return strValue.replace("--", "-");
+   	}
    	else {
    		return strValue;
    	}
