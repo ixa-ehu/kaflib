@@ -144,6 +144,9 @@ public class KAFDocument {
     /** Returns wether the given linguistic processor is already defined or not. */
     public boolean linguisticProcessorExists(String layer, String name, String version) {
 	List<LinguisticProcessor> layerLPs = lps.get(layer);
+	if (layerLPs == null) {
+	    return false;
+	}
 	for (LinguisticProcessor lp : layerLPs) {
 	    if (lp.name.equals(name) && lp.version.equals(version)) {
 		return true;
