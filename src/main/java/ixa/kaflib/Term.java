@@ -328,6 +328,10 @@ public class Term {
 	return tid;
     }
 
+    void setId(String id) {
+	this.tid = id;
+    }
+
     public String getType() {
 	return type;
     }

@@ -44,6 +44,10 @@ public class WF {
 	return wid;
     }
 
+    void setId(String wid) {
+	this.wid = wid;
+    }
+
     public boolean hasSent() {
 	return sent != -1;
     }

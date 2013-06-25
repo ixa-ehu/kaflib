@@ -4,6 +4,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.io.File;
 import java.io.Reader;
 import java.text.SimpleDateFormat;
@@ -505,6 +506,43 @@ public class KAFDocument {
 	//SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-DD'T'kk:mm:ssZ");
 	String formattedDate = sdf.format(date);
 	return formattedDate;
+    }
+
+    /** Merges the document with another one. If there are any conflicting values, the values of this object will be kept. **/
+    public void merge(KAFDocument doc) {
+	// Linguistic processors
+	HashMap<String, List<LinguisticProcessor>> lps = doc.getLinguisticProcessors();
+	for (Map.Entry<String, List<LinguisticProcessor>> entry : lps.entrySet()) {
+	    String layer = entry.getKey();
+	    List<LinguisticProcessor> lpList = entry.getValue();
+	    for (LinguisticProcessor lp : lpList) {
+		if (!this.linguisticProcessorExists(layer, lp.name, lp.version)) {
+		    this.addLinguisticProcessor(layer, lp.name, lp.timestamp, lp.version);
+		}
+	    }
+	}
+	// WFs
+	for (WF wf : doc.getWFs()) {
+	    this.insertWF(wf);
+	}
+	// Terms
+	for (Term term : doc.getTerms()) {
+	    this.insertTerm(term);
+	}
+    }
+
+    private String insertWF(WF wf) {
+	String newId = idManager.getNextWFId();
+	wf.setId(newId);
+        annotationContainer.add(wf);
+	return newId;
+    }
+
+    private String insertTerm(Term term) {
+	String newId = idManager.getNextTermId();
+	term.setId(newId);
+        annotationContainer.add(term);
+	return newId;
     }
 
     /** Saves the KAF document to an XML file.
