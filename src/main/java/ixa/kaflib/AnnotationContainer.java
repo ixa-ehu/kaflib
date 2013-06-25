@@ -252,8 +252,9 @@ class AnnotationContainer {
     /** Returns all tokens classified by sentences */
     List<List<WF>> getSentences() {
 	List<List<WF>> sentences = new ArrayList<List<WF>>();
-	for (Map.Entry<Integer,List<String>> entry : this.textIndexedBySent.entrySet()) {
-	    List<String> wfIds = (List<String>) entry.getValue();
+	int numSents = this.textIndexedBySent.size();
+	for (int i=1; i<=numSents; i++) {
+	    List<String> wfIds = this.textIndexedBySent.get(i);
 	    List<WF> wfs = new ArrayList<WF>();
 	    for (String wfId : wfIds) {
 		  wfs.add(this.getWFById(wfId));
