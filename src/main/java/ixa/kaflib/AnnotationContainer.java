@@ -257,12 +257,6 @@ class AnnotationContainer {
 	Set<Integer> sentNumsSet = this.textIndexedBySent.keySet();
         List<Integer> sentNumsList = new ArrayList<Integer>(sentNumsSet);
 	Collections.sort(sentNumsList);
-	for (int i : sentNumsSet) {
-	    System.out.println("set: "+i);
-	}
-	for (int i : sentNumsList) {
-	    System.out.println("list: "+i);
-	}
 	for (int i : sentNumsList) {
 	    List<String> wfIds = this.textIndexedBySent.get(i);
 	    List<WF> wfs = new ArrayList<WF>();
