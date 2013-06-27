@@ -12,6 +12,9 @@ class IdManager {
     private static final String CHUNK_PREFIX = "c";
     private static final String ENTITY_PREFIX = "e";
     private static final String COREF_PREFIX = "co";
+    private static final String PROPERTY_PREFIX = "p";
+    private static final String CATEGORY_PREFIX = "c";
+    private static final String OPINION_PREFIX = "o";
 
     /* Counters for each type of annotations */
     private int wfCounter;
@@ -19,6 +22,9 @@ class IdManager {
     private int chunkCounter;
     private int entityCounter;
     private int corefCounter;
+    private int propertyCounter;
+    private int categoryCounter;
+    private int opinionCounter;
     private HashMap<String, Integer> componentCounter;
 
     IdManager() {
@@ -27,6 +33,9 @@ class IdManager {
 	this.chunkCounter = 0;
 	this.entityCounter = 0;
 	this.corefCounter = 0;
+	this.propertyCounter = 0;
+	this.categoryCounter = 0;
+	this.opinionCounter = 0;
 	this.componentCounter = new HashMap<String, Integer>();
     }
 
@@ -50,6 +59,18 @@ class IdManager {
 	return COREF_PREFIX + Integer.toString(++corefCounter);
     }
 
+    String getNextPropertyId() {
+	return PROPERTY_PREFIX + Integer.toString(++propertyCounter);
+    }
+
+    String getNextCategoryId() {
+	return CATEGORY_PREFIX + Integer.toString(++categoryCounter);
+    }
+
+    String getNextOpinionId() {
+	return OPINION_PREFIX + Integer.toString(++opinionCounter);
+    }
+
     String getNextComponentId(String termId) {
 	String newId;
 	int nextIndex;
@@ -64,9 +85,9 @@ class IdManager {
     }
 
     private int extractCounterFromId(String id) {
-	Matcher matcher = Pattern.compile("^[a-z]*(\\d+)$").matcher(id);
+	Matcher matcher = Pattern.compile("^[a-z]*_?(\\d+)$").matcher(id);
 	if (!matcher.find()) {
-	    throw new IllegalStateException("IdManager doesn't recognise the given id's (" + id  + ") format. Should be [a-z]*[0-9]+");
+	    throw new IllegalStateException("IdManager doesn't recognise the given id's (" + id  + ") format. Should be [a-z]*_?[0-9]+");
 	}
 	return Integer.valueOf(matcher.group(1));
     }
@@ -91,11 +112,23 @@ class IdManager {
 	corefCounter = extractCounterFromId(id);
     }
 
+    void updatePropertyCounter(String id) {
+	propertyCounter = extractCounterFromId(id);
+    }
+
+    void updateCategoryCounter(String id) {
+	categoryCounter = extractCounterFromId(id);
+    }
+
+    void updateOpinionCounter(String id) {
+	opinionCounter = extractCounterFromId(id);
+    }
+
     void updateComponentCounter(String id, String termId) {
 	int componentInd;
-	Matcher matcher = Pattern.compile("^t\\d+\\.(\\d+)$").matcher(id);
+	Matcher matcher = Pattern.compile("^t_?\\d+\\.(\\d+)$").matcher(id);
 	if (!matcher.find()) {
-	    throw new IllegalStateException("IdManager doesn't recognise the given id's (" + id + ") format. Should be t[0-9]+\\.[0-9]+");
+	    throw new IllegalStateException("IdManager doesn't recognise the given id's (" + id + ") format. Should be t_?[0-9]+\\.[0-9]+");
 	}
 	componentInd = Integer.valueOf(matcher.group(1));
 	componentCounter.put(termId, componentInd);

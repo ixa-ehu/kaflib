@@ -76,7 +76,7 @@ class ReadWriteManager {
 	    out.write(kafToStr(kaf));
 	    out.flush();
 	} catch (Exception e) {
-	    System.out.println("Encoding error");
+	    System.out.println(e);
 	}
     }
 
@@ -99,15 +99,52 @@ class ReadWriteManager {
 	List<Element> rootChildrenElems = rootElem.getChildren();
 	for (Element elem : rootChildrenElems) {
 	    if (elem.getName().equals("kafHeader")) {
-		List<Element> lpsElems = elem.getChildren();
+		List<Element> lpsElems = elem.getChildren("linguisticProcessors");
 		for (Element lpsElem : lpsElems) {
 		    String layer = getAttribute("layer", lpsElem);
 		    List<Element> lpElems = lpsElem.getChildren();
 		    for (Element lpElem : lpElems) {
 			String name = getAttribute("name", lpElem);
 			String timestamp = getOptAttribute("timestamp", lpElem);
-			String version = getAttribute("version", lpElem);
+			String version = getOptAttribute("version", lpElem);
 			kaf.addLinguisticProcessor(layer, name, timestamp, version);
+		    }
+		}
+		Element fileDescElem = elem.getChild("fileDesc");
+		if (fileDescElem != null) {
+		    KAFDocument.FileDesc fd = kaf.createFileDesc();
+		    String author = getOptAttribute("author", fileDescElem);
+		    if (author != null) {
+			fd.author = author;
+		    }
+		    String title = getOptAttribute("title", fileDescElem);
+		    if (title != null) {
+			fd.title = title;
+		    }
+		    String creationtime = getOptAttribute("creationtime", fileDescElem);
+		    if (creationtime != null) {
+			fd.creationtime = creationtime;
+		    }
+		    String filename = getOptAttribute("filename", fileDescElem);
+		    if (filename != null) {
+			fd.filename = filename;
+		    }
+		    String filetype = getOptAttribute("filetype", fileDescElem);
+		    if (filetype != null) {
+			fd.filetype = filetype;
+		    }
+		    String pages = getOptAttribute("pages", fileDescElem);
+		    if (pages != null) {
+			fd.pages = Integer.parseInt(pages);
+		    }
+		}
+		Element publicElem = elem.getChild("public");
+		if (publicElem != null) {
+		    String publicId = getAttribute("publicId", publicElem);
+		    KAFDocument.Public pub = kaf.createPublic(publicId);
+		    String uri = getOptAttribute("uri", publicElem);
+		    if (uri != null) {
+			pub.uri = uri;
 		    }
 		}
 	    }
@@ -307,6 +344,80 @@ class ReadWriteManager {
 		    }
 		}
 	    }
+	    if (elem.getName().equals("features")) {
+		Element propertiesElem = elem.getChild("properties");
+		Element categoriesElem = elem.getChild("categories");
+		if (propertiesElem != null) {
+		    List<Element> propertyElems = propertiesElem.getChildren("property");
+		    for (Element propertyElem : propertyElems) {
+			String pid = getAttribute("pid", propertyElem);
+			String lemma = getAttribute("lemma", propertyElem);
+			Element referencesElem = propertyElem.getChild("references");
+			if (referencesElem == null) {
+			    throw new IllegalStateException("Every property must contain a 'references' element");
+			}
+			List<Element> spanElems = referencesElem.getChildren("span");
+			if (spanElems.size() < 1) {
+			    throw new IllegalStateException("Every property must contain a 'span' element inside 'references'");
+			}
+			List<List<Term>> references = new ArrayList<List<Term>>();
+			for (Element spanElem : spanElems) {
+			    List<Term> span = new ArrayList<Term>();
+			    List<Element> targetElems = spanElem.getChildren();
+			    if (targetElems.size() < 1) {
+				throw new IllegalStateException("Every span in a property must contain at least one target inside");  
+			    }
+			    for (Element targetElem : targetElems) {
+				String targetTermId = getAttribute("id", targetElem);
+				Term targetTerm = termIndex.get(targetTermId);
+				span.add(targetTerm);
+			    }
+			    references.add(span);
+			}
+			Feature newProperty = kaf.createProperty(pid, lemma, references);
+			List<Element> externalReferencesElems = propertyElem.getChildren("externalReferences");
+			if (externalReferencesElems.size() > 0) {
+			    List<ExternalRef> externalRefs = getExternalReferences(externalReferencesElems.get(0), kaf);
+			    newProperty.addExternalRefs(externalRefs);
+			}
+		    }
+		}
+		if (categoriesElem != null) {
+		    List<Element> categoryElems = categoriesElem.getChildren("category");
+		    for (Element categoryElem : categoryElems) {
+			String cid = getAttribute("cid", categoryElem);
+			String lemma = getAttribute("lemma", categoryElem);
+			Element referencesElem = categoryElem.getChild("references");
+			if (referencesElem == null) {
+			    throw new IllegalStateException("Every category must contain a 'references' element");
+			}
+			List<Element> spanElems = referencesElem.getChildren("span");
+			if (spanElems.size() < 1) {
+			    throw new IllegalStateException("Every category must contain a 'span' element inside 'references'");
+			}
+			List<List<Term>> references = new ArrayList<List<Term>>();
+			for (Element spanElem : spanElems) {
+			    List<Term> span = new ArrayList<Term>();
+			    List<Element> targetElems = spanElem.getChildren();
+			    if (targetElems.size() < 1) {
+				throw new IllegalStateException("Every span in a property must contain at least one target inside");  
+			    }
+			    for (Element targetElem : targetElems) {
+				String targetTermId = getAttribute("id", targetElem);
+				Term targetTerm = termIndex.get(targetTermId);
+				span.add(targetTerm);
+			    }
+			    references.add(span);
+			}
+			Feature newCategory = kaf.createCategory(cid, lemma, references);
+			List<Element> externalReferencesElems = categoryElem.getChildren("externalReferences");
+			if (externalReferencesElems.size() > 0) {
+			    List<ExternalRef> externalRefs = getExternalReferences(externalReferencesElems.get(0), kaf);
+			    newCategory.addExternalRefs(externalRefs);
+			}
+		    }
+		}
+	    }
 	    if (elem.getName().equals("coreferences")) {
 		List<Element> corefElems = elem.getChildren();
 		for (Element corefElem : corefElems) {
@@ -343,9 +454,94 @@ class ReadWriteManager {
 		    Coref newCoref = kaf.createCoref(coId, references);
 		}
 	    }
+	    if (elem.getName().equals("opinions")) {
+		List<Element> opinionElems = elem.getChildren("opinion");
+		for (Element opinionElem : opinionElems) {
+		    String opinionId = getAttribute("oid", opinionElem);
+		    Opinion opinion = kaf.createOpinion(opinionId);
+		    Element opinionHolderElem = opinionElem.getChild("opinion_holder");
+		    if (opinionHolderElem != null) {
+			Opinion.OpinionHolder opinionHolder = opinion.createOpinionHolder();
+			Element spanElem = opinionHolderElem.getChild("span");
+			if (spanElem != null) {
+			    List<Element> targetElems = spanElem.getChildren("target");
+			    for (Element targetElem : targetElems) {
+				String refId = getOptAttribute("id", targetElem);
+				opinionHolder.addTerm(termIndex.get(refId));
+			    }
+			}
+		    }
+		    Element opinionTargetElem = opinionElem.getChild("opinion_target");
+		    if (opinionTargetElem != null) {
+			Opinion.OpinionTarget opinionTarget = opinion.createOpinionTarget();
+			Element spanElem = opinionTargetElem.getChild("span");
+			if (spanElem != null) {
+			    List<Element> targetElems = spanElem.getChildren("target");
+			    for (Element targetElem : targetElems) {
+				String refId = getOptAttribute("id", targetElem);
+				opinionTarget.addTerm(termIndex.get(refId));
+			    }
+			}
+		    }
+		    Element opinionExpressionElem = opinionElem.getChild("opinion_expression");
+		    if (opinionExpressionElem != null) {
+			String polarity = getAttribute("polarity", opinionExpressionElem);
+			String strength = getAttribute("strength", opinionExpressionElem);
+			String subjectivity = getAttribute("subjectivity", opinionExpressionElem);
+			String sentimentSemanticType = getAttribute("sentiment_semantic_type", opinionExpressionElem);
+			String sentimentProductFeature = getAttribute("sentiment_product_feature", opinionExpressionElem);
+			Opinion.OpinionExpression opinionExpression = opinion.createOpinionExpression(polarity, strength, subjectivity, sentimentSemanticType, sentimentProductFeature);
+			Element spanElem = opinionExpressionElem.getChild("span");
+			if (spanElem != null) {
+			    List<Element> targetElems = spanElem.getChildren("target");
+			    for (Element targetElem : targetElems) {
+				String refId = getOptAttribute("id", targetElem);
+				opinionExpression.addTerm(termIndex.get(refId));
+			    }
+			}
+		    }
+		}
+	    }
+	    if (elem.getName().equals("parsing")) {
+		List<Element> treeElems = elem.getChildren();
+		for (Element treeElem : treeElems) {
+		    String treeid = getAttribute("treeid", treeElem);
+		    Tree tree = kaf.createParsingTree(treeid);
+		    Element treeRootElem = treeElem.getChildren().get(0);
+		    if (treeRootElem.getName().equals("nt")) {
+			String rootLabel = getAttribute("label", treeRootElem);
+			NonTerminal root = tree.createNRoot(rootLabel);
+			for (Element childElem : treeRootElem.getChildren()) {
+			    loadNodeElement(childElem, root, termIndex);
+			}
+		    }
+		    else {
+			String termId = getAttribute("id", treeRootElem.getChildren().get(0).getChildren().get(0));
+			Term term = termIndex.get(termId);
+			Terminal t = tree.createTRoot(term);
+		    }
+		}
+	    }
 	}
 
 	return kaf;
+    }
+
+    private static void loadNodeElement(Element nodeElem, NonTerminal parentNode, HashMap<String, Term> termIndex) {
+	if (nodeElem.getName().equals("nt")) {
+	    String label = getAttribute("label", nodeElem);
+	    NonTerminal nt = parentNode.createNonTerminal(label);
+	    for (Element childElem : nodeElem.getChildren()) {
+		loadNodeElement(childElem, nt, termIndex);
+	    }
+	}
+	else {
+	    String headAttr = getOptAttribute("head", nodeElem);
+	    boolean isHead = (headAttr != null);
+	    String termId = getAttribute("id", nodeElem.getChildren().get(0).getChildren().get(0));
+	    Term term = termIndex.get(termId);	    
+	    Terminal t = parentNode.createTerminal(term, isHead);
+	}
     }
 
     private static List<ExternalRef> getExternalReferences(Element externalReferencesElem, KAFDocument kaf) {
@@ -410,6 +606,40 @@ class ReadWriteManager {
 
 	Element kafHeaderElem = new Element("kafHeader");
 	root.addContent(kafHeaderElem);
+
+	KAFDocument.FileDesc fd = kaf.getFileDesc();
+	if (fd != null) {
+	    Element fdElem = new Element("fileDesc");
+	    if (fd.author != null) {
+		fdElem.setAttribute("author", fd.author);
+	    }
+	    if (fd.author != null) {
+		fdElem.setAttribute("title", fd.title);
+	    }
+	    if (fd.creationtime != null) {
+		fdElem.setAttribute("creationtime", fd.creationtime);
+	    }
+	    if (fd.author != null) {
+		fdElem.setAttribute("filename", fd.filename);
+	    }
+	    if (fd.author != null) {
+		fdElem.setAttribute("filetype", fd.filetype);
+	    }
+	    if (fd.author != null) {
+		fdElem.setAttribute("pages", Integer.toString(fd.pages));
+	    }
+	    kafHeaderElem.addContent(fdElem);
+	}
+
+	KAFDocument.Public pub = kaf.getPublic();
+	if (pub != null) {
+	    Element pubElem = new Element("public");
+	    pubElem.setAttribute("publicId", pub.publicId);
+	    if (pub.uri != null) {
+		pubElem.setAttribute("uri", pub.uri);
+	    }
+	    kafHeaderElem.addContent(pubElem);
+	}
 
 	HashMap<String, List<KAFDocument.LinguisticProcessor>> lps = kaf.getLinguisticProcessors();
 	for (Map.Entry entry : lps.entrySet()) {
@@ -615,6 +845,117 @@ class ReadWriteManager {
 	    root.addContent(entitiesElem);
 	}
 
+	Element featuresElem = new Element("features");
+	List<Feature> properties = annotationContainer.getProperties();
+	if (properties.size() > 0) {
+	    Element propertiesElem = new Element("properties");
+	    for (Feature property : properties) {
+		Element propertyElem = new Element("property");
+		propertyElem.setAttribute("pid", property.getId());
+		propertyElem.setAttribute("lemma", property.getLemma());
+		List<List<Term>> references = property.getReferences();
+		Element referencesElem = new Element("references");
+		for (List<Term> span : references) {
+		    Element spanElem = new Element("span");
+		    for (Term term : span) {
+			Element targetElem = new Element("target");
+			targetElem.setAttribute("id", term.getId());
+			spanElem.addContent(targetElem);
+		    }
+		    referencesElem.addContent(spanElem);
+		}
+		propertyElem.addContent(referencesElem);
+		propertiesElem.addContent(propertyElem);
+	    }
+	    featuresElem.addContent(propertiesElem);
+	}
+	List<Feature> categories = annotationContainer.getCategories();
+	if (categories.size() > 0) {
+	    Element categoriesElem = new Element("categories");
+	    for (Feature category : categories) {
+		Element categoryElem = new Element("category");
+		categoryElem.setAttribute("cid", category.getId());
+		categoryElem.setAttribute("lemma", category.getLemma());
+		List<List<Term>> references = category.getReferences();
+		Element referencesElem = new Element("references");
+		for (List<Term> span : references) {
+		    Element spanElem = new Element("span");
+		    for (Term term : span) {
+			Element targetElem = new Element("target");
+			targetElem.setAttribute("id", term.getId());
+			spanElem.addContent(targetElem);
+		    }
+		    referencesElem.addContent(spanElem);
+		}
+		categoryElem.addContent(referencesElem);
+		categoriesElem.addContent(categoryElem);
+	    }
+	    featuresElem.addContent(categoriesElem);
+	}
+	root.addContent(featuresElem);
+
+	List<Opinion> opinions = annotationContainer.getOpinions();
+	if (opinions.size() > 0) {
+	    Element opinionsElem = new Element("opinions");
+	    for (Opinion opinion : opinions) {
+		Element opinionElem = new Element("opinion");
+		opinionElem.setAttribute("oid", opinion.getId());
+		Opinion.OpinionHolder holder = opinion.getOpinionHolder();
+		if (holder != null) {
+		    Element opinionHolderElem = new Element("opinion_holder");
+		    List<Term> targets = holder.getTerms();
+		    if (targets.size() > 0) {
+			Element spanElem = new Element("span");
+			opinionHolderElem.addContent(spanElem);
+			for (Term target : targets) {
+			    Element targetElem = new Element("target");
+			    targetElem.setAttribute("id", target.getId());
+			    spanElem.addContent(targetElem);
+			}
+		    }
+		    opinionElem.addContent(opinionHolderElem);
+		}
+		Opinion.OpinionTarget opTarget = opinion.getOpinionTarget();
+		if (opTarget != null) {
+		    Element opinionTargetElem = new Element("opinion_target");
+		    List<Term> targets = opTarget.getTerms();
+		    if (targets.size() > 0) {
+			Element spanElem = new Element("span");
+			opinionTargetElem.addContent(spanElem);
+			for (Term target : targets) {
+			    Element targetElem = new Element("target");
+			    targetElem.setAttribute("id", target.getId());
+			    spanElem.addContent(targetElem);
+			}
+		    }
+		    opinionElem.addContent(opinionTargetElem);
+		}
+		Opinion.OpinionExpression expression = opinion.getOpinionExpression();
+		if (expression != null) {
+		    Element opinionExpressionElem = new Element("opinion_expression");
+		    opinionExpressionElem.setAttribute("polarity", expression.getPolarity());
+		    opinionExpressionElem.setAttribute("strength", expression.getStrength());
+		    opinionExpressionElem.setAttribute("subjectivity", expression.getSubjectivity());
+		    opinionExpressionElem.setAttribute("sentiment_semantic_type", expression.getSentimentSemanticType());
+		    opinionExpressionElem.setAttribute("sentiment_product_feature", expression.getSentimentProductFeature());
+		    List<Term> targets = expression.getTerms();
+		    if (targets.size() > 0) {
+			Element spanElem = new Element("span");
+			opinionExpressionElem.addContent(spanElem);
+			for (Term target : targets) {
+			    Element targetElem = new Element("target");
+			    targetElem.setAttribute("id", target.getId());
+			    spanElem.addContent(targetElem);
+			}
+		    }
+		    opinionElem.addContent(opinionExpressionElem);
+		}
+
+		opinionsElem.addContent(opinionElem);
+	    }
+	    root.addContent(opinionsElem);
+	}
+
 	List<Coref> corefs = annotationContainer.getCorefs();
 	if (corefs.size() > 0) {
 	    Element corefsElem = new Element("coreferences");
@@ -642,6 +983,20 @@ class ReadWriteManager {
 	    root.addContent(corefsElem);
 	}
 
+	List<Tree> trees = annotationContainer.getTrees();
+	if (trees.size() > 0) {
+	    Element treesElem = new Element("parsing");
+	    for (Tree tree : trees) {
+		Element treeElem = new Element("tree");
+		treeElem.setAttribute("treeid", tree.getId());
+		TreeNode rootNode = tree.getRoot();
+	        Element rootElem = rootNode.getDOMElem();
+		treeElem.addContent(rootElem);
+		treesElem.addContent(treeElem);
+	    }
+	    root.addContent(treesElem);
+	}
+	
 	return doc;
     }
 

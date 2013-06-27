@@ -4,6 +4,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.io.File;
 import java.io.Reader;
 import java.text.SimpleDateFormat;
@@ -15,6 +16,27 @@ import org.jdom2.JDOMException;
 /** Respresents a KAF document. It's the main class of the library, as it keeps all elements of the document (word forms, terms, entities...) and manages all object creations. The document can be created by the user calling it's methods, or loading from an existing XML file.*/
 
 public class KAFDocument {
+
+
+    public class FileDesc {
+	String author;
+	String title;
+	String creationtime;
+	String filename;
+	String filetype;
+	Integer pages;
+
+	private FileDesc() {}
+    }
+
+    public class Public {
+	String publicId;
+	String uri;
+    
+	private Public(String publicId) {
+	    this.publicId = publicId;
+	}
+    }
 
     public class LinguisticProcessor {
 	String name;
@@ -36,6 +58,10 @@ public class KAFDocument {
 
     /** Linguistic processors */
     private HashMap<String, List<LinguisticProcessor>> lps;
+
+    private FileDesc fileDesc;
+
+    private Public _public;
 
     /** Identifier manager */
     private IdManager idManager;
@@ -87,7 +113,7 @@ public class KAFDocument {
     }
 
     /** Adds a linguistic processor to the document header. The timestamp is added implicitly. */
-    public void addLinguisticProcessor(String layer, String name, String version) {
+    public LinguisticProcessor addLinguisticProcessor(String layer, String name, String version) {
 	String timestamp = this.getTimestamp();
 	LinguisticProcessor lp = new LinguisticProcessor(name, timestamp, version);
 	List<LinguisticProcessor> layerLps = lps.get(layer);
@@ -96,10 +122,11 @@ public class KAFDocument {
 	    lps.put(layer, layerLps);
 	}
 	layerLps.add(lp);
+	return lp;
     }
 
     /** Adds a linguistic processor to the document header */
-    public void addLinguisticProcessor(String layer, String name, String timestamp, String version) {
+    public LinguisticProcessor addLinguisticProcessor(String layer, String name, String timestamp, String version) {
 	LinguisticProcessor lp = new LinguisticProcessor(name, timestamp, version);
 	List<LinguisticProcessor> layerLps = lps.get(layer);
 	if (layerLps == null) {
@@ -107,11 +134,44 @@ public class KAFDocument {
 	    lps.put(layer, layerLps);
 	}
 	layerLps.add(lp);
-    }
+	return lp;
+    }	
 
     /** Returns a list of linguistic processors from the document */
     public HashMap<String, List<LinguisticProcessor>> getLinguisticProcessors() {
 	return lps;
+    }
+
+    /** Returns wether the given linguistic processor is already defined or not. */
+    public boolean linguisticProcessorExists(String layer, String name, String version) {
+	List<LinguisticProcessor> layerLPs = lps.get(layer);
+	if (layerLPs == null) {
+	    return false;
+	}
+	for (LinguisticProcessor lp : layerLPs) {
+	    if (lp.name.equals(name) && lp.version.equals(version)) {
+		return true;
+	    }
+	}
+	return false;
+    }
+
+    public FileDesc createFileDesc() {
+	this.fileDesc = new FileDesc();
+	return this.fileDesc;
+    }
+
+    public FileDesc getFileDesc() {
+	return this.fileDesc;
+    }
+
+    public Public createPublic(String publicId) {
+	this._public = new Public(publicId);
+	return this._public;
+    }
+
+    public Public getPublic() {
+	return this._public;
     }
 
     /** Returns the annotation container used by this object */
@@ -126,7 +186,7 @@ public class KAFDocument {
      */
     public WF createWF(String id, String form) {
 	idManager.updateWFCounter(id);
-	WF newWF = new WF(id, form);
+	WF newWF = new WF(annotationContainer, id, form);
 	annotationContainer.add(newWF);
 	return newWF;
     }
@@ -138,7 +198,7 @@ public class KAFDocument {
     public WF createWF(String form) {
 	String newId = idManager.getNextWFId();
 	//int offset = annotationContainer.getNextOffset();
-	WF newWF = new WF(newId, form);
+	WF newWF = new WF(annotationContainer, newId, form);
 	//newWF.setOffset(offset);
 	//newWF.setLength(form.length());
 	annotationContainer.add(newWF);
@@ -153,7 +213,7 @@ public class KAFDocument {
     public WF createWF(String form, int offset) {
 	String newId = idManager.getNextWFId();
 	int offsetVal = offset;
-	WF newWF = new WF(newId, form);
+	WF newWF = new WF(annotationContainer, newId, form);
 	newWF.setOffset(offsetVal);
 	newWF.setLength(form.length());
 	annotationContainer.add(newWF);
@@ -323,6 +383,76 @@ public class KAFDocument {
 	return newCoref;
     }
 
+    /** Creates a new property. It receives it's ID as an argument. The property is added to the document.
+     * @param id the ID of the property.
+     * @param lemma the lemma of the property.
+     * @param references different mentions (list of targets) to the same property.
+     * @return a new coreference.
+     */
+    public Feature createProperty(String id, String lemma, List<List<Term>> references) {
+	idManager.updatePropertyCounter(id);
+	Feature newProperty = new Feature(annotationContainer, id, lemma, references);
+	annotationContainer.addProperty(newProperty);
+	return newProperty;
+    }
+
+    /** Creates a new property. It assigns an appropriate ID to it. The property is added to the document.
+     * @param lemma the lemma of the property.
+     * @param references different mentions (list of targets) to the same property.
+     * @return a new coreference.
+     */
+    public Feature createProperty(String lemma, List<List<Term>> references) {
+	String newId = idManager.getNextPropertyId();
+	Feature newProperty = new Feature(annotationContainer, newId, lemma, references);
+	annotationContainer.addProperty(newProperty);
+	return newProperty;
+    }
+
+    /** Creates a new category. It receives it's ID as an argument. The category is added to the document.
+     * @param id the ID of the category.
+     * @param lemma the lemma of the category.
+     * @param references different mentions (list of targets) to the same category.
+     * @return a new coreference.
+     */
+    public Feature createCategory(String id, String lemma, List<List<Term>> references) {
+	idManager.updateCategoryCounter(id);
+	Feature newCategory = new Feature(annotationContainer, id, lemma, references);
+	annotationContainer.addCategory(newCategory);
+	return newCategory;
+    }
+
+    /** Creates a new category. It assigns an appropriate ID to it. The category is added to the document.
+     * @param lemma the lemma of the category.
+     * @param references different mentions (list of targets) to the same category.
+     * @return a new coreference.
+     */
+    public Feature createCategory(String lemma, List<List<Term>> references) {
+	String newId = idManager.getNextCategoryId();
+	Feature newCategory = new Feature(annotationContainer, newId, lemma, references);
+	annotationContainer.addCategory(newCategory);
+	return newCategory;
+    }
+
+    /** Creates a new opinion object. It assigns an appropriate ID to it. The opinion is added to the document.
+     * @return a new opinion.
+     */
+    public Opinion createOpinion() {
+	String newId = idManager.getNextOpinionId();
+	Opinion newOpinion = new Opinion(annotationContainer, newId);
+	annotationContainer.add(newOpinion);
+	return newOpinion;
+    }
+
+    /** Creates a new opinion object. It receives it's ID as an argument. The opinion is added to the document.
+     * @return a new opinion.
+     */
+    public Opinion createOpinion(String id) {
+        idManager.updateOpinionCounter(id);
+	Opinion newOpinion = new Opinion(annotationContainer, id);
+	annotationContainer.add(newOpinion);
+	return newOpinion;
+    }
+
     /** Creates a new target. This method is overloaded. Any target created by calling this method won't be the head term.
      * @param term target term.
      * @return a new target.
@@ -330,7 +460,6 @@ public class KAFDocument {
     public Target createTarget(Term term) {
 	return new Target(annotationContainer, term.getId(), false);
     }
-
 
     /** Creates a new target. This method is overloaded. In this case, it receives a boolean argument which defines whether the target term is the head or not.
      * @param term target term.
@@ -350,6 +479,18 @@ public class KAFDocument {
 	return new ExternalRef(resource, reference);
     }
 
+    public Tree createParsingTree(String id) {
+	Tree tree = new Tree(annotationContainer, id);
+	annotationContainer.add(tree);
+	return tree;
+    }
+
+    public Tree createParsingTree() {
+	Tree tree = new Tree(annotationContainer, "idX");
+	annotationContainer.add(tree);
+	return tree;
+    }
+
     /** Returns a list containing all WFs in the document */
     public List<WF> getWFs() {
 	return annotationContainer.getText();
@@ -358,10 +499,6 @@ public class KAFDocument {
     /** Returns a list with all sentences. Each sentence is a list of WFs. */
     public List<List<WF>> getSentences() {
 	return annotationContainer.getSentences();
-    }
-
-    public List<List<WF>> getSentencesX() {
-        return annotationContainer.getSentencesX();
     }
 
     /** Returns a list with all terms in the document. */
@@ -389,6 +526,43 @@ public class KAFDocument {
 	//SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-DD'T'kk:mm:ssZ");
 	String formattedDate = sdf.format(date);
 	return formattedDate;
+    }
+
+    /** Merges the document with another one. If there are any conflicting values, the values of this object will be kept. **/
+    public void merge(KAFDocument doc) {
+	// Linguistic processors
+	HashMap<String, List<LinguisticProcessor>> lps = doc.getLinguisticProcessors();
+	for (Map.Entry<String, List<LinguisticProcessor>> entry : lps.entrySet()) {
+	    String layer = entry.getKey();
+	    List<LinguisticProcessor> lpList = entry.getValue();
+	    for (LinguisticProcessor lp : lpList) {
+		if (!this.linguisticProcessorExists(layer, lp.name, lp.version)) {
+		    this.addLinguisticProcessor(layer, lp.name, lp.timestamp, lp.version);
+		}
+	    }
+	}
+	// WFs
+	for (WF wf : doc.getWFs()) {
+	    this.insertWF(wf);
+	}
+	// Terms
+	for (Term term : doc.getTerms()) {
+	    this.insertTerm(term);
+	}
+    }
+
+    private String insertWF(WF wf) {
+	String newId = idManager.getNextWFId();
+	wf.setId(newId);
+        annotationContainer.add(wf);
+	return newId;
+    }
+
+    private String insertTerm(Term term) {
+	String newId = idManager.getNextTermId();
+	term.setId(newId);
+        annotationContainer.add(term);
+	return newId;
     }
 
     /** Saves the KAF document to an XML file.

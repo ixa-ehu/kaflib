@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.SortedSet;
@@ -34,8 +36,20 @@ class AnnotationContainer {
     /** List to keep all named entities */
     private List<Entity> entities;
 
+    /** List to keep all properties */
+    private List<Feature> properties;
+
+    /** List to keep all categories */
+    private List<Feature> categories;
+
     /** List to keep all coreferences */
     private List<Coref> coreferences;
+
+    /** List to keep all opinions */
+    private List<Opinion> opinions;
+
+    /** List to keep all trees */
+    private List<Tree> trees;
 
     /** Hash map to index word forms by their ID. It maps IDs to the corresponding token's index in the main list of tokens. */
     private HashMap<String, Integer> textIndexedById;
@@ -60,7 +74,11 @@ class AnnotationContainer {
 	deps = new ArrayList();
 	chunks = new ArrayList();
 	entities = new ArrayList();
+	properties = new ArrayList();
+	categories = new ArrayList();
 	coreferences = new ArrayList();
+	opinions = new ArrayList();
+	trees = new ArrayList();
 
 	textIndexedById = new HashMap<String, Integer>();
 	textIndexedBySent = new HashMap<Integer, List<String>>();
@@ -94,9 +112,29 @@ class AnnotationContainer {
 	return entities;
     }
 
+    /** Returns all properties */
+    List<Feature> getProperties() {
+	return properties;
+    }
+
+    /** Returns all categories */
+    List<Feature> getCategories() {
+	return categories;
+    }
+
     /** Returns all coreferences */
     List<Coref> getCorefs() {
 	return coreferences;
+    }
+
+    /** Returns all opinions */
+    List<Opinion> getOpinions() {
+	return opinions;
+    }
+
+    /** Returns all trees */
+    List<Tree> getTrees() {
+	return trees;
     }
 
     /** Adds a word form to the container */
@@ -104,12 +142,18 @@ class AnnotationContainer {
 	text.add(wf);
 	//nextOffset += wf.getLength() + 1;
 	textIndexedById.put(wf.getId(), text.size() - 1);
+    }
 
-	/* Index by sentence */
-	List<String> sentWfs = textIndexedBySent.get(wf.getSent());
+    /** Index a WF by its sentence number */
+    void indexWFBySent(WF wf) {
+	Integer sent = wf.getSent();
+	if (sent == -1) {
+	    throw new IllegalStateException("You can't call indexWFBySent not having defined the sentence for this token");
+	}
+	List<String> sentWfs = textIndexedBySent.get(sent);
 	if (sentWfs == null) {
 	    sentWfs = new ArrayList<String>();
-	    textIndexedBySent.put(wf.getSent(), sentWfs);
+	    textIndexedBySent.put(sent, sentWfs);
 	}
 	sentWfs.add(wf.getId());
     }
@@ -123,11 +167,21 @@ class AnnotationContainer {
 	}
 
 	/* Index by sentence */
-	int sent = term.getSent();
-	    List<String> sentTerms = termsIndexedBySent.get(sent);
+        if (term.getSent() != -1) {
+	    indexTermBySent(term);
+	}
+    }
+
+    /** Index a Term by its sentence number */
+    void indexTermBySent(Term term) {
+	Integer sent = term.getSent();
+	if (sent == -1) {
+	    throw new IllegalStateException("You can't call indexTermBySent not having defined the sentence for its WFs");
+	}
+	List<String> sentTerms = termsIndexedBySent.get(sent);
 	if (sentTerms == null) {
 	    sentTerms = new ArrayList<String>();
-	    termsIndexedBySent.put(term.getSent(), sentTerms);
+	    termsIndexedBySent.put(sent, sentTerms);
 	}
 	sentTerms.add(term.getId());
     }
@@ -147,9 +201,29 @@ class AnnotationContainer {
 	entities.add(entity);
     }
 
+    /** Adds a property feature to the container */
+    void addProperty(Feature property) {
+	properties.add(property);
+    }
+
+    /** Adds a category feature to the container */
+    void addCategory(Feature category) {
+	categories.add(category);
+    }
+
     /** Adds a coreference to the container */
     void add(Coref coref) {
 	coreferences.add(coref);
+    }
+
+    /** Adds an opinion to the container */
+    void add(Opinion opinion) {
+	opinions.add(opinion);
+    }
+
+    /** Adds a tree to the container */
+    void add(Tree tree) {
+	trees.add(tree);
     }
 
     /** Returns a word form given it's ID */
@@ -176,6 +250,9 @@ class AnnotationContainer {
     /** Returns the terms which corresponds to the given word form */
     Term getTermByWFId(String wfId) {
 	String termId = termsIndexedByWF.get(wfId);
+	if (termId == null) {
+	    return null;
+	}
 	return getTermById(termId);
     }
 
@@ -191,8 +268,11 @@ class AnnotationContainer {
     /** Returns all tokens classified by sentences */
     List<List<WF>> getSentences() {
 	List<List<WF>> sentences = new ArrayList<List<WF>>();
-	for (Map.Entry<Integer,List<String>> entry : this.textIndexedBySent.entrySet()) {
-	    List<String> wfIds = (List<String>) entry.getValue();
+	Set<Integer> sentNumsSet = this.textIndexedBySent.keySet();
+        List<Integer> sentNumsList = new ArrayList<Integer>(sentNumsSet);
+	Collections.sort(sentNumsList);
+	for (int i : sentNumsList) {
+	    List<String> wfIds = this.textIndexedBySent.get(i);
 	    List<WF> wfs = new ArrayList<WF>();
 	    for (String wfId : wfIds) {
 		  wfs.add(this.getWFById(wfId));
@@ -201,21 +281,6 @@ class AnnotationContainer {
 	}
 	return sentences;
     }
-
- /** Returns all tokens classified by sentences */
-    List<List<WF>> getSentencesX() {
-	List<List<WF>> sentences = new ArrayList<List<WF>>();
-	for (Map.Entry<Integer,List<String>> entry : this.textIndexedBySent.entrySet()) {
-	    List<String> wfIds = (List<String>) entry.getValue();
-        List<WF> wfs = new ArrayList<WF>();
-	    for (String wfId : wfIds) {
-		  wfs.add(this.getWFById(wfId));
-	    }
-        sentences.add(wfs);
-	}
-	return sentences;
-    }
-
 
     /** Returns WFs from a sentence */
     List<WF> getSentenceWFs(int sent) {
