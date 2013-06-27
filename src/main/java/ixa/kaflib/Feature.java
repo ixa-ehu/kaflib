@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 /** Class for representing features. There are two types of features: properties and categories. */
-public class Feature {
+public class Feature implements Relational {
 
     private AnnotationContainer annotationContainer;
 
@@ -35,6 +35,14 @@ public class Feature {
 	    newReferences.add(newSpan);
 	}
 	this.references = newReferences;
+    }
+
+    public boolean isAProperty() {
+	return this.id.matches("p.*");
+    }
+
+    public boolean isACategory() {
+	return this.id.matches("c.*");
     }
 
     public String getId() {

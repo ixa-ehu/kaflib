@@ -392,7 +392,7 @@ public class KAFDocument {
     public Feature createProperty(String id, String lemma, List<List<Term>> references) {
 	idManager.updatePropertyCounter(id);
 	Feature newProperty = new Feature(annotationContainer, id, lemma, references);
-	annotationContainer.addProperty(newProperty);
+	annotationContainer.add(newProperty);
 	return newProperty;
     }
 
@@ -404,7 +404,7 @@ public class KAFDocument {
     public Feature createProperty(String lemma, List<List<Term>> references) {
 	String newId = idManager.getNextPropertyId();
 	Feature newProperty = new Feature(annotationContainer, newId, lemma, references);
-	annotationContainer.addProperty(newProperty);
+	annotationContainer.add(newProperty);
 	return newProperty;
     }
 
@@ -417,7 +417,7 @@ public class KAFDocument {
     public Feature createCategory(String id, String lemma, List<List<Term>> references) {
 	idManager.updateCategoryCounter(id);
 	Feature newCategory = new Feature(annotationContainer, id, lemma, references);
-	annotationContainer.addCategory(newCategory);
+	annotationContainer.add(newCategory);
 	return newCategory;
     }
 
@@ -429,7 +429,7 @@ public class KAFDocument {
     public Feature createCategory(String lemma, List<List<Term>> references) {
 	String newId = idManager.getNextCategoryId();
 	Feature newCategory = new Feature(annotationContainer, newId, lemma, references);
-	annotationContainer.addCategory(newCategory);
+	annotationContainer.add(newCategory);
 	return newCategory;
     }
 
@@ -443,7 +443,7 @@ public class KAFDocument {
 	return newOpinion;
     }
 
-    /** Creates a new opinion object. It receives it's ID as an argument. The opinion is added to the document.
+    /** Creates a new opinion object. It receives its ID as an argument. The opinion is added to the document.
      * @return a new opinion.
      */
     public Opinion createOpinion(String id) {
@@ -451,6 +451,31 @@ public class KAFDocument {
 	Opinion newOpinion = new Opinion(annotationContainer, id);
 	annotationContainer.add(newOpinion);
 	return newOpinion;
+    }
+
+    /** Creates a new relation between entities and/or sentiment features. It assigns an appropriate ID to it. The relation is added to the document.
+     * @param from source of the relation
+     * @param to target of the relation
+     * @return a new relation
+     */
+    public Relation createRelation(Relational from, Relational to) {
+	String newId = idManager.getNextRelationId();
+	Relation newRelation = new Relation(annotationContainer, newId, from, to);
+	annotationContainer.add(newRelation);
+	return newRelation;
+    }
+
+    /** Creates a new relation between entities and/or sentiment features. It receives its ID as an argument. The relation is added to the document.
+     * @param id the ID of the relation
+     * @param from source of the relation
+     * @param to target of the relation
+     * @return a new relation
+     */
+    public Relation createRelation(String id, Relational from, Relational to) {
+	idManager.updateRelationCounter(id);
+	Relation newRelation = new Relation(annotationContainer, id, from, to);
+	annotationContainer.add(newRelation);
+	return newRelation;
     }
 
     /** Creates a new target. This method is overloaded. Any target created by calling this method won't be the head term.
@@ -463,7 +488,7 @@ public class KAFDocument {
 
     /** Creates a new target. This method is overloaded. In this case, it receives a boolean argument which defines whether the target term is the head or not.
      * @param term target term.
-     * @param a boolean argument which defines whether the target term is the head or not.
+     * @param isHead a boolean argument which defines whether the target term is the head or not.
      * @return a new target.
      */
     public Target createTarget(Term term, boolean isHead) {
@@ -517,6 +542,21 @@ public class KAFDocument {
     /** Returns a list with all entities in the document */
     public List<Entity> getEntities() {
 	return annotationContainer.getEntities();
+    }
+
+    /** Returns a list with all relations in the document */
+    public List<Feature> getProperties() {
+	return annotationContainer.getProperties();
+    }
+
+    /** Returns a list with all relations in the document */
+    public List<Feature> getCategories() {
+	return annotationContainer.getCategories();
+    }
+
+    /** Returns a list with all relations in the document */
+    public List<Relation> getRelations() {
+	return annotationContainer.getRelations();
     }
 
     /** Returns current timestamp. */

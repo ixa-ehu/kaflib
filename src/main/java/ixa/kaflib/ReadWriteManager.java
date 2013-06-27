@@ -91,6 +91,7 @@ class ReadWriteManager {
     private static KAFDocument DOMToKAF(Document dom) {
 	HashMap<String, WF> wfIndex = new HashMap<String, WF>();
 	HashMap<String, Term> termIndex = new HashMap<String, Term>();
+	HashMap<String, Relational> relationalIndex = new HashMap<String, Relational>();
 	Element rootElem = dom.getRootElement();
 	String lang = getAttribute("lang", rootElem, Namespace.XML_NAMESPACE);
 	String kafVersion = getAttribute("version", rootElem);
@@ -342,6 +343,7 @@ class ReadWriteManager {
 			List<ExternalRef> externalRefs = getExternalReferences(externalReferencesElems.get(0), kaf);
 			newEntity.addExternalRefs(externalRefs);
 		    }
+		    relationalIndex.put(newEntity.getId(), newEntity);
 		}
 	    }
 	    if (elem.getName().equals("features")) {
@@ -380,6 +382,7 @@ class ReadWriteManager {
 			    List<ExternalRef> externalRefs = getExternalReferences(externalReferencesElems.get(0), kaf);
 			    newProperty.addExternalRefs(externalRefs);
 			}
+			relationalIndex.put(newProperty.getId(), newProperty);
 		    }
 		}
 		if (categoriesElem != null) {
@@ -415,6 +418,7 @@ class ReadWriteManager {
 			    List<ExternalRef> externalRefs = getExternalReferences(externalReferencesElems.get(0), kaf);
 			    newCategory.addExternalRefs(externalRefs);
 			}
+			relationalIndex.put(newCategory.getId(), newCategory);
 		    }
 		}
 	    }
@@ -499,6 +503,25 @@ class ReadWriteManager {
 				opinionExpression.addTerm(termIndex.get(refId));
 			    }
 			}
+		    }
+		}
+	    }
+	    if (elem.getName().equals("relations")) {
+		List<Element> relationElems = elem.getChildren("relation");
+		for (Element relationElem : relationElems) {
+		    String id = getAttribute("rid", relationElem);
+		    String fromId = getAttribute("from", relationElem);
+		    String toId = getAttribute("to", relationElem);
+		    String confidenceStr = getOptAttribute("confidence", relationElem);
+		    float confidence = -1.0f;
+		    if (confidenceStr != null) {
+			confidence = Float.parseFloat(confidenceStr);
+		    }
+		    Relational from = relationalIndex.get(fromId);
+		    Relational to = relationalIndex.get(toId);
+		    Relation newRelation = kaf.createRelation(id, from, to);
+		    if (confidence >= 0) {
+			newRelation.setConfidence(confidence);
 		    }
 		}
 	    }
@@ -954,6 +977,22 @@ class ReadWriteManager {
 		opinionsElem.addContent(opinionElem);
 	    }
 	    root.addContent(opinionsElem);
+	}
+
+	List<Relation> relations = annotationContainer.getRelations();
+	if (relations.size() > 0) {
+	    Element relationsElem = new Element("relations");
+	    for (Relation relation : relations){
+		Element relationElem = new Element("relation");
+		relationElem.setAttribute("rid", relation.getId());
+		relationElem.setAttribute("from", relation.getFrom().getId());
+		relationElem.setAttribute("to", relation.getTo().getId());
+		if (relation.hasConfidence()) {
+		    relationElem.setAttribute("confidence", String.valueOf(relation.getConfidence()));
+		}
+		relationsElem.addContent(relationElem);
+	    }
+	    root.addContent(relationsElem);
 	}
 
 	List<Coref> corefs = annotationContainer.getCorefs();

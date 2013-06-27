@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 /** A named entity is a term (or a multiword) that clearly identifies one item. The optional Named Entity layer is used to reference terms that are named entities. */
-public class Entity {
+public class Entity implements Relational {
 
     /** Reference to the main annotationContainer of the document to which this named entity is related (required) */
     private AnnotationContainer annotationContainer;

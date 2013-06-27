@@ -48,6 +48,9 @@ class AnnotationContainer {
     /** List to keep all opinions */
     private List<Opinion> opinions;
 
+    /** List to keep all relations */
+    private List<Relation> relations;
+
     /** List to keep all trees */
     private List<Tree> trees;
 
@@ -66,6 +69,15 @@ class AnnotationContainer {
     /** Hash map for mapping word forms to terms. */
     private HashMap<String, String> termsIndexedByWF;
 
+    /** Hash map to index entities by their ID */
+    private HashMap<String, Integer> entitiesIndexedById;
+
+    /** Hash map to index properties by their ID */
+    private HashMap<String, Integer> propertiesIndexedById;
+
+    /** Hash map to index categories by their ID */
+    private HashMap<String, Integer> categoriesIndexedById;
+
     /** This creates a new AnnotationContainer object */
     AnnotationContainer() {
 	text = new ArrayList();
@@ -78,6 +90,7 @@ class AnnotationContainer {
 	categories = new ArrayList();
 	coreferences = new ArrayList();
 	opinions = new ArrayList();
+	relations = new ArrayList();
 	trees = new ArrayList();
 
 	textIndexedById = new HashMap<String, Integer>();
@@ -85,6 +98,9 @@ class AnnotationContainer {
 	termsIndexedById = new HashMap<String, Integer>();
 	termsIndexedBySent = new HashMap<Integer, List<String>>();
 	termsIndexedByWF = new HashMap<String, String>();
+	entitiesIndexedById = new HashMap<String, Integer>();
+	propertiesIndexedById = new HashMap<String, Integer>();
+	categoriesIndexedById = new HashMap<String, Integer>();
     }
 
     /** Returns all word forms. */
@@ -130,6 +146,11 @@ class AnnotationContainer {
     /** Returns all opinions */
     List<Opinion> getOpinions() {
 	return opinions;
+    }
+
+    /** Returns all relations */
+    List<Relation> getRelations() {
+	return relations;
     }
 
     /** Returns all trees */
@@ -199,16 +220,19 @@ class AnnotationContainer {
     /** Adds a named entity to the container */
     void add(Entity entity) {
 	entities.add(entity);
+	entitiesIndexedById.put(entity.getId(), entities.size() - 1);
     }
 
-    /** Adds a property feature to the container */
-    void addProperty(Feature property) {
-	properties.add(property);
-    }
-
-    /** Adds a category feature to the container */
-    void addCategory(Feature category) {
-	categories.add(category);
+    /** Adds a feature to the container. It checks if it is a property or a category. */
+    void add(Feature feature) {
+	if (feature.isAProperty()) {
+	    properties.add(feature);
+	    propertiesIndexedById.put(feature.getId(), properties.size() - 1);
+	}
+	else {
+	    categories.add(feature);
+	    categoriesIndexedById.put(feature.getId(), categories.size() - 1);
+	}		
     }
 
     /** Adds a coreference to the container */
@@ -221,12 +245,17 @@ class AnnotationContainer {
 	opinions.add(opinion);
     }
 
+    /** Adds a relation to the container */
+    void add(Relation relation) {
+	relations.add(relation);
+    }
+
     /** Adds a tree to the container */
     void add(Tree tree) {
 	trees.add(tree);
     }
 
-    /** Returns a word form given it's ID */
+    /** Returns a word form given its ID */
     WF getWFById(String id) {
 	int ind = textIndexedById.get(id);
 	return text.get(ind);
@@ -241,7 +270,7 @@ class AnnotationContainer {
 	return foundWFs;
     }
 
-    /** Returns a term given it's ID */
+    /** Returns a term given its ID */
     Term getTermById(String id) {
 	int ind = termsIndexedById.get(id);
 	return terms.get(ind);
@@ -263,6 +292,24 @@ class AnnotationContainer {
 	    foundTerms.add(getTermById(id));
 	}
 	return foundTerms;
+    }
+
+    /** Returns an entity given its ID */
+    Entity getEntityById(String id) {
+	int ind = entitiesIndexedById.get(id);
+	return entities.get(ind);
+    }
+
+    /** Returns a property given its ID */
+    Feature getPropertyById(String id) {
+	int ind = propertiesIndexedById.get(id);
+	return properties.get(ind);
+    }
+
+    /** Returns a category given its ID */
+    Feature getCategoryById(String id) {
+	int ind = categoriesIndexedById.get(id);
+	return categories.get(ind);
     }
 
     /** Returns all tokens classified by sentences */
