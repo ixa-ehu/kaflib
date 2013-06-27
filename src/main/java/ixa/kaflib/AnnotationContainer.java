@@ -207,7 +207,7 @@ class AnnotationContainer {
 	List<List<WF>> sentences = new ArrayList<List<WF>>();
 	for (Map.Entry<Integer,List<String>> entry : this.textIndexedBySent.entrySet()) {
 	    List<String> wfIds = (List<String>) entry.getValue();
-            List<WF> wfs = new ArrayList<WF>();
+        List<WF> wfs = new ArrayList<WF>();
 	    for (String wfId : wfIds) {
 		  wfs.add(this.getWFById(wfId));
 	    }
