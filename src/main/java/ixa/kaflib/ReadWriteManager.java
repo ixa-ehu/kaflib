@@ -454,6 +454,54 @@ class ReadWriteManager {
 		    Coref newCoref = kaf.createCoref(coId, references);
 		}
 	    }
+	    if (elem.getName().equals("opinions")) {
+		List<Element> opinionElems = elem.getChildren("opinion");
+		for (Element opinionElem : opinionElems) {
+		    String opinionId = getAttribute("oid", opinionElem);
+		    Opinion opinion = kaf.createOpinion(opinionId);
+		    Element opinionHolderElem = opinionElem.getChild("opinion_holder");
+		    if (opinionHolderElem != null) {
+			Opinion.OpinionHolder opinionHolder = opinion.createOpinionHolder();
+			Element spanElem = opinionHolderElem.getChild("span");
+			if (spanElem != null) {
+			    List<Element> targetElems = spanElem.getChildren("target");
+			    for (Element targetElem : targetElems) {
+				String refId = getOptAttribute("id", targetElem);
+				opinionHolder.addTerm(termIndex.get(refId));
+			    }
+			}
+		    }
+		    Element opinionTargetElem = opinionElem.getChild("opinion_target");
+		    if (opinionTargetElem != null) {
+			Opinion.OpinionTarget opinionTarget = opinion.createOpinionTarget();
+			Element spanElem = opinionTargetElem.getChild("span");
+			if (spanElem != null) {
+			    List<Element> targetElems = spanElem.getChildren("target");
+			    for (Element targetElem : targetElems) {
+				String refId = getOptAttribute("id", targetElem);
+				opinionTarget.addTerm(termIndex.get(refId));
+			    }
+			}
+		    }
+		    Element opinionExpressionElem = opinionElem.getChild("opinion_expression");
+		    if (opinionExpressionElem != null) {
+			String polarity = getAttribute("polarity", opinionExpressionElem);
+			String strength = getAttribute("strength", opinionExpressionElem);
+			String subjectivity = getAttribute("subjectivity", opinionExpressionElem);
+			String sentimentSemanticType = getAttribute("sentiment_semantic_type", opinionExpressionElem);
+			String sentimentProductFeature = getAttribute("sentiment_product_feature", opinionExpressionElem);
+			Opinion.OpinionExpression opinionExpression = opinion.createOpinionExpression(polarity, strength, subjectivity, sentimentSemanticType, sentimentProductFeature);
+			Element spanElem = opinionExpressionElem.getChild("span");
+			if (spanElem != null) {
+			    List<Element> targetElems = spanElem.getChildren("target");
+			    for (Element targetElem : targetElems) {
+				String refId = getOptAttribute("id", targetElem);
+				opinionExpression.addTerm(termIndex.get(refId));
+			    }
+			}
+		    }
+		}
+	    }
 	    if (elem.getName().equals("parsing")) {
 		List<Element> treeElems = elem.getChildren();
 		for (Element treeElem : treeElems) {
@@ -845,6 +893,68 @@ class ReadWriteManager {
 	    featuresElem.addContent(categoriesElem);
 	}
 	root.addContent(featuresElem);
+
+	List<Opinion> opinions = annotationContainer.getOpinions();
+	if (opinions.size() > 0) {
+	    Element opinionsElem = new Element("opinions");
+	    for (Opinion opinion : opinions) {
+		Element opinionElem = new Element("opinion");
+		opinionElem.setAttribute("oid", opinion.getId());
+		Opinion.OpinionHolder holder = opinion.getOpinionHolder();
+		if (holder != null) {
+		    Element opinionHolderElem = new Element("opinion_holder");
+		    List<Term> targets = holder.getTerms();
+		    if (targets.size() > 0) {
+			Element spanElem = new Element("span");
+			opinionHolderElem.addContent(spanElem);
+			for (Term target : targets) {
+			    Element targetElem = new Element("target");
+			    targetElem.setAttribute("id", target.getId());
+			    spanElem.addContent(targetElem);
+			}
+		    }
+		    opinionElem.addContent(opinionHolderElem);
+		}
+		Opinion.OpinionTarget opTarget = opinion.getOpinionTarget();
+		if (opTarget != null) {
+		    Element opinionTargetElem = new Element("opinion_target");
+		    List<Term> targets = opTarget.getTerms();
+		    if (targets.size() > 0) {
+			Element spanElem = new Element("span");
+			opinionTargetElem.addContent(spanElem);
+			for (Term target : targets) {
+			    Element targetElem = new Element("target");
+			    targetElem.setAttribute("id", target.getId());
+			    spanElem.addContent(targetElem);
+			}
+		    }
+		    opinionElem.addContent(opinionTargetElem);
+		}
+		Opinion.OpinionExpression expression = opinion.getOpinionExpression();
+		if (expression != null) {
+		    Element opinionExpressionElem = new Element("opinion_expression");
+		    opinionExpressionElem.setAttribute("polarity", expression.getPolarity());
+		    opinionExpressionElem.setAttribute("strength", expression.getStrength());
+		    opinionExpressionElem.setAttribute("subjectivity", expression.getSubjectivity());
+		    opinionExpressionElem.setAttribute("sentiment_semantic_type", expression.getSentimentSemanticType());
+		    opinionExpressionElem.setAttribute("sentiment_product_feature", expression.getSentimentProductFeature());
+		    List<Term> targets = expression.getTerms();
+		    if (targets.size() > 0) {
+			Element spanElem = new Element("span");
+			opinionExpressionElem.addContent(spanElem);
+			for (Term target : targets) {
+			    Element targetElem = new Element("target");
+			    targetElem.setAttribute("id", target.getId());
+			    spanElem.addContent(targetElem);
+			}
+		    }
+		    opinionElem.addContent(opinionExpressionElem);
+		}
+
+		opinionsElem.addContent(opinionElem);
+	    }
+	    root.addContent(opinionsElem);
+	}
 
 	List<Coref> corefs = annotationContainer.getCorefs();
 	if (corefs.size() > 0) {

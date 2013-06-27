@@ -14,6 +14,7 @@ class IdManager {
     private static final String COREF_PREFIX = "co";
     private static final String PROPERTY_PREFIX = "p";
     private static final String CATEGORY_PREFIX = "c";
+    private static final String OPINION_PREFIX = "o";
 
     /* Counters for each type of annotations */
     private int wfCounter;
@@ -23,6 +24,7 @@ class IdManager {
     private int corefCounter;
     private int propertyCounter;
     private int categoryCounter;
+    private int opinionCounter;
     private HashMap<String, Integer> componentCounter;
 
     IdManager() {
@@ -33,6 +35,7 @@ class IdManager {
 	this.corefCounter = 0;
 	this.propertyCounter = 0;
 	this.categoryCounter = 0;
+	this.opinionCounter = 0;
 	this.componentCounter = new HashMap<String, Integer>();
     }
 
@@ -62,6 +65,10 @@ class IdManager {
 
     String getNextCategoryId() {
 	return CATEGORY_PREFIX + Integer.toString(++categoryCounter);
+    }
+
+    String getNextOpinionId() {
+	return OPINION_PREFIX + Integer.toString(++opinionCounter);
     }
 
     String getNextComponentId(String termId) {
@@ -111,6 +118,10 @@ class IdManager {
 
     void updateCategoryCounter(String id) {
 	categoryCounter = extractCounterFromId(id);
+    }
+
+    void updateOpinionCounter(String id) {
+	opinionCounter = extractCounterFromId(id);
     }
 
     void updateComponentCounter(String id, String termId) {

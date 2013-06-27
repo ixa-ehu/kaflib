@@ -433,6 +433,26 @@ public class KAFDocument {
 	return newCategory;
     }
 
+    /** Creates a new opinion object. It assigns an appropriate ID to it. The opinion is added to the document.
+     * @return a new opinion.
+     */
+    public Opinion createOpinion() {
+	String newId = idManager.getNextOpinionId();
+	Opinion newOpinion = new Opinion(annotationContainer, newId);
+	annotationContainer.add(newOpinion);
+	return newOpinion;
+    }
+
+    /** Creates a new opinion object. It receives it's ID as an argument. The opinion is added to the document.
+     * @return a new opinion.
+     */
+    public Opinion createOpinion(String id) {
+        idManager.updateOpinionCounter(id);
+	Opinion newOpinion = new Opinion(annotationContainer, id);
+	annotationContainer.add(newOpinion);
+	return newOpinion;
+    }
+
     /** Creates a new target. This method is overloaded. Any target created by calling this method won't be the head term.
      * @param term target term.
      * @return a new target.

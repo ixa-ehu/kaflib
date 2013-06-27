@@ -45,6 +45,9 @@ class AnnotationContainer {
     /** List to keep all coreferences */
     private List<Coref> coreferences;
 
+    /** List to keep all opinions */
+    private List<Opinion> opinions;
+
     /** List to keep all trees */
     private List<Tree> trees;
 
@@ -74,6 +77,7 @@ class AnnotationContainer {
 	properties = new ArrayList();
 	categories = new ArrayList();
 	coreferences = new ArrayList();
+	opinions = new ArrayList();
 	trees = new ArrayList();
 
 	textIndexedById = new HashMap<String, Integer>();
@@ -121,6 +125,11 @@ class AnnotationContainer {
     /** Returns all coreferences */
     List<Coref> getCorefs() {
 	return coreferences;
+    }
+
+    /** Returns all opinions */
+    List<Opinion> getOpinions() {
+	return opinions;
     }
 
     /** Returns all trees */
@@ -205,6 +214,11 @@ class AnnotationContainer {
     /** Adds a coreference to the container */
     void add(Coref coref) {
 	coreferences.add(coref);
+    }
+
+    /** Adds an opinion to the container */
+    void add(Opinion opinion) {
+	opinions.add(opinion);
     }
 
     /** Adds a tree to the container */
