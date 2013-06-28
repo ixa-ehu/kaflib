@@ -35,9 +35,6 @@ public class Term {
     /** Morphosyntactic feature encoded as a single attribute (optional) */
     private String morphofeat;
 
-    /** If the term is a compound, the id of the head component (optional) */
-    private String head;
-
     /** Declension case of the term (optional) */
     private String termcase;
 
@@ -45,16 +42,16 @@ public class Term {
     private String strValue;
 
     /** Sentiment features (optional) */
-    private Sentiment sentiment;
+    private Target<Sentiment> sentiment;
 
     /** If it's a compound term, it's components (optional) */
-    private List<Component> components;
+    private Targets<Component> components;
 
     /** Hash map indexing components by their ID */
     private HashMap<String, Integer> componentIndex;
 
     /** Target elements are used to refer to the target word. If the term is a multiword, multiple target elements are used. (required)*/
-    private List<String> targets;
+    private Targets<WF> targets;
 
     /** ExternalReferences are used to associate terms to external lexical or semantic resources, such as elements of a Knowledge base: semantic lexicon  (like WordNet) or an ontology (optional) */
     private List<ExternalRef> externalReferences;
@@ -294,12 +291,10 @@ public class Term {
 	this.lemma = lemma;
 	this.pos = pos;
 	this.strValue = "";
-	this.components = new ArrayList();
+	this.components = new Targets(annotationContainer);
 	this.componentIndex = new HashMap<String, Integer>();
-	this.targets = new ArrayList<String>();
-	for (WF target : wfs) {
-	    this.addWF(target);
-	}
+	this.targets = new Targets(annotationContainer);
+	this.targets.addTargets(wfs);
 	this.externalReferences = new ArrayList<ExternalRef>();
     }
 
@@ -317,10 +312,8 @@ public class Term {
 	this.strValue = "";
 	this.components = new ArrayList();
 	this.componentIndex = new HashMap<String, Integer>();
-	this.targets = new ArrayList<String>();
-	for (WF target : wfs) {
-	    this.addWF(target);
-	}
+	this.targets = new Targets(annotationContainer);
+        this.targets.addTargets(wfs);
 	this.externalReferences = new ArrayList<ExternalRef>();
     }
 
@@ -400,54 +393,64 @@ public class Term {
     }
 
     public boolean hasHead() {
-	return head != null;
+	return (components.getHead() != null);
     }
 
     public Component getHead() {
-	int headIndex = componentIndex.get(head);
-	return components.get(headIndex);
+        return components.getHead();
     }
 
-    public void setHead(String id) {
-	head = id;
-    }
-
-    public void setHead(Component component) {
-	head = component.getId();
+    /** Creates and adds a Sentiment object.
+     * @return a new sentiment.
+     */
+    public Sentiment createSentiment() {
+	Sentiment newSentiment = new Sentiment();
+	this.setSentiment(newSentiment);
+	return newSentiment;
     }
 
     public boolean hasSentiment() {
-	return this.sentiment != null;
+	return (this.sentiment != null);
     }
 
     public Sentiment getSentiment() {
-	return sentiment;
+	return sentiment.getTarget();
     }
 
     public void setSentiment(Sentiment sentiment) {
-	this.sentiment = sentiment;
+	if (!this.hasSentiment()) {
+	    this.sentiment = new Target(this.annotationContainer, sentiment);
+	}
+	else {
+	    this.sentiment.setTarget(sentiment);
+	}
     }
 
     public List<Component> getComponents() {
-	return components;
+	return components.getTargets();
     }
 
     public void addComponent(Component component) {
-	components.add(component);
+	components.addTarget(component);
+	componentIndex.put(component.getId(), components.size() - 1);
+    }
+
+    public void addComponent(Component component, boolean isHead) {
+	components.addTarget(component, isHead);
 	componentIndex.put(component.getId(), components.size() - 1);
     }
 
     public List<WF> getWFs() {
-	return annotationContainer.getWFsById(targets);
+	return this.targets.getTargets();
     }
 
     public void addWF(WF wf) {
-	targets.add(wf.getId());
+	this.targets.addTarget(wf);
 	this.updateStr(wf.getForm());
     }
 
     public int getSent() {
-	return annotationContainer.getWFById(this.targets.get(0)).getSent();
+	return this.getWFs().get(0).getSent();
     }
 
     public List<ExternalRef> getExternalRefs() {

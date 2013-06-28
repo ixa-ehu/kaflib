@@ -9,10 +9,10 @@ public class Dep {
     private AnnotationContainer annotationContainer;
 
     /** Source term of the dependency (required) */
-    private String from;
+    private Target<Term> from;
 
     /** Target term of the dependency (required) */
-    private String to;
+    private Target<Term> to;
 
     /** Relational function of the dependency (required). One of:
      * - `subj´ (grammatical subject)
@@ -24,35 +24,27 @@ public class Dep {
     /** Declension case (optional) */
     private String depcase;
 
-    Dep(AnnotationContainer annotationContainer, String from, String to, String rfunc) {
+    Dep(AnnotationContainer annotationContainer, Term from, Term to, String rfunc) {
 	this.annotationContainer = annotationContainer;
-	this.from = from;
-	this.to = to;
+	this.from = new Target(annotationContainer, from);
+	this.to = new Target(annotationContainer, to);
 	this.rfunc = rfunc;
     }
 
     public Term getFrom() {
-	return annotationContainer.getTermById(from);
-    }
-
-    public void setFrom(String id) {
-	this.from = id;
+	return this.from.getTarget();
     }
 
     public void setFrom(Term term) {
-	this.from = term.getId();
+	this.from.setTarget(term);
     }
 
     public Term getTo() {
-	return annotationContainer.getTermById(to);
-    }
-
-    public void setTo(String id) {
-	this.to = id;
+	return to.getTarget();
     }
 
     public void setTo(Term term) {
-	this.to = term.getId();
+	this.to.setTarget(term);
     }
 
     public String getRfunc() {
@@ -76,6 +68,6 @@ public class Dep {
     }
 
     public String getStr() {
-	return rfunc + "(" + annotationContainer.getTermById(from).getStr() + ", " + annotationContainer.getTermById(to).getStr() + ")";
+	return rfunc + "(" + this.getFrom().getStr() + ", " + this.getTo().getStr() + ")";
     }
 }

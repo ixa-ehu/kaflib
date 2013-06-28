@@ -12,9 +12,6 @@ public class Chunk {
     /** Chunk's ID (required) */
     private String cid;
 
-    /** The chunk head term (required) */
-    private String head;
-
     /** Type of the phrase (required) */
     private String phrase;
 
@@ -22,7 +19,7 @@ public class Chunk {
     private String chunkcase;
 
     /** Chunk's target terms (at least one required) */
-    private List<String> targets;
+    private Targets<Term> targets;
 
     Chunk(AnnotationContainer annotationContainer, String cid, String head, String phrase, List<Term> terms) {
 	if (terms.size() < 1) {
@@ -32,10 +29,8 @@ public class Chunk {
 	this.cid = cid;
 	this.head = head;
 	this.phrase = phrase;
-	this.targets = new ArrayList<String>();
-	for (Term target : terms) {
-	    this.addTerm(target);
-	}
+	this.targets = new Targets(annotationContainer);
+	this.targets.addTargets(terms);
     }
 
     public String getId() {
@@ -43,15 +38,7 @@ public class Chunk {
     }
 
     public Term getHead() {
-	return annotationContainer.getTermById(head);
-    }
-
-    public void setHead(String id) {
-	head = id;
-    }
-
-    public void setHead(Term term) {
-	head = term.getId();
+	return targets.getHead();
     }
 
     public String getPhrase() {
@@ -75,7 +62,7 @@ public class Chunk {
     }
 
     public List<Term> getTerms() {
-	return annotationContainer.getTermsById(targets);
+	return this.targets.getTargets();
     }
 
     public void addTerm(Term term) {
