@@ -12,7 +12,13 @@ public class Targets<T> {
 
     Targets(AnnotationContainer annotationContainer) {
 	this.annotationContainer = annotationContainer;
-	this.targets = new ArrayList();
+	this.targets = new ArrayList<T>();;
+	this.headIndex = -1;
+    }
+
+    Targets(AnnotationContainer annotationContainer, List<T> targets) {
+	this.annotationContainer = annotationContainer;
+	this.targets = targets;
 	this.headIndex = -1;
     }
 

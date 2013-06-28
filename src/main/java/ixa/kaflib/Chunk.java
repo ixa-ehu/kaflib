@@ -21,7 +21,7 @@ public class Chunk {
     /** Chunk's target terms (at least one required) */
     private Targets<Term> targets;
 
-    Chunk(AnnotationContainer annotationContainer, String cid, String head, String phrase, List<Term> terms) {
+    Chunk(AnnotationContainer annotationContainer, String cid, String phrase, List<Term> terms) {
 	if (terms.size() < 1) {
 	    throw new IllegalStateException("Chunks must contain at least one term target");
 	}
@@ -29,12 +29,15 @@ public class Chunk {
 	this.cid = cid;
 	this.head = head;
 	this.phrase = phrase;
-	this.targets = new Targets(annotationContainer);
-	this.targets.addTargets(terms);
+	this.targets = new Targets(annotationContainer, terms);
     }
 
     public String getId() {
 	return cid;
+    }
+
+    public boolean hasHead() {
+	return (targets.getHead() != null);
     }
 
     public Term getHead() {
@@ -66,13 +69,16 @@ public class Chunk {
     }
 
     public void addTerm(Term term) {
-	targets.add(term.getId());
+	this.targets.addTerm(term);
+    }
+
+    public void addTerm(Term term, boolean isHead) {
+	this.targets.addTerm(term, isHead);
     }
 
     public String getStr() {
 	String str = "";
-	for (String termId : targets) {
-	    Term term = annotationContainer.getTermById(termId);
+	for (Term term : this.targets.getTargets()) {
 	    if (!str.isEmpty()) {
 		str += " ";
 	    }

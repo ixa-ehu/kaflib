@@ -293,8 +293,7 @@ public class Term {
 	this.strValue = "";
 	this.components = new Targets(annotationContainer);
 	this.componentIndex = new HashMap<String, Integer>();
-	this.targets = new Targets(annotationContainer);
-	this.targets.addTargets(wfs);
+	this.targets = new Targets(annotationContainer, wfs);
 	this.externalReferences = new ArrayList<ExternalRef>();
     }
 
@@ -310,10 +309,9 @@ public class Term {
 	this.pos = pos;
 	this.morphofeat = morphofeat;
 	this.strValue = "";
-	this.components = new ArrayList();
+	this.components = new Targets(annotationContainer);
 	this.componentIndex = new HashMap<String, Integer>();
-	this.targets = new Targets(annotationContainer);
-        this.targets.addTargets(wfs);
+	this.targets = new Targets(annotationContainer, wfs);
 	this.externalReferences = new ArrayList<ExternalRef>();
     }
 

@@ -12,7 +12,7 @@ public class Feature implements Relational {
 
     private String lemma;
 
-    private List<List<String>> references;
+    private List<Targets<Term>> references;
 
     private List<ExternalRef> externalReferences;
 
@@ -26,15 +26,10 @@ public class Feature implements Relational {
 	this.id = id;
 	this.annotationContainer = annotationContainer;
 	this.lemma = lemma;
-	List<List<String>> newReferences = new ArrayList<List<String>>();
+	this.references = new ArrayList<Targets<Term>>();
 	for (List<Term> span : references) {
-	    List<String> newSpan = new ArrayList<String>();
-	    for (Term term : span) {
-		newSpan.add(term.getId());
-	    }
-	    newReferences.add(newSpan);
+	    this.references.add(new Targets(annotationContainer, span));
 	}
-	this.references = newReferences;
     }
 
     public boolean isAProperty() {
@@ -58,24 +53,15 @@ public class Feature implements Relational {
     }
 
     public List<List<Term>> getReferences() {
-	List<List<Term>> termSpans = new ArrayList<List<Term>>();
-	for (List<String> idSpan : this.references) {
-	    List<Term> termSpan = new ArrayList<Term>();
-	    for (String id : idSpan) {
-		Term newTerm = annotationContainer.getTermById(id);
-		termSpan.add(newTerm);
-	    }
-	    termSpans.add(termSpan);
+	List<List<Term>> spans = new ArrayList<List<Term>>();
+	for (Targets<Term> span : this.references) {
+	    spans.add(span.getTargets());
 	}
-	return termSpans;
+	return spans;
     }
 
     public void addReference(List<Term> span) {
-	List<String> idSpan = new ArrayList<String>();
-	for (Term term : span) {
-	    idSpan.add(term.getId());
-	}
-	references.add(idSpan);
+	references.add(new Targets(annotationContainer, span));
     }
 
     public List<ExternalRef> getExternalRefs() {

@@ -25,7 +25,7 @@ public class Entity implements Relational {
     private String type;
 
     /** Reference to different occurrences of the same named entity in the document (at least one required) */
-    private List<List<String>> references;
+    private List<Targets<Term>> references;
 
     /** External references (optional) */
     private List<ExternalRef> externalReferences;
@@ -40,13 +40,9 @@ public class Entity implements Relational {
 	this.annotationContainer = annotationContainer;
 	this.eid = eid;
 	this.type = type;
-	this.references = new ArrayList<List<String>>();
+	this.references = new ArrayList<Targets<Term>>();
 	for (List<Term> termSpan : references) {
-	    List<String> idSpan = new ArrayList<String>();
-	    for (Term term : termSpan) {
-		idSpan.add(term.getId());
-	    }
-	    this.references.add(idSpan);
+	    this.references.add(new Targets(annotationContainer, termSpan));
 	}
 	this.externalReferences = new ArrayList<ExternalRef>();
     }
@@ -64,24 +60,15 @@ public class Entity implements Relational {
     }
 
     public List<List<Term>> getReferences() {
-	List<List<Term>> termSpans = new ArrayList<List<Term>>();
-	for (List<String> idSpan : this.references) {
-	    List<Term> termSpan = new ArrayList<Term>();
-	    for (String id : idSpan) {
-		Term newTerm = annotationContainer.getTermById(id);
-		termSpan.add(newTerm);
-	    }
-	    termSpans.add(termSpan);
+	List<List<Term>> spans = new ArrayList<List<Term>>();
+	for (Targets<Term> span : this.references) {
+	    spans.add(span.getTargets());
 	}
-	return termSpans;
+	return spans;
     }
 
     public void addReference(List<Term> span) {
-	List<String> idSpan = new ArrayList<String>();
-	for (Term term : span) {
-	    idSpan.add(term.getId());
-	}
-	references.add(idSpan);
+	this.references.add(new Targets(annotationContainer, span));
     }
 
     public List<ExternalRef> getExternalRefs() {
