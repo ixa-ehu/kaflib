@@ -37,4 +37,8 @@ public class Targets<T> {
 	    this.headIndex = this.targets.size() - 1;
 	}
     }
+
+    public void addTargets(List<T> targets) {
+	this.targets.addAll(targets);
+    }
 }
