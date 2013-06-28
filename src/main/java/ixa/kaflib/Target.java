@@ -1,45 +1,37 @@
 package ixa.kaflib;
 
-public class Target {
-    private AnnotationContainer annotationContainer;
-    private String id;
-    private boolean head;
+public class Target<T> {
 
-    Target(AnnotationContainer annotationContainer, String id, boolean head) {
+    private AnnotationContainer annotationContainer;
+    //private String id;
+    private T targetObj;
+    private boolean isHead;
+
+    Target(AnnotationContainer annotationContainer, T targetObj, boolean isHead) {
 	this.annotationContainer = annotationContainer;
-	this.id = id;
-	this.head = head;
+	this.targetObj = targetObj;
+	this.isHead = isHead;
     }
 
-    public Term getTerm() {
-	return annotationContainer.getTermById(id);
+    public T getTarget() {
+	return targetObj;
     }
 
     public boolean isHead() {
-	return head;
+	return isHead;
     }
 
-    public void setTerm(String id) {
-	this.id = id;
-	this.head = false;
+    public void setTarget(T targetObj) {
+	this.targetObj = targetObj;
+	this.isHead = false;
     }
 
-    public void setTerm(Term term) {
-	this.id = term.getId();
-	this.head = false;
+    public void setTarget(T targetObj, boolean isHead) {
+	this.targetObj = targetObj;
+	this.isHead = isHead;
     }
 
-    public void setTerm(String id, boolean head) {
-	this.id = id;
-	this.head = head;
-    }
-
-    public void setTerm(Term term, boolean head) {
-	this.id = term.getId();
-	this.head = head;
-    }
-
-    public void setHead(boolean head) {
-	this.head = head;
+    public void setHead(boolean isHead) {
+	this.isHead = isHead;
     }
 }
