@@ -489,12 +489,27 @@ class ReadWriteManager {
 		    }
 		    Element opinionExpressionElem = opinionElem.getChild("opinion_expression");
 		    if (opinionExpressionElem != null) {
-			String polarity = getAttribute("polarity", opinionExpressionElem);
-			String strength = getAttribute("strength", opinionExpressionElem);
-			String subjectivity = getAttribute("subjectivity", opinionExpressionElem);
-			String sentimentSemanticType = getAttribute("sentiment_semantic_type", opinionExpressionElem);
-			String sentimentProductFeature = getAttribute("sentiment_product_feature", opinionExpressionElem);
-			Opinion.OpinionExpression opinionExpression = opinion.createOpinionExpression(polarity, strength, subjectivity, sentimentSemanticType, sentimentProductFeature);
+			String polarity = getOptAttribute("polarity", opinionExpressionElem);
+			String strength = getOptAttribute("strength", opinionExpressionElem);
+			String subjectivity = getOptAttribute("subjectivity", opinionExpressionElem);
+			String sentimentSemanticType = getOptAttribute("sentiment_semantic_type", opinionExpressionElem);
+			String sentimentProductFeature = getOptAttribute("sentiment_product_feature", opinionExpressionElem);
+			Opinion.OpinionExpression opinionExpression = opinion.createOpinionExpression();
+			if (polarity != null) {
+			    opinionExpression.setPolarity(polarity);
+			}
+			if (strength != null) {
+			    opinionExpression.setStrength(strength);
+			}
+			if (subjectivity != null) {
+			    opinionExpression.setSubjectivity(subjectivity);
+			}
+			if (sentimentSemanticType != null) {
+			    opinionExpression.setSentimentSemanticType(sentimentSemanticType);
+			}
+			if (sentimentProductFeature != null) {
+			    opinionExpression.setSentimentProductFeature(sentimentProductFeature);
+			}
 			Element spanElem = opinionExpressionElem.getChild("span");
 			if (spanElem != null) {
 			    List<Element> targetElems = spanElem.getChildren("target");
@@ -612,7 +627,7 @@ class ReadWriteManager {
 
     private static String getOptAttribute(String attName, Element elem) {
 	String value = elem.getAttributeValue(attName);
-	if (value==null || value.equals("")) {
+	if (value==null) {
 	    return null;
 	}
 	return value;
@@ -956,11 +971,21 @@ class ReadWriteManager {
 		Opinion.OpinionExpression expression = opinion.getOpinionExpression();
 		if (expression != null) {
 		    Element opinionExpressionElem = new Element("opinion_expression");
-		    opinionExpressionElem.setAttribute("polarity", expression.getPolarity());
-		    opinionExpressionElem.setAttribute("strength", expression.getStrength());
-		    opinionExpressionElem.setAttribute("subjectivity", expression.getSubjectivity());
+		    if (expression.hasPolarity()) {
+			opinionExpressionElem.setAttribute("polarity", expression.getPolarity());
+		    }
+		    if (expression.hasStrength()) {
+			opinionExpressionElem.setAttribute("strength", expression.getStrength());
+		    }
+		    if (expression.hasSubjectivity()) {
+			opinionExpressionElem.setAttribute("subjectivity", expression.getSubjectivity());
+		    }
+		    if (expression.hasSentimentSemanticType()) {
 		    opinionExpressionElem.setAttribute("sentiment_semantic_type", expression.getSentimentSemanticType());
-		    opinionExpressionElem.setAttribute("sentiment_product_feature", expression.getSentimentProductFeature());
+		    }
+		    if (expression.hasSentimentProductFeature()) {
+			opinionExpressionElem.setAttribute("sentiment_product_feature", expression.getSentimentProductFeature());
+		    }
 		    List<Term> targets = expression.getTerms();
 		    if (targets.size() > 0) {
 			Element spanElem = new Element("span");

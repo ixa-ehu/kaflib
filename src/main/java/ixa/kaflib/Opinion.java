@@ -51,14 +51,13 @@ public class Opinion {
 	private String sentimentProductFeature;
 	private List<String> targets;
 
-	OpinionExpression(AnnotationContainer annotationContainer, String polarity, String strength, String subjectivity, String sentimentSemanticType, String sentimentProductFeature) {
+	OpinionExpression(AnnotationContainer annotationContainer) {
 	    this.annotationContainer = annotationContainer;
-	    this.polarity = polarity;
-	    this.strength = strength;
-	    this.subjectivity = subjectivity;
-	    this.sentimentSemanticType = sentimentSemanticType;
-	    this.sentimentProductFeature = sentimentProductFeature;
 	    targets = new ArrayList<String>();
+	}
+
+	public boolean hasPolarity() {
+	    return (this.polarity != null);
 	}
 
 	public String getPolarity() {
@@ -69,12 +68,20 @@ public class Opinion {
 	    this.polarity = polarity;
 	}
 
+	public boolean hasStrength() {
+	    return (this.strength != null);
+	}
+
 	public String getStrength() {
 	    return strength;
 	}
 
 	public void setStrength(String strength) {
 	    this.strength = strength;
+	}
+
+	public boolean hasSubjectivity() {
+	    return (this.subjectivity != null);
 	}
 
 	public String getSubjectivity() {
@@ -85,12 +92,20 @@ public class Opinion {
 	    this.subjectivity = subjectivity;
 	}
 
+	public boolean hasSentimentSemanticType() {
+	    return (this.sentimentSemanticType != null);
+	}
+
 	public String getSentimentSemanticType() {
 	    return sentimentSemanticType;
 	}
 
 	public void setSentimentSemanticType(String sentimentSemanticType) {
 	    this.sentimentSemanticType = sentimentSemanticType;
+	}
+
+	public boolean hasSentimentProductFeature() {
+	    return (this.sentimentProductFeature != null);
 	}
 
 	public String getSentimentProductFeature() {
@@ -153,8 +168,8 @@ public class Opinion {
 	return this.opinionTarget;
     }
 
-    public OpinionExpression createOpinionExpression(String polarity, String strength, String subjectivity, String sentimentSemanticType, String sentimentProductFeature) {
-	this.opinionExpression = new Opinion.OpinionExpression(this.annotationContainer, polarity, strength, subjectivity, sentimentSemanticType, sentimentProductFeature);
+    public OpinionExpression createOpinionExpression() {
+	this.opinionExpression = new Opinion.OpinionExpression(this.annotationContainer);
 	return this.opinionExpression;
     }
 
