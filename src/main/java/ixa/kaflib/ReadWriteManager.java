@@ -944,6 +944,8 @@ class ReadWriteManager {
 		List<Span<Term>> references = property.getReferences();
 		Element referencesElem = new Element("references");
 		for (Span<Term> span : references) {
+		    Comment spanComment = new Comment(property.getSpanStr(span));
+		    referencesElem.addContent(spanComment);
 		    Element spanElem = new Element("span");
 		    for (Term term : span.getTargets()) {
 			Element targetElem = new Element("target");
@@ -970,6 +972,8 @@ class ReadWriteManager {
 		List<Span<Term>> references = category.getReferences();
 		Element referencesElem = new Element("references");
 		for (Span<Term> span : references) {
+		    Comment spanComment = new Comment(category.getSpanStr(span));
+		    referencesElem.addContent(spanComment);
 		    Element spanElem = new Element("span");
 		    for (Term term : span.getTargets()) {
 			Element targetElem = new Element("target");
@@ -999,6 +1003,8 @@ class ReadWriteManager {
 		Opinion.OpinionHolder holder = opinion.getOpinionHolder();
 		if (holder != null) {
 		    Element opinionHolderElem = new Element("opinion_holder");
+		    Comment comment = new Comment(opinion.getSpanStr(opinion.getOpinionHolder().getSpan()));
+		    opinionHolderElem.addContent(comment);
 		    List<Term> targets = holder.getTerms();
 		    Span<Term> span = holder.getSpan();
 		    if (targets.size() > 0) {
@@ -1018,6 +1024,8 @@ class ReadWriteManager {
 		Opinion.OpinionTarget opTarget = opinion.getOpinionTarget();
 		if (opTarget != null) {
 		    Element opinionTargetElem = new Element("opinion_target");
+		    Comment comment = new Comment(opinion.getSpanStr(opinion.getOpinionTarget().getSpan()));
+		    opinionTargetElem.addContent(comment);
 		    List<Term> targets = opTarget.getTerms();
 		    Span<Term> span = opTarget.getSpan();
 		    if (targets.size() > 0) {
@@ -1037,6 +1045,8 @@ class ReadWriteManager {
 		Opinion.OpinionExpression expression = opinion.getOpinionExpression();
 		if (expression != null) {
 		    Element opinionExpressionElem = new Element("opinion_expression");
+		    Comment comment = new Comment(opinion.getSpanStr(opinion.getOpinionExpression().getSpan()));
+		    opinionExpressionElem.addContent(comment);
 		    if (expression.hasPolarity()) {
 			opinionExpressionElem.setAttribute("polarity", expression.getPolarity());
 		    }
@@ -1077,7 +1087,9 @@ class ReadWriteManager {
 	List<Relation> relations = annotationContainer.getRelations();
 	if (relations.size() > 0) {
 	    Element relationsElem = new Element("relations");
-	    for (Relation relation : relations){
+	    for (Relation relation : relations) {
+		Comment comment = new Comment(relation.getStr());
+		relationsElem.addContent(comment);
 		Element relationElem = new Element("relation");
 		relationElem.setAttribute("rid", relation.getId());
 		relationElem.setAttribute("from", relation.getFrom().getId());

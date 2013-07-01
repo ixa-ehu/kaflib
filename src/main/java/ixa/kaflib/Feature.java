@@ -84,14 +84,18 @@ public class Feature implements Relational {
 	externalReferences.addAll(externalRefs);
     }
 
-    public String getSpanStr(List<Term> terms) {
+    public String getSpanStr(Span<Term> span) {
 	String str = "";
-	for (Term term : terms) {
+	for (Term term : span.getTargets()) {
 	    if (!str.isEmpty()) {
 		str += " ";
 	    }
 	    str += term.getStr();
 	}
 	return str;
+    }
+
+    public String getStr() {
+	return getSpanStr(this.getReferences().get(0));
     }
 }

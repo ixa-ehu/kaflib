@@ -101,4 +101,8 @@ public class Entity implements Relational {
 	}
 	return str;
     }
+
+    public String getStr() {
+	return getSpanStr(this.getReferences().get(0));
+    }
 }

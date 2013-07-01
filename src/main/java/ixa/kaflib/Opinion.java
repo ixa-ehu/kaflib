@@ -209,4 +209,19 @@ public class Opinion {
 	return this.opinionExpression;
     }
 
+    public String getSpanStr(Span<Term> span) {
+	String str = "";
+	for (Term term : span.getTargets()) {
+	    if (!str.isEmpty()) {
+		str += " ";
+	    }
+	    str += term.getStr();
+	}
+	return str;
+    }
+
+    public String getStr() {
+	return getSpanStr(this.getOpinionExpression().getSpan());
+    }
+
 }

@@ -61,4 +61,8 @@ public class Relation {
 	}
 	this.confidence = confidence;
     }
+
+    public String getStr() {
+	return "(" + this.from.getStr() + ", " + this.to.getStr() + ")";
+    }
 }
