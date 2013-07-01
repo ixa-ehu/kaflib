@@ -8,37 +8,61 @@ public class Opinion {
 
     public static class OpinionHolder {
 	private AnnotationContainer annotationContainer;
-	private List<String> targets;
+	private Span<Term> span;
 
-	OpinionHolder(AnnotationContainer annotationContainer) {
+	OpinionHolder(AnnotationContainer annotationContainer, Span<Term> span) {
 	    this.annotationContainer = annotationContainer;
-	    targets = new ArrayList<String>();
+	    this.span = span;
 	}
 
 	public List<Term> getTerms() {
-	    return annotationContainer.getTermsById(targets);
+	    return this.span.getTargets();
 	}
 
 	public void addTerm(Term term) {
-	    targets.add(term.getId());
+	    this.span.addTarget(term);
+	}
+
+	public void addTerm(Term term, boolean isHead) {
+	    this.span.addTarget(term, isHead);
+	}
+
+	public Span<Term> getSpan() {
+	    return this.span;
+	}
+
+	public void setSpan(Span<Term> span) {
+	    this.span = span;
 	}
     }
 
     public static class OpinionTarget {
 	private AnnotationContainer annotationContainer;
-	private List<String> targets;
+	private Span<Term> span;
 
-	OpinionTarget(AnnotationContainer annotationContainer) {
+	OpinionTarget(AnnotationContainer annotationContainer, Span<Term> span) {
 	    this.annotationContainer = annotationContainer;
-	    targets = new ArrayList<String>();
+	    this.span = span;
 	}
 
 	public List<Term> getTerms() {
-	    return annotationContainer.getTermsById(targets);
+	    return this.span.getTargets();
 	}
 
 	public void addTerm(Term term) {
-	    targets.add(term.getId());
+	    this.span.addTarget(term);
+	}
+
+	public void addTerm(Term term, boolean isHead) {
+	    this.span.addTarget(term, isHead);
+	}
+
+	public Span<Term> getSpan() {
+	    return this.span;
+	}
+
+	public void setSpan(Span<Term> span) {
+	    this.span = span;
 	}
     }
 
@@ -49,16 +73,16 @@ public class Opinion {
 	private String subjectivity;
 	private String sentimentSemanticType;
 	private String sentimentProductFeature;
-	private List<String> targets;
+	private Span<Term> span;
 
-	OpinionExpression(AnnotationContainer annotationContainer, String polarity, String strength, String subjectivity, String sentimentSemanticType, String sentimentProductFeature) {
+	OpinionExpression(AnnotationContainer annotationContainer, String polarity, String strength, String subjectivity, String sentimentSemanticType, String sentimentProductFeature, Span<Term> span) {
 	    this.annotationContainer = annotationContainer;
 	    this.polarity = polarity;
 	    this.strength = strength;
 	    this.subjectivity = subjectivity;
 	    this.sentimentSemanticType = sentimentSemanticType;
 	    this.sentimentProductFeature = sentimentProductFeature;
-	    targets = new ArrayList<String>();
+	    this.span = span;
 	}
 
 	public String getPolarity() {
@@ -102,11 +126,23 @@ public class Opinion {
 	}
 
 	public List<Term> getTerms() {
-	    return annotationContainer.getTermsById(targets);
+	    return this.span.getTargets();
 	}
 
 	public void addTerm(Term term) {
-	    targets.add(term.getId());
+	    this.span.addTarget(term);
+	}
+
+	public void addTerm(Term term, boolean isHead) {
+	    this.span.addTarget(term, isHead);
+	}
+
+	public Span<Term> getSpan() {
+	    return this.span;
+	}
+
+	public void setSpan(Span<Term> span) {
+	    this.span = span;
 	}
     }
     
@@ -143,18 +179,18 @@ public class Opinion {
 	return opinionExpression;
     }
 
-    public OpinionHolder createOpinionHolder() {
-	this.opinionHolder = new Opinion.OpinionHolder(this.annotationContainer);
+    public OpinionHolder createOpinionHolder(Span<Term> span) {
+	this.opinionHolder = new Opinion.OpinionHolder(this.annotationContainer, span);
 	return this.opinionHolder;
     }
 
-    public OpinionTarget createOpinionTarget() {
-	this.opinionTarget = new Opinion.OpinionTarget(this.annotationContainer);
+    public OpinionTarget createOpinionTarget(Span<Term> span) {
+	this.opinionTarget = new Opinion.OpinionTarget(this.annotationContainer, span);
 	return this.opinionTarget;
     }
 
-    public OpinionExpression createOpinionExpression(String polarity, String strength, String subjectivity, String sentimentSemanticType, String sentimentProductFeature) {
-	this.opinionExpression = new Opinion.OpinionExpression(this.annotationContainer, polarity, strength, subjectivity, sentimentSemanticType, sentimentProductFeature);
+    public OpinionExpression createOpinionExpression(String polarity, String strength, String subjectivity, String sentimentSemanticType, String sentimentProductFeature, Span<Term> span) {
+	this.opinionExpression = new Opinion.OpinionExpression(this.annotationContainer, polarity, strength, subjectivity, sentimentSemanticType, sentimentProductFeature, span);
 	return this.opinionExpression;
     }
 

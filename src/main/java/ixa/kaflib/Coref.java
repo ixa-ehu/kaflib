@@ -13,9 +13,9 @@ public class Coref {
     private String coid;
 
     /** Mentions to the same entity (at least one required) */
-    private List<List<Target>> references;
+    private List<Span<Term>> references;
 
-    Coref(AnnotationContainer annotationContainer, String coid, List<List<Target>> references) {
+    Coref(AnnotationContainer annotationContainer, String coid, List<Span<Term>> references) {
 	if (references.size() < 1) {
 	    throw new IllegalStateException("Coreferences must contain at least one reference span");
 	}
@@ -31,18 +31,32 @@ public class Coref {
 	return coid;
     }
 
-    public List<List<Target>> getReferences() {
-	return references;
+    /** Returns the term targets of the first span. When targets of other spans are needed getReferences() method should be used. */ 
+    public List<Term> getTerms() {
+	return this.references.get(0).getTargets();
     }
 
-    public void addReference(List<Target> span) {
-	references.add(span);
+    /** Adds a term to the first span. */
+    public void addTerm(Term term) {
+	this.references.get(0).addTarget(term);
     }
 
-    public String getSpanStr(List<Target> targets) {
+    /** Adds a term to the first span. */
+    public void addTerm(Term term, boolean isHead) {
+	this.references.get(0).addTarget(term, isHead);
+    }
+
+    public List<Span<Term>> getReferences() {
+	return this.references;
+    }
+
+    public void addReference(Span<Term> span) {
+	this.references.add(span);
+    }
+
+    public String getSpanStr(Span<Term> span) {
 	String str = "";
-	for (Target target : targets) {
-	    Term term = target.getTerm();
+	for (Term term : span.getTargets()) {
 	    if (!str.isEmpty()) {
 		str += " ";
 	    }

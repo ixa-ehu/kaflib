@@ -19,17 +19,16 @@ public class Chunk {
     private String chunkcase;
 
     /** Chunk's target terms (at least one required) */
-    private Targets<Term> targets;
+    private Span<Term> span;
 
-    Chunk(AnnotationContainer annotationContainer, String cid, String phrase, List<Term> terms) {
-	if (terms.size() < 1) {
+    Chunk(AnnotationContainer annotationContainer, String cid, String phrase, Span<Term> span) {
+	if (span.size() < 1) {
 	    throw new IllegalStateException("Chunks must contain at least one term target");
 	}
 	this.annotationContainer = annotationContainer;
 	this.cid = cid;
-	this.head = head;
 	this.phrase = phrase;
-	this.targets = new Targets(annotationContainer, terms);
+	this.span = span;
     }
 
     public String getId() {
@@ -37,11 +36,11 @@ public class Chunk {
     }
 
     public boolean hasHead() {
-	return (targets.getHead() != null);
+	return (span.getHead() != null);
     }
 
     public Term getHead() {
-	return targets.getHead();
+	return span.getHead();
     }
 
     public String getPhrase() {
@@ -65,20 +64,28 @@ public class Chunk {
     }
 
     public List<Term> getTerms() {
-	return this.targets.getTargets();
+	return this.span.getTargets();
     }
 
     public void addTerm(Term term) {
-	this.targets.addTerm(term);
+	this.span.addTarget(term);
     }
 
     public void addTerm(Term term, boolean isHead) {
-	this.targets.addTerm(term, isHead);
+	this.span.addTarget(term, isHead);
+    }
+
+    public Span<Term> getSpan() {
+	return this.span;
+    }
+
+    public void setSpan(Span<Term> span) {
+	this.span = span;
     }
 
     public String getStr() {
 	String str = "";
-	for (Term term : this.targets.getTargets()) {
+	for (Term term : this.span.getTargets()) {
 	    if (!str.isEmpty()) {
 		str += " ";
 	    }

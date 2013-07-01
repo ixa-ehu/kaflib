@@ -194,20 +194,18 @@ class ReadWriteManager {
 			throw new IllegalStateException("Every term must contain a span element");
 		    }
 		    List<Element> termsWfElems = spans.get(0).getChildren();
-		    List<WF> termsWfs = new ArrayList<WF>();
+		    Span<WF> span = kaf.createWFSpan();
 		    for (Element termsWfElem : termsWfElems) {
 			String wfId = getAttribute("id", termsWfElem);
-			termsWfs.add(wfIndex.get(wfId));
+			boolean isHead = isHead(termsWfElem);
+			span.addTarget(wfIndex.get(wfId), isHead);
 		    }
-		    Term newTerm = kaf.createTerm(tid, type, lemma, pos, termsWfs);
+		    Term newTerm = kaf.createTerm(tid, type, lemma, pos, span);
 		    String tMorphofeat = getOptAttribute("morphofeat", termElem);
 		    if (tMorphofeat != null) {
 			newTerm.setMorphofeat(tMorphofeat);
 		    }
 		    String tHead = getOptAttribute("head", termElem);
-		    if (tHead != null) {
-			newTerm.setHead(tHead);
-		    }
 		    String termcase = getOptAttribute("case", termElem);
 		    if (termcase != null) {
 			newTerm.setCase(termcase);
@@ -253,6 +251,7 @@ class ReadWriteManager {
 		    List<Element> termsComponentElems = termElem.getChildren("component");
 		    for (Element termsComponentElem : termsComponentElems) {
 			String compId = getAttribute("id", termsComponentElem);
+			boolean isHead = ((tHead != null) && tHead.equals(compId));
 			String compLemma = getAttribute("lemma", termsComponentElem);
 			String compPos = getAttribute("pos", termsComponentElem);
 			Term.Component newComponent = kaf.createComponent(compId, newTerm, compLemma, compPos);
@@ -261,7 +260,7 @@ class ReadWriteManager {
 			    List<ExternalRef> externalRefs = getExternalReferences(externalReferencesElems.get(0), kaf);
 			    newComponent.addExternalRefs(externalRefs);
 			}
-			newTerm.addComponent(newComponent);
+			newTerm.addComponent(newComponent, isHead);
 		    }
 		    List<Element> externalReferencesElems = termElem.getChildren("externalReferences");
 		    if (externalReferencesElems.size() > 0) {
@@ -298,12 +297,14 @@ class ReadWriteManager {
 			throw new IllegalStateException("Every chunk must contain a span element");
 		    }
 		    List<Element> chunksTermElems = spans.get(0).getChildren();
-		    List<Term> chunksTerms = new ArrayList<Term>();
+		    Span<Term> span = kaf.createTermSpan();
 		    for (Element chunksTermElem : chunksTermElems) {
 			String termId = getAttribute("id", chunksTermElem);
-			chunksTerms.add(termIndex.get(termId));
+			boolean isHead = isHead(chunksTermElem);
+			Term targetTerm = termIndex.get(termId);
+			span.addTarget(targetTerm, ((targetTerm == chunkHead) || isHead));
 		    }
-		    Chunk newChunk = kaf.createChunk(chunkId, chunkHead, chunkPhrase, chunksTerms);
+		    Chunk newChunk = kaf.createChunk(chunkId, chunkPhrase, span);
 		    String chunkCase = getOptAttribute("case", chunkElem);
 		    if (chunkCase != null) {
 			newChunk.setCase(chunkCase);
@@ -323,9 +324,9 @@ class ReadWriteManager {
 		    if (spanElems.size() < 1) {
 			throw new IllegalStateException("Every entity must contain a 'span' element inside 'references'");
 		    }
-		    List<List<Term>> references = new ArrayList<List<Term>>();
+		    List<Span<Term>> references = new ArrayList<Span<Term>>();
 		    for (Element spanElem : spanElems) {
-			List<Term> span = new ArrayList<Term>();
+			Span<Term> span = kaf.createTermSpan();
 			List<Element> targetElems = spanElem.getChildren();
 			if (targetElems.size() < 1) {
 			    throw new IllegalStateException("Every span in an entity must contain at least one target inside");  
@@ -333,7 +334,8 @@ class ReadWriteManager {
 			for (Element targetElem : targetElems) {
 			    String targetTermId = getAttribute("id", targetElem);
 			    Term targetTerm = termIndex.get(targetTermId);
-			    span.add(targetTerm);
+			    boolean isHead = isHead(targetElem);
+			    span.addTarget(targetTerm, isHead);
 			}
 			references.add(span);
 		    }
@@ -362,9 +364,9 @@ class ReadWriteManager {
 			if (spanElems.size() < 1) {
 			    throw new IllegalStateException("Every property must contain a 'span' element inside 'references'");
 			}
-			List<List<Term>> references = new ArrayList<List<Term>>();
+			List<Span<Term>> references = new ArrayList<Span<Term>>();
 			for (Element spanElem : spanElems) {
-			    List<Term> span = new ArrayList<Term>();
+			    Span<Term> span = kaf.createTermSpan();
 			    List<Element> targetElems = spanElem.getChildren();
 			    if (targetElems.size() < 1) {
 				throw new IllegalStateException("Every span in a property must contain at least one target inside");  
@@ -372,7 +374,8 @@ class ReadWriteManager {
 			    for (Element targetElem : targetElems) {
 				String targetTermId = getAttribute("id", targetElem);
 				Term targetTerm = termIndex.get(targetTermId);
-				span.add(targetTerm);
+				boolean isHead = isHead(targetElem);
+				span.addTarget(targetTerm, isHead);
 			    }
 			    references.add(span);
 			}
@@ -398,9 +401,9 @@ class ReadWriteManager {
 			if (spanElems.size() < 1) {
 			    throw new IllegalStateException("Every category must contain a 'span' element inside 'references'");
 			}
-			List<List<Term>> references = new ArrayList<List<Term>>();
+			List<Span<Term>> references = new ArrayList<Span<Term>>();
 			for (Element spanElem : spanElems) {
-			    List<Term> span = new ArrayList<Term>();
+			    Span<Term> span = kaf.createTermSpan();
 			    List<Element> targetElems = spanElem.getChildren();
 			    if (targetElems.size() < 1) {
 				throw new IllegalStateException("Every span in a property must contain at least one target inside");  
@@ -408,7 +411,8 @@ class ReadWriteManager {
 			    for (Element targetElem : targetElems) {
 				String targetTermId = getAttribute("id", targetElem);
 				Term targetTerm = termIndex.get(targetTermId);
-				span.add(targetTerm);
+				boolean isHead = isHead(targetElem);
+				span.addTarget(targetTerm, isHead);
 			    }
 			    references.add(span);
 			}
@@ -434,9 +438,9 @@ class ReadWriteManager {
 		    if (spanElems.size() < 1) {
 			throw new IllegalStateException("Every coref must contain a 'span' element inside 'references'");
 		    }
-		    List<List<Target>> references = new ArrayList<List<Target>>();
+		    List<Span<Term>> references = new ArrayList<Span<Term>>();
 		    for (Element spanElem : spanElems) {
-			List<Target> span = new ArrayList<Target>();
+			Span<Term> span = kaf.createTermSpan();
 			List<Element> targetElems = spanElem.getChildren();
 			if (targetElems.size() < 1) {
 			    throw new IllegalStateException("Every span in an entity must contain at least one target inside");  
@@ -444,14 +448,8 @@ class ReadWriteManager {
 			for (Element targetElem : targetElems) {
 			    String targetTermId = getAttribute("id", targetElem);
 			    Term targetTerm = termIndex.get(targetTermId);
-			    String targetTermIsHead = getOptAttribute("head", targetElem);
-			    Target target;
-			    if ((targetTermIsHead != null) && (targetTermIsHead.equals("yes"))) {
-				target = kaf.createTarget(targetTerm, true);
-			    } else {
-				target = kaf.createTarget(targetTerm);
-			    }
-			    span.add(target);
+			    boolean isHead = isHead(targetElem);
+			    span.addTarget(targetTerm, isHead);
 			}
 			references.add(span);
 		    }
@@ -465,42 +463,48 @@ class ReadWriteManager {
 		    Opinion opinion = kaf.createOpinion(opinionId);
 		    Element opinionHolderElem = opinionElem.getChild("opinion_holder");
 		    if (opinionHolderElem != null) {
-			Opinion.OpinionHolder opinionHolder = opinion.createOpinionHolder();
+			Span<Term> span = kaf.createTermSpan();
+			Opinion.OpinionHolder opinionHolder = opinion.createOpinionHolder(span);
 			Element spanElem = opinionHolderElem.getChild("span");
 			if (spanElem != null) {
 			    List<Element> targetElems = spanElem.getChildren("target");
 			    for (Element targetElem : targetElems) {
 				String refId = getOptAttribute("id", targetElem);
-				opinionHolder.addTerm(termIndex.get(refId));
+				boolean isHead = isHead(targetElem);
+				span.addTarget(termIndex.get(refId), isHead);
 			    }
 			}
 		    }
 		    Element opinionTargetElem = opinionElem.getChild("opinion_target");
 		    if (opinionTargetElem != null) {
-			Opinion.OpinionTarget opinionTarget = opinion.createOpinionTarget();
+			Span<Term> span = kaf.createTermSpan();
+			Opinion.OpinionTarget opinionTarget = opinion.createOpinionTarget(span);
 			Element spanElem = opinionTargetElem.getChild("span");
 			if (spanElem != null) {
 			    List<Element> targetElems = spanElem.getChildren("target");
 			    for (Element targetElem : targetElems) {
 				String refId = getOptAttribute("id", targetElem);
-				opinionTarget.addTerm(termIndex.get(refId));
+				boolean isHead = isHead(targetElem);
+				span.addTarget(termIndex.get(refId), isHead);
 			    }
 			}
 		    }
 		    Element opinionExpressionElem = opinionElem.getChild("opinion_expression");
 		    if (opinionExpressionElem != null) {
+			Span<Term> span = kaf.createTermSpan();
 			String polarity = getAttribute("polarity", opinionExpressionElem);
 			String strength = getAttribute("strength", opinionExpressionElem);
 			String subjectivity = getAttribute("subjectivity", opinionExpressionElem);
 			String sentimentSemanticType = getAttribute("sentiment_semantic_type", opinionExpressionElem);
 			String sentimentProductFeature = getAttribute("sentiment_product_feature", opinionExpressionElem);
-			Opinion.OpinionExpression opinionExpression = opinion.createOpinionExpression(polarity, strength, subjectivity, sentimentSemanticType, sentimentProductFeature);
+			Opinion.OpinionExpression opinionExpression = opinion.createOpinionExpression(polarity, strength, subjectivity, sentimentSemanticType, sentimentProductFeature, span);
 			Element spanElem = opinionExpressionElem.getChild("span");
 			if (spanElem != null) {
 			    List<Element> targetElems = spanElem.getChildren("target");
 			    for (Element targetElem : targetElems) {
 				String refId = getOptAttribute("id", targetElem);
-				opinionExpression.addTerm(termIndex.get(refId));
+				boolean isHead = isHead(targetElem);
+				span.addTarget(termIndex.get(refId), isHead);
 			    }
 			}
 		    }
@@ -616,6 +620,17 @@ class ReadWriteManager {
 	    return null;
 	}
 	return value;
+    }
+
+    private static boolean isHead(Element elem) {
+	String value = elem.getAttributeValue("head");
+	if (value == null) {
+	    return false;
+	}
+	if (value.equals("yes")) {
+	    return true;
+	}
+	return false;
     }
 
     /** Returns the content of the given KAFDocument in a DOM document. */
@@ -761,9 +776,13 @@ class ReadWriteManager {
 		    termElem.addContent(sentimentElem);
 		}
 		Element spanElem = new Element("span");
+		Span<WF> span = term.getSpan();
 		for (WF target : term.getWFs()) {
 		    Element targetElem = new Element("target");
 		    targetElem.setAttribute("id", target.getId());
+		    if (target == span.getHead()) {
+			targetElem.setAttribute("head", "yes");
+		    }
 		    spanElem.addContent(targetElem);
 		}
 		termElem.addContent(spanElem);
@@ -846,13 +865,16 @@ class ReadWriteManager {
 		entityElem.setAttribute("eid", entity.getId());
 		entityElem.setAttribute("type", entity.getType());
 		Element referencesElem = new Element("references");
-		for (List<Term> span : entity.getReferences()) {
+		for (Span<Term> span : entity.getReferences()) {
 		    Comment spanComment = new Comment(entity.getSpanStr(span));
 		    referencesElem.addContent(spanComment);
 		    Element spanElem = new Element("span");
-		    for (Term term : span) {
+		    for (Term term : span.getTargets()) {
 			Element targetElem = new Element("target");
 			targetElem.setAttribute("id", term.getId());
+			if (term == span.getHead()) {
+			    targetElem.setAttribute("head", "yes");
+			}
 			spanElem.addContent(targetElem);
 		    }
 		    referencesElem.addContent(spanElem);
@@ -868,6 +890,33 @@ class ReadWriteManager {
 	    root.addContent(entitiesElem);
 	}
 
+	List<Coref> corefs = annotationContainer.getCorefs();
+	if (corefs.size() > 0) {
+	    Element corefsElem = new Element("coreferences");
+	    for (Coref coref : corefs) {
+		Element corefElem = new Element("coref");
+		corefElem.setAttribute("coid", coref.getId());
+		Element referencesElem = new Element("references");
+		for (Span<Term> span : coref.getReferences()) {
+		    Comment spanComment = new Comment(coref.getSpanStr(span));
+		    referencesElem.addContent(spanComment);
+		    Element spanElem = new Element("span");
+		    for (Term target : span.getTargets()) {
+			Element targetElem = new Element("target");
+			targetElem.setAttribute("id", target.getId());
+			if (target == span.getHead()) {
+			    targetElem.setAttribute("head", "yes");
+			}
+			spanElem.addContent(targetElem);
+		    }
+		    referencesElem.addContent(spanElem);
+		}
+		corefElem.addContent(referencesElem);
+		corefsElem.addContent(corefElem);
+	    }
+	    root.addContent(corefsElem);
+	}
+
 	Element featuresElem = new Element("features");
 	List<Feature> properties = annotationContainer.getProperties();
 	if (properties.size() > 0) {
@@ -876,13 +925,16 @@ class ReadWriteManager {
 		Element propertyElem = new Element("property");
 		propertyElem.setAttribute("pid", property.getId());
 		propertyElem.setAttribute("lemma", property.getLemma());
-		List<List<Term>> references = property.getReferences();
+		List<Span<Term>> references = property.getReferences();
 		Element referencesElem = new Element("references");
-		for (List<Term> span : references) {
+		for (Span<Term> span : references) {
 		    Element spanElem = new Element("span");
-		    for (Term term : span) {
+		    for (Term term : span.getTargets()) {
 			Element targetElem = new Element("target");
 			targetElem.setAttribute("id", term.getId());
+			if (term == span.getHead()) {
+			    targetElem.setAttribute("head", "yes");
+			}
 			spanElem.addContent(targetElem);
 		    }
 		    referencesElem.addContent(spanElem);
@@ -899,13 +951,16 @@ class ReadWriteManager {
 		Element categoryElem = new Element("category");
 		categoryElem.setAttribute("cid", category.getId());
 		categoryElem.setAttribute("lemma", category.getLemma());
-		List<List<Term>> references = category.getReferences();
+		List<Span<Term>> references = category.getReferences();
 		Element referencesElem = new Element("references");
-		for (List<Term> span : references) {
+		for (Span<Term> span : references) {
 		    Element spanElem = new Element("span");
-		    for (Term term : span) {
+		    for (Term term : span.getTargets()) {
 			Element targetElem = new Element("target");
 			targetElem.setAttribute("id", term.getId());
+			if (term == span.getHead()) {
+			    targetElem.setAttribute("head", "yes");
+			}
 			spanElem.addContent(targetElem);
 		    }
 		    referencesElem.addContent(spanElem);
@@ -915,7 +970,9 @@ class ReadWriteManager {
 	    }
 	    featuresElem.addContent(categoriesElem);
 	}
-	root.addContent(featuresElem);
+	if (featuresElem.getChildren().size() > 0) {
+	    root.addContent(featuresElem);
+	}
 
 	List<Opinion> opinions = annotationContainer.getOpinions();
 	if (opinions.size() > 0) {
@@ -927,12 +984,16 @@ class ReadWriteManager {
 		if (holder != null) {
 		    Element opinionHolderElem = new Element("opinion_holder");
 		    List<Term> targets = holder.getTerms();
+		    Span<Term> span = holder.getSpan();
 		    if (targets.size() > 0) {
 			Element spanElem = new Element("span");
 			opinionHolderElem.addContent(spanElem);
 			for (Term target : targets) {
 			    Element targetElem = new Element("target");
 			    targetElem.setAttribute("id", target.getId());
+			    if (target == span.getHead()) {
+				targetElem.setAttribute("head", "yes");
+			    }
 			    spanElem.addContent(targetElem);
 			}
 		    }
@@ -942,12 +1003,16 @@ class ReadWriteManager {
 		if (opTarget != null) {
 		    Element opinionTargetElem = new Element("opinion_target");
 		    List<Term> targets = opTarget.getTerms();
+		    Span<Term> span = opTarget.getSpan();
 		    if (targets.size() > 0) {
 			Element spanElem = new Element("span");
 			opinionTargetElem.addContent(spanElem);
 			for (Term target : targets) {
 			    Element targetElem = new Element("target");
 			    targetElem.setAttribute("id", target.getId());
+			    if (target == span.getHead()) {
+				targetElem.setAttribute("head", "yes");
+			    }
 			    spanElem.addContent(targetElem);
 			}
 		    }
@@ -962,12 +1027,16 @@ class ReadWriteManager {
 		    opinionExpressionElem.setAttribute("sentiment_semantic_type", expression.getSentimentSemanticType());
 		    opinionExpressionElem.setAttribute("sentiment_product_feature", expression.getSentimentProductFeature());
 		    List<Term> targets = expression.getTerms();
+		    Span<Term> span = expression.getSpan();
 		    if (targets.size() > 0) {
 			Element spanElem = new Element("span");
 			opinionExpressionElem.addContent(spanElem);
 			for (Term target : targets) {
 			    Element targetElem = new Element("target");
 			    targetElem.setAttribute("id", target.getId());
+			    if (target == span.getHead()) {
+				targetElem.setAttribute("head", "yes");
+			    }
 			    spanElem.addContent(targetElem);
 			}
 		    }
@@ -993,33 +1062,6 @@ class ReadWriteManager {
 		relationsElem.addContent(relationElem);
 	    }
 	    root.addContent(relationsElem);
-	}
-
-	List<Coref> corefs = annotationContainer.getCorefs();
-	if (corefs.size() > 0) {
-	    Element corefsElem = new Element("coreferences");
-	    for (Coref coref : corefs) {
-		Element corefElem = new Element("coref");
-		corefElem.setAttribute("coid", coref.getId());
-		Element referencesElem = new Element("references");
-		for (List<Target> span : coref.getReferences()) {
-		    Comment spanComment = new Comment(coref.getSpanStr(span));
-		    referencesElem.addContent(spanComment);
-		    Element spanElem = new Element("span");
-		    for (Target target : span) {
-			Element targetElem = new Element("target");
-			targetElem.setAttribute("id", target.getTerm().getId());
-			if (target.isHead()) {
-			    targetElem.setAttribute("head", "yes");
-			}
-			spanElem.addContent(targetElem);
-		    }
-		    referencesElem.addContent(spanElem);
-		}
-		corefElem.addContent(referencesElem);
-		corefsElem.addContent(corefElem);
-	    }
-	    root.addContent(corefsElem);
 	}
 
 	List<Tree> trees = annotationContainer.getTrees();

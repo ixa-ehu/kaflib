@@ -8,15 +8,15 @@ public class Relation {
     
     private AnnotationContainer annotationContainer;
     private String id;
-    private String fromId;
-    private String toId;
+    private Relational from;
+    private Relational to;
     private float confidence;
 
     Relation (AnnotationContainer annotationContainer, String id, Relational from, Relational to) {
 	this.annotationContainer = annotationContainer;
 	this.id = id;
-	this.fromId = from.getId();
-	this.toId = to.getId();
+	this.from = from;
+	this.to = to;
 	this.confidence = -1.0f;
     }
 
@@ -29,35 +29,19 @@ public class Relation {
     }
 
     public Relational getFrom() {
-	if (fromId.matches("e.*")) {
-	    return annotationContainer.getEntityById(fromId);
-	}
-	else if (fromId.matches("p.*")) {
-	    return annotationContainer.getPropertyById(fromId);
-	}
-	else {
-	    return annotationContainer.getCategoryById(fromId);
-	}
+        return this.from;
     }
 
     public void setFrom(Relational obj) {
-	this.fromId = obj.getId();
+	this.from = obj;
     }
 
     public Relational getTo() {
-	if (toId.matches("e.*")) {
-	    return annotationContainer.getEntityById(toId);
-	}
-	else if (toId.matches("p.*")) {
-	    return annotationContainer.getPropertyById(toId);
-	}
-	else {
-	    return annotationContainer.getCategoryById(toId);
-	}
+        return this.to;
     }
 
     public void setTo(Relational obj) {
-	this.toId = obj.getId();
+	this.to = obj;
     }
 
     public boolean hasConfidence() {

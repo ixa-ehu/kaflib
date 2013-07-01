@@ -12,24 +12,21 @@ public class Feature implements Relational {
 
     private String lemma;
 
-    private List<Targets<Term>> references;
+    private List<Span<Term>> references;
 
     private List<ExternalRef> externalReferences;
 
-    Feature(AnnotationContainer annotationContainer, String id, String lemma, List<List<Term>> references) {
+    Feature(AnnotationContainer annotationContainer, String id, String lemma, List<Span<Term>> references) {
 	if (references.size() < 1) {
 	    throw new IllegalStateException("Features must contain at least one reference span");
 	}
 	if (references.get(0).size() < 1) {
-	    throw new IllegalStateException("Entities' reference's spans must contain at least one target");
+	    throw new IllegalStateException("Features' reference's spans must contain at least one target");
 	}
 	this.id = id;
 	this.annotationContainer = annotationContainer;
 	this.lemma = lemma;
-	this.references = new ArrayList<Targets<Term>>();
-	for (List<Term> span : references) {
-	    this.references.add(new Targets(annotationContainer, span));
-	}
+	this.references = references;
     }
 
     public boolean isAProperty() {
@@ -52,16 +49,27 @@ public class Feature implements Relational {
 	this.lemma = lemma;
     }
 
-    public List<List<Term>> getReferences() {
-	List<List<Term>> spans = new ArrayList<List<Term>>();
-	for (Targets<Term> span : this.references) {
-	    spans.add(span.getTargets());
-	}
-	return spans;
+    /** Returns the term targets of the first span. When targets of other spans are needed getReferences() method should be used. */ 
+    public List<Term> getTerms() {
+	return this.references.get(0).getTargets();
     }
 
-    public void addReference(List<Term> span) {
-	references.add(new Targets(annotationContainer, span));
+    /** Adds a term to the first span. */
+    public void addTerm(Term term) {
+	this.references.get(0).addTarget(term);
+    }
+
+    /** Adds a term to the first span. */
+    public void addTerm(Term term, boolean isHead) {
+	this.references.get(0).addTarget(term, isHead);
+    }
+
+    public List<Span<Term>> getReferences() {
+	return this.references;
+    }
+
+    public void addReference(Span<Term> span) {
+	references.add(span);
     }
 
     public List<ExternalRef> getExternalRefs() {

@@ -9,10 +9,10 @@ public class Dep {
     private AnnotationContainer annotationContainer;
 
     /** Source term of the dependency (required) */
-    private Target<Term> from;
+    private Term from;
 
     /** Target term of the dependency (required) */
-    private Target<Term> to;
+    private Term to;
 
     /** Relational function of the dependency (required). One of:
      * - `subj´ (grammatical subject)
@@ -26,25 +26,25 @@ public class Dep {
 
     Dep(AnnotationContainer annotationContainer, Term from, Term to, String rfunc) {
 	this.annotationContainer = annotationContainer;
-	this.from = new Target(annotationContainer, from);
-	this.to = new Target(annotationContainer, to);
+	this.from = from;
+	this.to = to;
 	this.rfunc = rfunc;
     }
 
     public Term getFrom() {
-	return this.from.getTarget();
+	return this.from;
     }
 
     public void setFrom(Term term) {
-	this.from.setTarget(term);
+	this.from = term;
     }
 
     public Term getTo() {
-	return to.getTarget();
+	return to;
     }
 
     public void setTo(Term term) {
-	this.to.setTarget(term);
+	this.to = term;
     }
 
     public String getRfunc() {

@@ -38,20 +38,20 @@ public class Term {
     /** Declension case of the term (optional) */
     private String termcase;
 
-    /** Comment string for debugging purposes */
-    private String strValue;
-
     /** Sentiment features (optional) */
-    private Target<Sentiment> sentiment;
+    private Sentiment sentiment;
 
     /** If it's a compound term, it's components (optional) */
-    private Targets<Component> components;
+    private List<Component> components;
+
+    /** Head component */
+    private Component head;
 
     /** Hash map indexing components by their ID */
     private HashMap<String, Integer> componentIndex;
 
     /** Target elements are used to refer to the target word. If the term is a multiword, multiple target elements are used. (required)*/
-    private Targets<WF> targets;
+    private Span<WF> span;
 
     /** ExternalReferences are used to associate terms to external lexical or semantic resources, such as elements of a Knowledge base: semantic lexicon  (like WordNet) or an ontology (optional) */
     private List<ExternalRef> externalReferences;
@@ -281,8 +281,8 @@ public class Term {
     }
 
     /** To create a new Term, the annotationContainer reference is necessary apart from the id, type, lemma, pos and, at least, one word form reference. */
-    Term(AnnotationContainer annotationContainer, String id, String type, String lemma, String pos, List<WF> wfs) {
-	if (wfs.size() < 1) {
+    Term(AnnotationContainer annotationContainer, String id, String type, String lemma, String pos, Span<WF> span) {
+	if (span.size() < 1) {
 	    throw new IllegalStateException("A Term must have at least one WF");
 	}
 	this.annotationContainer = annotationContainer;
@@ -290,16 +290,15 @@ public class Term {
 	this.type = type;
 	this.lemma = lemma;
 	this.pos = pos;
-	this.strValue = "";
-	this.components = new Targets(annotationContainer);
+	this.components = new ArrayList();
 	this.componentIndex = new HashMap<String, Integer>();
-	this.targets = new Targets(annotationContainer, wfs);
+	this.span = span;
 	this.externalReferences = new ArrayList<ExternalRef>();
     }
 
     /** To create a new Term, the annotationContainer reference is necessary apart from the id, type, lemma, pos and, at least, one word form reference. */
-    Term(AnnotationContainer annotationContainer, String id, String type, String lemma, String pos, String morphofeat, List<WF> wfs) {
-	if (wfs.size() < 1) {
+    Term(AnnotationContainer annotationContainer, String id, String type, String lemma, String pos, String morphofeat, Span<WF> span) {
+	if (span.size() < 1) {
 	    throw new IllegalStateException("A Term must have at least one WF");
 	}
 	this.annotationContainer = annotationContainer;
@@ -308,10 +307,9 @@ public class Term {
 	this.lemma = lemma;
 	this.pos = pos;
 	this.morphofeat = morphofeat;
-	this.strValue = "";
-	this.components = new Targets(annotationContainer);
+	this.components = new ArrayList();
 	this.componentIndex = new HashMap<String, Integer>();
-	this.targets = new Targets(annotationContainer, wfs);
+	this.span = span;
 	this.externalReferences = new ArrayList<ExternalRef>();
     }
 
@@ -371,15 +369,20 @@ public class Term {
 	this.termcase = termcase;
     }
 
-    private void updateStr(String str) {
-	if (!this.strValue.isEmpty()) {
-	    this.strValue += " ";
+    private String getStrValue() {
+	String str = "";
+	for (WF wf : span.getTargets()) {
+	    if (!str.isEmpty()) {
+		str += " ";
+	    }
+	    str += wf.getForm();
 	}
-	this.strValue += str;
+	return str;
     }
 
    public String getStr() {
-   	if (strValue.startsWith("-") || strValue.endsWith("-")) {
+       String strValue = this.getStrValue();
+       if (strValue.startsWith("-") || strValue.endsWith("-")) {
    		return strValue.replace("-", "- ");
    	}
    	else if (strValue.contains("--")) { 
@@ -391,11 +394,11 @@ public class Term {
     }
 
     public boolean hasHead() {
-	return (components.getHead() != null);
+	return (this.head != null);
     }
 
     public Component getHead() {
-        return components.getHead();
+        return this.head;
     }
 
     /** Creates and adds a Sentiment object.
@@ -412,39 +415,52 @@ public class Term {
     }
 
     public Sentiment getSentiment() {
-	return sentiment.getTarget();
+	return sentiment;
     }
 
     public void setSentiment(Sentiment sentiment) {
-	if (!this.hasSentiment()) {
-	    this.sentiment = new Target(this.annotationContainer, sentiment);
-	}
-	else {
-	    this.sentiment.setTarget(sentiment);
-	}
+        this.sentiment = sentiment;
     }
 
     public List<Component> getComponents() {
-	return components.getTargets();
+	return this.components;
     }
 
     public void addComponent(Component component) {
-	components.addTarget(component);
+	components.add(component);
 	componentIndex.put(component.getId(), components.size() - 1);
     }
 
     public void addComponent(Component component, boolean isHead) {
-	components.addTarget(component, isHead);
+	components.add(component);
+	if (isHead) {
+	    this.head = component;
+	}
 	componentIndex.put(component.getId(), components.size() - 1);
     }
 
     public List<WF> getWFs() {
-	return this.targets.getTargets();
+	return this.span.getTargets();
+    }
+
+    public WF getHeadWF() {
+	return this.span.getHead();
     }
 
     public void addWF(WF wf) {
-	this.targets.addTarget(wf);
-	this.updateStr(wf.getForm());
+	this.span.addTarget(wf);
+    }
+
+    public void addWF(WF wf, boolean isHead) {
+	this.span.addTarget(wf, isHead);
+    }
+
+    public Span<WF> getSpan() {
+	return this.span;
+    }
+
+    public void setSpan(Span<WF> span) {
+	this.span = span;
     }
 
     public int getSent() {

@@ -25,12 +25,12 @@ public class Entity implements Relational {
     private String type;
 
     /** Reference to different occurrences of the same named entity in the document (at least one required) */
-    private List<Targets<Term>> references;
+    private List<Span<Term>> references;
 
     /** External references (optional) */
     private List<ExternalRef> externalReferences;
 
-    Entity(AnnotationContainer annotationContainer, String eid, String type, List<List<Term>> references) {
+    Entity(AnnotationContainer annotationContainer, String eid, String type, List<Span<Term>> references) {
 	if (references.size() < 1) {
 	    throw new IllegalStateException("Entities must contain at least one reference span");
 	}
@@ -40,10 +40,7 @@ public class Entity implements Relational {
 	this.annotationContainer = annotationContainer;
 	this.eid = eid;
 	this.type = type;
-	this.references = new ArrayList<Targets<Term>>();
-	for (List<Term> termSpan : references) {
-	    this.references.add(new Targets(annotationContainer, termSpan));
-	}
+	this.references = references;
 	this.externalReferences = new ArrayList<ExternalRef>();
     }
 
@@ -59,16 +56,27 @@ public class Entity implements Relational {
 	this.type = type;
     }
 
-    public List<List<Term>> getReferences() {
-	List<List<Term>> spans = new ArrayList<List<Term>>();
-	for (Targets<Term> span : this.references) {
-	    spans.add(span.getTargets());
-	}
-	return spans;
+    /** Returns the term targets of the first span. When targets of other spans are needed getReferences() method should be used. */ 
+    public List<Term> getTerms() {
+	return this.references.get(0).getTargets();
     }
 
-    public void addReference(List<Term> span) {
-	this.references.add(new Targets(annotationContainer, span));
+    /** Adds a term to the first span. */
+    public void addTerm(Term term) {
+	this.references.get(0).addTarget(term);
+    }
+
+    /** Adds a term to the first span. */
+    public void addTerm(Term term, boolean isHead) {
+	this.references.get(0).addTarget(term, isHead);
+    }
+
+    public List<Span<Term>> getReferences() {
+	return this.references;
+    }
+
+    public void addReference(Span<Term> span) {
+	this.references.add(span);
     }
 
     public List<ExternalRef> getExternalRefs() {
@@ -83,9 +91,9 @@ public class Entity implements Relational {
 	externalReferences.addAll(externalRefs);
     }
 
-    public String getSpanStr(List<Term> terms) {
+    public String getSpanStr(Span<Term> span) {
 	String str = "";
-	for (Term term : terms) {
+	for (Term term : span.getTargets()) {
 	    if (!str.isEmpty()) {
 		str += " ";
 	    }

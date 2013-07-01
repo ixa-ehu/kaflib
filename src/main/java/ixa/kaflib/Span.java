@@ -3,23 +3,29 @@ package ixa.kaflib;
 import java.util.List;
 import java.util.ArrayList;
 
-public class Targets<T> {
+public class Span<T> {
 
     private AnnotationContainer annotationContainer;
     //private List<String> targets;
     private List<T> targets;
-    private int headIndex;
+    private T head;
 
-    Targets(AnnotationContainer annotationContainer) {
+    Span(AnnotationContainer annotationContainer) {
 	this.annotationContainer = annotationContainer;
-	this.targets = new ArrayList<T>();;
-	this.headIndex = -1;
+	this.targets = new ArrayList<T>();
+	this.head = null;
     }
 
-    Targets(AnnotationContainer annotationContainer, List<T> targets) {
+    Span(AnnotationContainer annotationContainer, List<T> targets) {
 	this.annotationContainer = annotationContainer;
 	this.targets = targets;
-	this.headIndex = -1;
+	this.head = null;
+    }
+
+    Span(AnnotationContainer annotationContainer, List<T> targets, T head) {
+	this.annotationContainer = annotationContainer;
+	this.targets = targets;
+	this.head = head;
     }
 
     public List<T> getTargets() {
@@ -27,10 +33,11 @@ public class Targets<T> {
     }
 
     public T getHead() {
-	if (this.headIndex < 0) {
-	    return null;
-	}
-	return this.targets.get(this.headIndex);
+	return this.head;
+    }
+
+    public void setHead(T head) {
+	this.head = head;
     }
 
     public void addTarget(T target) {
@@ -40,11 +47,15 @@ public class Targets<T> {
     public void addTarget(T target, boolean isHead) {
 	this.targets.add(target);
 	if (isHead) {
-	    this.headIndex = this.targets.size() - 1;
+	    this.head = target;
 	}
     }
 
     public void addTargets(List<T> targets) {
 	this.targets.addAll(targets);
+    }
+
+    public int size() {
+	return this.targets.size();
     }
 }
