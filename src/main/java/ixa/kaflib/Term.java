@@ -44,7 +44,7 @@ public class Term {
     /** If it's a compound term, it's components (optional) */
     private List<Component> components;
 
-    /** Head component */
+    /** Head component (optional) */
     private Component head;
 
     /** Hash map indexing components by their ID */

@@ -8,8 +8,10 @@ public class Feature implements Relational {
 
     private AnnotationContainer annotationContainer;
 
+    /* Feature's ID (required) */
     private String id;
 
+    /* Lemma (required) */
     private String lemma;
 
     private List<Span<Term>> references;

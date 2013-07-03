@@ -7,9 +7,17 @@ import java.util.ArrayList;
 public class Relation {
     
     private AnnotationContainer annotationContainer;
+
+    /* Relation's ID (required) */
     private String id;
+
+    /* From (required) */
     private Relational from;
+
+    /* To (required) */
     private Relational to;
+
+    /* Confidence (optional) */
     private float confidence;
 
     Relation (AnnotationContainer annotationContainer, String id, Relational from, Relational to) {

@@ -68,11 +68,22 @@ public class Opinion {
 
     public static class OpinionExpression {
 	private AnnotationContainer annotationContainer;
+	
+	/* Polarity (optional) */
 	private String polarity;
+
+	/* Strength (optional) */
 	private String strength;
+
+	/* Subjectivity (optional) */
 	private String subjectivity;
+
+	/* Sentiment semantic type (optional) */
 	private String sentimentSemanticType;
+	
+	/* Sentiment product feature (optional) */
 	private String sentimentProductFeature;
+
 	private Span<Term> span;
 
 	OpinionExpression(AnnotationContainer annotationContainer, Span<Term> span) {
