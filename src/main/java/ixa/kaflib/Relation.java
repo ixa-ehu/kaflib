@@ -71,6 +71,10 @@ public class Relation {
     }
 
     public String getStr() {
-	return "(" + this.from.getStr() + ", " + this.to.getStr() + ")";
+	String str = "(" + this.from.getStr() + ", " + this.to.getStr() + ")";
+	if (this.hasConfidence()) {
+	    str += " [" + this.getConfidence() + "]";
+	}
+	return str;
     }
 }
