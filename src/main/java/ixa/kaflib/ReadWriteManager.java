@@ -26,35 +26,19 @@ import java.nio.charset.Charset;
 class ReadWriteManager {
     
     /** Loads the content of a KAF file into the given KAFDocument object */
-    static KAFDocument load(File file) throws IOException, JDOMException {
+    static KAFDocument load(File file) throws IOException, JDOMException, KAFNotValidException {
 	SAXBuilder builder = new SAXBuilder();
-	try {
-	    Document document = (Document) builder.build(file);
-	    Element rootElem = document.getRootElement();
-	    return DOMToKAF(document);
-	} catch (IOException io) {
-	    System.out.println(io.getMessage());
-	    throw io;
-	} catch (JDOMException jdomex) {
-	    System.out.println(jdomex.getMessage());
-	    throw jdomex;
-	}
+	Document document = (Document) builder.build(file);
+	Element rootElem = document.getRootElement();
+	return DOMToKAF(document);
     }
 
     /** Loads the content of a String in KAF format into the given KAFDocument object */
-    static KAFDocument load(Reader stream) throws IOException, JDOMException {
+    static KAFDocument load(Reader stream) throws IOException, JDOMException, KAFNotValidException {
 	SAXBuilder builder = new SAXBuilder();
-	try {
-	    Document document = (Document) builder.build(stream);
-	    Element rootElem = document.getRootElement();
-	    return DOMToKAF(document);
-	} catch (IOException io) {
-	    System.out.println(io.getMessage());
-	    throw io;
-	} catch (JDOMException jdomex) {
-	    System.out.println(jdomex.getMessage());
-	    throw jdomex;
-	}
+	Document document = (Document) builder.build(stream);
+	Element rootElem = document.getRootElement();
+	return DOMToKAF(document);
     }
 
     /** Writes the content of a given KAFDocument to a file. */
@@ -88,7 +72,7 @@ class ReadWriteManager {
     }
 
     /** Loads a KAFDocument object from XML content in DOM format */
-    private static KAFDocument DOMToKAF(Document dom) {
+    private static KAFDocument DOMToKAF(Document dom) throws KAFNotValidException {
 	HashMap<String, WF> wfIndex = new HashMap<String, WF>();
 	HashMap<String, Term> termIndex = new HashMap<String, Term>();
 	HashMap<String, Relational> relationalIndex = new HashMap<String, Relational>();
@@ -189,16 +173,20 @@ class ReadWriteManager {
 		    String type = getAttribute("type", termElem);
 		    String lemma = getAttribute("lemma", termElem);
 		    String pos = getAttribute("pos", termElem);
-		    List<Element> spans = termElem.getChildren("span");
-		    if (spans.size() < 1) {
+		    Element spanElem = termElem.getChild("span");
+		    if (spanElem == null) {
 			throw new IllegalStateException("Every term must contain a span element");
 		    }
-		    List<Element> termsWfElems = spans.get(0).getChildren();
+		    List<Element> termsWfElems = spanElem.getChildren("target");
 		    Span<WF> span = kaf.createWFSpan();
 		    for (Element termsWfElem : termsWfElems) {
 			String wfId = getAttribute("id", termsWfElem);
 			boolean isHead = isHead(termsWfElem);
-			span.addTarget(wfIndex.get(wfId), isHead);
+			WF wf = wfIndex.get(wfId);
+			if (wf == null) {
+			    throw new KAFNotValidException("Wf " + wfId + " not found when loading term " + tid);
+			}
+			span.addTarget(wf, isHead);
 		    }
 		    Term newTerm = kaf.createTerm(tid, type, lemma, pos, span);
 		    String tMorphofeat = getOptAttribute("morphofeat", termElem);
@@ -274,9 +262,15 @@ class ReadWriteManager {
 		List<Element> depElems = elem.getChildren();
 		for (Element depElem : depElems) {
 		    String fromId = getAttribute("from", depElem);
-		    Term from = termIndex.get(fromId);
 		    String toId = getAttribute("to", depElem);
+		    Term from = termIndex.get(fromId);
+		    if (from == null) {
+			    throw new KAFNotValidException("Term " + fromId + " not found when loading Dep (" + fromId + ", " + toId + ")");
+		    }
 		    Term to = termIndex.get(toId);
+		    if (to == null) {
+			throw new KAFNotValidException("Term " + toId + " not found when loading Dep (" + fromId + ", " + toId + ")");
+		    }
 		    String rfunc = getAttribute("rfunc", depElem);
 		    Dep newDep = kaf.createDep(from, to, rfunc);
 		    String depcase = getOptAttribute("case", depElem);
@@ -291,18 +285,27 @@ class ReadWriteManager {
 		    String chunkId = getAttribute("cid", chunkElem);
 		    String headId = getAttribute("head", chunkElem);
 		    Term chunkHead = termIndex.get(headId);
+		    if (chunkHead == null) {
+			throw new KAFNotValidException("Term " + headId + " not found when loading chunk " + chunkId);
+		    }
 		    String chunkPhrase = getAttribute("phrase", chunkElem);
-		    List<Element> spans = chunkElem.getChildren("span");
-		    if (spans.size() < 1) {
+		    Element spanElem = chunkElem.getChild("span");
+		    if (spanElem == null) {
 			throw new IllegalStateException("Every chunk must contain a span element");
 		    }
-		    List<Element> chunksTermElems = spans.get(0).getChildren();
+		    List<Element> chunksTermElems = spanElem.getChildren("target");
 		    Span<Term> span = kaf.createTermSpan();
 		    for (Element chunksTermElem : chunksTermElems) {
 			String termId = getAttribute("id", chunksTermElem);
 			boolean isHead = isHead(chunksTermElem);
 			Term targetTerm = termIndex.get(termId);
+			if (targetTerm == null) {
+			    throw new KAFNotValidException("Term " + termId + " not found when loading chunk " + chunkId);
+			}
 			span.addTarget(targetTerm, ((targetTerm == chunkHead) || isHead));
+		    }
+		    if (!span.hasTarget(chunkHead)) {
+			throw new KAFNotValidException("The head of the chunk is not in it's span.");
 		    }
 		    Chunk newChunk = kaf.createChunk(chunkId, chunkPhrase, span);
 		    String chunkCase = getOptAttribute("case", chunkElem);
@@ -334,6 +337,9 @@ class ReadWriteManager {
 			for (Element targetElem : targetElems) {
 			    String targetTermId = getAttribute("id", targetElem);
 			    Term targetTerm = termIndex.get(targetTermId);
+			    if (targetTerm == null) {
+				throw new KAFNotValidException("Term " + targetTermId + " not found when loading entity " + entId);
+			    }
 			    boolean isHead = isHead(targetElem);
 			    span.addTarget(targetTerm, isHead);
 			}
@@ -346,6 +352,39 @@ class ReadWriteManager {
 			newEntity.addExternalRefs(externalRefs);
 		    }
 		    relationalIndex.put(newEntity.getId(), newEntity);
+		}
+	    }
+	    if (elem.getName().equals("coreferences")) {
+		List<Element> corefElems = elem.getChildren();
+		for (Element corefElem : corefElems) {
+		    String coId = getAttribute("coid", corefElem);
+		    List<Element> referencesElem = corefElem.getChildren("references");
+		    if (referencesElem.size() < 1) {
+			throw new IllegalStateException("Every coref must contain a 'references' element");
+		    }
+		    List<Element> spanElems = referencesElem.get(0).getChildren();
+		    if (spanElems.size() < 1) {
+			throw new IllegalStateException("Every coref must contain a 'span' element inside 'references'");
+		    }
+		    List<Span<Term>> references = new ArrayList<Span<Term>>();
+		    for (Element spanElem : spanElems) {
+			Span<Term> span = kaf.createTermSpan();
+			List<Element> targetElems = spanElem.getChildren();
+			if (targetElems.size() < 1) {
+			    throw new IllegalStateException("Every span in an entity must contain at least one target inside");  
+			}
+			for (Element targetElem : targetElems) {
+			    String targetTermId = getAttribute("id", targetElem);
+			    Term targetTerm = termIndex.get(targetTermId);
+			    if (targetTerm == null) {
+				throw new KAFNotValidException("Term " + targetTermId + " not found when loading coref " + coId);
+			    }
+			    boolean isHead = isHead(targetElem);
+			    span.addTarget(targetTerm, isHead);
+			}
+			references.add(span);
+		    }
+		    Coref newCoref = kaf.createCoref(coId, references);
 		}
 	    }
 	    if (elem.getName().equals("features")) {
@@ -374,6 +413,9 @@ class ReadWriteManager {
 			    for (Element targetElem : targetElems) {
 				String targetTermId = getAttribute("id", targetElem);
 				Term targetTerm = termIndex.get(targetTermId);
+				if (targetTerm == null) {
+				    throw new KAFNotValidException("Term " + targetTermId + " not found when loading property " + pid);
+				}
 				boolean isHead = isHead(targetElem);
 				span.addTarget(targetTerm, isHead);
 			    }
@@ -411,6 +453,9 @@ class ReadWriteManager {
 			    for (Element targetElem : targetElems) {
 				String targetTermId = getAttribute("id", targetElem);
 				Term targetTerm = termIndex.get(targetTermId);
+				if (targetTerm == null) {
+				    throw new KAFNotValidException("Term " + targetTermId + " not found when loading category " + cid);
+				}
 				boolean isHead = isHead(targetElem);
 				span.addTarget(targetTerm, isHead);
 			    }
@@ -424,36 +469,6 @@ class ReadWriteManager {
 			}
 			relationalIndex.put(newCategory.getId(), newCategory);
 		    }
-		}
-	    }
-	    if (elem.getName().equals("coreferences")) {
-		List<Element> corefElems = elem.getChildren();
-		for (Element corefElem : corefElems) {
-		    String coId = getAttribute("coid", corefElem);
-		    List<Element> referencesElem = corefElem.getChildren("references");
-		    if (referencesElem.size() < 1) {
-			throw new IllegalStateException("Every coref must contain a 'references' element");
-		    }
-		    List<Element> spanElems = referencesElem.get(0).getChildren();
-		    if (spanElems.size() < 1) {
-			throw new IllegalStateException("Every coref must contain a 'span' element inside 'references'");
-		    }
-		    List<Span<Term>> references = new ArrayList<Span<Term>>();
-		    for (Element spanElem : spanElems) {
-			Span<Term> span = kaf.createTermSpan();
-			List<Element> targetElems = spanElem.getChildren();
-			if (targetElems.size() < 1) {
-			    throw new IllegalStateException("Every span in an entity must contain at least one target inside");  
-			}
-			for (Element targetElem : targetElems) {
-			    String targetTermId = getAttribute("id", targetElem);
-			    Term targetTerm = termIndex.get(targetTermId);
-			    boolean isHead = isHead(targetElem);
-			    span.addTarget(targetTerm, isHead);
-			}
-			references.add(span);
-		    }
-		    Coref newCoref = kaf.createCoref(coId, references);
 		}
 	    }
 	    if (elem.getName().equals("opinions")) {
@@ -471,7 +486,11 @@ class ReadWriteManager {
 			    for (Element targetElem : targetElems) {
 				String refId = getOptAttribute("id", targetElem);
 				boolean isHead = isHead(targetElem);
-				span.addTarget(termIndex.get(refId), isHead);
+				Term targetTerm = termIndex.get(refId);
+				if (targetTerm == null) {
+				    throw new KAFNotValidException("Term " + refId + " not found when loading opinion " + opinionId);
+				}
+				span.addTarget(targetTerm, isHead);
 			    }
 			}
 		    }
@@ -485,7 +504,11 @@ class ReadWriteManager {
 			    for (Element targetElem : targetElems) {
 				String refId = getOptAttribute("id", targetElem);
 				boolean isHead = isHead(targetElem);
-				span.addTarget(termIndex.get(refId), isHead);
+				Term targetTerm = termIndex.get(refId);
+				if (targetTerm == null) {
+				    throw new KAFNotValidException("Term " + refId + " not found when loading opinion " + opinionId);
+				}
+				span.addTarget(targetTerm, isHead);
 			    }
 			}
 		    }
@@ -520,7 +543,11 @@ class ReadWriteManager {
 			    for (Element targetElem : targetElems) {
 				String refId = getOptAttribute("id", targetElem);
 				boolean isHead = isHead(targetElem);
-				span.addTarget(termIndex.get(refId), isHead);
+				Term targetTerm = termIndex.get(refId);
+				if (targetTerm == null) {
+				    throw new KAFNotValidException("Term " + refId + " not found when loading opinion " + opinionId);
+				}
+				span.addTarget(targetTerm, isHead);
 			    }
 			}
 		    }
@@ -538,7 +565,13 @@ class ReadWriteManager {
 			confidence = Float.parseFloat(confidenceStr);
 		    }
 		    Relational from = relationalIndex.get(fromId);
+		    if (from == null) {
+			throw new KAFNotValidException("Entity/feature object " + fromId + " not found when loading relation " + id);
+		    }
 		    Relational to = relationalIndex.get(toId);
+		    if (to == null) {
+			throw new KAFNotValidException("Entity/feature object " + toId + " not found when loading relation " + id);
+		    }
 		    Relation newRelation = kaf.createRelation(id, from, to);
 		    if (confidence >= 0) {
 			newRelation.setConfidence(confidence);

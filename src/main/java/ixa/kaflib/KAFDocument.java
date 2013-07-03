@@ -81,14 +81,14 @@ public class KAFDocument {
     /** Creates a new KAFDocument and loads the contents of the file passed as argument
      * @param file an existing KAF file to be loaded into the library.
      */
-    public static KAFDocument createFromFile(File file) throws IOException, JDOMException {
+    public static KAFDocument createFromFile(File file) throws IOException, JDOMException, KAFNotValidException {
 	return ReadWriteManager.load(file);
     }
 
     /** Creates a new KAFDocument loading the content read from the reader given on argument.
      * @param stream Reader to read KAF content.
      */
-    public static KAFDocument createFromStream(Reader stream) throws IOException, JDOMException {
+    public static KAFDocument createFromStream(Reader stream) throws IOException, JDOMException, KAFNotValidException {
 	return ReadWriteManager.load(stream);
     }
 
