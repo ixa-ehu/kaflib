@@ -32,6 +32,10 @@ public class Span<T> {
 	return this.targets;
     }
 
+    public boolean hasHead() {
+	return (this.head != null);
+    }
+
     public T getHead() {
 	return this.head;
     }
@@ -53,6 +57,15 @@ public class Span<T> {
 
     public void addTargets(List<T> targets) {
 	this.targets.addAll(targets);
+    }
+
+    public boolean hasTarget(T target) {
+	for (T t : targets) {
+	    if (t == target) {
+		return true;
+	    }
+	}
+	return false;
     }
 
     public int size() {
