@@ -44,7 +44,7 @@ public class WF {
 	return wid;
     }
 
-    void setId(String wid) {
+    public void setId(String wid) {
 	this.wid = wid;
     }
 
@@ -58,11 +58,11 @@ public class WF {
 
     public void setSent(int sent) {
 	this.sent = sent;
-	annotationContainer.indexWFBySent(this);
+	annotationContainer.indexWFBySent(this, sent);
 	// If there's a term associated with this WF, index it as well
-	Term term = annotationContainer.getTermByWFId(this.wid);
+	Term term = annotationContainer.getTermByWF(this);
 	if (term != null) {
-	    annotationContainer.indexTermBySent(term);
+	    annotationContainer.indexTermBySent(term, sent);
 	}
     }
 
