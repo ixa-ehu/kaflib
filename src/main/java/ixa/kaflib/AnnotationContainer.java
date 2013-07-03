@@ -54,29 +54,14 @@ class AnnotationContainer {
     /** List to keep all trees */
     private List<Tree> trees;
 
-    /** Hash map to index word forms by their ID. It maps IDs to the corresponding token's index in the main list of tokens. */
-    private HashMap<String, Integer> textIndexedById;
-
     /** Hash map to index word forms by the sentence. It maps sentence's IDs to a list of token IDs from that sentence.  */
-    private HashMap<Integer, List<String>> textIndexedBySent;
-
-    /** Hash map to index terms by their ID */
-    private HashMap<String, Integer> termsIndexedById;
+    private HashMap<Integer, List<WF>> textIndexedBySent;
 
     /** Hash map to index terms by the sentence. It maps sentence's IDs to a list of term IDs from that sentence.  */
-    private HashMap<Integer, List<String>> termsIndexedBySent;
+    private HashMap<Integer, List<Term>> termsIndexedBySent;
 
     /** Hash map for mapping word forms to terms. */
-    private HashMap<String, String> termsIndexedByWF;
-
-    /** Hash map to index entities by their ID */
-    private HashMap<String, Integer> entitiesIndexedById;
-
-    /** Hash map to index properties by their ID */
-    private HashMap<String, Integer> propertiesIndexedById;
-
-    /** Hash map to index categories by their ID */
-    private HashMap<String, Integer> categoriesIndexedById;
+    private HashMap<String, Term> termsIndexedByWF;
 
     /** This creates a new AnnotationContainer object */
     AnnotationContainer() {
@@ -93,14 +78,9 @@ class AnnotationContainer {
 	relations = new ArrayList();
 	trees = new ArrayList();
 
-	textIndexedById = new HashMap<String, Integer>();
-	textIndexedBySent = new HashMap<Integer, List<String>>();
-	termsIndexedById = new HashMap<String, Integer>();
-	termsIndexedBySent = new HashMap<Integer, List<String>>();
-	termsIndexedByWF = new HashMap<String, String>();
-	entitiesIndexedById = new HashMap<String, Integer>();
-	propertiesIndexedById = new HashMap<String, Integer>();
-	categoriesIndexedById = new HashMap<String, Integer>();
+	textIndexedBySent = new HashMap<Integer, List<WF>>();
+	termsIndexedBySent = new HashMap<Integer, List<Term>>();
+	termsIndexedByWF = new HashMap<String, Term>();
     }
 
     /** Returns all word forms. */
@@ -162,49 +142,19 @@ class AnnotationContainer {
     void add(WF wf) {
 	text.add(wf);
 	//nextOffset += wf.getLength() + 1;
-	textIndexedById.put(wf.getId(), text.size() - 1);
-    }
-
-    /** Index a WF by its sentence number */
-    void indexWFBySent(WF wf) {
-	Integer sent = wf.getSent();
-	if (sent == -1) {
-	    throw new IllegalStateException("You can't call indexWFBySent not having defined the sentence for this token");
-	}
-	List<String> sentWfs = textIndexedBySent.get(sent);
-	if (sentWfs == null) {
-	    sentWfs = new ArrayList<String>();
-	    textIndexedBySent.put(sent, sentWfs);
-	}
-	sentWfs.add(wf.getId());
     }
 
     /** Adds a term to the container */
     void add(Term term) {
 	terms.add(term);
-	termsIndexedById.put(term.getId(), terms.size() - 1);
 	for (WF wf : term.getWFs()) {
-	    termsIndexedByWF.put(wf.getId(), term.getId());
+	    termsIndexedByWF.put(wf.getId(), term);
 	}
 
 	/* Index by sentence */
         if (term.getSent() != -1) {
-	    indexTermBySent(term);
+	    indexTermBySent(term, term.getSent());
 	}
-    }
-
-    /** Index a Term by its sentence number */
-    void indexTermBySent(Term term) {
-	Integer sent = term.getSent();
-	if (sent == -1) {
-	    throw new IllegalStateException("You can't call indexTermBySent not having defined the sentence for its WFs");
-	}
-	List<String> sentTerms = termsIndexedBySent.get(sent);
-	if (sentTerms == null) {
-	    sentTerms = new ArrayList<String>();
-	    termsIndexedBySent.put(sent, sentTerms);
-	}
-	sentTerms.add(term.getId());
     }
 
     /** Adds a dependency to the container */
@@ -220,18 +170,15 @@ class AnnotationContainer {
     /** Adds a named entity to the container */
     void add(Entity entity) {
 	entities.add(entity);
-	entitiesIndexedById.put(entity.getId(), entities.size() - 1);
     }
 
     /** Adds a feature to the container. It checks if it is a property or a category. */
     void add(Feature feature) {
 	if (feature.isAProperty()) {
 	    properties.add(feature);
-	    propertiesIndexedById.put(feature.getId(), properties.size() - 1);
 	}
 	else {
 	    categories.add(feature);
-	    categoriesIndexedById.put(feature.getId(), categories.size() - 1);
 	}		
     }
 
@@ -255,61 +202,31 @@ class AnnotationContainer {
 	trees.add(tree);
     }
 
-    /** Returns a word form given its ID */
-    WF getWFById(String id) {
-	int ind = textIndexedById.get(id);
-	return text.get(ind);
-    }
-
-    /** Returns a list of word forms given their IDs */
-    List<WF> getWFsById(List<String> ids) {
-	List<WF> foundWFs = new ArrayList<WF>();
-	for (String id : ids) {
-	    foundWFs.add(getWFById(id));
+    /** Index a WF by its sentence number */
+    void indexWFBySent(WF wf, Integer sent) {
+	if (sent == -1) {
+	    throw new IllegalStateException("You can't call indexWFBySent not having defined the sentence for this token");
 	}
-	return foundWFs;
-    }
-
-    /** Returns a term given its ID */
-    Term getTermById(String id) {
-	int ind = termsIndexedById.get(id);
-	return terms.get(ind);
-    }
-
-    /** Returns the terms which corresponds to the given word form */
-    Term getTermByWFId(String wfId) {
-	String termId = termsIndexedByWF.get(wfId);
-	if (termId == null) {
-	    return null;
+	List<WF> sentWfs = textIndexedBySent.get(sent);
+	if (sentWfs == null) {
+	    sentWfs = new ArrayList<WF>();
+	    textIndexedBySent.put(sent, sentWfs);
 	}
-	return getTermById(termId);
+	sentWfs.add(wf);
     }
 
-    /** Returns a list of terms given their IDs */
-    List<Term> getTermsById(List<String> ids) {
-	List<Term> foundTerms = new ArrayList<Term>();
-	for (String id : ids) {
-	    foundTerms.add(getTermById(id));
+
+    /** Index a Term by its sentence number */
+    void indexTermBySent(Term term, Integer sent) {
+	if (sent == -1) {
+	    throw new IllegalStateException("You can't call indexTermBySent not having defined the sentence for its WFs");
 	}
-	return foundTerms;
-    }
-
-    /** Returns an entity given its ID */
-    Entity getEntityById(String id) {
-	int ind = entitiesIndexedById.get(id);
-	return entities.get(ind);
-    }
-
-    /** Returns a property given its ID */
-    Feature getPropertyById(String id) {
-	int ind = propertiesIndexedById.get(id);
-	return properties.get(ind);
-    }
-
-    /** Returns a category given its ID */
-    Feature getCategoryById(String id) {
-	int ind = categoriesIndexedById.get(id);
-	return categories.get(ind);
+	List<Term> sentTerms = termsIndexedBySent.get(sent);
+	if (sentTerms == null) {
+	    sentTerms = new ArrayList<Term>();
+	    termsIndexedBySent.put(sent, sentTerms);
+	}
+	sentTerms.add(term);
     }
 
     /** Returns all tokens classified by sentences */
@@ -319,11 +236,7 @@ class AnnotationContainer {
         List<Integer> sentNumsList = new ArrayList<Integer>(sentNumsSet);
 	Collections.sort(sentNumsList);
 	for (int i : sentNumsList) {
-	    List<String> wfIds = this.textIndexedBySent.get(i);
-	    List<WF> wfs = new ArrayList<WF>();
-	    for (String wfId : wfIds) {
-		  wfs.add(this.getWFById(wfId));
-	    }
+	    List<WF> wfs = this.textIndexedBySent.get(i);
 	    sentences.add(wfs);
 	}
 	return sentences;
@@ -331,30 +244,26 @@ class AnnotationContainer {
 
     /** Returns WFs from a sentence */
     List<WF> getSentenceWFs(int sent) {
-	List<WF> wfs = new ArrayList<WF>();
-	for (String wfId : this.textIndexedBySent.get(sent)) {
-	    wfs.add(getWFById(wfId));
-	}
-	return wfs;
+        return this.textIndexedBySent.get(sent);
     }
 
     /** Returns terms from a sentence */
     List<Term> getSentenceTerms(int sent) {
-	List<Term> terms = new ArrayList<Term>();
-	for (String termId : this.termsIndexedBySent.get(sent)) {
-	    terms.add(getTermById(termId));
-	}
-	return terms;
+        return this.termsIndexedBySent.get(sent);
+    }
+
+    Term getTermByWF(WF wf) {
+	return this.termsIndexedByWF.get(wf.getId());
     }
 
     /** Returns a list of terms containing the word forms given on argument.
      * @param wfIds a list of word form IDs whose terms will be found.
      * @return a list of terms containing the given word forms.
      */
-    List<Term> getTermsFromWFs(List<String> wfIds) {
+    List<Term> getTermsByWFs(List<WF> wfs) {
 	LinkedHashSet<Term> terms = new LinkedHashSet<Term>();
-	for (String wfId : wfIds) {
-	    terms.add(getTermByWFId(wfId));
+	for (WF wf : wfs) {
+	    terms.add(this.termsIndexedByWF.get(wf.getId()));
 	}
 	return new ArrayList<Term>(terms);
     }

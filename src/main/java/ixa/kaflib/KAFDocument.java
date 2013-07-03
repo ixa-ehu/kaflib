@@ -542,13 +542,29 @@ public class KAFDocument {
      * @param wfIds a list of word form IDs whose terms will be found.
      * @return a list of terms containing the given word forms.
      */
-    public List<Term> getTermsFromWFs(List<String> wfIds) {
-	return annotationContainer.getTermsFromWFs(wfIds);
+    public List<Term> getTermsByWFs(List<WF> wfs) {
+	return annotationContainer.getTermsByWFs(wfs);
+    }
+
+    public List<Term> getSentenceTerms(int sent) {
+	return annotationContainer.getSentenceTerms(sent);
+    }
+
+    public List<Dep> getDeps() {
+	return annotationContainer.getDeps();
+    }
+
+    public List<Chunk> getChunks() {
+	return annotationContainer.getChunks();
     }
 
     /** Returns a list with all entities in the document */
     public List<Entity> getEntities() {
 	return annotationContainer.getEntities();
+    }
+
+    public List<Coref> getCorefs() {
+	return annotationContainer.getCorefs();
     }
 
     /** Returns a list with all relations in the document */
@@ -559,6 +575,10 @@ public class KAFDocument {
     /** Returns a list with all relations in the document */
     public List<Feature> getCategories() {
 	return annotationContainer.getCategories();
+    }
+
+    public List<Opinion> getOpinions() {
+	return annotationContainer.getOpinions();
     }
 
     /** Returns a list with all relations in the document */
