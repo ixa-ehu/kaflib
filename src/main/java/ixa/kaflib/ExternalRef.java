@@ -12,6 +12,15 @@ public class ExternalRef {
 	this.confidence = -1.0f;
     }
 
+    ExternalRef(ExternalRef externalReference) {
+	this.resource = externalReference.resource;
+	this.reference = externalReference.reference;
+	this.confidence = externalReference.confidence;
+	if (externalReference.externalRef != null) {
+	    this.externalRef = new ExternalRef(externalReference.externalRef);
+	}
+    }
+
     public String getResource() {
 	return resource;
     }

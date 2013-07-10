@@ -7,18 +7,28 @@ import org.jdom2.Element;
 public class Terminal implements TreeNode {
 
     /** The term referenced by this terminal */
-    private Target target;
+    private Span<Term> span;
 
-    Terminal(AnnotationContainer annotationContainer, Term t, boolean isHead) {
-	this.target = new Target(annotationContainer, t.getId(), isHead);
+    Terminal(AnnotationContainer annotationContainer, Span<Term> span) {
+	this.span = span;
     }
 
+    /** Return the first term in the span */
     public Term getTerm() {
-	return target.getTerm();
+	List<Term> terms = span.getTargets();
+	if (terms.size() <= 0) {
+	    return null;
+	}
+	return terms.get(0);
+    }
+
+    /** Returns all terms in the span */
+    public List<Term> getTerms() {
+	return span.getTargets();
     }
 
     public boolean isHead() {
-	return target.isHead();
+	return this.span.hasHead();
     }
 
     public Element getDOMElem() {

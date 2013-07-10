@@ -28,13 +28,17 @@ public class NonTerminal implements TreeNode {
     }
 
     public Terminal createTerminal(Term t) {
-	Terminal tn = new Terminal(this.annotationContainer, t, false);
+	Span<Term> span = new Span<Term>(this.annotationContainer);
+	span.addTarget(t, false);
+	Terminal tn = new Terminal(this.annotationContainer, span);
 	this.children.add(tn);
 	return tn;
     }
 
     public Terminal createTerminal(Term t, boolean isHead) {
-	Terminal tn = new Terminal(this.annotationContainer, t, isHead);
+	Span<Term> span = new Span<Term>(this.annotationContainer);
+	span.addTarget(t, isHead);
+	Terminal tn = new Terminal(this.annotationContainer, span);
 	this.children.add(tn);
 	return tn;
     }

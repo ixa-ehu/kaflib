@@ -2,6 +2,7 @@ package ixa.kaflib;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /** Chunks are noun, verb or prepositional phrases, spanning terms. */
 public class Chunk {
@@ -12,9 +13,6 @@ public class Chunk {
     /** Chunk's ID (required) */
     private String cid;
 
-    /** The chunk head term (required) */
-    private String head;
-
     /** Type of the phrase (required) */
     private String phrase;
 
@@ -22,19 +20,41 @@ public class Chunk {
     private String chunkcase;
 
     /** Chunk's target terms (at least one required) */
-    private List<String> targets;
+    private Span<Term> span;
 
-    Chunk(AnnotationContainer annotationContainer, String cid, String head, String phrase, List<Term> terms) {
-	if (terms.size() < 1) {
+    Chunk(AnnotationContainer annotationContainer, String cid, String phrase, Span<Term> span) {
+	if (span.size() < 1) {
 	    throw new IllegalStateException("Chunks must contain at least one term target");
 	}
 	this.annotationContainer = annotationContainer;
 	this.cid = cid;
-	this.head = head;
 	this.phrase = phrase;
-	this.targets = new ArrayList<String>();
-	for (Term target : terms) {
-	    this.addTerm(target);
+	this.span = span;
+    }
+
+    Chunk(Chunk chunk, AnnotationContainer annotationContainer, HashMap<String, Term> terms) {
+	this.annotationContainer = annotationContainer;
+	this.cid = chunk.cid;
+	this.phrase = chunk.phrase;
+	this.chunkcase = chunk.chunkcase;
+	/* Copy span */
+	String id = chunk.getId();
+	Span<Term> span = chunk.span;
+	List<Term> targets = span.getTargets();
+	List<Term> copiedTargets = new ArrayList<Term>();
+	for (Term term : targets) {
+	    Term copiedTerm = terms.get(term.getId());
+	    if (copiedTerm == null) {
+		throw new IllegalStateException("Term not found when copying " + id);
+	    }
+	    copiedTargets.add(copiedTerm);
+	}
+	if (span.hasHead()) {
+	    Term copiedHead = terms.get(span.getHead().getId());
+	    this.span = new Span<Term>(this.annotationContainer, copiedTargets, copiedHead);
+	}
+	else {
+	    this.span = new Span<Term>(this.annotationContainer, copiedTargets);
 	}
     }
 
@@ -42,16 +62,16 @@ public class Chunk {
 	return cid;
     }
 
+    void setId(String id) {
+	this.cid = id;
+    }
+
+    public boolean hasHead() {
+	return (span.getHead() != null);
+    }
+
     public Term getHead() {
-	return annotationContainer.getTermById(head);
-    }
-
-    public void setHead(String id) {
-	head = id;
-    }
-
-    public void setHead(Term term) {
-	head = term.getId();
+	return span.getHead();
     }
 
     public String getPhrase() {
@@ -75,17 +95,28 @@ public class Chunk {
     }
 
     public List<Term> getTerms() {
-	return annotationContainer.getTermsById(targets);
+	return this.span.getTargets();
     }
 
     public void addTerm(Term term) {
-	targets.add(term.getId());
+	this.span.addTarget(term);
+    }
+
+    public void addTerm(Term term, boolean isHead) {
+	this.span.addTarget(term, isHead);
+    }
+
+    public Span<Term> getSpan() {
+	return this.span;
+    }
+
+    public void setSpan(Span<Term> span) {
+	this.span = span;
     }
 
     public String getStr() {
 	String str = "";
-	for (String termId : targets) {
-	    Term term = annotationContainer.getTermById(termId);
+	for (Term term : this.span.getTargets()) {
 	    if (!str.isEmpty()) {
 		str += " ";
 	    }

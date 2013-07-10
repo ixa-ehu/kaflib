@@ -2,6 +2,7 @@ package ixa.kaflib;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /** A named entity is a term (or a multiword) that clearly identifies one item. The optional Named Entity layer is used to reference terms that are named entities. */
 public class Entity implements Relational {
@@ -25,12 +26,12 @@ public class Entity implements Relational {
     private String type;
 
     /** Reference to different occurrences of the same named entity in the document (at least one required) */
-    private List<List<String>> references;
+    private List<Span<Term>> references;
 
     /** External references (optional) */
     private List<ExternalRef> externalReferences;
 
-    Entity(AnnotationContainer annotationContainer, String eid, String type, List<List<Term>> references) {
+    Entity(AnnotationContainer annotationContainer, String eid, String type, List<Span<Term>> references) {
 	if (references.size() < 1) {
 	    throw new IllegalStateException("Entities must contain at least one reference span");
 	}
@@ -40,19 +41,49 @@ public class Entity implements Relational {
 	this.annotationContainer = annotationContainer;
 	this.eid = eid;
 	this.type = type;
-	this.references = new ArrayList<List<String>>();
-	for (List<Term> termSpan : references) {
-	    List<String> idSpan = new ArrayList<String>();
-	    for (Term term : termSpan) {
-		idSpan.add(term.getId());
-	    }
-	    this.references.add(idSpan);
-	}
+	this.references = references;
 	this.externalReferences = new ArrayList<ExternalRef>();
+    }
+
+    Entity(Entity entity, AnnotationContainer annotationContainer, HashMap<String, Term> terms) {
+	this.annotationContainer = annotationContainer;
+	this.eid = entity.eid;
+	this.type = entity.type;
+	/* Copy references */
+	String id = entity.getId();
+	this.references = new ArrayList<Span<Term>>();
+	for (Span<Term> span : entity.getReferences()) {
+	    /* Copy span */
+	    List<Term> targets = span.getTargets();
+	    List<Term> copiedTargets = new ArrayList<Term>();
+	    for (Term term : targets) {
+		Term copiedTerm = terms.get(term.getId());
+		if (copiedTerm == null) {
+		    throw new IllegalStateException("Term not found when copying " + id);
+		}
+		copiedTargets.add(copiedTerm);
+	    }
+	    if (span.hasHead()) {
+		Term copiedHead = terms.get(span.getHead().getId());
+		this.references.add(new Span<Term>(this.annotationContainer, copiedTargets, copiedHead));
+	    }
+	    else {
+		this.references.add(new Span<Term>(this.annotationContainer, copiedTargets));
+	    }
+	}
+	/* Copy external references */
+	this.externalReferences = new ArrayList<ExternalRef>();
+	for (ExternalRef externalRef : entity.getExternalRefs()) {
+	    this.externalReferences.add(new ExternalRef(externalRef));
+	}
     }
 
     public String getId() {
 	return eid;
+    }
+
+    void setId(String id) {
+	this.eid = id;
     }
 
     public String getType() {
@@ -63,25 +94,27 @@ public class Entity implements Relational {
 	this.type = type;
     }
 
-    public List<List<Term>> getReferences() {
-	List<List<Term>> termSpans = new ArrayList<List<Term>>();
-	for (List<String> idSpan : this.references) {
-	    List<Term> termSpan = new ArrayList<Term>();
-	    for (String id : idSpan) {
-		Term newTerm = annotationContainer.getTermById(id);
-		termSpan.add(newTerm);
-	    }
-	    termSpans.add(termSpan);
-	}
-	return termSpans;
+    /** Returns the term targets of the first span. When targets of other spans are needed getReferences() method should be used. */ 
+    public List<Term> getTerms() {
+	return this.references.get(0).getTargets();
     }
 
-    public void addReference(List<Term> span) {
-	List<String> idSpan = new ArrayList<String>();
-	for (Term term : span) {
-	    idSpan.add(term.getId());
-	}
-	references.add(idSpan);
+    /** Adds a term to the first span. */
+    public void addTerm(Term term) {
+	this.references.get(0).addTarget(term);
+    }
+
+    /** Adds a term to the first span. */
+    public void addTerm(Term term, boolean isHead) {
+	this.references.get(0).addTarget(term, isHead);
+    }
+
+    public List<Span<Term>> getReferences() {
+	return this.references;
+    }
+
+    public void addReference(Span<Term> span) {
+	this.references.add(span);
     }
 
     public List<ExternalRef> getExternalRefs() {
@@ -96,14 +129,18 @@ public class Entity implements Relational {
 	externalReferences.addAll(externalRefs);
     }
 
-    public String getSpanStr(List<Term> terms) {
+    public String getSpanStr(Span<Term> span) {
 	String str = "";
-	for (Term term : terms) {
+	for (Term term : span.getTargets()) {
 	    if (!str.isEmpty()) {
 		str += " ";
 	    }
 	    str += term.getStr();
 	}
 	return str;
+    }
+
+    public String getStr() {
+	return getSpanStr(this.getReferences().get(0));
     }
 }

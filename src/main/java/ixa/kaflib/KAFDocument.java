@@ -81,14 +81,14 @@ public class KAFDocument {
     /** Creates a new KAFDocument and loads the contents of the file passed as argument
      * @param file an existing KAF file to be loaded into the library.
      */
-    public static KAFDocument createFromFile(File file) throws IOException, JDOMException {
+    public static KAFDocument createFromFile(File file) throws IOException, JDOMException, KAFNotValidException {
 	return ReadWriteManager.load(file);
     }
 
     /** Creates a new KAFDocument loading the content read from the reader given on argument.
      * @param stream Reader to read KAF content.
      */
-    public static KAFDocument createFromStream(Reader stream) throws IOException, JDOMException {
+    public static KAFDocument createFromStream(Reader stream) throws IOException, JDOMException, KAFNotValidException {
 	return ReadWriteManager.load(stream);
     }
 
@@ -228,9 +228,9 @@ public class KAFDocument {
      * @param wfs the list of word forms this term is formed by.
      * @return a new term.
      */
-    public Term createTerm(String id, String type, String lemma, String pos, List<WF> wfs) {
+    public Term createTerm(String id, String type, String lemma, String pos, Span<WF> span) {
 	idManager.updateTermCounter(id);
-	Term newTerm = new Term(annotationContainer, id, type, lemma, pos, wfs);
+	Term newTerm = new Term(annotationContainer, id, type, lemma, pos, span);
 	annotationContainer.add(newTerm);
 	return newTerm;
     }
@@ -242,9 +242,9 @@ public class KAFDocument {
      * @param wfs the list of word forms this term is formed by.
      * @return a new term.
      */
-    public Term createTerm(String type, String lemma, String pos, List<WF> wfs) {
+    public Term createTerm(String type, String lemma, String pos, Span<WF> span) {
 	String newId = idManager.getNextTermId();
-	Term newTerm = new Term(annotationContainer, newId, type, lemma, pos, wfs);
+	Term newTerm = new Term(annotationContainer, newId, type, lemma, pos, span);
 	annotationContainer.add(newTerm);
 	return newTerm;
     }
@@ -256,9 +256,9 @@ public class KAFDocument {
      * @param wfs the list of word forms this term is formed by.
      * @return a new term.
      */
-    public Term createTermOptions(String type, String lemma, String pos, String morphofeat, List<WF> wfs) {
+    public Term createTermOptions(String type, String lemma, String pos, String morphofeat, Span<WF> span) {
 	String newId = idManager.getNextTermId();
-	Term newTerm = new Term(annotationContainer, newId, type, lemma, pos, morphofeat, wfs);
+	Term newTerm = new Term(annotationContainer, newId, type, lemma, pos, morphofeat, span);
 	annotationContainer.add(newTerm);
 	return newTerm;
     }
@@ -278,7 +278,7 @@ public class KAFDocument {
      * @param pos part of speech of the component.
      * @return a new component.
      */
-     public Term.Component createComponent(String id, Term term, String lemma, String pos) {
+    public Term.Component createComponent(String id, Term term, String lemma, String pos) {
 	idManager.updateComponentCounter(id, term.getId());
 	Term.Component newComponent = new Term.Component(id, lemma, pos);
 	return newComponent;
@@ -303,7 +303,7 @@ public class KAFDocument {
      * @return a new dependency.
      */
     public Dep createDep(Term from, Term to, String rfunc) {
-	Dep newDep = new Dep(annotationContainer, from.getId(), to.getId(), rfunc);
+	Dep newDep = new Dep(annotationContainer, from, to, rfunc);
 	annotationContainer.add(newDep);
 	return newDep;
     }
@@ -315,9 +315,9 @@ public class KAFDocument {
      * @param terms the list of the terms in the chunk.
      * @return a new chunk.
      */
-    public Chunk createChunk(String id, Term head, String phrase, List<Term> terms) {
+    public Chunk createChunk(String id, String phrase, Span<Term> span) {
 	idManager.updateChunkCounter(id);
-	Chunk newChunk = new Chunk(annotationContainer, id, head.getId(), phrase, terms);
+	Chunk newChunk = new Chunk(annotationContainer, id, phrase, span);
 	annotationContainer.add(newChunk);
 	return newChunk;
     }
@@ -328,9 +328,9 @@ public class KAFDocument {
      * @param terms the list of the terms in the chunk.
      * @return a new chunk.
      */
-    public Chunk createChunk(Term head, String phrase, List<Term> terms) {
+    public Chunk createChunk(String phrase, Span<Term> span) {
 	String newId = idManager.getNextChunkId();
-	Chunk newChunk = new Chunk(annotationContainer, newId, head.getId(), phrase, terms);
+	Chunk newChunk = new Chunk(annotationContainer, newId, phrase, span);
 	annotationContainer.add(newChunk);
 	return newChunk;
     }
@@ -341,7 +341,7 @@ public class KAFDocument {
      * @param references it contains one or more span elements. A span can be used to reference the different occurrences of the same named entity in the document. If the entity is composed by multiple words, multiple target elements are used.
      * @return a new named entity.
      */
-    public Entity createEntity(String id, String type, List<List<Term>> references) {
+    public Entity createEntity(String id, String type, List<Span<Term>> references) {
 	idManager.updateEntityCounter(id);
 	Entity newEntity = new Entity(annotationContainer, id, type, references);
 	annotationContainer.add(newEntity);
@@ -353,7 +353,7 @@ public class KAFDocument {
      * @param references it contains one or more span elements. A span can be used to reference the different occurrences of the same named entity in the document. If the entity is composed by multiple words, multiple target elements are used.
      * @return a new named entity.
      */
-    public Entity createEntity(String type, List<List<Term>> references) {
+    public Entity createEntity(String type, List<Span<Term>> references) {
 	String newId = idManager.getNextEntityId();
 	Entity newEntity = new Entity(annotationContainer, newId, type, references);
 	annotationContainer.add(newEntity);
@@ -365,8 +365,8 @@ public class KAFDocument {
      * @param references different mentions (list of targets) to the same entity.
      * @return a new coreference.
      */
-    public Coref createCoref(String id, List<List<Target>> references) {
-	idManager.updateEntityCounter(id);
+    public Coref createCoref(String id, List<Span<Term>> references) {
+	idManager.updateCorefCounter(id);
 	Coref newCoref = new Coref(annotationContainer, id, references);
 	annotationContainer.add(newCoref);
 	return newCoref;
@@ -376,7 +376,7 @@ public class KAFDocument {
      * @param references different mentions (list of targets) to the same entity.
      * @return a new coreference.
      */
-    public Coref createCoref(List<List<Target>> references) {
+    public Coref createCoref(List<Span<Term>> references) {
 	String newId = idManager.getNextCorefId();
 	Coref newCoref = new Coref(annotationContainer, newId, references);
 	annotationContainer.add(newCoref);
@@ -389,7 +389,7 @@ public class KAFDocument {
      * @param references different mentions (list of targets) to the same property.
      * @return a new coreference.
      */
-    public Feature createProperty(String id, String lemma, List<List<Term>> references) {
+    public Feature createProperty(String id, String lemma, List<Span<Term>> references) {
 	idManager.updatePropertyCounter(id);
 	Feature newProperty = new Feature(annotationContainer, id, lemma, references);
 	annotationContainer.add(newProperty);
@@ -401,7 +401,7 @@ public class KAFDocument {
      * @param references different mentions (list of targets) to the same property.
      * @return a new coreference.
      */
-    public Feature createProperty(String lemma, List<List<Term>> references) {
+    public Feature createProperty(String lemma, List<Span<Term>> references) {
 	String newId = idManager.getNextPropertyId();
 	Feature newProperty = new Feature(annotationContainer, newId, lemma, references);
 	annotationContainer.add(newProperty);
@@ -414,7 +414,7 @@ public class KAFDocument {
      * @param references different mentions (list of targets) to the same category.
      * @return a new coreference.
      */
-    public Feature createCategory(String id, String lemma, List<List<Term>> references) {
+    public Feature createCategory(String id, String lemma, List<Span<Term>> references) {
 	idManager.updateCategoryCounter(id);
 	Feature newCategory = new Feature(annotationContainer, id, lemma, references);
 	annotationContainer.add(newCategory);
@@ -426,7 +426,7 @@ public class KAFDocument {
      * @param references different mentions (list of targets) to the same category.
      * @return a new coreference.
      */
-    public Feature createCategory(String lemma, List<List<Term>> references) {
+    public Feature createCategory(String lemma, List<Span<Term>> references) {
 	String newId = idManager.getNextCategoryId();
 	Feature newCategory = new Feature(annotationContainer, newId, lemma, references);
 	annotationContainer.add(newCategory);
@@ -478,23 +478,6 @@ public class KAFDocument {
 	return newRelation;
     }
 
-    /** Creates a new target. This method is overloaded. Any target created by calling this method won't be the head term.
-     * @param term target term.
-     * @return a new target.
-     */
-    public Target createTarget(Term term) {
-	return new Target(annotationContainer, term.getId(), false);
-    }
-
-    /** Creates a new target. This method is overloaded. In this case, it receives a boolean argument which defines whether the target term is the head or not.
-     * @param term target term.
-     * @param isHead a boolean argument which defines whether the target term is the head or not.
-     * @return a new target.
-     */
-    public Target createTarget(Term term, boolean isHead) {
-	return new Target(annotationContainer, term.getId(), isHead);
-    }
-
     /** Creates a new external reference.
      * @param resource indicates the identifier of the resource referred to.
      * @param reference code of the referred element.
@@ -516,6 +499,30 @@ public class KAFDocument {
 	return tree;
     }
 
+    public Span<WF> createWFSpan() {
+	return new Span<WF>(this.annotationContainer);
+    }
+
+    public Span<WF> createWFSpan(List<WF> targets) {
+	return new Span<WF>(this.annotationContainer, targets);
+    }
+
+    public Span<WF> createWFSpan(List<WF> targets, WF head) {
+	return new Span<WF>(this.annotationContainer, targets, head);
+    }
+
+    public Span<Term> createTermSpan() {
+	return new Span<Term>(this.annotationContainer);
+    }
+
+    public Span<Term> createTermSpan(List<Term> targets) {
+	return new Span<Term>(this.annotationContainer, targets);
+    }
+
+    public Span<Term> createTermSpan(List<Term> targets, Term head) {
+	return new Span<Term>(this.annotationContainer, targets, head);
+    }
+
     /** Returns a list containing all WFs in the document */
     public List<WF> getWFs() {
 	return annotationContainer.getText();
@@ -535,13 +542,29 @@ public class KAFDocument {
      * @param wfIds a list of word form IDs whose terms will be found.
      * @return a list of terms containing the given word forms.
      */
-    public List<Term> getTermsFromWFs(List<String> wfIds) {
-	return annotationContainer.getTermsFromWFs(wfIds);
+    public List<Term> getTermsByWFs(List<WF> wfs) {
+	return annotationContainer.getTermsByWFs(wfs);
+    }
+
+    public List<Term> getSentenceTerms(int sent) {
+	return annotationContainer.getSentenceTerms(sent);
+    }
+
+    public List<Dep> getDeps() {
+	return annotationContainer.getDeps();
+    }
+
+    public List<Chunk> getChunks() {
+	return annotationContainer.getChunks();
     }
 
     /** Returns a list with all entities in the document */
     public List<Entity> getEntities() {
 	return annotationContainer.getEntities();
+    }
+
+    public List<Coref> getCorefs() {
+	return annotationContainer.getCorefs();
     }
 
     /** Returns a list with all relations in the document */
@@ -552,6 +575,10 @@ public class KAFDocument {
     /** Returns a list with all relations in the document */
     public List<Feature> getCategories() {
 	return annotationContainer.getCategories();
+    }
+
+    public List<Opinion> getOpinions() {
+	return annotationContainer.getOpinions();
     }
 
     /** Returns a list with all relations in the document */
@@ -568,8 +595,11 @@ public class KAFDocument {
 	return formattedDate;
     }
 
-    /** Merges the document with another one. If there are any conflicting values, the values of this object will be kept. **/
+    /** Merges the document with another one. **/
     public void merge(KAFDocument doc) {
+	HashMap<String, WF> copiedWFs = new HashMap<String, WF>(); // hash[old_id => new_WF_obj]
+	HashMap<String, Term> copiedTerms = new HashMap<String, Term>(); // hash[old_id => new_Term_obj]
+	HashMap<String, Relational> copiedRelationals = new HashMap<String, Relational>();
 	// Linguistic processors
 	HashMap<String, List<LinguisticProcessor>> lps = doc.getLinguisticProcessors();
 	for (Map.Entry<String, List<LinguisticProcessor>> entry : lps.entrySet()) {
@@ -583,25 +613,125 @@ public class KAFDocument {
 	}
 	// WFs
 	for (WF wf : doc.getWFs()) {
-	    this.insertWF(wf);
+	    WF wfCopy = new WF(wf, this.annotationContainer);
+	    this.insertWF(wfCopy);
+	    copiedWFs.put(wf.getId(), wfCopy);
 	}
 	// Terms
 	for (Term term : doc.getTerms()) {
-	    this.insertTerm(term);
+	    Term termCopy = new Term(term, this.annotationContainer, copiedWFs);
+	    this.insertTerm(termCopy);
+	    copiedTerms.put(term.getId(), termCopy);
+	}
+	// Deps
+	for (Dep dep : doc.getDeps()) {
+	    Dep depCopy = new Dep(dep, this.annotationContainer, copiedTerms);
+	    this.insertDep(depCopy);
+	}
+	// Chunks
+	for (Chunk chunk : doc.getChunks()) {
+	    Chunk chunkCopy = new Chunk(chunk, this.annotationContainer, copiedTerms);
+	    this.insertChunk(chunkCopy);
+	}
+	// Entities
+	for (Entity entity : doc.getEntities()) {
+	    Entity entityCopy = new Entity(entity, this.annotationContainer, copiedTerms);
+	    this.insertEntity(entityCopy);
+	    copiedRelationals.put(entity.getId(), entityCopy);
+	}
+	// Coreferences
+	for (Coref coref : doc.getCorefs()) {
+	    Coref corefCopy = new Coref(coref, this.annotationContainer, copiedTerms);
+	    this.insertCoref(corefCopy);
+	}
+	// Properties
+	for (Feature property : doc.getProperties()) {
+	    Feature propertyCopy = new Feature(property, this.annotationContainer, copiedTerms);
+	    this.insertProperty(propertyCopy);
+	    copiedRelationals.put(property.getId(), propertyCopy);
+	}
+	// Categories
+	for (Feature category : doc.getCategories()) {
+	    Feature categoryCopy = new Feature(category, this.annotationContainer, copiedTerms);
+	    this.insertCategory(categoryCopy);
+	    copiedRelationals.put(category.getId(), categoryCopy);
+	}
+	// Opinions
+	for (Opinion opinion : doc.getOpinions()) {
+	    Opinion opinionCopy = new Opinion(opinion, this.annotationContainer, copiedTerms);
+	    this.insertOpinion(opinionCopy);
+	}
+	// Relations
+	for (Relation relation : doc.getRelations()) {
+	    Relation relationCopy = new Relation(relation, this.annotationContainer, copiedRelationals);
+	    this.insertRelation(relationCopy);
 	}
     }
 
     private String insertWF(WF wf) {
 	String newId = idManager.getNextWFId();
 	wf.setId(newId);
-        annotationContainer.add(wf);
+	annotationContainer.add(wf);
 	return newId;
     }
 
     private String insertTerm(Term term) {
 	String newId = idManager.getNextTermId();
 	term.setId(newId);
-        annotationContainer.add(term);
+	annotationContainer.add(term);
+	return newId;
+    }
+
+    private void insertDep(Dep dep) {
+	annotationContainer.add(dep);
+    }
+
+    private String insertChunk(Chunk chunk) {
+	String newId = idManager.getNextChunkId();
+	chunk.setId(newId);
+	annotationContainer.add(chunk);
+	return newId;
+    }
+
+    private String insertEntity(Entity entity) {
+	String newId = idManager.getNextEntityId();
+	entity.setId(newId);
+	annotationContainer.add(entity);
+	return newId;
+    }
+
+    private String insertCoref(Coref coref) {
+	String newId = idManager.getNextCorefId();
+	coref.setId(newId);
+	annotationContainer.add(coref);
+	return newId;
+    }
+
+    private String insertProperty(Feature property) {
+	String newId = idManager.getNextPropertyId();
+	property.setId(newId);
+	annotationContainer.add(property);
+	return newId;
+    }
+
+    private String insertCategory(Feature category) {
+	String newId = idManager.getNextCategoryId();
+	category.setId(newId);
+	annotationContainer.add(category);
+	return newId;
+    }
+
+    private String insertOpinion(Opinion opinion) {
+	String newId = idManager.getNextOpinionId();
+	opinion.setId(newId);
+	annotationContainer.add(opinion);
+	return newId;
+    }
+
+    private String insertRelation(Relation relation) {
+	String newId = idManager.getNextRelationId();
+	relation.setId(newId);
+	annotationContainer.add(relation);
 	return newId;
     }
 

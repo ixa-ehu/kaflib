@@ -2,6 +2,7 @@ package ixa.kaflib;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /** The coreference layer creates clusters of term spans (which we call mentions) which share the same referent. For instance, “London” and “the capital city of England” are two mentions referring to the same entity. It is said that those mentions corefer. */
 public class Coref {
@@ -13,9 +14,9 @@ public class Coref {
     private String coid;
 
     /** Mentions to the same entity (at least one required) */
-    private List<List<Target>> references;
+    private List<Span<Term>> references;
 
-    Coref(AnnotationContainer annotationContainer, String coid, List<List<Target>> references) {
+    Coref(AnnotationContainer annotationContainer, String coid, List<Span<Term>> references) {
 	if (references.size() < 1) {
 	    throw new IllegalStateException("Coreferences must contain at least one reference span");
 	}
@@ -27,22 +28,67 @@ public class Coref {
 	this.references = references;
     }
 
+    Coref(Coref coref, AnnotationContainer annotationContainer, HashMap<String, Term> terms) {
+	this.annotationContainer = annotationContainer;
+	this.coid = coref.coid;
+	/* Copy references */
+	String id = coref.getId();
+	this.references = new ArrayList<Span<Term>>();
+	for (Span<Term> span : coref.getReferences()) {
+	    /* Copy span */
+	    List<Term> targets = span.getTargets();
+	    List<Term> copiedTargets = new ArrayList<Term>();
+	    for (Term term : targets) {
+		Term copiedTerm = terms.get(term.getId());
+		if (copiedTerm == null) {
+		    throw new IllegalStateException("Term not found when copying " + id);
+		}
+		copiedTargets.add(copiedTerm);
+	    }
+	    if (span.hasHead()) {
+		Term copiedHead = terms.get(span.getHead().getId());
+		this.references.add(new Span<Term>(this.annotationContainer, copiedTargets, copiedHead));
+	    }
+	    else {
+		this.references.add(new Span<Term>(this.annotationContainer, copiedTargets));
+	    }
+	}
+    }
+
     public String getId() {
 	return coid;
     }
 
-    public List<List<Target>> getReferences() {
-	return references;
+    void setId(String id) {
+	this.coid = id;
     }
 
-    public void addReference(List<Target> span) {
-	references.add(span);
+    /** Returns the term targets of the first span. When targets of other spans are needed getReferences() method should be used. */ 
+    public List<Term> getTerms() {
+	return this.references.get(0).getTargets();
     }
 
-    public String getSpanStr(List<Target> targets) {
+    /** Adds a term to the first span. */
+    public void addTerm(Term term) {
+	this.references.get(0).addTarget(term);
+    }
+
+    /** Adds a term to the first span. */
+    public void addTerm(Term term, boolean isHead) {
+	this.references.get(0).addTarget(term, isHead);
+    }
+
+    public List<Span<Term>> getReferences() {
+	return this.references;
+    }
+
+    public void addReference(Span<Term> span) {
+	this.references.add(span);
+    }
+
+    public String getSpanStr(Span<Term> span) {
 	String str = "";
-	for (Target target : targets) {
-	    Term term = target.getTerm();
+	for (Term term : span.getTargets()) {
 	    if (!str.isEmpty()) {
 		str += " ";
 	    }

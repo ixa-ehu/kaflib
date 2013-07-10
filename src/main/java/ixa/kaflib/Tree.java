@@ -35,7 +35,9 @@ public class Tree { //?
     }
 
     public Terminal createTRoot(Term term) {
-	this.root = new Terminal(annotationContainer, term, true);
+	Span<Term> span = new Span<Term>(this.annotationContainer);
+	span.addTarget(term, true);
+	this.root = new Terminal(annotationContainer, span);
 	return (Terminal)root;
     }
 

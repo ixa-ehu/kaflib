@@ -40,11 +40,23 @@ public class WF {
 	this.length = -1;
     }
 
+    WF(WF wf, AnnotationContainer annotationContainer) {
+	this.annotationContainer = annotationContainer;
+	this.wid = wf.wid;
+	this.sent = wf.sent;
+	this.para = wf.para;
+	this.page = wf.page;
+	this.offset = wf.offset;
+	this.length = wf.length;
+	this.xpath = wf.xpath;
+	this.form = wf.form;
+    }
+
     public String getId() {
 	return wid;
     }
 
-    void setId(String wid) {
+    public void setId(String wid) {
 	this.wid = wid;
     }
 
@@ -58,11 +70,11 @@ public class WF {
 
     public void setSent(int sent) {
 	this.sent = sent;
-	annotationContainer.indexWFBySent(this);
+	annotationContainer.indexWFBySent(this, sent);
 	// If there's a term associated with this WF, index it as well
-	Term term = annotationContainer.getTermByWFId(this.wid);
+	Term term = annotationContainer.getTermByWF(this);
 	if (term != null) {
-	    annotationContainer.indexTermBySent(term);
+	    annotationContainer.indexTermBySent(term, sent);
 	}
     }
 

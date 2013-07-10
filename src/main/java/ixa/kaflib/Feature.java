@@ -2,39 +2,68 @@ package ixa.kaflib;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /** Class for representing features. There are two types of features: properties and categories. */
 public class Feature implements Relational {
 
     private AnnotationContainer annotationContainer;
 
+    /* Feature's ID (required) */
     private String id;
 
+    /* Lemma (required) */
     private String lemma;
 
-    private List<List<String>> references;
+    private List<Span<Term>> references;
 
     private List<ExternalRef> externalReferences;
 
-    Feature(AnnotationContainer annotationContainer, String id, String lemma, List<List<Term>> references) {
+    Feature(AnnotationContainer annotationContainer, String id, String lemma, List<Span<Term>> references) {
 	if (references.size() < 1) {
 	    throw new IllegalStateException("Features must contain at least one reference span");
 	}
 	if (references.get(0).size() < 1) {
-	    throw new IllegalStateException("Entities' reference's spans must contain at least one target");
+	    throw new IllegalStateException("Features' reference's spans must contain at least one target");
 	}
 	this.id = id;
 	this.annotationContainer = annotationContainer;
 	this.lemma = lemma;
-	List<List<String>> newReferences = new ArrayList<List<String>>();
-	for (List<Term> span : references) {
-	    List<String> newSpan = new ArrayList<String>();
-	    for (Term term : span) {
-		newSpan.add(term.getId());
+	this.references = references;
+	this.externalReferences = new ArrayList<ExternalRef>();
+    }
+
+    Feature(Feature feature, AnnotationContainer annotationContainer, HashMap<String, Term> terms) {
+	this.annotationContainer = annotationContainer;
+	this.id = feature.id;
+	this.lemma = feature.lemma;
+	/* Copy references */
+	String id = feature.getId();
+	this.references = new ArrayList<Span<Term>>();
+	for (Span<Term> span : feature.getReferences()) {
+	    /* Copy span */
+	    List<Term> targets = span.getTargets();
+	    List<Term> copiedTargets = new ArrayList<Term>();
+	    for (Term term : targets) {
+		Term copiedTerm = terms.get(term.getId());
+		if (copiedTerm == null) {
+		    throw new IllegalStateException("Term not found when copying " + id);
+		}
+		copiedTargets.add(copiedTerm);
 	    }
-	    newReferences.add(newSpan);
+	    if (span.hasHead()) {
+		Term copiedHead = terms.get(span.getHead().getId());
+		this.references.add(new Span<Term>(this.annotationContainer, copiedTargets, copiedHead));
+	    }
+	    else {
+		this.references.add(new Span<Term>(this.annotationContainer, copiedTargets));
+	    }
 	}
-	this.references = newReferences;
+	/* Copy external references */
+	this.externalReferences = new ArrayList<ExternalRef>();
+	for (ExternalRef externalRef : feature.getExternalRefs()) {
+	    this.externalReferences.add(new ExternalRef(externalRef));
+	}
     }
 
     public boolean isAProperty() {
@@ -49,6 +78,10 @@ public class Feature implements Relational {
 	return this.id;
     }
 
+    void setId(String id) {
+	this.id = id;
+    }
+
     public String getLemma() {
 	return this.lemma;
     }
@@ -57,25 +90,27 @@ public class Feature implements Relational {
 	this.lemma = lemma;
     }
 
-    public List<List<Term>> getReferences() {
-	List<List<Term>> termSpans = new ArrayList<List<Term>>();
-	for (List<String> idSpan : this.references) {
-	    List<Term> termSpan = new ArrayList<Term>();
-	    for (String id : idSpan) {
-		Term newTerm = annotationContainer.getTermById(id);
-		termSpan.add(newTerm);
-	    }
-	    termSpans.add(termSpan);
-	}
-	return termSpans;
+    /** Returns the term targets of the first span. When targets of other spans are needed getReferences() method should be used. */ 
+    public List<Term> getTerms() {
+	return this.references.get(0).getTargets();
     }
 
-    public void addReference(List<Term> span) {
-	List<String> idSpan = new ArrayList<String>();
-	for (Term term : span) {
-	    idSpan.add(term.getId());
-	}
-	references.add(idSpan);
+    /** Adds a term to the first span. */
+    public void addTerm(Term term) {
+	this.references.get(0).addTarget(term);
+    }
+
+    /** Adds a term to the first span. */
+    public void addTerm(Term term, boolean isHead) {
+	this.references.get(0).addTarget(term, isHead);
+    }
+
+    public List<Span<Term>> getReferences() {
+	return this.references;
+    }
+
+    public void addReference(Span<Term> span) {
+	references.add(span);
     }
 
     public List<ExternalRef> getExternalRefs() {
@@ -90,14 +125,18 @@ public class Feature implements Relational {
 	externalReferences.addAll(externalRefs);
     }
 
-    public String getSpanStr(List<Term> terms) {
+    public String getSpanStr(Span<Term> span) {
 	String str = "";
-	for (Term term : terms) {
+	for (Term term : span.getTargets()) {
 	    if (!str.isEmpty()) {
 		str += " ";
 	    }
 	    str += term.getStr();
 	}
 	return str;
+    }
+
+    public String getStr() {
+	return getSpanStr(this.getReferences().get(0));
     }
 }
