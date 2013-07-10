@@ -278,7 +278,7 @@ public class KAFDocument {
      * @param pos part of speech of the component.
      * @return a new component.
      */
-     public Term.Component createComponent(String id, Term term, String lemma, String pos) {
+    public Term.Component createComponent(String id, Term term, String lemma, String pos) {
 	idManager.updateComponentCounter(id, term.getId());
 	Term.Component newComponent = new Term.Component(id, lemma, pos);
 	return newComponent;
@@ -366,7 +366,7 @@ public class KAFDocument {
      * @return a new coreference.
      */
     public Coref createCoref(String id, List<Span<Term>> references) {
-	idManager.updateEntityCounter(id);
+	idManager.updateCorefCounter(id);
 	Coref newCoref = new Coref(annotationContainer, id, references);
 	annotationContainer.add(newCoref);
 	return newCoref;
@@ -595,8 +595,11 @@ public class KAFDocument {
 	return formattedDate;
     }
 
-    /** Merges the document with another one. If there are any conflicting values, the values of this object will be kept. **/
+    /** Merges the document with another one. **/
     public void merge(KAFDocument doc) {
+	HashMap<String, WF> copiedWFs = new HashMap<String, WF>(); // hash[old_id => new_WF_obj]
+	HashMap<String, Term> copiedTerms = new HashMap<String, Term>(); // hash[old_id => new_Term_obj]
+	HashMap<String, Relational> copiedRelationals = new HashMap<String, Relational>();
 	// Linguistic processors
 	HashMap<String, List<LinguisticProcessor>> lps = doc.getLinguisticProcessors();
 	for (Map.Entry<String, List<LinguisticProcessor>> entry : lps.entrySet()) {
@@ -610,25 +613,125 @@ public class KAFDocument {
 	}
 	// WFs
 	for (WF wf : doc.getWFs()) {
-	    this.insertWF(wf);
+	    WF wfCopy = new WF(wf, this.annotationContainer);
+	    this.insertWF(wfCopy);
+	    copiedWFs.put(wf.getId(), wfCopy);
 	}
 	// Terms
 	for (Term term : doc.getTerms()) {
-	    this.insertTerm(term);
+	    Term termCopy = new Term(term, this.annotationContainer, copiedWFs);
+	    this.insertTerm(termCopy);
+	    copiedTerms.put(term.getId(), termCopy);
+	}
+	// Deps
+	for (Dep dep : doc.getDeps()) {
+	    Dep depCopy = new Dep(dep, this.annotationContainer, copiedTerms);
+	    this.insertDep(depCopy);
+	}
+	// Chunks
+	for (Chunk chunk : doc.getChunks()) {
+	    Chunk chunkCopy = new Chunk(chunk, this.annotationContainer, copiedTerms);
+	    this.insertChunk(chunkCopy);
+	}
+	// Entities
+	for (Entity entity : doc.getEntities()) {
+	    Entity entityCopy = new Entity(entity, this.annotationContainer, copiedTerms);
+	    this.insertEntity(entityCopy);
+	    copiedRelationals.put(entity.getId(), entityCopy);
+	}
+	// Coreferences
+	for (Coref coref : doc.getCorefs()) {
+	    Coref corefCopy = new Coref(coref, this.annotationContainer, copiedTerms);
+	    this.insertCoref(corefCopy);
+	}
+	// Properties
+	for (Feature property : doc.getProperties()) {
+	    Feature propertyCopy = new Feature(property, this.annotationContainer, copiedTerms);
+	    this.insertProperty(propertyCopy);
+	    copiedRelationals.put(property.getId(), propertyCopy);
+	}
+	// Categories
+	for (Feature category : doc.getCategories()) {
+	    Feature categoryCopy = new Feature(category, this.annotationContainer, copiedTerms);
+	    this.insertCategory(categoryCopy);
+	    copiedRelationals.put(category.getId(), categoryCopy);
+	}
+	// Opinions
+	for (Opinion opinion : doc.getOpinions()) {
+	    Opinion opinionCopy = new Opinion(opinion, this.annotationContainer, copiedTerms);
+	    this.insertOpinion(opinionCopy);
+	}
+	// Relations
+	for (Relation relation : doc.getRelations()) {
+	    Relation relationCopy = new Relation(relation, this.annotationContainer, copiedRelationals);
+	    this.insertRelation(relationCopy);
 	}
     }
 
     private String insertWF(WF wf) {
 	String newId = idManager.getNextWFId();
 	wf.setId(newId);
-        annotationContainer.add(wf);
+	annotationContainer.add(wf);
 	return newId;
     }
 
     private String insertTerm(Term term) {
 	String newId = idManager.getNextTermId();
 	term.setId(newId);
-        annotationContainer.add(term);
+	annotationContainer.add(term);
+	return newId;
+    }
+
+    private void insertDep(Dep dep) {
+	annotationContainer.add(dep);
+    }
+
+    private String insertChunk(Chunk chunk) {
+	String newId = idManager.getNextChunkId();
+	chunk.setId(newId);
+	annotationContainer.add(chunk);
+	return newId;
+    }
+
+    private String insertEntity(Entity entity) {
+	String newId = idManager.getNextEntityId();
+	entity.setId(newId);
+	annotationContainer.add(entity);
+	return newId;
+    }
+
+    private String insertCoref(Coref coref) {
+	String newId = idManager.getNextCorefId();
+	coref.setId(newId);
+	annotationContainer.add(coref);
+	return newId;
+    }
+
+    private String insertProperty(Feature property) {
+	String newId = idManager.getNextPropertyId();
+	property.setId(newId);
+	annotationContainer.add(property);
+	return newId;
+    }
+
+    private String insertCategory(Feature category) {
+	String newId = idManager.getNextCategoryId();
+	category.setId(newId);
+	annotationContainer.add(category);
+	return newId;
+    }
+
+    private String insertOpinion(Opinion opinion) {
+	String newId = idManager.getNextOpinionId();
+	opinion.setId(newId);
+	annotationContainer.add(opinion);
+	return newId;
+    }
+
+    private String insertRelation(Relation relation) {
+	String newId = idManager.getNextRelationId();
+	relation.setId(newId);
+	annotationContainer.add(relation);
 	return newId;
     }
 
