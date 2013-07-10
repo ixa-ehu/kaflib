@@ -2,6 +2,7 @@ package ixa.kaflib;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /** Class for representing opinions. */
 public class Opinion {
@@ -13,6 +14,28 @@ public class Opinion {
 	OpinionHolder(AnnotationContainer annotationContainer, Span<Term> span) {
 	    this.annotationContainer = annotationContainer;
 	    this.span = span;
+	}
+
+	OpinionHolder(OpinionHolder oh, AnnotationContainer annotationContainer, HashMap<String, Term> terms) {
+	    this.annotationContainer = annotationContainer;
+	    /* Copy span */
+	    Span<Term> span = oh.span;
+	    List<Term> targets = span.getTargets();
+	    List<Term> copiedTargets = new ArrayList<Term>();
+	    for (Term term : targets) {
+		Term copiedTerm = terms.get(term.getId());
+		if (copiedTerm == null) {
+		    throw new IllegalStateException("Term not found when copying opinion_holder");
+		}
+		copiedTargets.add(copiedTerm);
+	    }
+	    if (span.hasHead()) {
+		Term copiedHead = terms.get(span.getHead().getId());
+		this.span = new Span<Term>(this.annotationContainer, copiedTargets, copiedHead);
+	    }
+	    else {
+		this.span = new Span<Term>(this.annotationContainer, copiedTargets);
+	    }	    
 	}
 
 	public List<Term> getTerms() {
@@ -43,6 +66,28 @@ public class Opinion {
 	OpinionTarget(AnnotationContainer annotationContainer, Span<Term> span) {
 	    this.annotationContainer = annotationContainer;
 	    this.span = span;
+	}
+
+	OpinionTarget(OpinionTarget ot, AnnotationContainer annotationContainer, HashMap<String, Term> terms) {
+	    this.annotationContainer = annotationContainer;
+	    /* Copy span */
+	    Span<Term> span = ot.span;
+	    List<Term> targets = span.getTargets();
+	    List<Term> copiedTargets = new ArrayList<Term>();
+	    for (Term term : targets) {
+		Term copiedTerm = terms.get(term.getId());
+		if (copiedTerm == null) {
+		    throw new IllegalStateException("Term not found when copying opinion_target");
+		}
+		copiedTargets.add(copiedTerm);
+	    }
+	    if (span.hasHead()) {
+		Term copiedHead = terms.get(span.getHead().getId());
+		this.span = new Span<Term>(this.annotationContainer, copiedTargets, copiedHead);
+	    }
+	    else {
+		this.span = new Span<Term>(this.annotationContainer, copiedTargets);
+	    }
 	}
 
 	public List<Term> getTerms() {
@@ -89,6 +134,33 @@ public class Opinion {
 	OpinionExpression(AnnotationContainer annotationContainer, Span<Term> span) {
 	    this.annotationContainer = annotationContainer;
 	    this.span = span;
+	}
+
+	OpinionExpression(OpinionExpression oe, AnnotationContainer annotationContainer, HashMap<String, Term> terms) {
+	    this.annotationContainer = annotationContainer;
+	    this.polarity = oe.polarity;
+	    this.strength = oe.strength;
+	    this.subjectivity = oe.subjectivity;
+	    this.sentimentSemanticType = oe.sentimentSemanticType;
+	    this.sentimentProductFeature = oe.sentimentProductFeature;
+	    /* Copy span */
+	    Span<Term> span = oe.span;
+	    List<Term> targets = span.getTargets();
+	    List<Term> copiedTargets = new ArrayList<Term>();
+	    for (Term term : targets) {
+		Term copiedTerm = terms.get(term.getId());
+		if (copiedTerm == null) {
+		    throw new IllegalStateException("Term not found when copying opinion_expression");
+		}
+		copiedTargets.add(copiedTerm);
+	    }
+	    if (span.hasHead()) {
+		Term copiedHead = terms.get(span.getHead().getId());
+		this.span = new Span<Term>(this.annotationContainer, copiedTargets, copiedHead);
+	    }
+	    else {
+		this.span = new Span<Term>(this.annotationContainer, copiedTargets);
+	    }
 	}
 
 	public boolean hasPolarity() {
@@ -189,8 +261,26 @@ public class Opinion {
 	this.annotationContainer = annotationContainer;
     }
 
+    Opinion(Opinion opinion, AnnotationContainer annotationContainer, HashMap<String, Term> terms) {
+	this.annotationContainer = annotationContainer;
+	this.id = opinion.id;
+	if (opinion.opinionHolder != null) {
+	    this.opinionHolder = new OpinionHolder(opinion.opinionHolder, annotationContainer, terms);
+	}
+	if (opinion.opinionTarget != null) {
+	    this.opinionTarget = new OpinionTarget(opinion.opinionTarget, annotationContainer, terms);
+	}
+	if (opinion.opinionExpression != null) {
+	    this.opinionExpression = new OpinionExpression(opinion.opinionExpression, annotationContainer, terms);
+	}
+    }
+
     public String getId() {
 	return this.id;
+    }
+
+    void setId(String id) {
+	this.id = id;
     }
 
     public OpinionHolder getOpinionHolder() {

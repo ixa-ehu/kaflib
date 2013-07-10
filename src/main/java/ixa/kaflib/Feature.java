@@ -2,6 +2,7 @@ package ixa.kaflib;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /** Class for representing features. There are two types of features: properties and categories. */
 public class Feature implements Relational {
@@ -29,6 +30,40 @@ public class Feature implements Relational {
 	this.annotationContainer = annotationContainer;
 	this.lemma = lemma;
 	this.references = references;
+	this.externalReferences = new ArrayList<ExternalRef>();
+    }
+
+    Feature(Feature feature, AnnotationContainer annotationContainer, HashMap<String, Term> terms) {
+	this.annotationContainer = annotationContainer;
+	this.id = feature.id;
+	this.lemma = feature.lemma;
+	/* Copy references */
+	String id = feature.getId();
+	this.references = new ArrayList<Span<Term>>();
+	for (Span<Term> span : feature.getReferences()) {
+	    /* Copy span */
+	    List<Term> targets = span.getTargets();
+	    List<Term> copiedTargets = new ArrayList<Term>();
+	    for (Term term : targets) {
+		Term copiedTerm = terms.get(term.getId());
+		if (copiedTerm == null) {
+		    throw new IllegalStateException("Term not found when copying " + id);
+		}
+		copiedTargets.add(copiedTerm);
+	    }
+	    if (span.hasHead()) {
+		Term copiedHead = terms.get(span.getHead().getId());
+		this.references.add(new Span<Term>(this.annotationContainer, copiedTargets, copiedHead));
+	    }
+	    else {
+		this.references.add(new Span<Term>(this.annotationContainer, copiedTargets));
+	    }
+	}
+	/* Copy external references */
+	this.externalReferences = new ArrayList<ExternalRef>();
+	for (ExternalRef externalRef : feature.getExternalRefs()) {
+	    this.externalReferences.add(new ExternalRef(externalRef));
+	}
     }
 
     public boolean isAProperty() {
@@ -41,6 +76,10 @@ public class Feature implements Relational {
 
     public String getId() {
 	return this.id;
+    }
+
+    void setId(String id) {
+	this.id = id;
     }
 
     public String getLemma() {

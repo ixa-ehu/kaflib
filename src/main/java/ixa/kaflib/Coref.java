@@ -2,6 +2,7 @@ package ixa.kaflib;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /** The coreference layer creates clusters of term spans (which we call mentions) which share the same referent. For instance, “London” and “the capital city of England” are two mentions referring to the same entity. It is said that those mentions corefer. */
 public class Coref {
@@ -27,8 +28,39 @@ public class Coref {
 	this.references = references;
     }
 
+    Coref(Coref coref, AnnotationContainer annotationContainer, HashMap<String, Term> terms) {
+	this.annotationContainer = annotationContainer;
+	this.coid = coref.coid;
+	/* Copy references */
+	String id = coref.getId();
+	this.references = new ArrayList<Span<Term>>();
+	for (Span<Term> span : coref.getReferences()) {
+	    /* Copy span */
+	    List<Term> targets = span.getTargets();
+	    List<Term> copiedTargets = new ArrayList<Term>();
+	    for (Term term : targets) {
+		Term copiedTerm = terms.get(term.getId());
+		if (copiedTerm == null) {
+		    throw new IllegalStateException("Term not found when copying " + id);
+		}
+		copiedTargets.add(copiedTerm);
+	    }
+	    if (span.hasHead()) {
+		Term copiedHead = terms.get(span.getHead().getId());
+		this.references.add(new Span<Term>(this.annotationContainer, copiedTargets, copiedHead));
+	    }
+	    else {
+		this.references.add(new Span<Term>(this.annotationContainer, copiedTargets));
+	    }
+	}
+    }
+
     public String getId() {
 	return coid;
+    }
+
+    void setId(String id) {
+	this.coid = id;
     }
 
     /** Returns the term targets of the first span. When targets of other spans are needed getReferences() method should be used. */ 

@@ -2,6 +2,7 @@ package ixa.kaflib;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /** Chunks are noun, verb or prepositional phrases, spanning terms. */
 public class Chunk {
@@ -31,8 +32,38 @@ public class Chunk {
 	this.span = span;
     }
 
+    Chunk(Chunk chunk, AnnotationContainer annotationContainer, HashMap<String, Term> terms) {
+	this.annotationContainer = annotationContainer;
+	this.cid = chunk.cid;
+	this.phrase = chunk.phrase;
+	this.chunkcase = chunk.chunkcase;
+	/* Copy span */
+	String id = chunk.getId();
+	Span<Term> span = chunk.span;
+	List<Term> targets = span.getTargets();
+	List<Term> copiedTargets = new ArrayList<Term>();
+	for (Term term : targets) {
+	    Term copiedTerm = terms.get(term.getId());
+	    if (copiedTerm == null) {
+		throw new IllegalStateException("Term not found when copying " + id);
+	    }
+	    copiedTargets.add(copiedTerm);
+	}
+	if (span.hasHead()) {
+	    Term copiedHead = terms.get(span.getHead().getId());
+	    this.span = new Span<Term>(this.annotationContainer, copiedTargets, copiedHead);
+	}
+	else {
+	    this.span = new Span<Term>(this.annotationContainer, copiedTargets);
+	}
+    }
+
     public String getId() {
 	return cid;
+    }
+
+    void setId(String id) {
+	this.cid = id;
     }
 
     public boolean hasHead() {

@@ -40,6 +40,18 @@ public class WF {
 	this.length = -1;
     }
 
+    WF(WF wf, AnnotationContainer annotationContainer) {
+	this.annotationContainer = annotationContainer;
+	this.wid = wf.wid;
+	this.sent = wf.sent;
+	this.para = wf.para;
+	this.page = wf.page;
+	this.offset = wf.offset;
+	this.length = wf.length;
+	this.xpath = wf.xpath;
+	this.form = wf.form;
+    }
+
     public String getId() {
 	return wid;
     }

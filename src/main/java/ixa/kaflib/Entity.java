@@ -2,6 +2,7 @@ package ixa.kaflib;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /** A named entity is a term (or a multiword) that clearly identifies one item. The optional Named Entity layer is used to reference terms that are named entities. */
 public class Entity implements Relational {
@@ -44,8 +45,45 @@ public class Entity implements Relational {
 	this.externalReferences = new ArrayList<ExternalRef>();
     }
 
+    Entity(Entity entity, AnnotationContainer annotationContainer, HashMap<String, Term> terms) {
+	this.annotationContainer = annotationContainer;
+	this.eid = entity.eid;
+	this.type = entity.type;
+	/* Copy references */
+	String id = entity.getId();
+	this.references = new ArrayList<Span<Term>>();
+	for (Span<Term> span : entity.getReferences()) {
+	    /* Copy span */
+	    List<Term> targets = span.getTargets();
+	    List<Term> copiedTargets = new ArrayList<Term>();
+	    for (Term term : targets) {
+		Term copiedTerm = terms.get(term.getId());
+		if (copiedTerm == null) {
+		    throw new IllegalStateException("Term not found when copying " + id);
+		}
+		copiedTargets.add(copiedTerm);
+	    }
+	    if (span.hasHead()) {
+		Term copiedHead = terms.get(span.getHead().getId());
+		this.references.add(new Span<Term>(this.annotationContainer, copiedTargets, copiedHead));
+	    }
+	    else {
+		this.references.add(new Span<Term>(this.annotationContainer, copiedTargets));
+	    }
+	}
+	/* Copy external references */
+	this.externalReferences = new ArrayList<ExternalRef>();
+	for (ExternalRef externalRef : entity.getExternalRefs()) {
+	    this.externalReferences.add(new ExternalRef(externalRef));
+	}
+    }
+
     public String getId() {
 	return eid;
+    }
+
+    void setId(String id) {
+	this.eid = id;
     }
 
     public String getType() {

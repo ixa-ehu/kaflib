@@ -47,9 +47,6 @@ public class Term {
     /** Head component (optional) */
     private Component head;
 
-    /** Hash map indexing components by their ID */
-    private HashMap<String, Integer> componentIndex;
-
     /** Target elements are used to refer to the target word. If the term is a multiword, multiple target elements are used. (required)*/
     private Span<WF> span;
 
@@ -112,6 +109,17 @@ public class Term {
 	private String sentimentProductFeature;
 
 	Sentiment() {}
+
+	Sentiment(Sentiment sentiment) {
+	    this.resource = sentiment.resource;
+	    this.polarity = sentiment.polarity;
+	    this.strength = sentiment.strength;
+	    this.subjectivity = sentiment.subjectivity;
+	    this.sentimentSemanticType = sentiment.sentimentSemanticType;
+	    this.sentimentModifier = sentiment.sentimentModifier;
+	    this.sentimentMarker = sentiment.sentimentMarker;
+	    this.sentimentProductFeature = sentiment.sentimentProductFeature;
+	}
 
 	public boolean hasResource() {
 	    return resource != null;
@@ -235,6 +243,17 @@ public class Term {
 	    this.externalReferences = new ArrayList<ExternalRef>();
 	}
 
+	Component(Component component) {
+	    this.id = component.id;
+	    this.lemma = component.lemma;
+	    this.pos = component.pos;
+	    this.componentcase = component.componentcase;
+	    this.externalReferences = new ArrayList<ExternalRef>();
+	    for (ExternalRef externalRef : component.getExternalRefs()) {
+		this.externalReferences.add(new ExternalRef(externalRef));
+	    }
+	}
+
 	public String getId() {
 	    return id;
 	}
@@ -291,7 +310,6 @@ public class Term {
 	this.lemma = lemma;
 	this.pos = pos;
 	this.components = new ArrayList();
-	this.componentIndex = new HashMap<String, Integer>();
 	this.span = span;
 	this.externalReferences = new ArrayList<ExternalRef>();
     }
@@ -308,9 +326,58 @@ public class Term {
 	this.pos = pos;
 	this.morphofeat = morphofeat;
 	this.components = new ArrayList();
-	this.componentIndex = new HashMap<String, Integer>();
 	this.span = span;
 	this.externalReferences = new ArrayList<ExternalRef>();
+    }
+
+    /* Copy constructor */
+    Term(Term term, AnnotationContainer annotationContainer, HashMap<String, WF> wfs) {
+	this.annotationContainer = annotationContainer;
+	/* Copy simple fields */
+	this.tid = term.tid;
+	this.type = term.type;
+	this.lemma = term.lemma;
+	this.pos = term.pos;
+	this.morphofeat = term.morphofeat;
+	this.termcase = term.termcase;
+	/* Copy sentiment */
+	if (term.hasSentiment()) {
+	    this.sentiment = new Sentiment(term.sentiment);
+	}
+	/* Copy components and head */
+	HashMap<String, Component> newComponents = 
+	    new HashMap<String, Component>();
+	this.components = new ArrayList<Component>();
+	for (Component component : term.components) {
+	    Component copyComponent = new Component(component);
+	    this.components.add(copyComponent);
+	    newComponents.put(component.getId(), copyComponent);
+	}
+	if (term.hasHead()) {
+	    this.head = newComponents.get(term.head.getId());
+	}
+	/* Copy span */
+	List<WF> targets = term.span.getTargets();
+	List<WF> copiedTargets = new ArrayList<WF>();
+	for (WF wf : targets) {
+	    WF copiedWf = wfs.get(wf.getId());
+	    if (copiedWf == null) {
+		throw new IllegalStateException("WF not found when copying Term " + term.getId());
+	    }
+	    copiedTargets.add(copiedWf);
+	}
+	if (term.span.hasHead()) {
+	    WF copiedHead = wfs.get(term.span.getHead().getId());
+	    this.span = new Span<WF>(this.annotationContainer, copiedTargets, copiedHead);
+	}
+	else {
+	    this.span = new Span<WF>(this.annotationContainer, copiedTargets);
+	}
+	/* Copy external references */
+	this.externalReferences = new ArrayList<ExternalRef>();
+	for (ExternalRef externalRef : term.getExternalRefs()) {
+	    this.externalReferences.add(new ExternalRef(externalRef));
+	}
     }
 
     public String getId() {
@@ -428,7 +495,6 @@ public class Term {
 
     public void addComponent(Component component) {
 	components.add(component);
-	componentIndex.put(component.getId(), components.size() - 1);
     }
 
     public void addComponent(Component component, boolean isHead) {
@@ -436,7 +502,6 @@ public class Term {
 	if (isHead) {
 	    this.head = component;
 	}
-	componentIndex.put(component.getId(), components.size() - 1);
     }
 
     public List<WF> getWFs() {

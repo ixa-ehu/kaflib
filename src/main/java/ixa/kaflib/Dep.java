@@ -1,6 +1,7 @@
 package ixa.kaflib;
 
 import java.util.List;
+import java.util.HashMap;
 
 /** Dependencies represent dependency relations among terms. */
 public class Dep {
@@ -29,6 +30,20 @@ public class Dep {
 	this.from = from;
 	this.to = to;
 	this.rfunc = rfunc;
+    }
+
+    Dep(Dep dep, AnnotationContainer annotationContainer, HashMap<String, Term> terms) {
+	this.annotationContainer = annotationContainer;
+	this.from = terms.get(dep.from.getId());
+	if (this.from == null) {
+	    throw new IllegalStateException("Couldn't find the term when loading dep (" + dep.getFrom().getId()+", "+dep.getTo().getId()+")");
+	}
+	this.to = terms.get(dep.to.getId());
+	if (this.to == null) {
+	    throw new IllegalStateException("Couldn't find the term when loading dep (" + dep.getFrom().getId()+", "+dep.getTo().getId()+")");
+	}
+	this.rfunc = dep.rfunc;
+	this.depcase = dep.depcase;
     }
 
     public Term getFrom() {

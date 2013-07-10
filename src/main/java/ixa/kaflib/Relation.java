@@ -2,6 +2,7 @@ package ixa.kaflib;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /** Class for representing relations between entities and/or features. */
 public class Relation {
@@ -26,6 +27,24 @@ public class Relation {
 	this.from = from;
 	this.to = to;
 	this.confidence = -1.0f;
+    }
+
+    Relation(Relation relation, AnnotationContainer annotationContainer, HashMap<String, Relational> relational) {
+	this.annotationContainer = annotationContainer;
+	this.id = id;
+	if (relation.from != null) {
+	    this.from = relational.get(relation.from.getId());
+	    if (this.from == null) {
+		throw new IllegalStateException("Couldn't find relational " + relation.from.getId() + " when copying " + relation.getId());
+	    }
+	}
+	if (relation.to != null) {
+	    this.to = relational.get(relation.to.getId());
+	    if (this.to == null) {
+		throw new IllegalStateException("Couldn't find relational " + relation.to.getId() + " when copying " + relation.getId());
+	    }
+	}
+	this.confidence = relation.confidence;
     }
 
     public String getId() {
