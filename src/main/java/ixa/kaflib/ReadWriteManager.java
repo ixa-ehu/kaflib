@@ -583,7 +583,7 @@ class ReadWriteManager {
 		for (Element predicateElem : predicateElems) {
 		    String id = getAttribute("prid", predicateElem);
 		    String uri = getOptAttribute("uri", predicateElem);
-		    Span<Term> span = naf.createTermSpan();
+		    Span<Term> span = kaf.createTermSpan();
 		    Element spanElem = predicateElem.getChild("span");
 		    if (spanElem != null) {
 			List<Element> targetElems = spanElem.getChildren("target");
@@ -597,7 +597,7 @@ class ReadWriteManager {
 			    span.addTarget(targetTerm, isHead);
 			}
 		    }
-		    Predicate newPredicate = naf.createPredicate(id, span);
+		    Predicate newPredicate = kaf.createPredicate(id, span);
 		    if (uri != null) {
 			newPredicate.setUri(uri);
 		    }
@@ -605,7 +605,7 @@ class ReadWriteManager {
 		    for (Element roleElem : roleElems) {
 			String rid = getAttribute("rid", roleElem);
 			String semRole = getAttribute("semRole", roleElem);
-			Span<Term> roleSpan = naf.createTermSpan();
+			Span<Term> roleSpan = kaf.createTermSpan();
 			Element roleSpanElem = roleElem.getChild("span");
 			if (roleSpanElem != null) {
 			    List<Element> targetElems = roleSpanElem.getChildren("target");
@@ -619,11 +619,11 @@ class ReadWriteManager {
 				roleSpan.addTarget(targetTerm, isHead);
 			    }
 			}
-			Predicate.Role newRole = naf.createRole(rid, newPredicate, semRole, roleSpan);
+			Predicate.Role newRole = kaf.createRole(rid, newPredicate, semRole, roleSpan);
 			newPredicate.addRole(newRole);
 		    }
-		    Span<Term> spana = naf.createTermSpan();
-		    Predicate.Role rolea = naf.createRole(newPredicate, "kaka", spana);
+		    Span<Term> spana = kaf.createTermSpan();
+		    Predicate.Role rolea = kaf.createRole(newPredicate, "kaka", spana);
 		    newPredicate.addRole(rolea);
 		}
 	    }
