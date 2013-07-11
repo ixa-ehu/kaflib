@@ -578,6 +578,55 @@ class ReadWriteManager {
 		    }
 		}
 	    }
+	    if (elem.getName().equals("srl")) {
+		List<Element> predicateElems = elem.getChildren("predicate");
+		for (Element predicateElem : predicateElems) {
+		    String id = getAttribute("prid", predicateElem);
+		    String uri = getOptAttribute("uri", predicateElem);
+		    Span<Term> span = naf.createTermSpan();
+		    Element spanElem = predicateElem.getChild("span");
+		    if (spanElem != null) {
+			List<Element> targetElems = spanElem.getChildren("target");
+			for (Element targetElem : targetElems) {
+			    String targetId = getAttribute("id", targetElem);
+			    boolean isHead = isHead(targetElem);
+			    Term targetTerm = termIndex.get(targetId);
+			    if (targetTerm == null) {
+				throw new KAFNotValidException("Term object " + targetId + " not found when loading predicate " + id);				
+			    }
+			    span.addTarget(targetTerm, isHead);
+			}
+		    }
+		    Predicate newPredicate = naf.createPredicate(id, span);
+		    if (uri != null) {
+			newPredicate.setUri(uri);
+		    }
+		    List<Element> roleElems = predicateElem.getChildren("role");
+		    for (Element roleElem : roleElems) {
+			String rid = getAttribute("rid", roleElem);
+			String semRole = getAttribute("semRole", roleElem);
+			Span<Term> roleSpan = naf.createTermSpan();
+			Element roleSpanElem = roleElem.getChild("span");
+			if (roleSpanElem != null) {
+			    List<Element> targetElems = roleSpanElem.getChildren("target");
+			    for (Element targetElem : targetElems) {
+				String targetId = getAttribute("id", targetElem);
+				boolean isHead = isHead(targetElem);
+				Term targetTerm = termIndex.get(targetId);
+				if (targetTerm == null) {
+				    throw new KAFNotValidException("Term object " + targetId + " not found when loading role " + rid);				
+				}
+				roleSpan.addTarget(targetTerm, isHead);
+			    }
+			}
+			Predicate.Role newRole = naf.createRole(rid, newPredicate, semRole, roleSpan);
+			newPredicate.addRole(newRole);
+		    }
+		    Span<Term> spana = naf.createTermSpan();
+		    Predicate.Role rolea = naf.createRole(newPredicate, "kaka", spana);
+		    newPredicate.addRole(rolea);
+		}
+	    }
 	    if (elem.getName().equals("parsing")) {
 		List<Element> treeElems = elem.getChildren();
 		for (Element treeElem : treeElems) {
@@ -1133,6 +1182,58 @@ class ReadWriteManager {
 		relationsElem.addContent(relationElem);
 	    }
 	    root.addContent(relationsElem);
+	}
+
+	List<Predicate> predicates = annotationContainer.getPredicates();
+	if (predicates.size() > 0) {
+	    Element predicatesElem = new Element("srl");
+	    for (Predicate predicate : predicates) {
+		Comment predicateComment = new Comment(predicate.getStr());
+		predicatesElem.addContent(predicateComment);
+		Element predicateElem = new Element("predicate");
+		predicateElem.setAttribute("prid", predicate.getId());
+		if (predicate.hasUri()) {
+		    predicateElem.setAttribute("uri", predicate.getUri());
+		}
+		Span<Term> span = predicate.getSpan();
+		if (span.getTargets().size() > 0) {
+		    Comment spanComment = new Comment(predicate.getSpanStr());
+		    Element spanElem = new Element("span");
+		    predicateElem.addContent(spanComment);
+		    predicateElem.addContent(spanElem);
+		    for (Term target : span.getTargets()) {
+			Element targetElem = new Element("target");
+			targetElem.setAttribute("id", target.getId());
+			if (target == span.getHead()) {
+			    targetElem.setAttribute("head", "yes");
+			}
+			spanElem.addContent(targetElem);
+		    }
+		}
+		for (Predicate.Role role : predicate.getRoles()) {
+		    Element roleElem = new Element("role");
+		    roleElem.setAttribute("rid", role.getId());
+		    roleElem.setAttribute("semRole", role.getSemRole());
+		    Span<Term> roleSpan = role.getSpan();
+		    if (roleSpan.getTargets().size() > 0) {
+			Comment spanComment = new Comment(role.getStr());
+			Element spanElem = new Element("span");
+			roleElem.addContent(spanComment);
+			roleElem.addContent(spanElem);
+			for (Term target : roleSpan.getTargets()) {
+			    Element targetElem = new Element("target");
+			    targetElem.setAttribute("id", target.getId());
+			    if (target == roleSpan.getHead()) {
+				targetElem.setAttribute("head", "yes");
+			    }
+			    spanElem.addContent(targetElem);
+			}
+		    }
+		    predicateElem.addContent(roleElem);
+		}
+		predicatesElem.addContent(predicateElem);
+	    }
+	    root.addContent(predicatesElem);
 	}
 
 	List<Tree> trees = annotationContainer.getTrees();

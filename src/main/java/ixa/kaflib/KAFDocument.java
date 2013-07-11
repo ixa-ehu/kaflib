@@ -478,6 +478,54 @@ public class KAFDocument {
 	return newRelation;
     }
 
+    /** Creates a new srl predicate. It receives its ID as an argument. The predicate is added to the document.
+     * @param id the ID of the predicate
+     * @param span span containing the targets of the predicate
+     * @return a new predicate
+     */
+    public Predicate createPredicate(String id, Span<Term> span) {
+	idManager.updatePredicateCounter(id);
+	Predicate newPredicate = new Predicate(annotationContainer, id, span);
+	annotationContainer.add(newPredicate);
+	return newPredicate;
+    }
+    
+    /** Creates a new srl predicate. It assigns an appropriate ID to it. The predicate is added to the document.
+     * @param span span containing all the targets of the predicate
+     * @return a new predicate
+     */
+    public Predicate createPredicate(Span<Term> span) {
+	String newId = idManager.getNextPredicateId();
+	Predicate newPredicate = new Predicate(annotationContainer, newId, span);
+	annotationContainer.add(newPredicate);
+	return newPredicate;
+    }
+
+    /** Creates a Role object to load an existing role. It receives the ID as an argument. It doesn't add the role to the predicate.
+     * @param id role's ID.
+     * @param predicate the predicate which this role is part of
+     * @param semRole semantic role
+     * @param span span containing all the targets of the role
+     * @return a new role.
+     */
+    public Predicate.Role createRole(String id, Predicate predicate, String semRole, Span<Term> span) {
+	idManager.updateRoleCounter(id, predicate.getId());
+	Predicate.Role newRole = new Predicate.Role(this.annotationContainer, id, semRole, span);
+	return newRole;
+    }
+
+    /** Creates a new Role object. It assigns an appropriate ID to it. It uses the ID of the predicate to create a new ID for the role. It doesn't add the role to the predicate.
+     * @param predicate the predicate which this role is part of
+     * @param semRole semantic role
+     * @param span span containing all the targets of the role
+     * @return a new role.
+     */
+    public Predicate.Role createRole(Predicate predicate, String semRole, Span<Term> span) {
+	String newId = idManager.getNextRoleId(predicate.getId());
+	Predicate.Role newRole = new Predicate.Role(this.annotationContainer, newId, semRole, span);
+	return newRole;
+    }
+
     /** Creates a new external reference.
      * @param resource indicates the identifier of the resource referred to.
      * @param reference code of the referred element.

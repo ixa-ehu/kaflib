@@ -9,6 +9,7 @@ class IdManager {
     /* Prefix of each type of ids */
     private static final String WF_PREFIX = "w";
     private static final String TERM_PREFIX = "t";
+    private static final String COMPONENT_PREFIX = ".";
     private static final String CHUNK_PREFIX = "c";
     private static final String ENTITY_PREFIX = "e";
     private static final String COREF_PREFIX = "co";
@@ -16,6 +17,8 @@ class IdManager {
     private static final String CATEGORY_PREFIX = "c";
     private static final String OPINION_PREFIX = "o";
     private static final String RELATION_PREFIX = "r";
+    private static final String PREDICATE_PREFIX = "pr";
+    private static final String ROLE_PREFIX = "r";
 
     /* Counters for each type of annotations */
     private int wfCounter;
@@ -27,7 +30,9 @@ class IdManager {
     private int categoryCounter;
     private int opinionCounter;
     private int relationCounter;
+    private int predicateCounter;
     private HashMap<String, Integer> componentCounter;
+    private HashMap<String, Integer> roleCounter;
 
     IdManager() {
 	this.wfCounter = 0;
@@ -39,7 +44,9 @@ class IdManager {
 	this.categoryCounter = 0;
 	this.opinionCounter = 0;
 	this.relationCounter = 0;
+	this.predicateCounter = 0;
 	this.componentCounter = new HashMap<String, Integer>();
+	this.roleCounter = new HashMap<String, Integer>();
     }
 
     String getNextWFId() {
@@ -78,6 +85,10 @@ class IdManager {
 	return RELATION_PREFIX + Integer.toString(++relationCounter);
     }
 
+    String getNextPredicateId() {
+	return PREDICATE_PREFIX + Integer.toString(++predicateCounter);
+    }
+
     String getNextComponentId(String termId) {
 	String newId;
 	int nextIndex;
@@ -86,8 +97,21 @@ class IdManager {
 	} else {
 	    nextIndex = componentCounter.get(termId) + 1;
 	}
-	newId = termId + "." + Integer.toString(nextIndex);
+	newId = termId + COMPONENT_PREFIX + Integer.toString(nextIndex);
 	componentCounter.put(termId, nextIndex);
+	return newId;
+    }
+
+    String getNextRoleId(String predicateId) {
+	String newId;
+	int nextIndex;
+	if (!roleCounter.containsKey(predicateId)) {
+	    nextIndex = 1;
+	} else {
+	    nextIndex = roleCounter.get(predicateId) + 1;
+	}
+	newId = predicateId + ROLE_PREFIX + Integer.toString(nextIndex);
+	roleCounter.put(predicateId, nextIndex);
 	return newId;
     }
 
@@ -135,13 +159,27 @@ class IdManager {
 	relationCounter = extractCounterFromId(id);
     }
 
+    void updatePredicateCounter(String id) {
+	predicateCounter = extractCounterFromId(id);
+    }
+
     void updateComponentCounter(String id, String termId) {
 	int componentInd;
-	Matcher matcher = Pattern.compile("^t_?\\d+\\.(\\d+)$").matcher(id);
+	Matcher matcher = Pattern.compile("^"+TERM_PREFIX+"_?\\d+\\"+COMPONENT_PREFIX+"(\\d+)$").matcher(id);
 	if (!matcher.find()) {
-	    throw new IllegalStateException("IdManager doesn't recognise the given id's (" + id + ") format. Should be t_?[0-9]+\\.[0-9]+");
+	    throw new IllegalStateException("IdManager doesn't recognise the given id's (" + id + ") format. Should be "+TERM_PREFIX+"_?[0-9]+\\"+COMPONENT_PREFIX+"[0-9]+");
 	}
 	componentInd = Integer.valueOf(matcher.group(1));
 	componentCounter.put(termId, componentInd);
+    }
+
+    void updateRoleCounter(String id, String predicateId) {
+	int roleInd;
+	Matcher matcher = Pattern.compile("^"+PREDICATE_PREFIX+"_?\\d+"+ROLE_PREFIX+"(\\d+)$").matcher(id);
+	if (!matcher.find()) {
+	    throw new IllegalStateException("IdManager doesn't recognise the given id's (" + id + ") format. Should be "+PREDICATE_PREFIX+"_?[0-9]+"+ROLE_PREFIX+"[0-9]+");
+	}
+	roleInd = Integer.valueOf(matcher.group(1));
+	roleCounter.put(predicateId, roleInd);
     }
 }

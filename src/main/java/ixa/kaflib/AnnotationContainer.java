@@ -51,6 +51,9 @@ class AnnotationContainer {
     /** List to keep all relations */
     private List<Relation> relations;
 
+    /** List to keep all predicates */
+    private List<Predicate> predicates;
+
     /** List to keep all trees */
     private List<Tree> trees;
 
@@ -76,6 +79,7 @@ class AnnotationContainer {
 	coreferences = new ArrayList();
 	opinions = new ArrayList();
 	relations = new ArrayList();
+	predicates = new ArrayList();
 	trees = new ArrayList();
 
 	textIndexedBySent = new HashMap<Integer, List<WF>>();
@@ -131,6 +135,11 @@ class AnnotationContainer {
     /** Returns all relations */
     List<Relation> getRelations() {
 	return relations;
+    }
+
+    /** Returns all predicates */
+    List<Predicate> getPredicates() {
+	return predicates;
     }
 
     /** Returns all trees */
@@ -195,6 +204,11 @@ class AnnotationContainer {
     /** Adds a relation to the container */
     void add(Relation relation) {
 	relations.add(relation);
+    }
+
+    /** Adds a predicate to the container */
+    void add(Predicate predicate) {
+	predicates.add(predicate);
     }
 
     /** Adds a tree to the container */

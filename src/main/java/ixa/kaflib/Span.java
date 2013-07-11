@@ -28,8 +28,16 @@ public class Span<T> {
 	this.head = head;
     }
 
+    public boolean isEmpty() {
+	return (this.targets.size() <= 0);
+    }
+
     public List<T> getTargets() {
 	return this.targets;
+    }
+
+    public T getFirstTarget() {
+	return this.targets.get(0);
     }
 
     public boolean hasHead() {
