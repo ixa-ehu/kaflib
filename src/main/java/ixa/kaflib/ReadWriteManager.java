@@ -734,13 +734,13 @@ class ReadWriteManager {
     /** Returns the content of the given KAFDocument in a DOM document. */
     private static Document KAFToDOM(KAFDocument kaf) {
 	AnnotationContainer annotationContainer = kaf.getAnnotationContainer();
-	Element root = new Element("KAF");
+	Element root = new Element("NAF");
 	root.setAttribute("lang", kaf.getLang(), Namespace.XML_NAMESPACE);
 	root.setAttribute("version", kaf.getVersion());
 
 	Document doc = new Document(root);
 
-	Element kafHeaderElem = new Element("kafHeader");
+	Element kafHeaderElem = new Element("nafHeader");
 	root.addContent(kafHeaderElem);
 
 	KAFDocument.FileDesc fd = kaf.getFileDesc();
