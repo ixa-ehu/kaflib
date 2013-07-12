@@ -29,7 +29,7 @@ public class Coref {
 	/* Copy references */
 	String id = coref.getId();
 	this.references = new ArrayList<Span<Term>>();
-	for (Span<Term> span : coref.getReferences()) {
+	for (Span<Term> span : coref.getSpans()) {
 	    /* Copy span */
 	    List<Term> targets = span.getTargets();
 	    List<Term> copiedTargets = new ArrayList<Term>();
@@ -73,11 +73,11 @@ public class Coref {
 	this.references.get(0).addTarget(term, isHead);
     }
 
-    public List<Span<Term>> getReferences() {
+    public List<Span<Term>> getSpans() {
 	return this.references;
     }
 
-    public void addReference(Span<Term> span) {
+    public void addSpan(Span<Term> span) {
 	this.references.add(span);
     }
 
@@ -90,5 +90,19 @@ public class Coref {
 	    str += term.getStr();
 	}
 	return str;
+    }
+
+    /** Deprecated */
+    public List<List<Target>> getReferences() {
+	List<List<Target>> list = new ArrayList<List<Target>>();
+	for (Span<Term> span : this.references) {
+	    list.add(KAFDocument.span2TargetList(span));
+	}
+	return list;
+    }
+
+    /** Deprecated */
+    public void addReference(List<Target> span) {
+	this.references.add(KAFDocument.targetList2Span(span));
     }
 }

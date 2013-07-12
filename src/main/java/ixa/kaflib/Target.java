@@ -1,18 +1,33 @@
 package ixa.kaflib;
 
-public class Target<T> {
-    //private String target;
-    private T target;
+public class Target {
+    private Term term;
+    private boolean head;
 
-    Target(T target) {
-	this.target = target;
+    Target(Term term, boolean head) {
+	this.term = term;
+	this.head = head;
     }
 
-    public T getTarget() {
-	return this.target;
+    public Term getTerm() {
+	return this.term;
     }
 
-    public void setTarget(T target) {
-	this.target = target;
+    public boolean isHead() {
+	return head;
+    }
+
+    public void setTerm(Term term) {
+	this.term = term;
+	this.head = false;
+    }
+
+    public void setTerm(Term term, boolean head) {
+	this.term = term;
+	this.head = head;
+    }
+
+    public void setHead(boolean head) {
+	this.head = head;
     }
 }

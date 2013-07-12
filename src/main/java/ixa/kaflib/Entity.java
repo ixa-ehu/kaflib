@@ -47,7 +47,7 @@ public class Entity implements Relational {
 	/* Copy references */
 	String id = entity.getId();
 	this.references = new ArrayList<Span<Term>>();
-	for (Span<Term> span : entity.getReferences()) {
+	for (Span<Term> span : entity.getSpans()) {
 	    /* Copy span */
 	    List<Term> targets = span.getTargets();
 	    List<Term> copiedTargets = new ArrayList<Term>();
@@ -104,11 +104,11 @@ public class Entity implements Relational {
 	this.references.get(0).addTarget(term, isHead);
     }
 
-    public List<Span<Term>> getReferences() {
+    public List<Span<Term>> getSpans() {
 	return this.references;
     }
 
-    public void addReference(Span<Term> span) {
+    public void addSpan(Span<Term> span) {
 	this.references.add(span);
     }
 
@@ -136,6 +136,20 @@ public class Entity implements Relational {
     }
 
     public String getStr() {
-	return getSpanStr(this.getReferences().get(0));
+	return getSpanStr(this.getSpans().get(0));
+    }
+
+    /** Deprecated */
+    public List<List<Term>> getReferences() {
+	List<List<Term>> list = new ArrayList<List<Term>>();
+	for (Span<Term> span : this.references) {
+	    list.add(span.getTargets());
+	}
+	return list;
+    }
+
+    /** Deprecated */
+    public void addReference(List<Term> span) {
+	this.references.add(KAFDocument.<Term>list2Span(span));
     }
 }

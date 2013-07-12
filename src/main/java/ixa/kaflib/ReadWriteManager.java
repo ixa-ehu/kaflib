@@ -138,7 +138,7 @@ class ReadWriteManager {
 		for (Element wfElem : wfElems) {
 		    String wid = getAttribute("wid", wfElem);
 		    String wForm = wfElem.getText();
-		    WF newWf = kaf.createWF(wid, wForm);
+		    WF newWf = kaf.newWF(wid, wForm);
 		    String wSent = getOptAttribute("sent", wfElem);
 		    if (wSent != null) {
 			newWf.setSent(Integer.valueOf(wSent));
@@ -178,7 +178,7 @@ class ReadWriteManager {
 			throw new IllegalStateException("Every term must contain a span element");
 		    }
 		    List<Element> termsWfElems = spanElem.getChildren("target");
-		    Span<WF> span = kaf.createWFSpan();
+		    Span<WF> span = kaf.newWFSpan();
 		    for (Element termsWfElem : termsWfElems) {
 			String wfId = getAttribute("id", termsWfElem);
 			boolean isHead = isHead(termsWfElem);
@@ -188,7 +188,7 @@ class ReadWriteManager {
 			}
 			span.addTarget(wf, isHead);
 		    }
-		    Term newTerm = kaf.createTerm(tid, type, lemma, pos, span);
+		    Term newTerm = kaf.newTerm(tid, type, lemma, pos, span);
 		    String tMorphofeat = getOptAttribute("morphofeat", termElem);
 		    if (tMorphofeat != null) {
 			newTerm.setMorphofeat(tMorphofeat);
@@ -201,7 +201,7 @@ class ReadWriteManager {
 		    List<Element> sentimentElems = termElem.getChildren("sentiment");
 		    if (sentimentElems.size() > 0) {
 			Element sentimentElem = sentimentElems.get(0);
-			Term.Sentiment newSentiment = kaf.createSentiment();
+			Term.Sentiment newSentiment = kaf.newSentiment();
 			String sentResource = getOptAttribute("resource", sentimentElem);
 			if (sentResource != null) {
 			    newSentiment.setResource(sentResource);
@@ -242,7 +242,7 @@ class ReadWriteManager {
 			boolean isHead = ((tHead != null) && tHead.equals(compId));
 			String compLemma = getAttribute("lemma", termsComponentElem);
 			String compPos = getAttribute("pos", termsComponentElem);
-			Term.Component newComponent = kaf.createComponent(compId, newTerm, compLemma, compPos);
+			Term.Component newComponent = kaf.newComponent(compId, newTerm, compLemma, compPos);
 			List<Element> externalReferencesElems = termsComponentElem.getChildren("externalReferences");
 			if (externalReferencesElems.size() > 0) {
 			    List<ExternalRef> externalRefs = getExternalReferences(externalReferencesElems.get(0), kaf);
@@ -272,7 +272,7 @@ class ReadWriteManager {
 			throw new KAFNotValidException("Term " + toId + " not found when loading Dep (" + fromId + ", " + toId + ")");
 		    }
 		    String rfunc = getAttribute("rfunc", depElem);
-		    Dep newDep = kaf.createDep(from, to, rfunc);
+		    Dep newDep = kaf.newDep(from, to, rfunc);
 		    String depcase = getOptAttribute("case", depElem);
 		    if (depcase != null) {
 			newDep.setCase(depcase);
@@ -294,7 +294,7 @@ class ReadWriteManager {
 			throw new IllegalStateException("Every chunk must contain a span element");
 		    }
 		    List<Element> chunksTermElems = spanElem.getChildren("target");
-		    Span<Term> span = kaf.createTermSpan();
+		    Span<Term> span = kaf.newTermSpan();
 		    for (Element chunksTermElem : chunksTermElems) {
 			String termId = getAttribute("id", chunksTermElem);
 			boolean isHead = isHead(chunksTermElem);
@@ -307,7 +307,7 @@ class ReadWriteManager {
 		    if (!span.hasTarget(chunkHead)) {
 			throw new KAFNotValidException("The head of the chunk is not in it's span.");
 		    }
-		    Chunk newChunk = kaf.createChunk(chunkId, chunkPhrase, span);
+		    Chunk newChunk = kaf.newChunk(chunkId, chunkPhrase, span);
 		    String chunkCase = getOptAttribute("case", chunkElem);
 		    if (chunkCase != null) {
 			newChunk.setCase(chunkCase);
@@ -329,7 +329,7 @@ class ReadWriteManager {
 		    }
 		    List<Span<Term>> references = new ArrayList<Span<Term>>();
 		    for (Element spanElem : spanElems) {
-			Span<Term> span = kaf.createTermSpan();
+			Span<Term> span = kaf.newTermSpan();
 			List<Element> targetElems = spanElem.getChildren();
 			if (targetElems.size() < 1) {
 			    throw new IllegalStateException("Every span in an entity must contain at least one target inside");  
@@ -345,7 +345,7 @@ class ReadWriteManager {
 			}
 			references.add(span);
 		    }
-		    Entity newEntity = kaf.createEntity(entId, entType, references);
+		    Entity newEntity = kaf.newEntity(entId, entType, references);
 		    List<Element> externalReferencesElems = entityElem.getChildren("externalReferences");
 		    if (externalReferencesElems.size() > 0) {
 			List<ExternalRef> externalRefs = getExternalReferences(externalReferencesElems.get(0), kaf);
@@ -368,7 +368,7 @@ class ReadWriteManager {
 		    }
 		    List<Span<Term>> references = new ArrayList<Span<Term>>();
 		    for (Element spanElem : spanElems) {
-			Span<Term> span = kaf.createTermSpan();
+			Span<Term> span = kaf.newTermSpan();
 			List<Element> targetElems = spanElem.getChildren();
 			if (targetElems.size() < 1) {
 			    throw new IllegalStateException("Every span in an entity must contain at least one target inside");  
@@ -384,7 +384,7 @@ class ReadWriteManager {
 			}
 			references.add(span);
 		    }
-		    Coref newCoref = kaf.createCoref(coId, references);
+		    Coref newCoref = kaf.newCoref(coId, references);
 		}
 	    }
 	    if (elem.getName().equals("features")) {
@@ -405,7 +405,7 @@ class ReadWriteManager {
 			}
 			List<Span<Term>> references = new ArrayList<Span<Term>>();
 			for (Element spanElem : spanElems) {
-			    Span<Term> span = kaf.createTermSpan();
+			    Span<Term> span = kaf.newTermSpan();
 			    List<Element> targetElems = spanElem.getChildren();
 			    if (targetElems.size() < 1) {
 				throw new IllegalStateException("Every span in a property must contain at least one target inside");  
@@ -421,7 +421,7 @@ class ReadWriteManager {
 			    }
 			    references.add(span);
 			}
-			Feature newProperty = kaf.createProperty(pid, lemma, references);
+			Feature newProperty = kaf.newProperty(pid, lemma, references);
 			List<Element> externalReferencesElems = propertyElem.getChildren("externalReferences");
 			if (externalReferencesElems.size() > 0) {
 			    List<ExternalRef> externalRefs = getExternalReferences(externalReferencesElems.get(0), kaf);
@@ -445,7 +445,7 @@ class ReadWriteManager {
 			}
 			List<Span<Term>> references = new ArrayList<Span<Term>>();
 			for (Element spanElem : spanElems) {
-			    Span<Term> span = kaf.createTermSpan();
+			    Span<Term> span = kaf.newTermSpan();
 			    List<Element> targetElems = spanElem.getChildren();
 			    if (targetElems.size() < 1) {
 				throw new IllegalStateException("Every span in a property must contain at least one target inside");  
@@ -461,7 +461,7 @@ class ReadWriteManager {
 			    }
 			    references.add(span);
 			}
-			Feature newCategory = kaf.createCategory(cid, lemma, references);
+			Feature newCategory = kaf.newCategory(cid, lemma, references);
 			List<Element> externalReferencesElems = categoryElem.getChildren("externalReferences");
 			if (externalReferencesElems.size() > 0) {
 			    List<ExternalRef> externalRefs = getExternalReferences(externalReferencesElems.get(0), kaf);
@@ -475,10 +475,10 @@ class ReadWriteManager {
 		List<Element> opinionElems = elem.getChildren("opinion");
 		for (Element opinionElem : opinionElems) {
 		    String opinionId = getAttribute("oid", opinionElem);
-		    Opinion opinion = kaf.createOpinion(opinionId);
+		    Opinion opinion = kaf.newOpinion(opinionId);
 		    Element opinionHolderElem = opinionElem.getChild("opinion_holder");
 		    if (opinionHolderElem != null) {
-			Span<Term> span = kaf.createTermSpan();
+			Span<Term> span = kaf.newTermSpan();
 			Opinion.OpinionHolder opinionHolder = opinion.createOpinionHolder(span);
 			Element spanElem = opinionHolderElem.getChild("span");
 			if (spanElem != null) {
@@ -496,7 +496,7 @@ class ReadWriteManager {
 		    }
 		    Element opinionTargetElem = opinionElem.getChild("opinion_target");
 		    if (opinionTargetElem != null) {
-			Span<Term> span = kaf.createTermSpan();
+			Span<Term> span = kaf.newTermSpan();
 			Opinion.OpinionTarget opinionTarget = opinion.createOpinionTarget(span);
 			Element spanElem = opinionTargetElem.getChild("span");
 			if (spanElem != null) {
@@ -514,7 +514,7 @@ class ReadWriteManager {
 		    }
 		    Element opinionExpressionElem = opinionElem.getChild("opinion_expression");
 		    if (opinionExpressionElem != null) {
-			Span<Term> span = kaf.createTermSpan();
+			Span<Term> span = kaf.newTermSpan();
 			String polarity = getOptAttribute("polarity", opinionExpressionElem);
 			String strength = getOptAttribute("strength", opinionExpressionElem);
 			String subjectivity = getOptAttribute("subjectivity", opinionExpressionElem);
@@ -572,7 +572,7 @@ class ReadWriteManager {
 		    if (to == null) {
 			throw new KAFNotValidException("Entity/feature object " + toId + " not found when loading relation " + id);
 		    }
-		    Relation newRelation = kaf.createRelation(id, from, to);
+		    Relation newRelation = kaf.newRelation(id, from, to);
 		    if (confidence >= 0) {
 			newRelation.setConfidence(confidence);
 		    }
@@ -583,7 +583,7 @@ class ReadWriteManager {
 		for (Element predicateElem : predicateElems) {
 		    String id = getAttribute("prid", predicateElem);
 		    String uri = getOptAttribute("uri", predicateElem);
-		    Span<Term> span = kaf.createTermSpan();
+		    Span<Term> span = kaf.newTermSpan();
 		    Element spanElem = predicateElem.getChild("span");
 		    if (spanElem != null) {
 			List<Element> targetElems = spanElem.getChildren("target");
@@ -597,7 +597,7 @@ class ReadWriteManager {
 			    span.addTarget(targetTerm, isHead);
 			}
 		    }
-		    Predicate newPredicate = kaf.createPredicate(id, span);
+		    Predicate newPredicate = kaf.newPredicate(id, span);
 		    if (uri != null) {
 			newPredicate.setUri(uri);
 		    }
@@ -605,7 +605,7 @@ class ReadWriteManager {
 		    for (Element roleElem : roleElems) {
 			String rid = getAttribute("rid", roleElem);
 			String semRole = getAttribute("semRole", roleElem);
-			Span<Term> roleSpan = kaf.createTermSpan();
+			Span<Term> roleSpan = kaf.newTermSpan();
 			Element roleSpanElem = roleElem.getChild("span");
 			if (roleSpanElem != null) {
 			    List<Element> targetElems = roleSpanElem.getChildren("target");
@@ -619,11 +619,11 @@ class ReadWriteManager {
 				roleSpan.addTarget(targetTerm, isHead);
 			    }
 			}
-			Predicate.Role newRole = kaf.createRole(rid, newPredicate, semRole, roleSpan);
+			Predicate.Role newRole = kaf.newRole(rid, newPredicate, semRole, roleSpan);
 			newPredicate.addRole(newRole);
 		    }
-		    Span<Term> spana = kaf.createTermSpan();
-		    Predicate.Role rolea = kaf.createRole(newPredicate, "kaka", spana);
+		    Span<Term> spana = kaf.newTermSpan();
+		    Predicate.Role rolea = kaf.newRole(newPredicate, "kaka", spana);
 		    newPredicate.addRole(rolea);
 		}
 	    }
@@ -631,11 +631,11 @@ class ReadWriteManager {
 		List<Element> treeElems = elem.getChildren();
 		for (Element treeElem : treeElems) {
 		    String treeid = getAttribute("treeid", treeElem);
-		    Tree tree = kaf.createParsingTree(treeid);
+		    Tree tree = kaf.newParsingTree(treeid);
 		    Element treeRootElem = treeElem.getChildren().get(0);
 		    if (treeRootElem.getName().equals("nt")) {
 			String rootLabel = getAttribute("label", treeRootElem);
-			NonTerminal root = tree.createNRoot(rootLabel);
+			NonTerminal root = tree.newNRoot(rootLabel);
 			for (Element childElem : treeRootElem.getChildren()) {
 			    loadNodeElement(childElem, root, termIndex);
 			}
@@ -643,7 +643,7 @@ class ReadWriteManager {
 		    else {
 			String termId = getAttribute("id", treeRootElem.getChildren().get(0).getChildren().get(0));
 			Term term = termIndex.get(termId);
-			Terminal t = tree.createTRoot(term);
+			Terminal t = tree.newTRoot(term);
 		    }
 		}
 	    }
@@ -655,7 +655,7 @@ class ReadWriteManager {
     private static void loadNodeElement(Element nodeElem, NonTerminal parentNode, HashMap<String, Term> termIndex) {
 	if (nodeElem.getName().equals("nt")) {
 	    String label = getAttribute("label", nodeElem);
-	    NonTerminal nt = parentNode.createNonTerminal(label);
+	    NonTerminal nt = parentNode.newNonTerminal(label);
 	    for (Element childElem : nodeElem.getChildren()) {
 		loadNodeElement(childElem, nt, termIndex);
 	    }
@@ -665,7 +665,7 @@ class ReadWriteManager {
 	    boolean isHead = (headAttr != null);
 	    String termId = getAttribute("id", nodeElem.getChildren().get(0).getChildren().get(0));
 	    Term term = termIndex.get(termId);	    
-	    Terminal t = parentNode.createTerminal(term, isHead);
+	    Terminal t = parentNode.newTerminal(term, isHead);
 	}
     }
 
@@ -682,7 +682,7 @@ class ReadWriteManager {
     private static ExternalRef getExternalRef(Element externalRefElem, KAFDocument kaf) {
 	String resource = getAttribute("resource", externalRefElem);
 	String references = getAttribute("reference", externalRefElem);
-	ExternalRef newExternalRef = kaf.createExternalRef(resource, references);
+	ExternalRef newExternalRef = kaf.newExternalRef(resource, references);
 	String confidence = getOptAttribute("confidence", externalRefElem);
 	if (confidence != null) {
 	    newExternalRef.setConfidence(Float.valueOf(confidence));
@@ -963,7 +963,7 @@ class ReadWriteManager {
 		entityElem.setAttribute("eid", entity.getId());
 		entityElem.setAttribute("type", entity.getType());
 		Element referencesElem = new Element("references");
-		for (Span<Term> span : entity.getReferences()) {
+		for (Span<Term> span : entity.getSpans()) {
 		    Comment spanComment = new Comment(entity.getSpanStr(span));
 		    referencesElem.addContent(spanComment);
 		    Element spanElem = new Element("span");
@@ -995,7 +995,7 @@ class ReadWriteManager {
 		Element corefElem = new Element("coref");
 		corefElem.setAttribute("coid", coref.getId());
 		Element referencesElem = new Element("references");
-		for (Span<Term> span : coref.getReferences()) {
+		for (Span<Term> span : coref.getSpans()) {
 		    Comment spanComment = new Comment(coref.getSpanStr(span));
 		    referencesElem.addContent(spanComment);
 		    Element spanElem = new Element("span");
@@ -1023,7 +1023,7 @@ class ReadWriteManager {
 		Element propertyElem = new Element("property");
 		propertyElem.setAttribute("pid", property.getId());
 		propertyElem.setAttribute("lemma", property.getLemma());
-		List<Span<Term>> references = property.getReferences();
+		List<Span<Term>> references = property.getSpans();
 		Element referencesElem = new Element("references");
 		for (Span<Term> span : references) {
 		    Comment spanComment = new Comment(property.getSpanStr(span));
@@ -1051,7 +1051,7 @@ class ReadWriteManager {
 		Element categoryElem = new Element("category");
 		categoryElem.setAttribute("cid", category.getId());
 		categoryElem.setAttribute("lemma", category.getLemma());
-		List<Span<Term>> references = category.getReferences();
+		List<Span<Term>> references = category.getSpans();
 		Element referencesElem = new Element("references");
 		for (Span<Term> span : references) {
 		    Comment spanComment = new Comment(category.getSpanStr(span));

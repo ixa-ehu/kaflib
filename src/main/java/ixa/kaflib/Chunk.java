@@ -119,4 +119,10 @@ public class Chunk {
 	}
 	return str;
     }
+
+    /** Deprecated */
+    public void setHead(Term term) {
+        this.span.setHead(term);
+    }
+		
 }

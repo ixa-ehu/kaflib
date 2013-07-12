@@ -25,12 +25,12 @@ public class Tree { //?
 	return root;
     }
 
-    public NonTerminal createNRoot(String label) {
+    public NonTerminal newNRoot(String label) {
 	this.root = new NonTerminal(label);
 	return (NonTerminal)root;
     }
 
-    public Terminal createTRoot(Term term) {
+    public Terminal newTRoot(Term term) {
 	Span<Term> span = new Span<Term>();
 	span.addTarget(term, true);
 	this.root = new Terminal(span);

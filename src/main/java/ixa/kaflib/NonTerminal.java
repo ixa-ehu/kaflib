@@ -17,13 +17,13 @@ public class NonTerminal implements TreeNode {
 	this.children = new ArrayList<TreeNode>();
     }
 
-    public NonTerminal createNonTerminal(String label) {
+    public NonTerminal newNonTerminal(String label) {
 	NonTerminal tn = new NonTerminal(label);
 	this.children.add(tn);
 	return tn;
     }
 
-    public Terminal createTerminal(Term t) {
+    public Terminal newTerminal(Term t) {
 	Span<Term> span = new Span<Term>();
 	span.addTarget(t, false);
 	Terminal tn = new Terminal(span);
@@ -31,7 +31,7 @@ public class NonTerminal implements TreeNode {
 	return tn;
     }
 
-    public Terminal createTerminal(Term t, boolean isHead) {
+    public Terminal newTerminal(Term t, boolean isHead) {
 	Span<Term> span = new Span<Term>();
 	span.addTarget(t, isHead);
 	Terminal tn = new Terminal(span);

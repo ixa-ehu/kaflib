@@ -535,4 +535,5 @@ public class Term {
     public void addExternalRefs(List<ExternalRef> externalRefs) {
 	externalReferences.addAll(externalRefs);
     }
+
 }
