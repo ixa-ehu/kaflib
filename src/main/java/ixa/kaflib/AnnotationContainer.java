@@ -286,4 +286,17 @@ class AnnotationContainer {
     int getNextOffset() {
 	return nextOffset;
     }
+
+
+    /** Deprecated. Returns a list of terms containing the word forms given on argument.
+     * @param wfIds a list of word form IDs whose terms will be found.
+     * @return a list of terms containing the given word forms.
+     */
+    List<Term> getTermsByWFIds(List<String> wfIds) {
+	LinkedHashSet<Term> terms = new LinkedHashSet<Term>();
+	for (String wfId : wfIds) {
+	    terms.add(this.termsIndexedByWF.get(wfId));
+	}
+	return new ArrayList<Term>(terms);
+    }
 }

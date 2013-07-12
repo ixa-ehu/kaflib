@@ -599,10 +599,10 @@ public class KAFDocument {
     }
 
     /** Returns a list of terms containing the word forms given on argument.
-     * @param wfIds a list of word form IDs whose terms will be found.
+     * @param wfs a list of word forms whose terms will be found.
      * @return a list of terms containing the given word forms.
      */
-    public List<Term> getTermsFromWFs(List<WF> wfs) {
+    public List<Term> getTermsByWFs(List<WF> wfs) {
 	return annotationContainer.getTermsByWFs(wfs);
     }
 
@@ -1044,4 +1044,11 @@ public class KAFDocument {
 	return list;
     }
 
+    /** Deprecated. Returns a list of terms containing the word forms given on argument.
+     * @param wfIds a list of word form IDs whose terms will be found.
+     * @return a list of terms containing the given word forms.
+     */
+    public List<Term> getTermsFromWFs(List<String> wfIds) {
+	return annotationContainer.getTermsByWFIds(wfIds);
+    }
 }
