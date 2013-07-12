@@ -6,39 +6,35 @@ import org.jdom2.Element;
 
 public class NonTerminal implements TreeNode {
 
-    /** Reference to the main annotationContainer of the document to which this tree is related (required) */
-    private AnnotationContainer annotationContainer;
-
     /** Nodes' children */
     private List<TreeNode> children;
 
     /** Label */ //?
     private String label;
 
-    NonTerminal(AnnotationContainer annotationContainer, String label) {
-	this.annotationContainer = annotationContainer;
+    NonTerminal(String label) {
 	this.label = label;
 	this.children = new ArrayList<TreeNode>();
     }
 
     public NonTerminal createNonTerminal(String label) {
-	NonTerminal tn = new NonTerminal(this.annotationContainer, label);
+	NonTerminal tn = new NonTerminal(label);
 	this.children.add(tn);
 	return tn;
     }
 
     public Terminal createTerminal(Term t) {
-	Span<Term> span = new Span<Term>(this.annotationContainer);
+	Span<Term> span = new Span<Term>();
 	span.addTarget(t, false);
-	Terminal tn = new Terminal(this.annotationContainer, span);
+	Terminal tn = new Terminal(span);
 	this.children.add(tn);
 	return tn;
     }
 
     public Terminal createTerminal(Term t, boolean isHead) {
-	Span<Term> span = new Span<Term>(this.annotationContainer);
+	Span<Term> span = new Span<Term>();
 	span.addTarget(t, isHead);
-	Terminal tn = new Terminal(this.annotationContainer, span);
+	Terminal tn = new Terminal(span);
 	this.children.add(tn);
 	return tn;
     }

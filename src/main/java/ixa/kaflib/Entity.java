@@ -7,9 +7,6 @@ import java.util.HashMap;
 /** A named entity is a term (or a multiword) that clearly identifies one item. The optional Named Entity layer is used to reference terms that are named entities. */
 public class Entity implements Relational {
 
-    /** Reference to the main annotationContainer of the document to which this named entity is related (required) */
-    private AnnotationContainer annotationContainer;
-
     /** Named entity's ID (required) */
     private String eid;
 
@@ -31,22 +28,20 @@ public class Entity implements Relational {
     /** External references (optional) */
     private List<ExternalRef> externalReferences;
 
-    Entity(AnnotationContainer annotationContainer, String eid, String type, List<Span<Term>> references) {
+    Entity(String eid, String type, List<Span<Term>> references) {
 	if (references.size() < 1) {
 	    throw new IllegalStateException("Entities must contain at least one reference span");
 	}
 	if (references.get(0).size() < 1) {
 	    throw new IllegalStateException("Entities' reference's spans must contain at least one target");
 	}
-	this.annotationContainer = annotationContainer;
 	this.eid = eid;
 	this.type = type;
 	this.references = references;
 	this.externalReferences = new ArrayList<ExternalRef>();
     }
 
-    Entity(Entity entity, AnnotationContainer annotationContainer, HashMap<String, Term> terms) {
-	this.annotationContainer = annotationContainer;
+    Entity(Entity entity, HashMap<String, Term> terms) {
 	this.eid = entity.eid;
 	this.type = entity.type;
 	/* Copy references */
@@ -65,10 +60,10 @@ public class Entity implements Relational {
 	    }
 	    if (span.hasHead()) {
 		Term copiedHead = terms.get(span.getHead().getId());
-		this.references.add(new Span<Term>(this.annotationContainer, copiedTargets, copiedHead));
+		this.references.add(new Span<Term>(copiedTargets, copiedHead));
 	    }
 	    else {
-		this.references.add(new Span<Term>(this.annotationContainer, copiedTargets));
+		this.references.add(new Span<Term>(copiedTargets));
 	    }
 	}
 	/* Copy external references */

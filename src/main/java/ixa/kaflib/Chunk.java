@@ -7,9 +7,6 @@ import java.util.HashMap;
 /** Chunks are noun, verb or prepositional phrases, spanning terms. */
 public class Chunk {
 
-    /** Reference to the main annotationContainer of the document to which this dependency is related (required) */
-    private AnnotationContainer annotationContainer;
-
     /** Chunk's ID (required) */
     private String cid;
 
@@ -22,18 +19,16 @@ public class Chunk {
     /** Chunk's target terms (at least one required) */
     private Span<Term> span;
 
-    Chunk(AnnotationContainer annotationContainer, String cid, String phrase, Span<Term> span) {
+    Chunk(String cid, String phrase, Span<Term> span) {
 	if (span.size() < 1) {
 	    throw new IllegalStateException("Chunks must contain at least one term target");
 	}
-	this.annotationContainer = annotationContainer;
 	this.cid = cid;
 	this.phrase = phrase;
 	this.span = span;
     }
 
-    Chunk(Chunk chunk, AnnotationContainer annotationContainer, HashMap<String, Term> terms) {
-	this.annotationContainer = annotationContainer;
+    Chunk(Chunk chunk, HashMap<String, Term> terms) {
 	this.cid = chunk.cid;
 	this.phrase = chunk.phrase;
 	this.chunkcase = chunk.chunkcase;
@@ -51,10 +46,10 @@ public class Chunk {
 	}
 	if (span.hasHead()) {
 	    Term copiedHead = terms.get(span.getHead().getId());
-	    this.span = new Span<Term>(this.annotationContainer, copiedTargets, copiedHead);
+	    this.span = new Span<Term>(copiedTargets, copiedHead);
 	}
 	else {
-	    this.span = new Span<Term>(this.annotationContainer, copiedTargets);
+	    this.span = new Span<Term>(copiedTargets);
 	}
     }
 

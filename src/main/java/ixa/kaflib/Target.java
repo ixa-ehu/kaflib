@@ -1,13 +1,10 @@
 package ixa.kaflib;
 
 public class Target<T> {
-
-    private AnnotationContainer annotationContainer;
     //private String target;
     private T target;
 
-    Target(AnnotationContainer annotationContainer, T target) {
-	this.annotationContainer = annotationContainer;
+    Target(T target) {
 	this.target = target;
     }
 

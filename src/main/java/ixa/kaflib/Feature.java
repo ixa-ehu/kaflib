@@ -7,8 +7,6 @@ import java.util.HashMap;
 /** Class for representing features. There are two types of features: properties and categories. */
 public class Feature implements Relational {
 
-    private AnnotationContainer annotationContainer;
-
     /* Feature's ID (required) */
     private String id;
 
@@ -19,7 +17,7 @@ public class Feature implements Relational {
 
     private List<ExternalRef> externalReferences;
 
-    Feature(AnnotationContainer annotationContainer, String id, String lemma, List<Span<Term>> references) {
+    Feature(String id, String lemma, List<Span<Term>> references) {
 	if (references.size() < 1) {
 	    throw new IllegalStateException("Features must contain at least one reference span");
 	}
@@ -27,14 +25,12 @@ public class Feature implements Relational {
 	    throw new IllegalStateException("Features' reference's spans must contain at least one target");
 	}
 	this.id = id;
-	this.annotationContainer = annotationContainer;
 	this.lemma = lemma;
 	this.references = references;
 	this.externalReferences = new ArrayList<ExternalRef>();
     }
 
-    Feature(Feature feature, AnnotationContainer annotationContainer, HashMap<String, Term> terms) {
-	this.annotationContainer = annotationContainer;
+    Feature(Feature feature, HashMap<String, Term> terms) {
 	this.id = feature.id;
 	this.lemma = feature.lemma;
 	/* Copy references */
@@ -53,10 +49,10 @@ public class Feature implements Relational {
 	    }
 	    if (span.hasHead()) {
 		Term copiedHead = terms.get(span.getHead().getId());
-		this.references.add(new Span<Term>(this.annotationContainer, copiedTargets, copiedHead));
+		this.references.add(new Span<Term>(copiedTargets, copiedHead));
 	    }
 	    else {
-		this.references.add(new Span<Term>(this.annotationContainer, copiedTargets));
+		this.references.add(new Span<Term>(copiedTargets));
 	    }
 	}
 	/* Copy external references */

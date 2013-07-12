@@ -8,16 +8,13 @@ import java.util.HashMap;
 public class Opinion {
 
     public static class OpinionHolder {
-	private AnnotationContainer annotationContainer;
 	private Span<Term> span;
 
-	OpinionHolder(AnnotationContainer annotationContainer, Span<Term> span) {
-	    this.annotationContainer = annotationContainer;
+	OpinionHolder(Span<Term> span) {
 	    this.span = span;
 	}
 
-	OpinionHolder(OpinionHolder oh, AnnotationContainer annotationContainer, HashMap<String, Term> terms) {
-	    this.annotationContainer = annotationContainer;
+	OpinionHolder(OpinionHolder oh, HashMap<String, Term> terms) {
 	    /* Copy span */
 	    Span<Term> span = oh.span;
 	    List<Term> targets = span.getTargets();
@@ -31,10 +28,10 @@ public class Opinion {
 	    }
 	    if (span.hasHead()) {
 		Term copiedHead = terms.get(span.getHead().getId());
-		this.span = new Span<Term>(this.annotationContainer, copiedTargets, copiedHead);
+		this.span = new Span<Term>(copiedTargets, copiedHead);
 	    }
 	    else {
-		this.span = new Span<Term>(this.annotationContainer, copiedTargets);
+		this.span = new Span<Term>(copiedTargets);
 	    }	    
 	}
 
@@ -60,16 +57,13 @@ public class Opinion {
     }
 
     public static class OpinionTarget {
-	private AnnotationContainer annotationContainer;
 	private Span<Term> span;
 
-	OpinionTarget(AnnotationContainer annotationContainer, Span<Term> span) {
-	    this.annotationContainer = annotationContainer;
+	OpinionTarget(Span<Term> span) {
 	    this.span = span;
 	}
 
-	OpinionTarget(OpinionTarget ot, AnnotationContainer annotationContainer, HashMap<String, Term> terms) {
-	    this.annotationContainer = annotationContainer;
+	OpinionTarget(OpinionTarget ot, HashMap<String, Term> terms) {
 	    /* Copy span */
 	    Span<Term> span = ot.span;
 	    List<Term> targets = span.getTargets();
@@ -83,10 +77,10 @@ public class Opinion {
 	    }
 	    if (span.hasHead()) {
 		Term copiedHead = terms.get(span.getHead().getId());
-		this.span = new Span<Term>(this.annotationContainer, copiedTargets, copiedHead);
+		this.span = new Span<Term>(copiedTargets, copiedHead);
 	    }
 	    else {
-		this.span = new Span<Term>(this.annotationContainer, copiedTargets);
+		this.span = new Span<Term>(copiedTargets);
 	    }
 	}
 
@@ -112,7 +106,6 @@ public class Opinion {
     }
 
     public static class OpinionExpression {
-	private AnnotationContainer annotationContainer;
 	
 	/* Polarity (optional) */
 	private String polarity;
@@ -131,13 +124,11 @@ public class Opinion {
 
 	private Span<Term> span;
 
-	OpinionExpression(AnnotationContainer annotationContainer, Span<Term> span) {
-	    this.annotationContainer = annotationContainer;
+	OpinionExpression(Span<Term> span) {
 	    this.span = span;
 	}
 
-	OpinionExpression(OpinionExpression oe, AnnotationContainer annotationContainer, HashMap<String, Term> terms) {
-	    this.annotationContainer = annotationContainer;
+	OpinionExpression(OpinionExpression oe, HashMap<String, Term> terms) {
 	    this.polarity = oe.polarity;
 	    this.strength = oe.strength;
 	    this.subjectivity = oe.subjectivity;
@@ -156,10 +147,10 @@ public class Opinion {
 	    }
 	    if (span.hasHead()) {
 		Term copiedHead = terms.get(span.getHead().getId());
-		this.span = new Span<Term>(this.annotationContainer, copiedTargets, copiedHead);
+		this.span = new Span<Term>(copiedTargets, copiedHead);
 	    }
 	    else {
-		this.span = new Span<Term>(this.annotationContainer, copiedTargets);
+		this.span = new Span<Term>(copiedTargets);
 	    }
 	}
 
@@ -244,9 +235,6 @@ public class Opinion {
 	}
     }
     
-
-    private AnnotationContainer annotationContainer;
-
     private String id;
 
     private OpinionHolder opinionHolder;
@@ -256,22 +244,20 @@ public class Opinion {
     private OpinionExpression opinionExpression;
 
 
-    Opinion(AnnotationContainer annotationContainer, String id) {
+    Opinion(String id) {
 	this.id = id;
-	this.annotationContainer = annotationContainer;
     }
 
-    Opinion(Opinion opinion, AnnotationContainer annotationContainer, HashMap<String, Term> terms) {
-	this.annotationContainer = annotationContainer;
+    Opinion(Opinion opinion, HashMap<String, Term> terms) {
 	this.id = opinion.id;
 	if (opinion.opinionHolder != null) {
-	    this.opinionHolder = new OpinionHolder(opinion.opinionHolder, annotationContainer, terms);
+	    this.opinionHolder = new OpinionHolder(opinion.opinionHolder, terms);
 	}
 	if (opinion.opinionTarget != null) {
-	    this.opinionTarget = new OpinionTarget(opinion.opinionTarget, annotationContainer, terms);
+	    this.opinionTarget = new OpinionTarget(opinion.opinionTarget, terms);
 	}
 	if (opinion.opinionExpression != null) {
-	    this.opinionExpression = new OpinionExpression(opinion.opinionExpression, annotationContainer, terms);
+	    this.opinionExpression = new OpinionExpression(opinion.opinionExpression, terms);
 	}
     }
 
@@ -296,17 +282,17 @@ public class Opinion {
     }
 
     public OpinionHolder createOpinionHolder(Span<Term> span) {
-	this.opinionHolder = new Opinion.OpinionHolder(this.annotationContainer, span);
+	this.opinionHolder = new Opinion.OpinionHolder(span);
 	return this.opinionHolder;
     }
 
     public OpinionTarget createOpinionTarget(Span<Term> span) {
-	this.opinionTarget = new Opinion.OpinionTarget(this.annotationContainer, span);
+	this.opinionTarget = new Opinion.OpinionTarget(span);
 	return this.opinionTarget;
     }
 
     public OpinionExpression createOpinionExpression(Span<Term> span) {
-	this.opinionExpression = new Opinion.OpinionExpression(this.annotationContainer, span);
+	this.opinionExpression = new Opinion.OpinionExpression(span);
 	return this.opinionExpression;
     }
 

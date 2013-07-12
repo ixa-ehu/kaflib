@@ -9,7 +9,7 @@ public class Terminal implements TreeNode {
     /** The term referenced by this terminal */
     private Span<Term> span;
 
-    Terminal(AnnotationContainer annotationContainer, Span<Term> span) {
+    Terminal(Span<Term> span) {
 	this.span = span;
     }
 

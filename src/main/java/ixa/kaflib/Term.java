@@ -7,9 +7,6 @@ import java.util.HashMap;
 /** Class for representing terms. Terms refer to previous word forms (and groups multi-words) and attach lemma, part of speech, synset and name entity information. */
 public class Term {
 
-    /** Reference to the main annotationContainer of the document to which this term is related (required) */
-    private AnnotationContainer annotationContainer;
-
     /** Term's ID (required) */
     private String tid;
 
@@ -299,12 +296,10 @@ public class Term {
 	}
     }
 
-    /** To create a new Term, the annotationContainer reference is necessary apart from the id, type, lemma, pos and, at least, one word form reference. */
-    Term(AnnotationContainer annotationContainer, String id, String type, String lemma, String pos, Span<WF> span) {
+    Term(String id, String type, String lemma, String pos, Span<WF> span) {
 	if (span.size() < 1) {
 	    throw new IllegalStateException("A Term must have at least one WF");
 	}
-	this.annotationContainer = annotationContainer;
 	this.tid = id;
 	this.type = type;
 	this.lemma = lemma;
@@ -314,12 +309,10 @@ public class Term {
 	this.externalReferences = new ArrayList<ExternalRef>();
     }
 
-    /** To create a new Term, the annotationContainer reference is necessary apart from the id, type, lemma, pos and, at least, one word form reference. */
-    Term(AnnotationContainer annotationContainer, String id, String type, String lemma, String pos, String morphofeat, Span<WF> span) {
+    Term(String id, String type, String lemma, String pos, String morphofeat, Span<WF> span) {
 	if (span.size() < 1) {
 	    throw new IllegalStateException("A Term must have at least one WF");
 	}
-	this.annotationContainer = annotationContainer;
 	this.tid = id;
 	this.type = type;
 	this.lemma = lemma;
@@ -331,8 +324,7 @@ public class Term {
     }
 
     /* Copy constructor */
-    Term(Term term, AnnotationContainer annotationContainer, HashMap<String, WF> wfs) {
-	this.annotationContainer = annotationContainer;
+    Term(Term term, HashMap<String, WF> wfs) {
 	/* Copy simple fields */
 	this.tid = term.tid;
 	this.type = term.type;
@@ -368,10 +360,10 @@ public class Term {
 	}
 	if (term.span.hasHead()) {
 	    WF copiedHead = wfs.get(term.span.getHead().getId());
-	    this.span = new Span<WF>(this.annotationContainer, copiedTargets, copiedHead);
+	    this.span = new Span<WF>(copiedTargets, copiedHead);
 	}
 	else {
-	    this.span = new Span<WF>(this.annotationContainer, copiedTargets);
+	    this.span = new Span<WF>(copiedTargets);
 	}
 	/* Copy external references */
 	this.externalReferences = new ArrayList<ExternalRef>();

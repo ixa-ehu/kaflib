@@ -6,8 +6,6 @@ import java.util.HashMap;
 
 /** Class for representing relations between entities and/or features. */
 public class Relation {
-    
-    private AnnotationContainer annotationContainer;
 
     /* Relation's ID (required) */
     private String id;
@@ -21,16 +19,14 @@ public class Relation {
     /* Confidence (optional) */
     private float confidence;
 
-    Relation (AnnotationContainer annotationContainer, String id, Relational from, Relational to) {
-	this.annotationContainer = annotationContainer;
+    Relation (String id, Relational from, Relational to) {
 	this.id = id;
 	this.from = from;
 	this.to = to;
 	this.confidence = -1.0f;
     }
 
-    Relation(Relation relation, AnnotationContainer annotationContainer, HashMap<String, Relational> relational) {
-	this.annotationContainer = annotationContainer;
+    Relation(Relation relation, HashMap<String, Relational> relational) {
 	this.id = id;
 	if (relation.from != null) {
 	    this.from = relational.get(relation.from.getId());

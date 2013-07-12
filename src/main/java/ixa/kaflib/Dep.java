@@ -6,9 +6,6 @@ import java.util.HashMap;
 /** Dependencies represent dependency relations among terms. */
 public class Dep {
 
-    /** Reference to the main annotationContainer of the document to which this dependency is related (required) */
-    private AnnotationContainer annotationContainer;
-
     /** Source term of the dependency (required) */
     private Term from;
 
@@ -25,15 +22,13 @@ public class Dep {
     /** Declension case (optional) */
     private String depcase;
 
-    Dep(AnnotationContainer annotationContainer, Term from, Term to, String rfunc) {
-	this.annotationContainer = annotationContainer;
+    Dep(Term from, Term to, String rfunc) {
 	this.from = from;
 	this.to = to;
 	this.rfunc = rfunc;
     }
 
-    Dep(Dep dep, AnnotationContainer annotationContainer, HashMap<String, Term> terms) {
-	this.annotationContainer = annotationContainer;
+    Dep(Dep dep, HashMap<String, Term> terms) {
 	this.from = terms.get(dep.from.getId());
 	if (this.from == null) {
 	    throw new IllegalStateException("Couldn't find the term when loading dep (" + dep.getFrom().getId()+", "+dep.getTo().getId()+")");

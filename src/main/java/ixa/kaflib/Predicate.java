@@ -6,13 +6,11 @@ import java.util.ArrayList;
 public class Predicate {
 
     public static class Role {
-	private AnnotationContainer annotationContainer;
 	private String rid;
 	private String semRole;
 	private Span<Term> span;
 
-	Role(AnnotationContainer annotationContainer, String id, String semRole, Span span) {
-	    this.annotationContainer = annotationContainer;
+	Role(String id, String semRole, Span span) {
 	    this.rid = id;
 	    this.semRole = semRole;
 	    this.span = span;
@@ -66,14 +64,12 @@ public class Predicate {
 	}
     }
 
-    private AnnotationContainer annotationContainer;
     private String id;
     private String uri;
     private Span<Term> span;
     private List<Role> roles;
 
-    Predicate(AnnotationContainer annotationContainer, String id, Span<Term> span) {
-	this.annotationContainer = annotationContainer;
+    Predicate(String id, Span<Term> span) {
 	this.id = id;
 	this.span = span;
 	this.roles = new ArrayList<Role>();

@@ -6,9 +6,6 @@ package ixa.kaflib;
 /**  */
 public class Tree { //?
 
-    /** Reference to the main annotationContainer of the document to which this tree is related (required) */
-    private AnnotationContainer annotationContainer;
-
     /** Tree's ID (required) */
     private String treeid; //?
 
@@ -16,8 +13,7 @@ public class Tree { //?
     private TreeNode root;
 
 
-    Tree(AnnotationContainer annotationContainer, String treeid) { //?
-	this.annotationContainer = annotationContainer;
+    Tree(String treeid) { //?
 	this.treeid = treeid;
     }
 
@@ -30,14 +26,14 @@ public class Tree { //?
     }
 
     public NonTerminal createNRoot(String label) {
-	this.root = new NonTerminal(annotationContainer, label);
+	this.root = new NonTerminal(label);
 	return (NonTerminal)root;
     }
 
     public Terminal createTRoot(Term term) {
-	Span<Term> span = new Span<Term>(this.annotationContainer);
+	Span<Term> span = new Span<Term>();
 	span.addTarget(term, true);
-	this.root = new Terminal(annotationContainer, span);
+	this.root = new Terminal(span);
 	return (Terminal)root;
     }
 

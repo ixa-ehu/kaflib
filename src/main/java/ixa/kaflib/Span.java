@@ -5,25 +5,21 @@ import java.util.ArrayList;
 
 public class Span<T> {
 
-    private AnnotationContainer annotationContainer;
     //private List<String> targets;
     private List<T> targets;
     private T head;
 
-    Span(AnnotationContainer annotationContainer) {
-	this.annotationContainer = annotationContainer;
+    Span() {
 	this.targets = new ArrayList<T>();
 	this.head = null;
     }
 
-    Span(AnnotationContainer annotationContainer, List<T> targets) {
-	this.annotationContainer = annotationContainer;
+    Span(List<T> targets) {
 	this.targets = targets;
 	this.head = null;
     }
 
-    Span(AnnotationContainer annotationContainer, List<T> targets, T head) {
-	this.annotationContainer = annotationContainer;
+    Span(List<T> targets, T head) {
 	this.targets = targets;
 	this.head = head;
     }
