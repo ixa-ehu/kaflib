@@ -602,7 +602,7 @@ public class KAFDocument {
      * @param wfIds a list of word form IDs whose terms will be found.
      * @return a list of terms containing the given word forms.
      */
-    public List<Term> getTermsByWFs(List<WF> wfs) {
+    public List<Term> getTermsFromWFs(List<WF> wfs) {
 	return annotationContainer.getTermsByWFs(wfs);
     }
 
