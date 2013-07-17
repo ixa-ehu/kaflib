@@ -44,6 +44,10 @@ public class Span<T> {
 	return this.head;
     }
 
+    public boolean isHead(T target) {
+	return (target == this.head);
+    }
+
     public void setHead(T head) {
 	this.head = head;
     }

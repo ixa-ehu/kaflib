@@ -3,6 +3,6 @@ import org.jdom2.Element;
 
 public interface TreeNode {
 
-    public Element getDOMElem();
+    public String getId();
 
 }

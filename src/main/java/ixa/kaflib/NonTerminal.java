@@ -6,50 +6,44 @@ import org.jdom2.Element;
 
 public class NonTerminal implements TreeNode {
 
+    /** The ID of the node */
+    private String id;
+
+    /** Label */
+    private String label;
+
     /** Nodes' children */
     private List<TreeNode> children;
 
-    /** Label */ //?
-    private String label;
 
-    NonTerminal(String label) {
+    NonTerminal(String id, String label) {
+	this.id = id;
 	this.label = label;
 	this.children = new ArrayList<TreeNode>();
     }
 
-    public NonTerminal newNonTerminal(String label) {
-	NonTerminal tn = new NonTerminal(label);
-	this.children.add(tn);
-	return tn;
+    public String getId() {
+	return this.id;
     }
 
-    public Terminal newTerminal(Term t) {
-	Span<Term> span = new Span<Term>();
-	span.addTarget(t, false);
-	Terminal tn = new Terminal(span);
-	this.children.add(tn);
-	return tn;
+    public void setId(String id) {
+	this.id = id;
     }
 
-    public Terminal newTerminal(Term t, boolean isHead) {
-	Span<Term> span = new Span<Term>();
-	span.addTarget(t, isHead);
-	Terminal tn = new Terminal(span);
+    public String getLabel() {
+	return this.label;
+    }
+
+    public void setLabel(String label) {
+	this.label = label;
+    }
+
+    public void addChild(TreeNode tn) {
 	this.children.add(tn);
-	return tn;
     }
 
     public List<TreeNode> getChildren() {
 	return this.children;
-    }
-
-    public Element getDOMElem() {
-	Element elem = new Element("nt");
-	elem.setAttribute("label", this.label);
-	for (TreeNode tn : this.children) {
-	    elem.addContent(tn.getDOMElem());
-	}
-	return elem;
     }
 
 }

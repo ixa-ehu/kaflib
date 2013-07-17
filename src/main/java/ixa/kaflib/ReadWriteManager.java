@@ -11,8 +11,11 @@ import org.jdom2.JDOMException;
 import org.jdom2.xpath.XPathExpression;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Collections;
+import java.util.Comparator;
 import java.io.File;
 import java.io.Writer;
 import java.io.Reader;
@@ -21,6 +24,7 @@ import java.io.OutputStreamWriter;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.regex.*;
 
 /** Reads XML files in KAF format and loads the content in a KAFDocument object, and writes the content into XML files. */
 class ReadWriteManager {
@@ -627,23 +631,50 @@ class ReadWriteManager {
 		    newPredicate.addRole(rolea);
 		}
 	    }
-	    if (elem.getName().equals("parsing")) {
-		List<Element> treeElems = elem.getChildren();
+	    if (elem.getName().equals("constituents")) {
+		List<Element> treeElems = elem.getChildren("tree");
 		for (Element treeElem : treeElems) {
-		    String treeid = getAttribute("treeid", treeElem);
-		    Tree tree = kaf.newParsingTree(treeid);
-		    Element treeRootElem = treeElem.getChildren().get(0);
-		    if (treeRootElem.getName().equals("nt")) {
-			String rootLabel = getAttribute("label", treeRootElem);
-			NonTerminal root = tree.newNRoot(rootLabel);
-			for (Element childElem : treeRootElem.getChildren()) {
-			    loadNodeElement(childElem, root, termIndex);
+		    HashMap<String, TreeNode> treeNodes = new HashMap<String, TreeNode>();
+		    HashMap<String, Boolean> rootNodes = new HashMap<String, Boolean>();
+		    // Terminals
+		    List<Element> terminalElems = treeElem.getChildren("t");
+		    for (Element terminalElem : terminalElems) {
+			String id = getAttribute("id", terminalElem);
+			Element spanElem = terminalElem.getChild("span");
+			if (spanElem == null) {
+			    throw new KAFNotValidException("Constituent non terminal nodes need a span");
 			}
+			Span<Term> span = loadTermSpan(spanElem, termIndex, id);
+			treeNodes.put(id, kaf.newTerminal(id, span));
+			rootNodes.put(id, true);
 		    }
-		    else {
-			String termId = getAttribute("id", treeRootElem.getChildren().get(0).getChildren().get(0));
-			Term term = termIndex.get(termId);
-			Terminal t = tree.newTRoot(term);
+		    // NonTerminals
+		    List<Element> nonTerminalElems = treeElem.getChildren("nt");
+		    for (Element nonTerminalElem : nonTerminalElems) {
+			String id = getAttribute("id", nonTerminalElem);
+			String label = getAttribute("label", nonTerminalElem);
+			treeNodes.put(id, kaf.newNonTerminal(id, label));
+			rootNodes.put(id, true);
+		    }
+		    // Edges
+		    List<Element> edgeElems = treeElem.getChildren("edge");
+		    for (Element edgeElem : edgeElems) {
+			String fromId = getAttribute("from", edgeElem);
+			String toId = getAttribute("to", edgeElem);
+			TreeNode parentNode = treeNodes.get(toId);
+			TreeNode childNode = treeNodes.get(fromId);
+			if ((parentNode == null) || (childNode == null)) {
+			    throw new KAFNotValidException("There is an problem with the edge(" + fromId + ", " + toId + "). One of its targets doesn't exist.");
+			}
+			((NonTerminal) parentNode).addChild(childNode);
+			rootNodes.put(fromId, false);
+		    }
+		    // Constituent objects
+		    for (Map.Entry<String, Boolean> areRoot : rootNodes.entrySet()) {
+			if (areRoot.getValue()) {
+			    TreeNode rootNode = treeNodes.get(areRoot.getKey());
+			    kaf.newConstituent(rootNode);
+			}
 		    }
 		}
 	    }
@@ -652,21 +683,36 @@ class ReadWriteManager {
 	return kaf;
     }
 
-    private static void loadNodeElement(Element nodeElem, NonTerminal parentNode, HashMap<String, Term> termIndex) {
-	if (nodeElem.getName().equals("nt")) {
-	    String label = getAttribute("label", nodeElem);
-	    NonTerminal nt = parentNode.newNonTerminal(label);
-	    for (Element childElem : nodeElem.getChildren()) {
-		loadNodeElement(childElem, nt, termIndex);
+    private static Span<Term> loadTermSpan(Element spanElem, HashMap<String, Term> terms, String objId) throws KAFNotValidException {
+	List<Element> targetElems = spanElem.getChildren("target");
+	if (targetElems.size() < 1) {
+	    throw new KAFNotValidException("A span element can not be empty");
+	}
+	Span<Term> span = KAFDocument.newTermSpan();
+	for (Element targetElem : targetElems) {
+	    String targetId = getAttribute("id", targetElem);
+	    boolean isHead = isHead(targetElem);
+	    Term targetTerm = terms.get(targetId);
+	    if (targetTerm == null) {
+		throw new KAFNotValidException("Term object " + targetId + " not found when loading object " + objId);
 	    }
+	    span.addTarget(targetTerm, isHead);
 	}
-	else {
-	    String headAttr = getOptAttribute("head", nodeElem);
-	    boolean isHead = (headAttr != null);
-	    String termId = getAttribute("id", nodeElem.getChildren().get(0).getChildren().get(0));
-	    Term term = termIndex.get(termId);	    
-	    Terminal t = parentNode.newTerminal(term, isHead);
+	return span;
+    }
+
+    private static Element createTermSpanElem(Span<Term> span) {
+	Element spanElem = new Element("span");
+	for (Term term : span.getTargets()) {
+	    Element targetElem = new Element("target");
+	    String targetId = term.getId();
+	    targetElem.setAttribute("id", targetId);
+	    if (span.isHead(term)) {
+		targetElem.setAttribute("head", "yes");
+	    }
+	    spanElem.addContent(targetElem);
 	}
+	return spanElem;
     }
 
     private static List<ExternalRef> getExternalReferences(Element externalReferencesElem, KAFDocument kaf) {
@@ -729,6 +775,17 @@ class ReadWriteManager {
 	    return true;
 	}
 	return false;
+    }
+
+
+    private static class Edge {
+	String from;
+	String to;
+
+	Edge(String from, String to) {
+	    this.from = from;
+	    this.to = to;
+	}
     }
 
     /** Returns the content of the given KAFDocument in a DOM document. */
@@ -1236,21 +1293,75 @@ class ReadWriteManager {
 	    root.addContent(predicatesElem);
 	}
 
-	List<Tree> trees = annotationContainer.getTrees();
-	if (trees.size() > 0) {
-	    Element treesElem = new Element("parsing");
-	    for (Tree tree : trees) {
+	List<Tree> constituents = annotationContainer.getConstituents();
+	if (constituents.size() > 0) {
+	    Element constituentsElem = new Element("constituents");
+	    for (Tree tree : constituents) {
 		Element treeElem = new Element("tree");
-		treeElem.setAttribute("treeid", tree.getId());
+		constituentsElem.addContent(treeElem);
+		List<NonTerminal> nonTerminals = new LinkedList<NonTerminal>();
+		List<Terminal> terminals = new LinkedList<Terminal>();
+		List<Edge> edges = new ArrayList<Edge>();
 		TreeNode rootNode = tree.getRoot();
-	        Element rootElem = rootNode.getDOMElem();
-		treeElem.addContent(rootElem);
-		treesElem.addContent(treeElem);
+		extractTreeNodes(rootNode, nonTerminals, terminals, edges);
+		Collections.sort(nonTerminals, new Comparator<NonTerminal>() {
+			public int compare(NonTerminal nt1, NonTerminal nt2) {
+			    if (cmpId(nt1.getId(), nt2.getId()) < 0) {
+				return -1;
+			    } else if (nt1.getId().equals(nt2.getId())) {
+				return 0;
+			    } else {
+				return 1;
+			    }
+			}
+		    });
+		Collections.sort(terminals, new Comparator<Terminal>() {
+			public int compare(Terminal t1, Terminal t2) {
+			    if (cmpId(t1.getId(), t2.getId()) < 0) {
+				return -1;
+			    } else if (t1.getId().equals(t2.getId())) {
+				return 0;
+			    } else {
+				return 1;
+			    }
+			}
+		    });
+		for (NonTerminal node : nonTerminals) {
+		    Element nodeElem = new Element("nt");
+		    nodeElem.setAttribute("id", node.getId());
+		    nodeElem.setAttribute("label", node.getLabel());
+		    treeElem.addContent(nodeElem);
+		}
+		for (Terminal node : terminals) {
+		    Element nodeElem = new Element("t");
+		    nodeElem.setAttribute("id", node.getId());
+		    nodeElem.addContent(createTermSpanElem(node.getSpan()));
+		    treeElem.addContent(nodeElem);
+		}
+		for (Edge edge : edges) {
+		    Element edgeElem = new Element("edge");
+		    edgeElem.setAttribute("from", edge.from);
+		    edgeElem.setAttribute("to", edge.to);
+		    treeElem.addContent(edgeElem);
+		}
 	    }
-	    root.addContent(treesElem);
+	    root.addContent(constituentsElem);
 	}
 	
 	return doc;
+    }
+
+    private static void extractTreeNodes(TreeNode node, List<NonTerminal> nonTerminals, List<Terminal> terminals, List<Edge> edges) {
+	if (node instanceof NonTerminal) {
+	    nonTerminals.add((NonTerminal) node);
+	    List<TreeNode> treeNodes = ((NonTerminal) node).getChildren();
+	    for (TreeNode child : treeNodes) {
+		edges.add(new Edge(child.getId(), node.getId()));
+		extractTreeNodes(child, nonTerminals, terminals, edges);
+	    }
+	} else {
+	    terminals.add((Terminal) node);
+	}
     }
 
     private static Element externalReferencesToDOM(List<ExternalRef> externalRefs) {
@@ -1274,5 +1385,25 @@ class ReadWriteManager {
 	    externalRefElem.addContent(subExternalRefElem);
 	}
 	return externalRefElem;
+    }
+
+    private static int cmpId(String id1, String id2) {
+	int nbr1 = extractNumberFromId(id1);
+	int nbr2 = extractNumberFromId(id2);
+	if (nbr1 < nbr2) {
+	    return -1;
+	} else if (nbr1 == nbr2) {
+	    return 0;
+	} else {
+	    return 1;
+	}
+    }
+
+    private static int extractNumberFromId(String id) {
+	Matcher matcher = Pattern.compile("^[a-z]*_?(\\d+)$").matcher(id);
+	if (!matcher.find()) {
+	    throw new IllegalStateException("IdManager doesn't recognise the given id's (" + id  + ") format. Should be [a-z]*_?[0-9]+");
+	}
+	return Integer.valueOf(matcher.group(1));
     }
 }

@@ -6,35 +6,18 @@ package ixa.kaflib;
 /**  */
 public class Tree { //?
 
-    /** Tree's ID (required) */
-    private String treeid; //?
-
     /** Tree's root node */
     private TreeNode root;
 
-
-    Tree(String treeid) { //?
-	this.treeid = treeid;
-    }
-
-    public String getId() {
-	return treeid;
+    Tree(TreeNode root) {
+	this.root = root;
     }
 
     public TreeNode getRoot() {
-	return root;
+	return this.root;
     }
 
-    public NonTerminal newNRoot(String label) {
-	this.root = new NonTerminal(label);
-	return (NonTerminal)root;
+    public void setRoot(TreeNode root) {
+	this.root = root;
     }
-
-    public Terminal newTRoot(Term term) {
-	Span<Term> span = new Span<Term>();
-	span.addTarget(term, true);
-	this.root = new Terminal(span);
-	return (Terminal)root;
-    }
-
 }
