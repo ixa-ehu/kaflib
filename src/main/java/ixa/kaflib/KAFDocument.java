@@ -547,39 +547,43 @@ public class KAFDocument {
 	return new ExternalRef(resource, reference);
     }
 
-    public Tree newParsingTree(String id) {
-	Tree tree = new Tree(id);
+    public Tree newConstituent(TreeNode root) {
+	Tree tree = new Tree(root);
 	annotationContainer.add(tree);
 	return tree;
     }
 
-    public Tree newParsingTree() {
-	Tree tree = new Tree("idX");
-	annotationContainer.add(tree);
-	return tree;
+    public static NonTerminal newNonTerminal(String id, String label) {
+	NonTerminal tn = new NonTerminal(id, label);
+	return tn;
     }
 
-    public Span<WF> newWFSpan() {
+    public static Terminal newTerminal(String id, Span<Term> span) {
+	Terminal tn = new Terminal(id, span);
+	return tn;
+    }
+
+    public static Span<WF> newWFSpan() {
 	return new Span<WF>();
     }
 
-    public Span<WF> newWFSpan(List<WF> targets) {
+    public static Span<WF> newWFSpan(List<WF> targets) {
 	return new Span<WF>(targets);
     }
 
-    public Span<WF> newWFSpan(List<WF> targets, WF head) {
+    public static Span<WF> newWFSpan(List<WF> targets, WF head) {
 	return new Span<WF>(targets, head);
     }
 
-    public Span<Term> newTermSpan() {
+    public static Span<Term> newTermSpan() {
 	return new Span<Term>();
     }
 
-    public Span<Term> newTermSpan(List<Term> targets) {
+    public static Span<Term> newTermSpan(List<Term> targets) {
 	return new Span<Term>(targets);
     }
 
-    public Span<Term> newTermSpan(List<Term> targets, Term head) {
+    public static Span<Term> newTermSpan(List<Term> targets, Term head) {
 	return new Span<Term>(targets, head);
     }
 
@@ -644,6 +648,10 @@ public class KAFDocument {
     /** Returns a list with all relations in the document */
     public List<Relation> getRelations() {
 	return annotationContainer.getRelations();
+    }
+
+    public List<Tree> getConstituents() {
+	return annotationContainer.getConstituents();
     }
 
     /** Returns current timestamp. */
@@ -971,16 +979,6 @@ public class KAFDocument {
     /** Deprecated */
     public ExternalRef createExternalRef(String resource, String reference) {
 	return this.newExternalRef(resource, reference);
-    }
-
-    /** Deprecated */
-    public Tree createParsingTree(String id) {
-	return this.newParsingTree(id);
-    }
-
-    /** Deprecated */
-    public Tree createParsingTree() {
-	return this.newParsingTree();
     }
 
     /** Deprecated. Creates a new target. This method is overloaded. Any target created by calling this method won't be the head term.

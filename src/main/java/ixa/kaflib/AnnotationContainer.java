@@ -143,7 +143,7 @@ class AnnotationContainer {
     }
 
     /** Returns all trees */
-    List<Tree> getTrees() {
+    List<Tree> getConstituents() {
 	return trees;
     }
 
