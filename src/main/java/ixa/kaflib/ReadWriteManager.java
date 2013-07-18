@@ -222,19 +222,19 @@ class ReadWriteManager {
 			if (sentSubjectivity != null) {
 			    newSentiment.setSubjectivity(sentSubjectivity);
 			}
-			String sentSentimentSemanticType = getOptAttribute("sentimentSemanticType", sentimentElem);
+			String sentSentimentSemanticType = getOptAttribute("sentiment_semantic_type", sentimentElem);
 			if (sentSentimentSemanticType != null) {
 			    newSentiment.setSentimentSemanticType(sentSentimentSemanticType);
 			}
-			String sentSentimentModifier = getOptAttribute("sentimentModifier", sentimentElem);
+			String sentSentimentModifier = getOptAttribute("sentiment_modifier", sentimentElem);
 			if (sentSentimentModifier != null) {
 			    newSentiment.setSentimentModifier(sentSentimentModifier);
 			}
-			String sentSentimentMarker = getOptAttribute("sentimentMarker", sentimentElem);
+			String sentSentimentMarker = getOptAttribute("sentiment_marker", sentimentElem);
 			if (sentSentimentMarker != null) {
 			    newSentiment.setSentimentMarker(sentSentimentMarker);
 			}
-			String sentSentimentProductFeature = getOptAttribute("sentimentProductFeature", sentimentElem);
+			String sentSentimentProductFeature = getOptAttribute("sentiment_product_feature", sentimentElem);
 			if (sentSentimentProductFeature != null) {
 			    newSentiment.setSentimentProductFeature(sentSentimentProductFeature);
 			}
@@ -917,16 +917,16 @@ class ReadWriteManager {
 			sentimentElem.setAttribute("subjectivity", sentiment.getSubjectivity());
 		    }
 		    if (sentiment.hasSentimentSemanticType()) {
-			sentimentElem.setAttribute("sentimentSemanticType", sentiment.getSentimentSemanticType());
+			sentimentElem.setAttribute("sentiment_semantic_type", sentiment.getSentimentSemanticType());
 		    }
 		    if (sentiment.hasSentimentModifier()) {
-			sentimentElem.setAttribute("sentimentModifier", sentiment.getSentimentModifier());
+			sentimentElem.setAttribute("sentiment_modifier", sentiment.getSentimentModifier());
 		    }
 		    if (sentiment.hasSentimentMarker()) {
-			sentimentElem.setAttribute("sentimentMarker", sentiment.getSentimentMarker());
+			sentimentElem.setAttribute("sentiment_marker", sentiment.getSentimentMarker());
 		    }
 		    if (sentiment.hasSentimentProductFeature()) {
-			sentimentElem.setAttribute("sentimentProductFeature", sentiment.getSentimentProductFeature());
+			sentimentElem.setAttribute("sentiment_product_feature", sentiment.getSentimentProductFeature());
 		    }
 		    termElem.addContent(sentimentElem);
 		}
