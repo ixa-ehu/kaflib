@@ -826,7 +826,7 @@ public class KAFDocument {
 
     /** Deprecated */
     public WF createWF(String id, String form) {
-	return this.createWF(id, form);
+	return this.newWF(id, form);
     }
 
     /** Deprecated */
