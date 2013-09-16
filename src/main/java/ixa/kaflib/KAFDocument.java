@@ -149,7 +149,21 @@ public class KAFDocument {
 	return lp;
     }	
 
-    /** Returns a list of linguistic processors from the document */
+    public void addLinguisticProcessors(HashMap<String, List<LinguisticProcessor>> lps) {
+	for (Map.Entry<String, List<LinguisticProcessor>> entry : lps.entrySet()) {
+	    List<LinguisticProcessor> layerLps = entry.getValue();
+	    for (LinguisticProcessor lp : layerLps) {
+		this.addLinguisticProcessor(entry.getKey(),
+					lp.name,
+					lp.timestamp,
+					lp.version);
+	    }
+	}
+    }
+    
+    /** Returns a hash of linguistic processors from the document.
+     *  Hash: layer => LP
+     */
     public HashMap<String, List<LinguisticProcessor>> getLinguisticProcessors() {
 	return lps;
     }
