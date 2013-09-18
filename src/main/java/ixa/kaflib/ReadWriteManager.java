@@ -173,9 +173,6 @@ class ReadWriteManager {
 		List<Element> termElems = elem.getChildren();
 		for (Element termElem : termElems) {
 		    String tid = getAttribute("id", termElem);
-		    String type = getAttribute("type", termElem);
-		    String lemma = getAttribute("lemma", termElem);
-		    String pos = getAttribute("pos", termElem);
 		    Element spanElem = termElem.getChild("span");
 		    if (spanElem == null) {
 			throw new IllegalStateException("Every term must contain a span element");
@@ -191,7 +188,19 @@ class ReadWriteManager {
 			}
 			span.addTarget(wf, isHead);
 		    }
-		    Term newTerm = kaf.newTerm(tid, type, lemma, pos, span);
+		    Term newTerm = kaf.newTerm(tid, span);
+		    String type = getOptAttribute("type", termElem);
+		    if (type != null) {
+			newTerm.setType(type);
+		    }
+		    String lemma = getOptAttribute("lemma", termElem);
+		    if (lemma != null) {
+			newTerm.setLemma(lemma);
+		    }
+		    String pos = getOptAttribute("pos", termElem);
+		    if (pos != null) {
+			newTerm.setPos(pos);
+		    }
 		    String tMorphofeat = getOptAttribute("morphofeat", termElem);
 		    if (tMorphofeat != null) {
 			newTerm.setMorphofeat(tMorphofeat);
@@ -887,9 +896,15 @@ class ReadWriteManager {
 		termsElem.addContent(termComment);
 		Element termElem = new Element("term");
 		termElem.setAttribute("id", term.getId());
-		termElem.setAttribute("type", term.getType());
-		termElem.setAttribute("lemma", term.getLemma());
-		termElem.setAttribute("pos", term.getPos());
+		if (term.hasType()) {
+		    termElem.setAttribute("type", term.getType());
+		}
+		if (term.hasLemma()) {
+		    termElem.setAttribute("lemma", term.getLemma());
+		}
+		if (term.hasPos()) {
+		    termElem.setAttribute("pos", term.getPos());
+		}
 		if (term.hasMorphofeat()) {
 		    termElem.setAttribute("morphofeat", term.getMorphofeat());
 		}

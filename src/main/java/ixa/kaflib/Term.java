@@ -10,13 +10,13 @@ public class Term {
     /** Term's ID (required) */
     private String tid;
 
-    /** Type of the term (required). Currently, 2 values are possible: open and close. */
+    /** Type of the term (optional). Currently, 2 values are possible: open and close. */
     private String type;
 
-    /** Lemma of the term (required) */
+    /** Lemma of the term (optional) */
     private String lemma;
 
-    /** Part of speech (required). Possible values are:
+    /** Part of speech (optional). Possible values are:
      * - common noun (N)
      * - proper noun (R)
      * - adjective (G)
@@ -296,28 +296,11 @@ public class Term {
 	}
     }
 
-    Term(String id, String type, String lemma, String pos, Span<WF> span) {
+    Term(String id, Span<WF> span) {
 	if (span.size() < 1) {
 	    throw new IllegalStateException("A Term must have at least one WF");
 	}
 	this.tid = id;
-	this.type = type;
-	this.lemma = lemma;
-	this.pos = pos;
-	this.components = new ArrayList();
-	this.span = span;
-	this.externalReferences = new ArrayList<ExternalRef>();
-    }
-
-    Term(String id, String type, String lemma, String pos, String morphofeat, Span<WF> span) {
-	if (span.size() < 1) {
-	    throw new IllegalStateException("A Term must have at least one WF");
-	}
-	this.tid = id;
-	this.type = type;
-	this.lemma = lemma;
-	this.pos = pos;
-	this.morphofeat = morphofeat;
 	this.components = new ArrayList();
 	this.span = span;
 	this.externalReferences = new ArrayList<ExternalRef>();
@@ -380,6 +363,10 @@ public class Term {
 	this.tid = id;
     }
 
+    public boolean hasType() {
+	return type != null;
+    }
+
     public String getType() {
 	return type;
     }
@@ -388,12 +375,20 @@ public class Term {
 	this.type = type;
     }
 
+    public boolean hasLemma() {
+	return lemma != null;
+    }
+
     public String getLemma() {
 	return lemma;
     }
 
     public void setLemma(String lemma) {
 	this.lemma = lemma;
+    }
+
+    public boolean hasPos() {
+	return pos != null;
     }
 
     public String getPos() {

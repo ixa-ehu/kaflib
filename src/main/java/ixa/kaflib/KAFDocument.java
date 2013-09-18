@@ -299,9 +299,9 @@ public class KAFDocument {
      * @param wfs the list of word forms this term is formed by.
      * @return a new term.
      */
-    public Term newTerm(String id, String type, String lemma, String pos, Span<WF> span) {
+    public Term newTerm(String id, Span<WF> span) {
 	idManager.updateTermCounter(id);
-	Term newTerm = new Term(id, type, lemma, pos, span);
+	Term newTerm = new Term(id, span);
 	annotationContainer.add(newTerm);
 	return newTerm;
     }
@@ -313,9 +313,9 @@ public class KAFDocument {
      * @param wfs the list of word forms this term is formed by.
      * @return a new term.
      */
-    public Term newTerm(String type, String lemma, String pos, Span<WF> span) {
+    public Term newTerm(Span<WF> span) {
 	String newId = idManager.getNextTermId();
-	Term newTerm = new Term(newId, type, lemma, pos, span);
+	Term newTerm = new Term(newId, span);
 	annotationContainer.add(newTerm);
 	return newTerm;
     }
@@ -327,9 +327,10 @@ public class KAFDocument {
      * @param wfs the list of word forms this term is formed by.
      * @return a new term.
      */
-    public Term newTermOptions(String type, String lemma, String pos, String morphofeat, Span<WF> span) {
+    public Term newTermOptions(String morphofeat, Span<WF> span) {
 	String newId = idManager.getNextTermId();
-	Term newTerm = new Term(newId, type, lemma, pos, morphofeat, span);
+	Term newTerm = new Term(newId, span);
+	newTerm.setMorphofeat(morphofeat);
 	annotationContainer.add(newTerm);
 	return newTerm;
     }
@@ -921,6 +922,33 @@ public class KAFDocument {
     /** Deprecated */
     public WF createWF(String form, int offset) {
 	return this.newWF(form, offset);
+    }
+
+    /** Deprecated */
+    public Term newTerm(String id, String type, String lemma, String pos, Span<WF> span) {
+        Term term = newTerm(id, span);
+	term.setType(type);
+	term.setLemma(lemma);
+	term.setPos(pos);
+	return term;
+    }
+
+    /** Deprecated */
+    public Term newTerm(String type, String lemma, String pos, Span<WF> span) {
+        Term term = newTerm(span);
+	term.setType(type);
+	term.setLemma(lemma);
+	term.setPos(pos);
+	return term;
+    }
+
+    /** Deprecated */
+    public Term newTermOptions(String type, String lemma, String pos, String morphofeat, Span<WF> span) {
+	Term newTerm = newTermOptions(morphofeat, span);
+	newTerm.setType(type);
+	newTerm.setLemma(lemma);
+	newTerm.setPos(pos);
+	return newTerm;
     }
 
     /** Deprecated */
