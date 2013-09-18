@@ -350,9 +350,9 @@ public class KAFDocument {
      * @param pos part of speech of the component.
      * @return a new component.
      */
-    public Term.Component newComponent(String id, Term term, String lemma, String pos) {
+    public Term.Component newComponent(String id, Term term) {
 	idManager.updateComponentCounter(id, term.getId());
-	Term.Component newComponent = new Term.Component(id, lemma, pos);
+	Term.Component newComponent = new Term.Component(id);
 	return newComponent;
     }
 
@@ -362,9 +362,9 @@ public class KAFDocument {
      * @param pos part of speech of the component.
      * @return a new component.
      */
-    public Term.Component newComponent(Term term, String lemma, String pos) {
+    public Term.Component newComponent(Term term) {
 	String newId = idManager.getNextComponentId(term.getId());
-	Term.Component newComponent = new Term.Component(newId, lemma, pos);
+	Term.Component newComponent = new Term.Component(newId);
 	return newComponent;
     }
 
@@ -974,6 +974,22 @@ public class KAFDocument {
     /** Deprecated */
     public Term.Sentiment createSentiment() {
 	return this.newSentiment();
+    }
+    
+    /** Deprecated */
+    public Term.Component newComponent(String id, Term term, String lemma, String pos) {
+	Term.Component newComponent = this.newComponent(id, term);
+	newComponent.setLemma(lemma);
+	newComponent.setPos(pos);
+	return newComponent;
+    }
+
+    /** Deprecated */
+    public Term.Component newComponent(Term term, String lemma, String pos) {
+	Term.Component newComponent = this.newComponent(term);
+	newComponent.setLemma(lemma);
+	newComponent.setPos(pos);
+	return newComponent;
     }
 
     /** Deprecated */

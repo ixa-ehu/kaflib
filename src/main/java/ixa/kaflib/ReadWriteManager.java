@@ -246,13 +246,19 @@ class ReadWriteManager {
 		    for (Element termsComponentElem : termsComponentElems) {
 			String compId = getAttribute("id", termsComponentElem);
 			boolean isHead = ((tHead != null) && tHead.equals(compId));
-			String compLemma = getAttribute("lemma", termsComponentElem);
-			String compPos = getAttribute("pos", termsComponentElem);
-			Term.Component newComponent = kaf.newComponent(compId, newTerm, compLemma, compPos);
+			Term.Component newComponent = kaf.newComponent(compId, newTerm);
 			List<Element> externalReferencesElems = termsComponentElem.getChildren("externalReferences");
 			if (externalReferencesElems.size() > 0) {
 			    List<ExternalRef> externalRefs = getExternalReferences(externalReferencesElems.get(0), kaf);
 			    newComponent.addExternalRefs(externalRefs);
+			}
+			String compLemma = getOptAttribute("lemma", termsComponentElem);
+			if (compLemma != null) {
+			    newComponent.setLemma(compLemma);
+			}
+			String compPos = getOptAttribute("pos", termsComponentElem);
+			if (compPos != null) {
+			    newComponent.setPos(compPos);
 			}
 			newTerm.addComponent(newComponent, isHead);
 		    }
@@ -949,8 +955,12 @@ class ReadWriteManager {
 		    for (Term.Component component : components) {
 			Element componentElem = new Element("component");
 			componentElem.setAttribute("id", component.getId());
-			componentElem.setAttribute("lemma", component.getLemma());
-			componentElem.setAttribute("pos", component.getPos());
+			if (component.hasLemma()) {
+			    componentElem.setAttribute("lemma", component.getLemma());
+			}
+			if (component.hasPos()) {
+			    componentElem.setAttribute("pos", component.getPos());
+			}
 			if (component.hasCase()) {
 			    componentElem.setAttribute("case", component.getCase());
 			}

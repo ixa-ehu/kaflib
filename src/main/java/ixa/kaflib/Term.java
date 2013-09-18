@@ -213,10 +213,10 @@ public class Term {
 	/** Component¡s ID (required) */
 	private String id;
 
-	/** Lemma of the component (required) */
+	/** Lemma of the component (optional) */
 	private String lemma;
 
-	/** Part of speech (required) */
+	/** Part of speech (optional) */
 	private String pos;
 
 	/** Declension case (optional) */
@@ -225,10 +225,8 @@ public class Term {
 	/** External references (optional) */
 	private List<ExternalRef> externalReferences;
 
-	Component(String id, String lemma, String pos) {
+	Component(String id) {
 	    this.id = id;
-	    this.lemma = lemma;
-	    this.pos = pos;
 	    this.externalReferences = new ArrayList<ExternalRef>();
 	}
 
@@ -247,12 +245,20 @@ public class Term {
 	    return id;
 	}
 
+	public boolean hasLemma() {
+	    return lemma != null;
+	}
+
 	public String getLemma() {
 	    return lemma;
 	}
 
 	public void setLemma(String val) {
 	    this.lemma = lemma;
+	}
+
+	public boolean hasPos() {
+	    return pos != null;
 	}
 
 	public String getPos() {
