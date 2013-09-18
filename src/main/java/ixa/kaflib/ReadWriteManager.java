@@ -87,7 +87,7 @@ class ReadWriteManager {
 
 	List<Element> rootChildrenElems = rootElem.getChildren();
 	for (Element elem : rootChildrenElems) {
-	    if (elem.getName().equals("kafHeader")) {
+	    if (elem.getName().equals("nafHeader")) {
 		List<Element> lpsElems = elem.getChildren("linguisticProcessors");
 		for (Element lpsElem : lpsElems) {
 		    String layer = getAttribute("layer", lpsElem);
