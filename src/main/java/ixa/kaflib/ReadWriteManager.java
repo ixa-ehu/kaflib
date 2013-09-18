@@ -604,7 +604,6 @@ class ReadWriteManager {
 		List<Element> predicateElems = elem.getChildren("predicate");
 		for (Element predicateElem : predicateElems) {
 		    String id = getAttribute("id", predicateElem);
-		    String uri = getOptAttribute("uri", predicateElem);
 		    Span<Term> span = kaf.newTermSpan();
 		    Element spanElem = predicateElem.getChild("span");
 		    if (spanElem != null) {
@@ -620,8 +619,13 @@ class ReadWriteManager {
 			}
 		    }
 		    Predicate newPredicate = kaf.newPredicate(id, span);
+		    String uri = getOptAttribute("uri", predicateElem);
 		    if (uri != null) {
 			newPredicate.setUri(uri);
+		    }
+		    String confidence = getOptAttribute("confidence", predicateElem);
+		    if (confidence != null) {
+			newPredicate.setConfidence(Float.valueOf(confidence));
 		    }
 		    List<Element> roleElems = predicateElem.getChildren("role");
 		    for (Element roleElem : roleElems) {
@@ -1281,6 +1285,9 @@ class ReadWriteManager {
 		predicateElem.setAttribute("id", predicate.getId());
 		if (predicate.hasUri()) {
 		    predicateElem.setAttribute("uri", predicate.getUri());
+		}
+		if (predicate.hasConfidence()) {
+		    predicateElem.setAttribute("confidence", Float.toString(predicate.getConfidence()));
 		}
 		Span<Term> span = predicate.getSpan();
 		if (span.getTargets().size() > 0) {

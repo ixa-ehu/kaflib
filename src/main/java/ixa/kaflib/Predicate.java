@@ -66,6 +66,7 @@ public class Predicate {
 
     private String id;
     private String uri;
+    private float confidence;
     private Span<Term> span;
     private List<Role> roles;
 
@@ -73,6 +74,7 @@ public class Predicate {
 	this.id = id;
 	this.span = span;
 	this.roles = new ArrayList<Role>();
+	this.confidence = -1.0f;
     }
 
     public String getId() {
@@ -93,6 +95,18 @@ public class Predicate {
 
     public void setUri(String uri) {
 	this.uri = uri;
+    }
+
+    public boolean hasConfidence() {
+	return confidence != -1.0f;
+    }
+
+    public float getConfidence() {
+	return confidence;
+    }
+
+    public void setConfidence(float confidence) {
+	this.confidence = confidence;
     }
 
     public Span<Term> getSpan() {
