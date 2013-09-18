@@ -12,11 +12,7 @@ public class Dep {
     /** Target term of the dependency (required) */
     private Term to;
 
-    /** Relational function of the dependency (required). One of:
-     * - `subj´ (grammatical subject)
-     * - `obj´ (objects and/or complements)
-     * - `mod´ (modifier of noun or verb)
-     */
+    /** Relational function of the dependency (required) */
     private String rfunc;
 
     /** Declension case (optional) */
