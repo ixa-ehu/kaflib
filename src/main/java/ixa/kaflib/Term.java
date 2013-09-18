@@ -57,10 +57,10 @@ public class Term {
      */
     public static class Sentiment {
 
-	/** Identifier and reference to an external sentiment resource (optional) */
+	/** Identifier and reference to an external sentiment resource (required) */
 	private String resource;
 
-	/** Refers to the property of a word to express positive, negative or no sentiment (optional). These values are possible:
+	/** Refers to the property of a word to express positive, negative or no sentiment (required). These values are possible:
 	 * - Positive
 	 * - Negative
 	 * - Neutral
@@ -105,7 +105,7 @@ public class Term {
 	 */
 	private String sentimentProductFeature;
 
-	Sentiment() {}
+	Sentiment(String resource, String polarity) {}
 
 	Sentiment(Sentiment sentiment) {
 	    this.resource = sentiment.resource;
@@ -118,20 +118,12 @@ public class Term {
 	    this.sentimentProductFeature = sentiment.sentimentProductFeature;
 	}
 
-	public boolean hasResource() {
-	    return resource != null;
-	}
-
 	public String getResource() {
 	    return resource;
 	}
 
 	public void setResource(String val) {
 	    resource = val;
-	}
-
-	public boolean hasPolarity() {
-	    return polarity != null;
 	}
 
 	public String getPolarity() {
@@ -458,8 +450,8 @@ public class Term {
     /** Creates and adds a Sentiment object.
      * @return a new sentiment.
      */
-    public Sentiment createSentiment() {
-	Sentiment newSentiment = new Sentiment();
+    public Sentiment createSentiment(String resource, String polarity) {
+	Sentiment newSentiment = new Sentiment(resource, polarity);
 	this.setSentiment(newSentiment);
 	return newSentiment;
     }
@@ -531,4 +523,8 @@ public class Term {
 	externalReferences.addAll(externalRefs);
     }
 
+    /** Deprecated */
+    public Sentiment createSentiment() {
+        return this.createSentiment("", "");
+    }
 }

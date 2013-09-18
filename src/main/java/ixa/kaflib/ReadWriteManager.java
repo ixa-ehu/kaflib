@@ -213,15 +213,9 @@ class ReadWriteManager {
 		    List<Element> sentimentElems = termElem.getChildren("sentiment");
 		    if (sentimentElems.size() > 0) {
 			Element sentimentElem = sentimentElems.get(0);
-			Term.Sentiment newSentiment = kaf.newSentiment();
-			String sentResource = getOptAttribute("resource", sentimentElem);
-			if (sentResource != null) {
-			    newSentiment.setResource(sentResource);
-			}
-			String sentPolarity = getOptAttribute("polarity", sentimentElem);
-			if (sentPolarity != null) {
-			    newSentiment.setPolarity(sentPolarity);
-			}
+			String sentResource = getAttribute("resource", sentimentElem);
+			String sentPolarity = getAttribute("polarity", sentimentElem);
+			Term.Sentiment newSentiment = kaf.newSentiment(sentResource, sentPolarity);
 			String sentStrength = getOptAttribute("strength", sentimentElem);
 			if (sentStrength != null) {
 			    newSentiment.setStrength(sentStrength);
@@ -917,12 +911,8 @@ class ReadWriteManager {
 		if (term.hasSentiment()) {
 		    Term.Sentiment sentiment = term.getSentiment();
 		    Element sentimentElem = new Element("sentiment");
-		    if (sentiment.hasResource()) {
-			sentimentElem.setAttribute("resource", sentiment.getResource());
-		    }
-		    if (sentiment.hasPolarity()) {
-			sentimentElem.setAttribute("polarity", sentiment.getPolarity());
-		    }
+		    sentimentElem.setAttribute("resource", sentiment.getResource());
+		    sentimentElem.setAttribute("polarity", sentiment.getPolarity());
 		    if (sentiment.hasStrength()) {
 			sentimentElem.setAttribute("strength", sentiment.getStrength());
 		    }
