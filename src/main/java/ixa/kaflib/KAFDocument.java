@@ -42,10 +42,47 @@ public class KAFDocument {
 	String timestamp;
 	String version;
 
+	private LinguisticProcessor(String name) {
+	    this.name = name;
+	}
+
+	/* Deprecated */
 	private LinguisticProcessor(String name, String timestamp, String version) {
 	    this.name = name;
 	    this.timestamp = timestamp;
 	    this.version = version;
+	}
+
+	public void setName(String name) {
+	    this.name = name;
+	}
+
+	public String getName() {
+	    return name;
+	}
+
+	public boolean hasTimestamp() {
+	    return timestamp != null;
+	}
+
+	public void setTimestamp(String timestamp) {
+	    this.timestamp = timestamp;
+	}
+
+	public String getTimestamp() {
+	    return timestamp;
+	}
+
+	public boolean hasVersion() {
+	    return version != null;
+	}
+
+	public void setVersion(String version) {
+	    this.version = version;
+	}
+
+	public String getVersion() {
+	    return version;
 	}
     }
 
@@ -124,9 +161,10 @@ public class KAFDocument {
     }
 
     /** Adds a linguistic processor to the document header. The timestamp is added implicitly. */
-    public LinguisticProcessor addLinguisticProcessor(String layer, String name, String version) {
+    public LinguisticProcessor addLinguisticProcessor(String layer, String name) {
 	String timestamp = this.getTimestamp();
-	LinguisticProcessor lp = new LinguisticProcessor(name, timestamp, version);
+	LinguisticProcessor lp = new LinguisticProcessor(name);
+	lp.setTimestamp(timestamp);
 	List<LinguisticProcessor> layerLps = lps.get(layer);
 	if (layerLps == null) {
 	    layerLps = new ArrayList<LinguisticProcessor>();
@@ -135,18 +173,6 @@ public class KAFDocument {
 	layerLps.add(lp);
 	return lp;
     }
-
-    /** Adds a linguistic processor to the document header */
-    public LinguisticProcessor addLinguisticProcessor(String layer, String name, String timestamp, String version) {
-	LinguisticProcessor lp = new LinguisticProcessor(name, timestamp, version);
-	List<LinguisticProcessor> layerLps = lps.get(layer);
-	if (layerLps == null) {
-	    layerLps = new ArrayList<LinguisticProcessor>();
-	    lps.put(layer, layerLps);
-	}
-	layerLps.add(lp);
-	return lp;
-    }	
 
     public void addLinguisticProcessors(HashMap<String, List<LinguisticProcessor>> lps) {
 	for (Map.Entry<String, List<LinguisticProcessor>> entry : lps.entrySet()) {
@@ -167,14 +193,34 @@ public class KAFDocument {
 	return lps;
     }
 
-    /** Returns wether the given linguistic processor is already defined or not. */
+    /** Returns wether the given linguistic processor is already defined or not. Both name and version must be exactly the same. */
     public boolean linguisticProcessorExists(String layer, String name, String version) {
 	List<LinguisticProcessor> layerLPs = lps.get(layer);
 	if (layerLPs == null) {
 	    return false;
 	}
 	for (LinguisticProcessor lp : layerLPs) {
-	    if (lp.name.equals(name) && lp.version.equals(version)) {
+	    if (lp.version == null) {
+		return false;
+	    }
+	    else if (lp.name.equals(name) && lp.version.equals(version)) {
+		return true;
+	    }
+	}
+	return false;
+    }
+
+    /** Returns wether the given linguistic processor is already defined or not. Both name and version must be exactly the same. */
+    public boolean linguisticProcessorExists(String layer, String name) {
+	List<LinguisticProcessor> layerLPs = lps.get(layer);
+	if (layerLPs == null) {
+	    return false;
+	}
+	for (LinguisticProcessor lp : layerLPs) {
+	    if (lp.version != null) {
+		return false;
+	    }
+	    else if (lp.name.equals(name)) {
 		return true;
 	    }
 	}
@@ -836,6 +882,21 @@ public class KAFDocument {
     /**************************/
     /*** DEPRECATED METHODS ***/
     /**************************/
+
+    /** Deprecated */
+    public LinguisticProcessor addLinguisticProcessor(String layer, String name, String version) {
+        LinguisticProcessor lp = this.addLinguisticProcessor(layer, name);
+	lp.setVersion(version);
+	return lp;
+    }
+
+    /** Deprecated */
+    public LinguisticProcessor addLinguisticProcessor(String layer, String name, String timestamp, String version) {
+	LinguisticProcessor lp = this.addLinguisticProcessor(layer, name);
+	lp.setTimestamp(timestamp);
+	lp.setVersion(version);
+	return lp;
+    }
 
     /** Deprecated */
     public WF createWF(String id, String form) {

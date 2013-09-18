@@ -94,9 +94,15 @@ class ReadWriteManager {
 		    List<Element> lpElems = lpsElem.getChildren();
 		    for (Element lpElem : lpElems) {
 			String name = getAttribute("name", lpElem);
+			KAFDocument.LinguisticProcessor newLp = kaf.addLinguisticProcessor(layer, name);
 			String timestamp = getOptAttribute("timestamp", lpElem);
+			if (timestamp != null) {
+			    newLp.setTimestamp(timestamp);
+			}
 			String version = getOptAttribute("version", lpElem);
-			kaf.addLinguisticProcessor(layer, name, timestamp, version);
+			if (version != null) {
+			    newLp.setVersion(version);
+			}
 		    }
 		}
 		Element fileDescElem = elem.getChild("fileDesc");
@@ -834,8 +840,12 @@ class ReadWriteManager {
 	    for (KAFDocument.LinguisticProcessor lp : (List<KAFDocument.LinguisticProcessor>) entry.getValue()) {
 		Element lpElem = new Element("lp");
 		lpElem.setAttribute("name", lp.name);
-		lpElem.setAttribute("timestamp", lp.timestamp);
-		lpElem.setAttribute("version", lp.version);
+		if (lp.hasTimestamp()) {
+		    lpElem.setAttribute("timestamp", lp.timestamp);
+		}
+		if (lp.hasVersion()) {
+		    lpElem.setAttribute("version", lp.version);
+		}
 		lpsElem.addContent(lpElem);
 	    }
 	    kafHeaderElem.addContent(lpsElem);
