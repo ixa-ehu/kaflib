@@ -144,11 +144,8 @@ class ReadWriteManager {
 		for (Element wfElem : wfElems) {
 		    String wid = getAttribute("id", wfElem);
 		    String wForm = wfElem.getText();
-		    WF newWf = kaf.newWF(wid, wForm);
-		    String wSent = getOptAttribute("sent", wfElem);
-		    if (wSent != null) {
-			newWf.setSent(Integer.valueOf(wSent));
-		    }
+		    String wSent = getAttribute("sent", wfElem);
+		    WF newWf = kaf.newWF(wid, wForm, Integer.valueOf(wSent));
 		    String wPara = getOptAttribute("para", wfElem);
 		    if (wPara != null) {
 			newWf.setPara(Integer.valueOf(wPara));
@@ -857,9 +854,7 @@ class ReadWriteManager {
 	    for (WF wf : text) {
 		Element wfElem = new Element("wf");
 		wfElem.setAttribute("id", wf.getId());
-		if (wf.hasSent()) {
-		    wfElem.setAttribute("sent", Integer.toString(wf.getSent()));
-		}
+		wfElem.setAttribute("sent", Integer.toString(wf.getSent()));
 		if (wf.hasPara()) {
 		    wfElem.setAttribute("para", Integer.toString(wf.getPara()));
 		}

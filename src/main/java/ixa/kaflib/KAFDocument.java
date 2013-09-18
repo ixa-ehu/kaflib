@@ -249,15 +249,15 @@ public class KAFDocument {
     AnnotationContainer getAnnotationContainer() {
 	return annotationContainer;
     }
-
+    
     /** Creates a WF object to load an existing word form. It receives the ID as an argument. The WF is added to the document object.
      * @param id word form's ID.
      * @param form text of the word form itself.
      * @return a new word form.
      */
-    public WF newWF(String id, String form) {
+    public WF newWF(String id, String form, int sent) {
 	idManager.updateWFCounter(id);
-	WF newWF = new WF(this.annotationContainer, id, form);
+	WF newWF = new WF(this.annotationContainer, id, form, sent);
 	annotationContainer.add(newWF);
 	return newWF;
     }
@@ -266,10 +266,10 @@ public class KAFDocument {
      * @param form text of the word form itself.
      * @return a new word form.
      */
-    public WF newWF(String form) {
+	public WF newWF(String form, int sent) {
 	String newId = idManager.getNextWFId();
 	//int offset = annotationContainer.getNextOffset();
-	WF newWF = new WF(this.annotationContainer, newId, form);
+	WF newWF = new WF(this.annotationContainer, newId, form, sent);
 	//newWF.setOffset(offset);
 	//newWF.setLength(form.length());
 	annotationContainer.add(newWF);
@@ -281,16 +281,16 @@ public class KAFDocument {
      * @param form text of the word form itself.
      * @return a new word form.
      */
-    public WF newWF(String form, int offset) {
+    public WF newWF(String form, int offset, int sent) {
 	String newId = idManager.getNextWFId();
 	int offsetVal = offset;
-	WF newWF = new WF(this.annotationContainer, newId, form);
+	WF newWF = new WF(this.annotationContainer, newId, form, sent);
 	newWF.setOffset(offsetVal);
 	newWF.setLength(form.length());
 	annotationContainer.add(newWF);
 	return newWF;
     }
-    
+
     /** Creates a Term object to load an existing term. It receives the ID as an argument. The Term is added to the document object.
      * @param id term's ID.
      * @param type type of term. There are two types of term: open and close.
@@ -896,6 +896,16 @@ public class KAFDocument {
 	lp.setTimestamp(timestamp);
 	lp.setVersion(version);
 	return lp;
+    }
+    
+    /** Deprecated */
+    public WF newWF(String id, String form) {
+        return this.newWF(id, form, 0);
+    }
+
+    /** Deprecated */
+    public WF newWF(String form) {
+        return this.newWF(form, 0);
     }
 
     /** Deprecated */
