@@ -580,21 +580,21 @@ public class KAFDocument {
      * @param span span containing all the targets of the role
      * @return a new role.
      */
-    public Predicate.Role newRole(String id, Predicate predicate, String semRole, Span<Term> span) {
+    public Predicate.Role newRole(String id, Predicate predicate, String semRole, Span<Term> span, List<String> roleTypes) {
 	idManager.updateRoleCounter(id, predicate.getId());
-	Predicate.Role newRole = new Predicate.Role(id, semRole, span);
+	Predicate.Role newRole = new Predicate.Role(id, semRole, span, roleTypes);
 	return newRole;
     }
-
+    
     /** Creates a new Role object. It assigns an appropriate ID to it. It uses the ID of the predicate to create a new ID for the role. It doesn't add the role to the predicate.
      * @param predicate the predicate which this role is part of
      * @param semRole semantic role
      * @param span span containing all the targets of the role
      * @return a new role.
      */
-    public Predicate.Role newRole(Predicate predicate, String semRole, Span<Term> span) {
+    public Predicate.Role newRole(Predicate predicate, String semRole, Span<Term> span, List<String> roleTypes) {
 	String newId = idManager.getNextRoleId(predicate.getId());
-	Predicate.Role newRole = new Predicate.Role(newId, semRole, span);
+	Predicate.Role newRole = new Predicate.Role(newId, semRole, span, roleTypes);
 	return newRole;
     }
 

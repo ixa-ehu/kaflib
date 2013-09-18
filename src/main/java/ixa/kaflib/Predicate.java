@@ -8,12 +8,17 @@ public class Predicate {
     public static class Role {
 	private String rid;
 	private String semRole;
+	private List<String> roleTypes;
 	private Span<Term> span;
 
-	Role(String id, String semRole, Span span) {
+	Role(String id, String semRole, Span span, List<String> roleTypes) {
 	    this.rid = id;
 	    this.semRole = semRole;
 	    this.span = span;
+	    if (roleTypes.size() < 1) {
+		throw new IllegalStateException("A Role must have at least one roleType");
+	    }
+	    this.roleTypes = roleTypes;
 	}
 
 	public String getId() {
@@ -62,12 +67,22 @@ public class Predicate {
 	    }
 	    return str;
 	}
+
+
+	public List<String> getRoleTypes() {
+	    return roleTypes;
+	}
+
+	public void addRoleType(String roleType) {
+	    roleTypes.add(roleType);
+	}
+
     }
 
     private String id;
     private String uri;
     private float confidence;
-    private List<String> predTypes; // List<predType>
+    private List<String> predTypes;
     private Span<Term> span;
     private List<Role> roles;
 

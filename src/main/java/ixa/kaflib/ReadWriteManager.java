@@ -651,12 +651,15 @@ class ReadWriteManager {
 				roleSpan.addTarget(targetTerm, isHead);
 			    }
 			}
-			Predicate.Role newRole = kaf.newRole(rid, newPredicate, semRole, roleSpan);
+			List<String> roleTypes = new ArrayList<String>();
+			List<Element> roleTypeElems = roleElem.getChildren("roleType");
+			for (Element roleTypeElem : roleTypeElems) {
+			    String rtUri = getAttribute("uri", roleTypeElem);
+			    roleTypes.add(rtUri);
+			}
+			Predicate.Role newRole = kaf.newRole(rid, newPredicate, semRole, roleSpan, roleTypes);
 			newPredicate.addRole(newRole);
 		    }
-		    Span<Term> spana = kaf.newTermSpan();
-		    Predicate.Role rolea = kaf.newRole(newPredicate, "kaka", spana);
-		    newPredicate.addRole(rolea);
 		}
 	    }
 	    if (elem.getName().equals("constituency")) {
@@ -1295,6 +1298,11 @@ class ReadWriteManager {
 		if (predicate.hasConfidence()) {
 		    predicateElem.setAttribute("confidence", Float.toString(predicate.getConfidence()));
 		}
+		for (String predType : predicate.getPredTypes()) {
+		    Element predTypeElem = new Element("predType");
+		    predTypeElem.setAttribute("uri", predType);
+		    predicateElem.addContent(predTypeElem);
+		}
 		Span<Term> span = predicate.getSpan();
 		if (span.getTargets().size() > 0) {
 		    Comment spanComment = new Comment(predicate.getSpanStr());
@@ -1310,15 +1318,15 @@ class ReadWriteManager {
 			spanElem.addContent(targetElem);
 		    }
 		}
-		for (String predType : predicate.getPredTypes()) {
-		    Element predTypeElem = new Element("predType");
-		    predTypeElem.setAttribute("uri", predType);
-		    predicateElem.addContent(predTypeElem);
-		}
 		for (Predicate.Role role : predicate.getRoles()) {
 		    Element roleElem = new Element("role");
 		    roleElem.setAttribute("id", role.getId());
 		    roleElem.setAttribute("semRole", role.getSemRole());
+		    for (String roleType : role.getRoleTypes()) {
+			Element roleTypeElem = new Element("roleType");
+			roleTypeElem.setAttribute("uri", roleType);
+			roleElem.addContent(roleTypeElem);
+		    }
 		    Span<Term> roleSpan = role.getSpan();
 		    if (roleSpan.getTargets().size() > 0) {
 			Comment spanComment = new Comment(role.getStr());
