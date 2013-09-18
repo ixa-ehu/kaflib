@@ -110,10 +110,6 @@ class ReadWriteManager {
 		    if (title != null) {
 			fd.title = title;
 		    }
-		    String creationtime = getOptAttribute("creationtime", fileDescElem);
-		    if (creationtime != null) {
-			fd.creationtime = creationtime;
-		    }
 		    String filename = getOptAttribute("filename", fileDescElem);
 		    if (filename != null) {
 			fd.filename = filename;
@@ -808,9 +804,6 @@ class ReadWriteManager {
 	    }
 	    if (fd.author != null) {
 		fdElem.setAttribute("title", fd.title);
-	    }
-	    if (fd.creationtime != null) {
-		fdElem.setAttribute("creationtime", fd.creationtime);
 	    }
 	    if (fd.author != null) {
 		fdElem.setAttribute("filename", fd.filename);
