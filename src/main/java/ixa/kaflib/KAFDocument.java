@@ -555,20 +555,20 @@ public class KAFDocument {
      * @param span span containing the targets of the predicate
      * @return a new predicate
      */
-    public Predicate newPredicate(String id, Span<Term> span) {
+	public Predicate newPredicate(String id, Span<Term> span, List<String> predTypes) {
 	idManager.updatePredicateCounter(id);
-	Predicate newPredicate = new Predicate(id, span);
+	Predicate newPredicate = new Predicate(id, span, predTypes);
 	annotationContainer.add(newPredicate);
 	return newPredicate;
     }
-    
+
     /** Creates a new srl predicate. It assigns an appropriate ID to it. The predicate is added to the document.
      * @param span span containing all the targets of the predicate
      * @return a new predicate
      */
-    public Predicate newPredicate(Span<Term> span) {
+    public Predicate newPredicate(Span<Term> span, List<String> predTypes) {
 	String newId = idManager.getNextPredicateId();
-	Predicate newPredicate = new Predicate(newId, span);
+	Predicate newPredicate = new Predicate(newId, span, predTypes);
 	annotationContainer.add(newPredicate);
 	return newPredicate;
     }

@@ -618,7 +618,13 @@ class ReadWriteManager {
 			    span.addTarget(targetTerm, isHead);
 			}
 		    }
-		    Predicate newPredicate = kaf.newPredicate(id, span);
+		    List<String> predTypes = new ArrayList<String>();
+		    List<Element> predTypeElems = predicateElem.getChildren("predType");
+		    for (Element predTypeElem : predTypeElems) {
+			String ptUri = getAttribute("uri", predTypeElem);
+			predTypes.add(ptUri);
+		    }
+		    Predicate newPredicate = kaf.newPredicate(id, span, predTypes);
 		    String uri = getOptAttribute("uri", predicateElem);
 		    if (uri != null) {
 			newPredicate.setUri(uri);
@@ -1303,6 +1309,11 @@ class ReadWriteManager {
 			}
 			spanElem.addContent(targetElem);
 		    }
+		}
+		for (String predType : predicate.getPredTypes()) {
+		    Element predTypeElem = new Element("predType");
+		    predTypeElem.setAttribute("uri", predType);
+		    predicateElem.addContent(predTypeElem);
 		}
 		for (Predicate.Role role : predicate.getRoles()) {
 		    Element roleElem = new Element("role");

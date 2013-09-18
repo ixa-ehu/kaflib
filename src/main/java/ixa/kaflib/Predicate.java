@@ -67,13 +67,18 @@ public class Predicate {
     private String id;
     private String uri;
     private float confidence;
+    private List<String> predTypes; // List<predType>
     private Span<Term> span;
     private List<Role> roles;
 
-    Predicate(String id, Span<Term> span) {
+    Predicate(String id, Span<Term> span, List<String> predTypes) {
 	this.id = id;
 	this.span = span;
 	this.roles = new ArrayList<Role>();
+	if (predTypes.size() < 1) {
+	    throw new IllegalStateException("A Predicate must have at least one predType");
+	}
+	this.predTypes = predTypes;
 	this.confidence = -1.0f;
     }
 
@@ -154,6 +159,14 @@ public class Predicate {
 	    str += term.getStr();
 	}
 	return str;
+    }
+
+    public List<String> getPredTypes() {
+	return predTypes;
+    }
+
+    public void addPredType(String predType) {
+	predTypes.add(predType);
     }
 
     public List<Role> getRoles() {
