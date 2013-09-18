@@ -333,7 +333,6 @@ class ReadWriteManager {
 		List<Element> entityElems = elem.getChildren();
 		for (Element entityElem : entityElems) {
 		    String entId = getAttribute("id", entityElem);
-		    String entType = getAttribute("type", entityElem);
 		    List<Element> referencesElem = entityElem.getChildren("references");
 		    if (referencesElem.size() < 1) {
 			throw new IllegalStateException("Every entity must contain a 'references' element");
@@ -360,7 +359,11 @@ class ReadWriteManager {
 			}
 			references.add(span);
 		    }
-		    Entity newEntity = kaf.newEntity(entId, entType, references);
+		    Entity newEntity = kaf.newEntity(entId, references);
+		    String entType = getOptAttribute("type", entityElem);
+		    if (entType != null) {
+			newEntity.setType(entType);
+		    }
 		    List<Element> externalReferencesElems = entityElem.getChildren("externalReferences");
 		    if (externalReferencesElems.size() > 0) {
 			List<ExternalRef> externalRefs = getExternalReferences(externalReferencesElems.get(0), kaf);
@@ -1036,7 +1039,9 @@ class ReadWriteManager {
 	    for (Entity entity : entities) {
 		Element entityElem = new Element("entity");
 		entityElem.setAttribute("id", entity.getId());
-		entityElem.setAttribute("type", entity.getType());
+		if (entity.hasType()) {
+		    entityElem.setAttribute("type", entity.getType());
+		}
 		Element referencesElem = new Element("references");
 		for (Span<Term> span : entity.getSpans()) {
 		    Comment spanComment = new Comment(entity.getSpanStr(span));
