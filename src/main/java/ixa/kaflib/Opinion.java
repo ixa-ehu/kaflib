@@ -8,6 +8,7 @@ import java.util.HashMap;
 public class Opinion {
 
     public static class OpinionHolder {
+	private String type;
 	private Span<Term> span;
 
 	OpinionHolder(Span<Term> span) {
@@ -33,6 +34,18 @@ public class Opinion {
 	    else {
 		this.span = new Span<Term>(copiedTargets);
 	    }	    
+	}
+
+	public boolean hasType() {
+	    return type != null;
+	}
+
+	public String getType() {
+	    return type;
+	}
+
+	public void setType(String type) {
+	    this.type = type;
 	}
 
 	public List<Term> getTerms() {

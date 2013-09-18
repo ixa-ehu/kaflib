@@ -498,6 +498,10 @@ class ReadWriteManager {
 		    if (opinionHolderElem != null) {
 			Span<Term> span = kaf.newTermSpan();
 			Opinion.OpinionHolder opinionHolder = opinion.createOpinionHolder(span);
+			String ohType = getOptAttribute("type", opinionHolderElem);
+			if (ohType != null) {
+			    opinionHolder.setType(ohType);
+			}
 			Element spanElem = opinionHolderElem.getChild("span");
 			if (spanElem != null) {
 			    List<Element> targetElems = spanElem.getChildren("target");
@@ -1165,6 +1169,9 @@ class ReadWriteManager {
 		Opinion.OpinionHolder holder = opinion.getOpinionHolder();
 		if (holder != null) {
 		    Element opinionHolderElem = new Element("opinion_holder");
+		    if (holder.hasType()) {
+			opinionHolderElem.setAttribute("type", holder.getType());
+		    }
 		    Comment comment = new Comment(opinion.getSpanStr(opinion.getOpinionHolder().getSpan()));
 		    opinionHolderElem.addContent(comment);
 		    List<Term> targets = holder.getTerms();
