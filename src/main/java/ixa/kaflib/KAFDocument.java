@@ -387,9 +387,9 @@ public class KAFDocument {
      * @param terms the list of the terms in the chunk.
      * @return a new chunk.
      */
-    public Chunk newChunk(String id, String phrase, Span<Term> span) {
+    public Chunk newChunk(String id, Span<Term> span) {
 	idManager.updateChunkCounter(id);
-	Chunk newChunk = new Chunk(id, phrase, span);
+	Chunk newChunk = new Chunk(id, span);
 	annotationContainer.add(newChunk);
 	return newChunk;
     }
@@ -400,9 +400,9 @@ public class KAFDocument {
      * @param terms the list of the terms in the chunk.
      * @return a new chunk.
      */
-    public Chunk newChunk(String phrase, Span<Term> span) {
+    public Chunk newChunk(Span<Term> span) {
 	String newId = idManager.getNextChunkId();
-	Chunk newChunk = new Chunk(newId, phrase, span);
+	Chunk newChunk = new Chunk(newId, span);
 	annotationContainer.add(newChunk);
 	return newChunk;
     }
@@ -1005,6 +1005,13 @@ public class KAFDocument {
     /** Deprecated */
     public Dep createDep(Term from, Term to, String rfunc) {
 	return this.createDep(from, to, rfunc);
+    }
+
+    /** Deprecated */
+    public Chunk newChunk(String id, String phrase, Span<Term> span) {
+	Chunk newChunk = this.newChunk(id, span);
+	newChunk.setPhrase(phrase);
+	return newChunk;
     }
 
     /** Deprecated */

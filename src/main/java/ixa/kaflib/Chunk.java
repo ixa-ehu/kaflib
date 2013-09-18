@@ -10,7 +10,7 @@ public class Chunk {
     /** Chunk's ID (required) */
     private String cid;
 
-    /** Type of the phrase (required) */
+    /** Type of the phrase (optional) */
     private String phrase;
 
     /** Declension case (optional) */
@@ -19,12 +19,11 @@ public class Chunk {
     /** Chunk's target terms (at least one required) */
     private Span<Term> span;
 
-    Chunk(String cid, String phrase, Span<Term> span) {
+    Chunk(String cid, Span<Term> span) {
 	if (span.size() < 1) {
 	    throw new IllegalStateException("Chunks must contain at least one term target");
 	}
 	this.cid = cid;
-	this.phrase = phrase;
 	this.span = span;
     }
 
@@ -67,6 +66,10 @@ public class Chunk {
 
     public Term getHead() {
 	return span.getHead();
+    }
+
+    public boolean hasPhrase() {
+	return phrase != null;
     }
 
     public String getPhrase() {

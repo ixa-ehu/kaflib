@@ -300,7 +300,6 @@ class ReadWriteManager {
 		    if (chunkHead == null) {
 			throw new KAFNotValidException("Term " + headId + " not found when loading chunk " + chunkId);
 		    }
-		    String chunkPhrase = getAttribute("phrase", chunkElem);
 		    Element spanElem = chunkElem.getChild("span");
 		    if (spanElem == null) {
 			throw new IllegalStateException("Every chunk must contain a span element");
@@ -319,7 +318,11 @@ class ReadWriteManager {
 		    if (!span.hasTarget(chunkHead)) {
 			throw new KAFNotValidException("The head of the chunk is not in it's span.");
 		    }
-		    Chunk newChunk = kaf.newChunk(chunkId, chunkPhrase, span);
+		    Chunk newChunk = kaf.newChunk(chunkId, span);
+		    String chunkPhrase = getOptAttribute("phrase", chunkElem);
+		    if (chunkPhrase != null) {
+			newChunk.setPhrase(chunkPhrase);
+		    }
 		    String chunkCase = getOptAttribute("case", chunkElem);
 		    if (chunkCase != null) {
 			newChunk.setCase(chunkCase);
@@ -1009,7 +1012,9 @@ class ReadWriteManager {
 		Element chunkElem = new Element("chunk");
 		chunkElem.setAttribute("id", chunk.getId());
 		chunkElem.setAttribute("head", chunk.getHead().getId());
-		chunkElem.setAttribute("phrase", chunk.getPhrase());
+		if (chunk.hasPhrase()) {
+		    chunkElem.setAttribute("phrase", chunk.getPhrase());
+		}
 		if (chunk.hasCase()) {
 		    chunkElem.setAttribute("case", chunk.getCase());
 		}
