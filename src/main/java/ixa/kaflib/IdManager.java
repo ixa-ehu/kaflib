@@ -19,6 +19,8 @@ class IdManager {
     private static final String RELATION_PREFIX = "r";
     private static final String PREDICATE_PREFIX = "pr";
     private static final String ROLE_PREFIX = "r";
+    private static final String TERMINAL_PREFIX = "ter";
+    private static final String NONTERMINAL_PREFIX = "nter";
 
     /* Counters for each type of annotations */
     private int wfCounter;
@@ -31,6 +33,8 @@ class IdManager {
     private int opinionCounter;
     private int relationCounter;
     private int predicateCounter;
+    private int terminalCounter;
+    private int nonterminalCounter;
     private HashMap<String, Integer> componentCounter;
     private HashMap<String, Integer> roleCounter;
 
@@ -45,6 +49,8 @@ class IdManager {
 	this.opinionCounter = 0;
 	this.relationCounter = 0;
 	this.predicateCounter = 0;
+	this.terminalCounter = 0;
+	this.nonterminalCounter = 0;
 	this.componentCounter = new HashMap<String, Integer>();
 	this.roleCounter = new HashMap<String, Integer>();
     }
@@ -87,6 +93,14 @@ class IdManager {
 
     String getNextPredicateId() {
 	return PREDICATE_PREFIX + Integer.toString(++predicateCounter);
+    }
+
+    String getNextTerminalId() {
+	return TERMINAL_PREFIX + Integer.toString(++terminalCounter);
+    }
+
+    String getNextNonterminalId() {
+	return NONTERMINAL_PREFIX + Integer.toString(++nonterminalCounter);
     }
 
     String getNextComponentId(String termId) {
@@ -161,6 +175,14 @@ class IdManager {
 
     void updatePredicateCounter(String id) {
 	predicateCounter = extractCounterFromId(id);
+    }
+
+    void updateTerminalCounter(String id) {
+	terminalCounter = extractCounterFromId(id);
+    }
+
+    void updateNonterminalCounter(String id) {
+	nonterminalCounter = extractCounterFromId(id);
     }
 
     void updateComponentCounter(String id, String termId) {
