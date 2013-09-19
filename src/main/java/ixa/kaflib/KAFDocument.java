@@ -567,13 +567,25 @@ public class KAFDocument {
 	return tree;
     }
 
-    public static NonTerminal newNonTerminal(String id, String label) {
+    public NonTerminal newNonTerminal(String id, String label) {
 	NonTerminal tn = new NonTerminal(id, label);
 	return tn;
     }
 
-    public static Terminal newTerminal(String id, Span<Term> span) {
+    public NonTerminal newNonTerminal(String label) {
+	String newId = idManager.getNextNonterminalId();
+	NonTerminal newNonterminal = new NonTerminal(newId, label);
+	return newNonterminal;
+    }
+
+    public Terminal newTerminal(String id, Span<Term> span) {
 	Terminal tn = new Terminal(id, span);
+	return tn;
+    }
+
+    public Terminal newTerminal(Span<Term> span) {
+	String newId = idManager.getNextTerminalId();
+	Terminal tn = new Terminal(newId, span);
 	return tn;
     }
 
