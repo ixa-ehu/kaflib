@@ -266,14 +266,15 @@ public class KAFDocument {
      * @param form text of the word form itself.
      * @return a new word form.
      */
-	public WF newWF(String form, int sent) {
-	String newId = idManager.getNextWFId();
-	//int offset = annotationContainer.getNextOffset();
-	WF newWF = new WF(this.annotationContainer, newId, form, sent);
-	//newWF.setOffset(offset);
-	//newWF.setLength(form.length());
-	annotationContainer.add(newWF);
-	return newWF;
+	public WF newWF(String form, int offset) {
+	    String newId = idManager.getNextWFId();
+	    int offsetVal = offset;
+	    WF newWF = new WF(this.annotationContainer, newId, form, 0);
+	    newWF.setOffset(offsetVal);
+	    newWF.setLength(form.length());
+	    annotationContainer.add(newWF);
+	    return newWF;
+	}
     }
 
     /** Creates a new WF object. It assigns an appropriate ID to it and it also assigns offset and length
@@ -374,48 +375,51 @@ public class KAFDocument {
      * @param rfunc relational function of the dependency.
      * @return a new dependency.
      */
-    public Dep newDep(Term from, Term to, String rfunc) {
-	Dep newDep = new Dep(from, to, rfunc);
-	annotationContainer.add(newDep);
-	return newDep;
-    }
+public Dep newDep(Term from, Term to, String rfunc) {
+    Dep newDep = new Dep(from, to, rfunc);
+    annotationContainer.add(newDep);
+    return newDep;
+}
 
-    /** Creates a chunk object to load an existing chunk. It receives it's ID as an argument. The Chunk is added to the document object.
-     * @param id chunk's ID.
-     * @param head the chunk head.
-     * @param phrase type of the phrase.
-     * @param terms the list of the terms in the chunk.
-     * @return a new chunk.
-     */
-    public Chunk newChunk(String id, Span<Term> span) {
-	idManager.updateChunkCounter(id);
-	Chunk newChunk = new Chunk(id, span);
-	annotationContainer.add(newChunk);
-	return newChunk;
-    }
+/** Creates a chunk object to load an existing chunk. It receives it's ID as an argument. The Chunk is added to the document object.
+ * @param id chunk's ID.
+ * @param head the chunk head.
+ * @param phrase type of the phrase.
+ * @param terms the list of the terms in the chunk.
+ * @return a new chunk.
+ */
+public Chunk newChunk(String id, String phrase, Span<Term> span) {
+    idManager.updateChunkCounter(id);
+    Chunk newChunk = new Chunk(id, span);
+    newChunk.setPhrase(phrase);
+    annotationContainer.add(newChunk);
+    return newChunk;
+}
 
-    /** Creates a new chunk. It assigns an appropriate ID to it. The Chunk is added to the document object.
-     * @param head the chunk head.
-     * @param phrase type of the phrase.
-     * @param terms the list of the terms in the chunk.
-     * @return a new chunk.
-     */
-    public Chunk newChunk(Span<Term> span) {
-	String newId = idManager.getNextChunkId();
-	Chunk newChunk = new Chunk(newId, span);
-	annotationContainer.add(newChunk);
-	return newChunk;
-    }
+/** Creates a new chunk. It assigns an appropriate ID to it. The Chunk is added to the document object.
+ * @param head the chunk head.
+ * @param phrase type of the phrase.
+ * @param terms the list of the terms in the chunk.
+ * @return a new chunk.
+ */
+public Chunk newChunk(String phrase, Span<Term> span) {
+    String newId = idManager.getNextChunkId();
+    Chunk newChunk = new Chunk(newId, span);
+    newChunk.setPhrase(phrase);
+    annotationContainer.add(newChunk);
+    return newChunk;
+}
 
-    /** Creates an Entity object to load an existing entity. It receives the ID as an argument. The entity is added to the document object.
+/** Creates an Entity object to load an existing entity. It receives the ID as an argument. The entity is added to the document object.
      * @param id the ID of the named entity.
      * @param type entity type. 8 values are posible: Person, Organization, Location, Date, Time, Money, Percent, Misc.
      * @param references it contains one or more span elements. A span can be used to reference the different occurrences of the same named entity in the document. If the entity is composed by multiple words, multiple target elements are used.
      * @return a new named entity.
      */
-    public Entity newEntity(String id, List<Span<Term>> references) {
+public Entity newEntity(String id, String type, List<Span<Term>> references) {
 	idManager.updateEntityCounter(id);
 	Entity newEntity = new Entity(id, references);
+	newEntity.setType(type);
 	annotationContainer.add(newEntity);
 	return newEntity;
     }
@@ -425,9 +429,10 @@ public class KAFDocument {
      * @param references it contains one or more span elements. A span can be used to reference the different occurrences of the same named entity in the document. If the entity is composed by multiple words, multiple target elements are used.
      * @return a new named entity.
      */
-    public Entity newEntity(List<Span<Term>> references) {
+public Entity newEntity(String type, List<Span<Term>> references) {
 	String newId = idManager.getNextEntityId();
 	Entity newEntity = new Entity(newId, references);
+	newEntity.setType(type);
 	annotationContainer.add(newEntity);
 	return newEntity;
     }
@@ -1008,13 +1013,6 @@ public class KAFDocument {
     }
 
     /** Deprecated */
-    public Chunk newChunk(String id, String phrase, Span<Term> span) {
-	Chunk newChunk = this.newChunk(id, span);
-	newChunk.setPhrase(phrase);
-	return newChunk;
-    }
-
-    /** Deprecated */
     public Chunk createChunk(String id, Term head, String phrase, List<Term> terms) {
 	return this.newChunk(id, phrase, this.<Term>list2Span(terms, head));
     }
@@ -1022,13 +1020,6 @@ public class KAFDocument {
     /** Deprecated */
     public Chunk createChunk(Term head, String phrase, List<Term> terms) {
 	return this.newChunk(phrase, this.<Term>list2Span(terms, head));
-    }
-
-    /** Deprecated */
-    public Entity newEntity(String id, String type, List<Span<Term>> references) {
-	Entity newEntity = this.newEntity(id, references);
-	newEntity.setType(type);
-	return newEntity;
     }
 
     /** Deprecated */
