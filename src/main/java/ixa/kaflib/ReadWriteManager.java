@@ -1326,18 +1326,27 @@ class ReadWriteManager {
 			    }
 			}
 		    });
+		Comment ntCom = new Comment("Non-terminals");
+		treeElem.addContent(ntCom);
 		for (NonTerminal node : nonTerminals) {
 		    Element nodeElem = new Element("nt");
 		    nodeElem.setAttribute("id", node.getId());
 		    nodeElem.setAttribute("label", node.getLabel());
 		    treeElem.addContent(nodeElem);
 		}
+		Comment tCom = new Comment("Terminals");
+		treeElem.addContent(tCom);
 		for (Terminal node : terminals) {
 		    Element nodeElem = new Element("t");
 		    nodeElem.setAttribute("id", node.getId());
 		    nodeElem.addContent(createTermSpanElem(node.getSpan()));
+		    // Comment
+		    Comment tStrCom = new Comment(node.getStr());
+		    treeElem.addContent(tStrCom);
 		    treeElem.addContent(nodeElem);
 		}
+		Comment edgeCom = new Comment("Tree edges");
+		treeElem.addContent(edgeCom);
 		for (Edge edge : edges) {
 		    Element edgeElem = new Element("edge");
 		    edgeElem.setAttribute("from", edge.from);
