@@ -49,4 +49,27 @@ public class Terminal implements TreeNode {
 	return this.span;
     }
 
+    private String getStrValue() {
+	String str = "";
+	for (Term term : span.getTargets()) {
+	    if (!str.isEmpty()) {
+		str += " ";
+	    }
+	    str += term.getStr();
+	}
+	return str;
+    }
+
+   public String getStr() {
+       String strValue = this.getStrValue();
+       if (strValue.startsWith("-") || strValue.endsWith("-")) {
+   		return strValue.replace("-", "- ");
+   	}
+   	else if (strValue.contains("--")) { 
+   		return strValue.replace("--", "-");
+   	}
+   	else {
+   		return strValue;
+   	}
+    }
 }
