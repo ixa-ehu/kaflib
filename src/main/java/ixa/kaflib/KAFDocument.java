@@ -567,6 +567,10 @@ public class KAFDocument {
 	return tree;
     }
 
+    public void addConstituencyFromParentheses(String parseOut) throws Exception {
+	Tree.parenthesesToKaf(parseOut, this);
+    }
+
     public NonTerminal newNonTerminal(String id, String label) {
 	NonTerminal tn = new NonTerminal(id, label);
 	return tn;
