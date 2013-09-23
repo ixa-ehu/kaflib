@@ -10,13 +10,13 @@ public class Term {
     /** Term's ID (required) */
     private String tid;
 
-    /** Type of the term (required). Currently, 2 values are possible: open and close. */
+    /** Type of the term (optional). Currently, 2 values are possible: open and close. */
     private String type;
 
-    /** Lemma of the term (required) */
+    /** Lemma of the term (optional) */
     private String lemma;
 
-    /** Part of speech (required). Possible values are:
+    /** Part of speech (optional). Possible values are:
      * - common noun (N)
      * - proper noun (R)
      * - adjective (G)
@@ -57,10 +57,10 @@ public class Term {
      */
     public static class Sentiment {
 
-	/** Identifier and reference to an external sentiment resource (optional) */
+	/** Identifier and reference to an external sentiment resource (required) */
 	private String resource;
 
-	/** Refers to the property of a word to express positive, negative or no sentiment (optional). These values are possible:
+	/** Refers to the property of a word to express positive, negative or no sentiment (required). These values are possible:
 	 * - Positive
 	 * - Negative
 	 * - Neutral
@@ -105,7 +105,7 @@ public class Term {
 	 */
 	private String sentimentProductFeature;
 
-	Sentiment() {}
+	Sentiment(String resource, String polarity) {}
 
 	Sentiment(Sentiment sentiment) {
 	    this.resource = sentiment.resource;
@@ -118,20 +118,12 @@ public class Term {
 	    this.sentimentProductFeature = sentiment.sentimentProductFeature;
 	}
 
-	public boolean hasResource() {
-	    return resource != null;
-	}
-
 	public String getResource() {
 	    return resource;
 	}
 
 	public void setResource(String val) {
 	    resource = val;
-	}
-
-	public boolean hasPolarity() {
-	    return polarity != null;
 	}
 
 	public String getPolarity() {
@@ -221,10 +213,10 @@ public class Term {
 	/** Component¡s ID (required) */
 	private String id;
 
-	/** Lemma of the component (required) */
+	/** Lemma of the component (optional) */
 	private String lemma;
 
-	/** Part of speech (required) */
+	/** Part of speech (optional) */
 	private String pos;
 
 	/** Declension case (optional) */
@@ -233,10 +225,8 @@ public class Term {
 	/** External references (optional) */
 	private List<ExternalRef> externalReferences;
 
-	Component(String id, String lemma, String pos) {
+	Component(String id) {
 	    this.id = id;
-	    this.lemma = lemma;
-	    this.pos = pos;
 	    this.externalReferences = new ArrayList<ExternalRef>();
 	}
 
@@ -255,12 +245,20 @@ public class Term {
 	    return id;
 	}
 
+	public boolean hasLemma() {
+	    return lemma != null;
+	}
+
 	public String getLemma() {
 	    return lemma;
 	}
 
 	public void setLemma(String val) {
 	    this.lemma = lemma;
+	}
+
+	public boolean hasPos() {
+	    return pos != null;
 	}
 
 	public String getPos() {
@@ -296,28 +294,11 @@ public class Term {
 	}
     }
 
-    Term(String id, String type, String lemma, String pos, Span<WF> span) {
+    Term(String id, Span<WF> span) {
 	if (span.size() < 1) {
 	    throw new IllegalStateException("A Term must have at least one WF");
 	}
 	this.tid = id;
-	this.type = type;
-	this.lemma = lemma;
-	this.pos = pos;
-	this.components = new ArrayList();
-	this.span = span;
-	this.externalReferences = new ArrayList<ExternalRef>();
-    }
-
-    Term(String id, String type, String lemma, String pos, String morphofeat, Span<WF> span) {
-	if (span.size() < 1) {
-	    throw new IllegalStateException("A Term must have at least one WF");
-	}
-	this.tid = id;
-	this.type = type;
-	this.lemma = lemma;
-	this.pos = pos;
-	this.morphofeat = morphofeat;
 	this.components = new ArrayList();
 	this.span = span;
 	this.externalReferences = new ArrayList<ExternalRef>();
@@ -380,6 +361,10 @@ public class Term {
 	this.tid = id;
     }
 
+    public boolean hasType() {
+	return type != null;
+    }
+
     public String getType() {
 	return type;
     }
@@ -388,12 +373,20 @@ public class Term {
 	this.type = type;
     }
 
+    public boolean hasLemma() {
+	return lemma != null;
+    }
+
     public String getLemma() {
 	return lemma;
     }
 
     public void setLemma(String lemma) {
 	this.lemma = lemma;
+    }
+
+    public boolean hasPos() {
+	return pos != null;
     }
 
     public String getPos() {
@@ -463,8 +456,8 @@ public class Term {
     /** Creates and adds a Sentiment object.
      * @return a new sentiment.
      */
-    public Sentiment createSentiment() {
-	Sentiment newSentiment = new Sentiment();
+    public Sentiment createSentiment(String resource, String polarity) {
+	Sentiment newSentiment = new Sentiment(resource, polarity);
 	this.setSentiment(newSentiment);
 	return newSentiment;
     }
@@ -536,4 +529,8 @@ public class Term {
 	externalReferences.addAll(externalRefs);
     }
 
+    /** Deprecated */
+    public Sentiment createSentiment() {
+        return this.createSentiment("", "");
+    }
 }

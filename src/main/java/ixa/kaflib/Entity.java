@@ -10,7 +10,7 @@ public class Entity implements Relational {
     /** Named entity's ID (required) */
     private String eid;
 
-    /** Type of the named entity (required). Currently, 8 values are possible: 
+    /** Type of the named entity (optional). Currently, 8 values are possible: 
      * - Person
      * - Organization
      * - Location
@@ -28,7 +28,7 @@ public class Entity implements Relational {
     /** External references (optional) */
     private List<ExternalRef> externalReferences;
 
-    Entity(String eid, String type, List<Span<Term>> references) {
+    Entity(String eid, List<Span<Term>> references) {
 	if (references.size() < 1) {
 	    throw new IllegalStateException("Entities must contain at least one reference span");
 	}
@@ -36,7 +36,6 @@ public class Entity implements Relational {
 	    throw new IllegalStateException("Entities' reference's spans must contain at least one target");
 	}
 	this.eid = eid;
-	this.type = type;
 	this.references = references;
 	this.externalReferences = new ArrayList<ExternalRef>();
     }
@@ -79,6 +78,10 @@ public class Entity implements Relational {
 
     void setId(String id) {
 	this.eid = id;
+    }
+
+    public boolean hasType() {
+	return type != null;
     }
 
     public String getType() {

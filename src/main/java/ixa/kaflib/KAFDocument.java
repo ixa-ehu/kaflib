@@ -21,7 +21,6 @@ public class KAFDocument {
     public class FileDesc {
 	String author;
 	String title;
-	String creationtime;
 	String filename;
 	String filetype;
 	Integer pages;
@@ -43,10 +42,47 @@ public class KAFDocument {
 	String timestamp;
 	String version;
 
+	private LinguisticProcessor(String name) {
+	    this.name = name;
+	}
+
+	/* Deprecated */
 	private LinguisticProcessor(String name, String timestamp, String version) {
 	    this.name = name;
 	    this.timestamp = timestamp;
 	    this.version = version;
+	}
+
+	public void setName(String name) {
+	    this.name = name;
+	}
+
+	public String getName() {
+	    return name;
+	}
+
+	public boolean hasTimestamp() {
+	    return timestamp != null;
+	}
+
+	public void setTimestamp(String timestamp) {
+	    this.timestamp = timestamp;
+	}
+
+	public String getTimestamp() {
+	    return timestamp;
+	}
+
+	public boolean hasVersion() {
+	    return version != null;
+	}
+
+	public void setVersion(String version) {
+	    this.version = version;
+	}
+
+	public String getVersion() {
+	    return version;
 	}
     }
 
@@ -125,9 +161,10 @@ public class KAFDocument {
     }
 
     /** Adds a linguistic processor to the document header. The timestamp is added implicitly. */
-    public LinguisticProcessor addLinguisticProcessor(String layer, String name, String version) {
+    public LinguisticProcessor addLinguisticProcessor(String layer, String name) {
 	String timestamp = this.getTimestamp();
-	LinguisticProcessor lp = new LinguisticProcessor(name, timestamp, version);
+	LinguisticProcessor lp = new LinguisticProcessor(name);
+	lp.setTimestamp(timestamp);
 	List<LinguisticProcessor> layerLps = lps.get(layer);
 	if (layerLps == null) {
 	    layerLps = new ArrayList<LinguisticProcessor>();
@@ -136,18 +173,6 @@ public class KAFDocument {
 	layerLps.add(lp);
 	return lp;
     }
-
-    /** Adds a linguistic processor to the document header */
-    public LinguisticProcessor addLinguisticProcessor(String layer, String name, String timestamp, String version) {
-	LinguisticProcessor lp = new LinguisticProcessor(name, timestamp, version);
-	List<LinguisticProcessor> layerLps = lps.get(layer);
-	if (layerLps == null) {
-	    layerLps = new ArrayList<LinguisticProcessor>();
-	    lps.put(layer, layerLps);
-	}
-	layerLps.add(lp);
-	return lp;
-    }	
 
     public void addLinguisticProcessors(HashMap<String, List<LinguisticProcessor>> lps) {
 	for (Map.Entry<String, List<LinguisticProcessor>> entry : lps.entrySet()) {
@@ -168,14 +193,34 @@ public class KAFDocument {
 	return lps;
     }
 
-    /** Returns wether the given linguistic processor is already defined or not. */
+    /** Returns wether the given linguistic processor is already defined or not. Both name and version must be exactly the same. */
     public boolean linguisticProcessorExists(String layer, String name, String version) {
 	List<LinguisticProcessor> layerLPs = lps.get(layer);
 	if (layerLPs == null) {
 	    return false;
 	}
 	for (LinguisticProcessor lp : layerLPs) {
-	    if (lp.name.equals(name) && lp.version.equals(version)) {
+	    if (lp.version == null) {
+		return false;
+	    }
+	    else if (lp.name.equals(name) && lp.version.equals(version)) {
+		return true;
+	    }
+	}
+	return false;
+    }
+
+    /** Returns wether the given linguistic processor is already defined or not. Both name and version must be exactly the same. */
+    public boolean linguisticProcessorExists(String layer, String name) {
+	List<LinguisticProcessor> layerLPs = lps.get(layer);
+	if (layerLPs == null) {
+	    return false;
+	}
+	for (LinguisticProcessor lp : layerLPs) {
+	    if (lp.version != null) {
+		return false;
+	    }
+	    else if (lp.name.equals(name)) {
 		return true;
 	    }
 	}
@@ -204,15 +249,15 @@ public class KAFDocument {
     AnnotationContainer getAnnotationContainer() {
 	return annotationContainer;
     }
-
+    
     /** Creates a WF object to load an existing word form. It receives the ID as an argument. The WF is added to the document object.
      * @param id word form's ID.
      * @param form text of the word form itself.
      * @return a new word form.
      */
-    public WF newWF(String id, String form) {
+    public WF newWF(String id, String form, int sent) {
 	idManager.updateWFCounter(id);
-	WF newWF = new WF(this.annotationContainer, id, form);
+	WF newWF = new WF(this.annotationContainer, id, form, sent);
 	annotationContainer.add(newWF);
 	return newWF;
     }
@@ -221,12 +266,12 @@ public class KAFDocument {
      * @param form text of the word form itself.
      * @return a new word form.
      */
-    public WF newWF(String form) {
+    public WF newWF(String form, int offset) {
 	String newId = idManager.getNextWFId();
-	//int offset = annotationContainer.getNextOffset();
-	WF newWF = new WF(this.annotationContainer, newId, form);
-	//newWF.setOffset(offset);
-	//newWF.setLength(form.length());
+	int offsetVal = offset;
+	WF newWF = new WF(this.annotationContainer, newId, form, 0);
+	newWF.setOffset(offsetVal);
+	newWF.setLength(form.length());
 	annotationContainer.add(newWF);
 	return newWF;
     }
@@ -236,16 +281,16 @@ public class KAFDocument {
      * @param form text of the word form itself.
      * @return a new word form.
      */
-    public WF newWF(String form, int offset) {
+    public WF newWF(String form, int offset, int sent) {
 	String newId = idManager.getNextWFId();
 	int offsetVal = offset;
-	WF newWF = new WF(this.annotationContainer, newId, form);
+	WF newWF = new WF(this.annotationContainer, newId, form, sent);
 	newWF.setOffset(offsetVal);
 	newWF.setLength(form.length());
 	annotationContainer.add(newWF);
 	return newWF;
     }
-    
+
     /** Creates a Term object to load an existing term. It receives the ID as an argument. The Term is added to the document object.
      * @param id term's ID.
      * @param type type of term. There are two types of term: open and close.
@@ -254,9 +299,9 @@ public class KAFDocument {
      * @param wfs the list of word forms this term is formed by.
      * @return a new term.
      */
-    public Term newTerm(String id, String type, String lemma, String pos, Span<WF> span) {
+    public Term newTerm(String id, Span<WF> span) {
 	idManager.updateTermCounter(id);
-	Term newTerm = new Term(id, type, lemma, pos, span);
+	Term newTerm = new Term(id, span);
 	annotationContainer.add(newTerm);
 	return newTerm;
     }
@@ -268,9 +313,9 @@ public class KAFDocument {
      * @param wfs the list of word forms this term is formed by.
      * @return a new term.
      */
-    public Term newTerm(String type, String lemma, String pos, Span<WF> span) {
+    public Term newTerm(Span<WF> span) {
 	String newId = idManager.getNextTermId();
-	Term newTerm = new Term(newId, type, lemma, pos, span);
+	Term newTerm = new Term(newId, span);
 	annotationContainer.add(newTerm);
 	return newTerm;
     }
@@ -282,9 +327,10 @@ public class KAFDocument {
      * @param wfs the list of word forms this term is formed by.
      * @return a new term.
      */
-    public Term newTermOptions(String type, String lemma, String pos, String morphofeat, Span<WF> span) {
+    public Term newTermOptions(String morphofeat, Span<WF> span) {
 	String newId = idManager.getNextTermId();
-	Term newTerm = new Term(newId, type, lemma, pos, morphofeat, span);
+	Term newTerm = new Term(newId, span);
+	newTerm.setMorphofeat(morphofeat);
 	annotationContainer.add(newTerm);
 	return newTerm;
     }
@@ -292,8 +338,8 @@ public class KAFDocument {
     /** Creates a Sentiment object.
      * @return a new sentiment.
      */
-    public Term.Sentiment newSentiment() {
-	Term.Sentiment newSentiment = new Term.Sentiment();
+    public Term.Sentiment newSentiment(String resource, String polarity) {
+	Term.Sentiment newSentiment = new Term.Sentiment(resource, polarity);
 	return newSentiment;
     }
 
@@ -304,9 +350,9 @@ public class KAFDocument {
      * @param pos part of speech of the component.
      * @return a new component.
      */
-    public Term.Component newComponent(String id, Term term, String lemma, String pos) {
+    public Term.Component newComponent(String id, Term term) {
 	idManager.updateComponentCounter(id, term.getId());
-	Term.Component newComponent = new Term.Component(id, lemma, pos);
+	Term.Component newComponent = new Term.Component(id);
 	return newComponent;
     }
 
@@ -316,9 +362,9 @@ public class KAFDocument {
      * @param pos part of speech of the component.
      * @return a new component.
      */
-    public Term.Component newComponent(Term term, String lemma, String pos) {
+    public Term.Component newComponent(Term term) {
 	String newId = idManager.getNextComponentId(term.getId());
-	Term.Component newComponent = new Term.Component(newId, lemma, pos);
+	Term.Component newComponent = new Term.Component(newId);
 	return newComponent;
     }
 
@@ -328,48 +374,51 @@ public class KAFDocument {
      * @param rfunc relational function of the dependency.
      * @return a new dependency.
      */
-    public Dep newDep(Term from, Term to, String rfunc) {
-	Dep newDep = new Dep(from, to, rfunc);
-	annotationContainer.add(newDep);
-	return newDep;
-    }
+public Dep newDep(Term from, Term to, String rfunc) {
+    Dep newDep = new Dep(from, to, rfunc);
+    annotationContainer.add(newDep);
+    return newDep;
+}
 
-    /** Creates a chunk object to load an existing chunk. It receives it's ID as an argument. The Chunk is added to the document object.
-     * @param id chunk's ID.
-     * @param head the chunk head.
-     * @param phrase type of the phrase.
-     * @param terms the list of the terms in the chunk.
-     * @return a new chunk.
-     */
-    public Chunk newChunk(String id, String phrase, Span<Term> span) {
-	idManager.updateChunkCounter(id);
-	Chunk newChunk = new Chunk(id, phrase, span);
-	annotationContainer.add(newChunk);
-	return newChunk;
-    }
+/** Creates a chunk object to load an existing chunk. It receives it's ID as an argument. The Chunk is added to the document object.
+ * @param id chunk's ID.
+ * @param head the chunk head.
+ * @param phrase type of the phrase.
+ * @param terms the list of the terms in the chunk.
+ * @return a new chunk.
+ */
+public Chunk newChunk(String id, String phrase, Span<Term> span) {
+    idManager.updateChunkCounter(id);
+    Chunk newChunk = new Chunk(id, span);
+    newChunk.setPhrase(phrase);
+    annotationContainer.add(newChunk);
+    return newChunk;
+}
 
-    /** Creates a new chunk. It assigns an appropriate ID to it. The Chunk is added to the document object.
-     * @param head the chunk head.
-     * @param phrase type of the phrase.
-     * @param terms the list of the terms in the chunk.
-     * @return a new chunk.
-     */
-    public Chunk newChunk(String phrase, Span<Term> span) {
-	String newId = idManager.getNextChunkId();
-	Chunk newChunk = new Chunk(newId, phrase, span);
-	annotationContainer.add(newChunk);
-	return newChunk;
-    }
+/** Creates a new chunk. It assigns an appropriate ID to it. The Chunk is added to the document object.
+ * @param head the chunk head.
+ * @param phrase type of the phrase.
+ * @param terms the list of the terms in the chunk.
+ * @return a new chunk.
+ */
+public Chunk newChunk(String phrase, Span<Term> span) {
+    String newId = idManager.getNextChunkId();
+    Chunk newChunk = new Chunk(newId, span);
+    newChunk.setPhrase(phrase);
+    annotationContainer.add(newChunk);
+    return newChunk;
+}
 
-    /** Creates an Entity object to load an existing entity. It receives the ID as an argument. The entity is added to the document object.
+/** Creates an Entity object to load an existing entity. It receives the ID as an argument. The entity is added to the document object.
      * @param id the ID of the named entity.
      * @param type entity type. 8 values are posible: Person, Organization, Location, Date, Time, Money, Percent, Misc.
      * @param references it contains one or more span elements. A span can be used to reference the different occurrences of the same named entity in the document. If the entity is composed by multiple words, multiple target elements are used.
      * @return a new named entity.
      */
-    public Entity newEntity(String id, String type, List<Span<Term>> references) {
+public Entity newEntity(String id, String type, List<Span<Term>> references) {
 	idManager.updateEntityCounter(id);
-	Entity newEntity = new Entity(id, type, references);
+	Entity newEntity = new Entity(id, references);
+	newEntity.setType(type);
 	annotationContainer.add(newEntity);
 	return newEntity;
     }
@@ -379,9 +428,10 @@ public class KAFDocument {
      * @param references it contains one or more span elements. A span can be used to reference the different occurrences of the same named entity in the document. If the entity is composed by multiple words, multiple target elements are used.
      * @return a new named entity.
      */
-    public Entity newEntity(String type, List<Span<Term>> references) {
+public Entity newEntity(String type, List<Span<Term>> references) {
 	String newId = idManager.getNextEntityId();
-	Entity newEntity = new Entity(newId, type, references);
+	Entity newEntity = new Entity(newId, references);
+	newEntity.setType(type);
 	annotationContainer.add(newEntity);
 	return newEntity;
     }
@@ -509,20 +559,20 @@ public class KAFDocument {
      * @param span span containing the targets of the predicate
      * @return a new predicate
      */
-    public Predicate newPredicate(String id, Span<Term> span) {
+	public Predicate newPredicate(String id, Span<Term> span, List<String> predTypes) {
 	idManager.updatePredicateCounter(id);
-	Predicate newPredicate = new Predicate(id, span);
+	Predicate newPredicate = new Predicate(id, span, predTypes);
 	annotationContainer.add(newPredicate);
 	return newPredicate;
     }
-    
+
     /** Creates a new srl predicate. It assigns an appropriate ID to it. The predicate is added to the document.
      * @param span span containing all the targets of the predicate
      * @return a new predicate
      */
-    public Predicate newPredicate(Span<Term> span) {
+    public Predicate newPredicate(Span<Term> span, List<String> predTypes) {
 	String newId = idManager.getNextPredicateId();
-	Predicate newPredicate = new Predicate(newId, span);
+	Predicate newPredicate = new Predicate(newId, span, predTypes);
 	annotationContainer.add(newPredicate);
 	return newPredicate;
     }
@@ -534,21 +584,21 @@ public class KAFDocument {
      * @param span span containing all the targets of the role
      * @return a new role.
      */
-    public Predicate.Role newRole(String id, Predicate predicate, String semRole, Span<Term> span) {
+    public Predicate.Role newRole(String id, Predicate predicate, String semRole, Span<Term> span, List<String> roleTypes) {
 	idManager.updateRoleCounter(id, predicate.getId());
-	Predicate.Role newRole = new Predicate.Role(id, semRole, span);
+	Predicate.Role newRole = new Predicate.Role(id, semRole, span, roleTypes);
 	return newRole;
     }
-
+    
     /** Creates a new Role object. It assigns an appropriate ID to it. It uses the ID of the predicate to create a new ID for the role. It doesn't add the role to the predicate.
      * @param predicate the predicate which this role is part of
      * @param semRole semantic role
      * @param span span containing all the targets of the role
      * @return a new role.
      */
-    public Predicate.Role newRole(Predicate predicate, String semRole, Span<Term> span) {
+    public Predicate.Role newRole(Predicate predicate, String semRole, Span<Term> span, List<String> roleTypes) {
 	String newId = idManager.getNextRoleId(predicate.getId());
-	Predicate.Role newRole = new Predicate.Role(newId, semRole, span);
+	Predicate.Role newRole = new Predicate.Role(newId, semRole, span, roleTypes);
 	return newRole;
     }
 
@@ -855,6 +905,31 @@ public class KAFDocument {
     /**************************/
 
     /** Deprecated */
+    public LinguisticProcessor addLinguisticProcessor(String layer, String name, String version) {
+        LinguisticProcessor lp = this.addLinguisticProcessor(layer, name);
+	lp.setVersion(version);
+	return lp;
+    }
+
+    /** Deprecated */
+    public LinguisticProcessor addLinguisticProcessor(String layer, String name, String timestamp, String version) {
+	LinguisticProcessor lp = this.addLinguisticProcessor(layer, name);
+	lp.setTimestamp(timestamp);
+	lp.setVersion(version);
+	return lp;
+    }
+    
+    /** Deprecated */
+    public WF newWF(String id, String form) {
+        return this.newWF(id, form, 0);
+    }
+
+    /** Deprecated */
+    public WF newWF(String form) {
+        return this.newWF(form, 0);
+    }
+
+    /** Deprecated */
     public WF createWF(String id, String form) {
 	return this.newWF(id, form);
     }
@@ -867,6 +942,33 @@ public class KAFDocument {
     /** Deprecated */
     public WF createWF(String form, int offset) {
 	return this.newWF(form, offset);
+    }
+
+    /** Deprecated */
+    public Term newTerm(String id, String type, String lemma, String pos, Span<WF> span) {
+        Term term = newTerm(id, span);
+	term.setType(type);
+	term.setLemma(lemma);
+	term.setPos(pos);
+	return term;
+    }
+
+    /** Deprecated */
+    public Term newTerm(String type, String lemma, String pos, Span<WF> span) {
+        Term term = newTerm(span);
+	term.setType(type);
+	term.setLemma(lemma);
+	term.setPos(pos);
+	return term;
+    }
+
+    /** Deprecated */
+    public Term newTermOptions(String type, String lemma, String pos, String morphofeat, Span<WF> span) {
+	Term newTerm = newTermOptions(morphofeat, span);
+	newTerm.setType(type);
+	newTerm.setLemma(lemma);
+	newTerm.setPos(pos);
+	return newTerm;
     }
 
     /** Deprecated */
@@ -885,8 +987,29 @@ public class KAFDocument {
     }
 
     /** Deprecated */
+    public Term.Sentiment newSentiment() {
+        return this.newSentiment("", "");
+    }
+
+    /** Deprecated */
     public Term.Sentiment createSentiment() {
 	return this.newSentiment();
+    }
+    
+    /** Deprecated */
+    public Term.Component newComponent(String id, Term term, String lemma, String pos) {
+	Term.Component newComponent = this.newComponent(id, term);
+	newComponent.setLemma(lemma);
+	newComponent.setPos(pos);
+	return newComponent;
+    }
+
+    /** Deprecated */
+    public Term.Component newComponent(Term term, String lemma, String pos) {
+	Term.Component newComponent = this.newComponent(term);
+	newComponent.setLemma(lemma);
+	newComponent.setPos(pos);
+	return newComponent;
     }
 
     /** Deprecated */

@@ -8,12 +8,17 @@ public class Predicate {
     public static class Role {
 	private String rid;
 	private String semRole;
+	private List<String> roleTypes;
 	private Span<Term> span;
 
-	Role(String id, String semRole, Span span) {
+	Role(String id, String semRole, Span span, List<String> roleTypes) {
 	    this.rid = id;
 	    this.semRole = semRole;
 	    this.span = span;
+	    if (roleTypes.size() < 1) {
+		throw new IllegalStateException("A Role must have at least one roleType");
+	    }
+	    this.roleTypes = roleTypes;
 	}
 
 	public String getId() {
@@ -62,17 +67,34 @@ public class Predicate {
 	    }
 	    return str;
 	}
+
+
+	public List<String> getRoleTypes() {
+	    return roleTypes;
+	}
+
+	public void addRoleType(String roleType) {
+	    roleTypes.add(roleType);
+	}
+
     }
 
     private String id;
     private String uri;
+    private float confidence;
+    private List<String> predTypes;
     private Span<Term> span;
     private List<Role> roles;
 
-    Predicate(String id, Span<Term> span) {
+    Predicate(String id, Span<Term> span, List<String> predTypes) {
 	this.id = id;
 	this.span = span;
 	this.roles = new ArrayList<Role>();
+	if (predTypes.size() < 1) {
+	    throw new IllegalStateException("A Predicate must have at least one predType");
+	}
+	this.predTypes = predTypes;
+	this.confidence = -1.0f;
     }
 
     public String getId() {
@@ -93,6 +115,18 @@ public class Predicate {
 
     public void setUri(String uri) {
 	this.uri = uri;
+    }
+
+    public boolean hasConfidence() {
+	return confidence != -1.0f;
+    }
+
+    public float getConfidence() {
+	return confidence;
+    }
+
+    public void setConfidence(float confidence) {
+	this.confidence = confidence;
     }
 
     public Span<Term> getSpan() {
@@ -140,6 +174,14 @@ public class Predicate {
 	    str += term.getStr();
 	}
 	return str;
+    }
+
+    public List<String> getPredTypes() {
+	return predTypes;
+    }
+
+    public void addPredType(String predType) {
+	predTypes.add(predType);
     }
 
     public List<Role> getRoles() {
