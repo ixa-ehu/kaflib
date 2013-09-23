@@ -33,11 +33,7 @@ public class WF {
 	this.annotationContainer = annotationContainer;
 	this.wid = wid;
 	this.form = form;
-<<<<<<< Updated upstream
-	this.sent = -1;
-=======
         this.setSent(sent);
->>>>>>> Stashed changes
 	this.para = -1;
 	this.page = -1;
 	this.offset = -1;
