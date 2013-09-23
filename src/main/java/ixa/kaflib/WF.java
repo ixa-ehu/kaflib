@@ -33,7 +33,7 @@ public class WF {
 	this.annotationContainer = annotationContainer;
 	this.wid = wid;
 	this.form = form;
-	this.sent = sent;
+        this.setSent(sent);
 	this.para = -1;
 	this.page = -1;
 	this.offset = -1;
