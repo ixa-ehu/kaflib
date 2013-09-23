@@ -18,7 +18,7 @@ class IdManager {
     private static final String OPINION_PREFIX = "o";
     private static final String RELATION_PREFIX = "r";
     private static final String PREDICATE_PREFIX = "pr";
-    private static final String ROLE_PREFIX = "r";
+    private static final String ROLE_PREFIX = "rl";
     private static final String TERMINAL_PREFIX = "ter";
     private static final String NONTERMINAL_PREFIX = "nter";
 
