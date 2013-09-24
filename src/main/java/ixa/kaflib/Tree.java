@@ -107,8 +107,8 @@ public class Tree { //?
 	for (int i=1; i<tokens.length; i++) {
 	    if ((!tokens[i].equals("(")) && (!tokens[i].equals(")"))) {
 		if ((!tokens[i-1].equals("(")) && (!tokens[i-1].equals(")"))) {
-		    if (!terms.get(nextTerm).getStr().equals(tokens[i])) {
-			System.out.println(terms.get(nextTerm).getStr() + " / " + tokens[i]);
+		    if (!terms.get(nextTerm).getForm().equals(tokens[i])) {
+			//System.out.println("("+terms.get(nextTerm).getForm() + ") / (" + tokens[i] + ")");
 			throw new Exception("Can't perform parentheses=>NAF at constituency");
 		    }
 		    mapping.put(i, terms.get(nextTerm));

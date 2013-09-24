@@ -421,7 +421,7 @@ public class Term {
 	this.termcase = termcase;
     }
 
-    private String getStrValue() {
+    public String getForm() {
 	String str = "";
 	for (WF wf : span.getTargets()) {
 	    if (!str.isEmpty()) {
@@ -433,7 +433,7 @@ public class Term {
     }
 
    public String getStr() {
-       String strValue = this.getStrValue();
+       String strValue = this.getForm();
        if (strValue.startsWith("-") || strValue.endsWith("-")) {
    		return strValue.replace("-", "- ");
    	}
