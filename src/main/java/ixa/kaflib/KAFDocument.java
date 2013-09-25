@@ -210,23 +210,9 @@ public class KAFDocument {
      * @param form text of the word form itself.
      * @return a new word form.
      */
-    public WF newWF(String id, String form) {
+    public WF newWF(String id, String form, int sent) {
 	idManager.updateWFCounter(id);
-	WF newWF = new WF(this.annotationContainer, id, form);
-	annotationContainer.add(newWF);
-	return newWF;
-    }
-
-    /** Creates a new WF object. It assigns an appropriate ID to it.  The WF is added to the document object.
-     * @param form text of the word form itself.
-     * @return a new word form.
-     */
-    public WF newWF(String form) {
-	String newId = idManager.getNextWFId();
-	//int offset = annotationContainer.getNextOffset();
-	WF newWF = new WF(this.annotationContainer, newId, form);
-	//newWF.setOffset(offset);
-	//newWF.setLength(form.length());
+	WF newWF = new WF(this.annotationContainer, id, form, sent);
 	annotationContainer.add(newWF);
 	return newWF;
     }
@@ -239,8 +225,21 @@ public class KAFDocument {
     public WF newWF(String form, int offset) {
 	String newId = idManager.getNextWFId();
 	int offsetVal = offset;
-	WF newWF = new WF(this.annotationContainer, newId, form);
+	WF newWF = new WF(this.annotationContainer, newId, form, 0);
 	newWF.setOffset(offsetVal);
+	newWF.setLength(form.length());
+	annotationContainer.add(newWF);
+	return newWF;
+    }
+
+    /** Creates a new WF object. It assigns an appropriate ID to it.  The WF is added to the document object.
+     * @param form text of the word form itself.
+     * @return a new word form.
+     */
+	public WF newWF(String form, int offset, int sent) {
+	String newId = idManager.getNextWFId();
+	WF newWF = new WF(this.annotationContainer, newId, form, sent);
+	newWF.setOffset(offset);
 	newWF.setLength(form.length());
 	annotationContainer.add(newWF);
 	return newWF;
@@ -856,12 +855,12 @@ public class KAFDocument {
 
     /** Deprecated */
     public WF createWF(String id, String form) {
-	return this.newWF(id, form);
+	return this.newWF(id, form, 0);
     }
 
     /** Deprecated */
     public WF createWF(String form) {
-	return this.newWF(form);
+	return this.newWF(form, 0);
     }
 
     /** Deprecated */

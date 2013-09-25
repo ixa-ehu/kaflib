@@ -142,11 +142,8 @@ class ReadWriteManager {
 		for (Element wfElem : wfElems) {
 		    String wid = getAttribute("wid", wfElem);
 		    String wForm = wfElem.getText();
-		    WF newWf = kaf.newWF(wid, wForm);
 		    String wSent = getOptAttribute("sent", wfElem);
-		    if (wSent != null) {
-			newWf.setSent(Integer.valueOf(wSent));
-		    }
+		    WF newWf = kaf.newWF(wid, wForm, Integer.valueOf(wSent));
 		    String wPara = getOptAttribute("para", wfElem);
 		    if (wPara != null) {
 			newWf.setPara(Integer.valueOf(wPara));

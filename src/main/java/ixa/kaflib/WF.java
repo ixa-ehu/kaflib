@@ -29,11 +29,11 @@ public class WF {
     /** The word form text (required) */
     private String form;
 
-    WF(AnnotationContainer annotationContainer, String wid, String form) {
+    WF(AnnotationContainer annotationContainer, String wid, String form, int sent) {
 	this.annotationContainer = annotationContainer;
 	this.wid = wid;
 	this.form = form;
-        this.sent = -1;//this.setSent(sent);
+        this.setSent(sent);
 	this.para = -1;
 	this.page = -1;
 	this.offset = -1;
