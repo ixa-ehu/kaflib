@@ -8,17 +8,14 @@ public class Predicate {
     public static class Role {
 	private String rid;
 	private String semRole;
-	private List<String> roleTypes;
 	private Span<Term> span;
+	private List<ExternalRef> externalReferences;
 
-	Role(String id, String semRole, Span span, List<String> roleTypes) {
+	Role(String id, String semRole, Span span) {
 	    this.rid = id;
 	    this.semRole = semRole;
 	    this.span = span;
-	    if (roleTypes.size() < 1) {
-		throw new IllegalStateException("A Role must have at least one roleType");
-	    }
-	    this.roleTypes = roleTypes;
+	    this.externalReferences = new ArrayList<ExternalRef>();
 	}
 
 	public String getId() {
@@ -68,33 +65,32 @@ public class Predicate {
 	    return str;
 	}
 
-
-	public List<String> getRoleTypes() {
-	    return roleTypes;
+	public List<ExternalRef> getExternalRefs() {
+	    return externalReferences;
 	}
 
-	public void addRoleType(String roleType) {
-	    roleTypes.add(roleType);
+	public void addExternalRef(ExternalRef externalRef) {
+	    externalReferences.add(externalRef);
 	}
 
+	public void addExternalRefs(List<ExternalRef> externalRefs) {
+	    externalReferences.addAll(externalRefs);
+	}
     }
 
     private String id;
     private String uri;
     private float confidence;
-    private List<String> predTypes;
     private Span<Term> span;
     private List<Role> roles;
+    private List<ExternalRef> externalReferences;
 
-    Predicate(String id, Span<Term> span, List<String> predTypes) {
+    Predicate(String id, Span<Term> span) {
 	this.id = id;
 	this.span = span;
 	this.roles = new ArrayList<Role>();
-	if (predTypes.size() < 1) {
-	    throw new IllegalStateException("A Predicate must have at least one predType");
-	}
-	this.predTypes = predTypes;
 	this.confidence = -1.0f;
+	this.externalReferences = new ArrayList<ExternalRef>();
     }
 
     public String getId() {
@@ -176,12 +172,16 @@ public class Predicate {
 	return str;
     }
 
-    public List<String> getPredTypes() {
-	return predTypes;
+    public List<ExternalRef> getExternalRefs() {
+	return externalReferences;
     }
 
-    public void addPredType(String predType) {
-	predTypes.add(predType);
+    public void addExternalRef(ExternalRef externalRef) {
+	externalReferences.add(externalRef);
+    }
+
+    public void addExternalRefs(List<ExternalRef> externalRefs) {
+	externalReferences.addAll(externalRefs);
     }
 
     public List<Role> getRoles() {

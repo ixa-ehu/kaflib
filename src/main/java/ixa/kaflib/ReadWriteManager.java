@@ -624,10 +624,15 @@ class ReadWriteManager {
 			String ptUri = getAttribute("uri", predTypeElem);
 			predTypes.add(ptUri);
 		    }
-		    Predicate newPredicate = kaf.newPredicate(id, span, predTypes);
+		    Predicate newPredicate = kaf.newPredicate(id, span);
 		    String uri = getOptAttribute("uri", predicateElem);
 		    if (uri != null) {
 			newPredicate.setUri(uri);
+		    }
+		    List<Element> externalReferencesElems = predicateElem.getChildren("externalReferences");
+		    if (externalReferencesElems.size() > 0) {
+			List<ExternalRef> externalRefs = getExternalReferences(externalReferencesElems.get(0), kaf);
+			newPredicate.addExternalRefs(externalRefs);
 		    }
 		    String confidence = getOptAttribute("confidence", predicateElem);
 		    if (confidence != null) {
@@ -651,13 +656,12 @@ class ReadWriteManager {
 				roleSpan.addTarget(targetTerm, isHead);
 			    }
 			}
-			List<String> roleTypes = new ArrayList<String>();
-			List<Element> roleTypeElems = roleElem.getChildren("roleType");
-			for (Element roleTypeElem : roleTypeElems) {
-			    String rtUri = getAttribute("uri", roleTypeElem);
-			    roleTypes.add(rtUri);
+			Predicate.Role newRole = kaf.newRole(rid, newPredicate, semRole, roleSpan);
+			List<Element> rExternalReferencesElems = roleElem.getChildren("externalReferences");
+			if (rExternalReferencesElems.size() > 0) {
+			    List<ExternalRef> externalRefs = getExternalReferences(rExternalReferencesElems.get(0), kaf);
+			    newRole.addExternalRefs(externalRefs);
 			}
-			Predicate.Role newRole = kaf.newRole(rid, newPredicate, semRole, roleSpan, roleTypes);
 			newPredicate.addRole(newRole);
 		    }
 		}
@@ -1298,11 +1302,6 @@ class ReadWriteManager {
 		if (predicate.hasConfidence()) {
 		    predicateElem.setAttribute("confidence", Float.toString(predicate.getConfidence()));
 		}
-		for (String predType : predicate.getPredTypes()) {
-		    Element predTypeElem = new Element("predType");
-		    predTypeElem.setAttribute("uri", predType);
-		    predicateElem.addContent(predTypeElem);
-		}
 		Span<Term> span = predicate.getSpan();
 		if (span.getTargets().size() > 0) {
 		    Comment spanComment = new Comment(predicate.getSpanStr());
@@ -1318,15 +1317,15 @@ class ReadWriteManager {
 			spanElem.addContent(targetElem);
 		    }
 		}
+		List<ExternalRef> externalReferences = predicate.getExternalRefs();
+		if (externalReferences.size() > 0) {
+		    Element externalReferencesElem = externalReferencesToDOM(externalReferences);
+		    predicateElem.addContent(externalReferencesElem);
+		}
 		for (Predicate.Role role : predicate.getRoles()) {
 		    Element roleElem = new Element("role");
 		    roleElem.setAttribute("id", role.getId());
 		    roleElem.setAttribute("semRole", role.getSemRole());
-		    for (String roleType : role.getRoleTypes()) {
-			Element roleTypeElem = new Element("roleType");
-			roleTypeElem.setAttribute("uri", roleType);
-			roleElem.addContent(roleTypeElem);
-		    }
 		    Span<Term> roleSpan = role.getSpan();
 		    if (roleSpan.getTargets().size() > 0) {
 			Comment spanComment = new Comment(role.getStr());
@@ -1341,6 +1340,11 @@ class ReadWriteManager {
 			    }
 			    spanElem.addContent(targetElem);
 			}
+		    }
+		    List<ExternalRef> rExternalReferences = role.getExternalRefs();
+		    if (rExternalReferences.size() > 0) {
+			Element externalReferencesElem = externalReferencesToDOM(rExternalReferences);
+			roleElem.addContent(externalReferencesElem);
 		    }
 		    predicateElem.addContent(roleElem);
 		}

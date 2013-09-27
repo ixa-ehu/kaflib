@@ -559,9 +559,9 @@ public Entity newEntity(String type, List<Span<Term>> references) {
      * @param span span containing the targets of the predicate
      * @return a new predicate
      */
-	public Predicate newPredicate(String id, Span<Term> span, List<String> predTypes) {
+	public Predicate newPredicate(String id, Span<Term> span) {
 	idManager.updatePredicateCounter(id);
-	Predicate newPredicate = new Predicate(id, span, predTypes);
+	Predicate newPredicate = new Predicate(id, span);
 	annotationContainer.add(newPredicate);
 	return newPredicate;
     }
@@ -570,9 +570,9 @@ public Entity newEntity(String type, List<Span<Term>> references) {
      * @param span span containing all the targets of the predicate
      * @return a new predicate
      */
-    public Predicate newPredicate(Span<Term> span, List<String> predTypes) {
+    public Predicate newPredicate(Span<Term> span) {
 	String newId = idManager.getNextPredicateId();
-	Predicate newPredicate = new Predicate(newId, span, predTypes);
+	Predicate newPredicate = new Predicate(newId, span);
 	annotationContainer.add(newPredicate);
 	return newPredicate;
     }
@@ -584,9 +584,9 @@ public Entity newEntity(String type, List<Span<Term>> references) {
      * @param span span containing all the targets of the role
      * @return a new role.
      */
-    public Predicate.Role newRole(String id, Predicate predicate, String semRole, Span<Term> span, List<String> roleTypes) {
+    public Predicate.Role newRole(String id, Predicate predicate, String semRole, Span<Term> span) {
 	idManager.updateRoleCounter(id, predicate.getId());
-	Predicate.Role newRole = new Predicate.Role(id, semRole, span, roleTypes);
+	Predicate.Role newRole = new Predicate.Role(id, semRole, span);
 	return newRole;
     }
     
@@ -596,9 +596,9 @@ public Entity newEntity(String type, List<Span<Term>> references) {
      * @param span span containing all the targets of the role
      * @return a new role.
      */
-    public Predicate.Role newRole(Predicate predicate, String semRole, Span<Term> span, List<String> roleTypes) {
+    public Predicate.Role newRole(Predicate predicate, String semRole, Span<Term> span) {
 	String newId = idManager.getNextRoleId(predicate.getId());
-	Predicate.Role newRole = new Predicate.Role(newId, semRole, span, roleTypes);
+	Predicate.Role newRole = new Predicate.Role(newId, semRole, span);
 	return newRole;
     }
 
