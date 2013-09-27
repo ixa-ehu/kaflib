@@ -174,7 +174,7 @@ public class KAFDocument {
 	return lp;
     }
 
-    public void addLinguisticProcessors(HashMap<String, List<LinguisticProcessor>> lps) {
+    public void addLinguisticProcessors(Map<String, List<LinguisticProcessor>> lps) {
 	for (Map.Entry<String, List<LinguisticProcessor>> entry : lps.entrySet()) {
 	    List<LinguisticProcessor> layerLps = entry.getValue();
 	    for (LinguisticProcessor lp : layerLps) {
