@@ -36,7 +36,7 @@ Maven dependency for KAF version:
 ````shell
 <dependency>
   <groupId>ixa.kaflib</groupId>
-  <artifactId>kaflib-naf</artifactId>
+  <artifactId>kaflib</artifactId>
   <version>1.0-SNAPSHOT</version>
 </dependency>
 ````
