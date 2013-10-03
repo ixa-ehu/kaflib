@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Collections;
 import java.util.Comparator;
@@ -831,7 +832,7 @@ class ReadWriteManager {
 	    kafHeaderElem.addContent(pubElem);
 	}
 
-	HashMap<String, List<KAFDocument.LinguisticProcessor>> lps = kaf.getLinguisticProcessors();
+	Map<String, List<KAFDocument.LinguisticProcessor>> lps = kaf.getLinguisticProcessors();
 	for (Map.Entry entry : lps.entrySet()) {
 	    Element lpsElem = new Element("linguisticProcessors");
 	    lpsElem.setAttribute("layer", (String) entry.getKey());
