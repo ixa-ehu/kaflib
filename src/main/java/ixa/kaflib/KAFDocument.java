@@ -93,7 +93,7 @@ public class KAFDocument {
     private String version;
 
     /** Linguistic processors */
-    private HashMap<String, List<LinguisticProcessor>> lps;
+    private Map<String, List<LinguisticProcessor>> lps;
 
     private FileDesc fileDesc;
 
@@ -109,7 +109,7 @@ public class KAFDocument {
     public KAFDocument(String lang, String version) {
 	this.lang = lang;
 	this.version = version;
-	lps = new HashMap<String, List<LinguisticProcessor>>();
+	lps = new LinkedHashMap<String, List<LinguisticProcessor>>();
 	idManager = new IdManager();
 	annotationContainer = new AnnotationContainer();
     }
@@ -189,7 +189,7 @@ public class KAFDocument {
     /** Returns a hash of linguistic processors from the document.
      *  Hash: layer => LP
      */
-    public HashMap<String, List<LinguisticProcessor>> getLinguisticProcessors() {
+    public Map<String, List<LinguisticProcessor>> getLinguisticProcessors() {
 	return lps;
     }
 
@@ -749,7 +749,7 @@ public Entity newEntity(String type, List<Span<Term>> references) {
 	HashMap<String, Term> copiedTerms = new HashMap<String, Term>(); // hash[old_id => new_Term_obj]
 	HashMap<String, Relational> copiedRelationals = new HashMap<String, Relational>();
 	// Linguistic processors
-	HashMap<String, List<LinguisticProcessor>> lps = doc.getLinguisticProcessors();
+	Map<String, List<LinguisticProcessor>> lps = doc.getLinguisticProcessors();
 	for (Map.Entry<String, List<LinguisticProcessor>> entry : lps.entrySet()) {
 	    String layer = entry.getKey();
 	    List<LinguisticProcessor> lpList = entry.getValue();
