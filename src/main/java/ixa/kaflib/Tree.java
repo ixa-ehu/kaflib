@@ -8,6 +8,8 @@ import java.util.Stack;
 /**  */
 public class Tree { //?
 
+    private static final String HEAD_MARK = "=H";
+
     /** Tree's root node */
     private TreeNode root;
 
@@ -126,7 +128,15 @@ public class Tree { //?
     }
 
     private static NonTerminal createNonTerminal(String[] tokens, int start, int end, HashMap<Integer, Integer> parenthesesMap, HashMap<Integer, Term> termMap, KAFDocument kaf) {
-	NonTerminal nt = kaf.newNonTerminal(tokens[start]);
+	String tag = tokens[start];
+	boolean isHead = isHead(tag);
+	if (isHead) {
+	    tag = removeHeadMark(tag);
+	}
+	NonTerminal nt = kaf.newNonTerminal(tag);
+	if (isHead) {
+	    nt.setHead(true);
+	}
 	if (end - start == 1) {
 	    Terminal t = Tree.createTerminal(tokens[end], termMap.get(end), kaf);
 	    nt.addChild(t);
@@ -204,5 +214,16 @@ public class Tree { //?
 	    str += " ";
 	}
 	return new Exception(str + " ...\"");
+    }
+
+    private static boolean isHead(String tag) {
+	return tag.endsWith(HEAD_MARK);
+    }
+
+    private static String removeHeadMark(String tag) {
+	if (!isHead(tag)) {
+	    return tag;
+	}
+	return tag.substring(0, tag.length() - HEAD_MARK.length());
     }
 }

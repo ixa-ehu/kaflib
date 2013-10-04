@@ -12,6 +12,9 @@ public class NonTerminal implements TreeNode {
     /** Label */
     private String label;
 
+    /** Wether the edge between this node and its parent is the "head" or not. */
+    private boolean head;
+
     /** Nodes' children */
     private List<TreeNode> children;
 
@@ -19,6 +22,7 @@ public class NonTerminal implements TreeNode {
     NonTerminal(String id, String label) {
 	this.id = id;
 	this.label = label;
+	this.head = false;
 	this.children = new ArrayList<TreeNode>();
     }
 
@@ -36,6 +40,14 @@ public class NonTerminal implements TreeNode {
 
     public void setLabel(String label) {
 	this.label = label;
+    }
+
+    public boolean getHead() {
+	return this.head;
+    }
+
+    public void setHead(boolean head) {
+	this.head = head;
     }
 
     public void addChild(TreeNode tn) {
