@@ -72,4 +72,8 @@ public class Terminal implements TreeNode {
    		return strValue;
    	}
     }
+
+    public boolean getHead() {
+	return false;
+    }
 }

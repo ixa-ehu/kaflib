@@ -782,10 +782,12 @@ class ReadWriteManager {
     private static class Edge {
 	String from;
 	String to;
+	boolean head;
 
-	Edge(String from, String to) {
-	    this.from = from;
-	    this.to = to;
+	Edge(TreeNode from, TreeNode to) {
+	    this.from = from.getId();
+	    this.to = to.getId();
+	    this.head = from.getHead();
 	}
     }
 
@@ -1352,6 +1354,9 @@ class ReadWriteManager {
 		    Element edgeElem = new Element("edge");
 		    edgeElem.setAttribute("from", edge.from);
 		    edgeElem.setAttribute("to", edge.to);
+		    if (edge.head) {
+			edgeElem.setAttribute("head", "yes");
+		    }
 		    treeElem.addContent(edgeElem);
 		}
 	    }
@@ -1366,7 +1371,7 @@ class ReadWriteManager {
 	    nonTerminals.add((NonTerminal) node);
 	    List<TreeNode> treeNodes = ((NonTerminal) node).getChildren();
 	    for (TreeNode child : treeNodes) {
-		edges.add(new Edge(child.getId(), node.getId()));
+		edges.add(new Edge(child, node));
 		extractTreeNodes(child, nonTerminals, terminals, edges);
 	    }
 	} else {
