@@ -18,6 +18,8 @@ import org.jdom2.JDOMException;
 /** A container to keep all annotations of a document (word forms, terms, dependencies, chunks, entities and coreferences). There are different hash maps to index annotations by different properties as ID, sentence... It enables to retrieve annotations by different properties in an effective way. Performance is very important. */
 class AnnotationContainer {
 
+    private String rawText;
+
     /** List to keep all word forms */
     private List<WF> text;
 
@@ -68,6 +70,7 @@ class AnnotationContainer {
 
     /** This creates a new AnnotationContainer object */
     AnnotationContainer() {
+	rawText = new String();
 	text = new ArrayList();
 	nextOffset = 0;
 	terms = new ArrayList();
@@ -85,6 +88,10 @@ class AnnotationContainer {
 	textIndexedBySent = new HashMap<Integer, List<WF>>();
 	termsIndexedBySent = new HashMap<Integer, List<Term>>();
 	termsIndexedByWF = new HashMap<String, Term>();
+    }
+
+    String getRawText() {
+	return rawText;
     }
 
     /** Returns all word forms. */
@@ -145,6 +152,10 @@ class AnnotationContainer {
     /** Returns all trees */
     List<Tree> getConstituents() {
 	return trees;
+    }
+
+    void setRawText(String str) {
+	rawText = str;
     }
 
     /** Adds a word form to the container */
