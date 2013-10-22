@@ -138,6 +138,9 @@ class ReadWriteManager {
 		    }
 		}
 	    }
+	    if (elem.getName().equals("raw")) {
+		kaf.setRawText(elem.textContent());
+	    }
 	    if (elem.getName().equals("text")) {
 		List<Element> wfElems = elem.getChildren();
 		for (Element wfElem : wfElems) {
@@ -846,6 +849,14 @@ class ReadWriteManager {
 		lpsElem.addContent(lpElem);
 	    }
 	    kafHeaderElem.addContent(lpsElem);
+	}
+
+	String rawText = annotationContainer.getRaw();
+	if (text.size() > 0) {
+	    Element rawElem = new Element("raw");
+	    CDATA cdataElem = new CDATA(rawText);
+	    rawElem.addContent(cdataElem);
+	    root.addContent(rawElem);
 	}
 
 	List<WF> text = annotationContainer.getText();
