@@ -249,7 +249,12 @@ public class KAFDocument {
     AnnotationContainer getAnnotationContainer() {
 	return annotationContainer;
     }
-    
+
+    /** Set raw text **/
+    public String setRawText(String rawText) {
+	annotationContainer.setRawText(rawText);
+    }
+
     /** Creates a WF object to load an existing word form. It receives the ID as an argument. The WF is added to the document object.
      * @param id word form's ID.
      * @param form text of the word form itself.
@@ -665,6 +670,11 @@ public Entity newEntity(String type, List<Span<Term>> references) {
 
     public static Span<Term> newTermSpan(List<Term> targets, Term head) {
 	return new Span<Term>(targets, head);
+    }
+
+    /** Returns the raw text **/
+    public String getRawText() {
+	return annotationContainer.getRawText();
     }
 
     /** Returns a list containing all WFs in the document */
