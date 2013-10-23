@@ -251,7 +251,7 @@ public class KAFDocument {
     }
 
     /** Set raw text **/
-    public String setRawText(String rawText) {
+    public void setRawText(String rawText) {
 	annotationContainer.setRawText(rawText);
     }
 
