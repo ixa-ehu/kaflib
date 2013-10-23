@@ -4,6 +4,7 @@ import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.Comment;
 import org.jdom2.Namespace;
+import org.jdom2.CDATA;
 import org.jdom2.output.XMLOutputter;
 import org.jdom2.output.Format;
 import org.jdom2.input.SAXBuilder;
@@ -139,7 +140,7 @@ class ReadWriteManager {
 		}
 	    }
 	    if (elem.getName().equals("raw")) {
-		kaf.setRawText(elem.textContent());
+		kaf.setRawText(elem.getText());
 	    }
 	    if (elem.getName().equals("text")) {
 		List<Element> wfElems = elem.getChildren();
@@ -851,10 +852,10 @@ class ReadWriteManager {
 	    kafHeaderElem.addContent(lpsElem);
 	}
 
-	String rawText = annotationContainer.getRaw();
-	if (text.size() > 0) {
+	String rawText = annotationContainer.getRawText();
+	if (rawText.length() > 0) {
 	    Element rawElem = new Element("raw");
-	    CDATA cdataElem = new CDATA(rawText);
+	    CDATA cdataElem =  new CDATA(rawText);
 	    rawElem.addContent(cdataElem);
 	    root.addContent(rawElem);
 	}
