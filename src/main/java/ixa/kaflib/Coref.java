@@ -11,24 +11,24 @@ public class Coref {
     private String coid;
 
     /** Mentions to the same entity (at least one required) */
-    private List<Span<Term>> references;
+    private List<Span<Term>> mentions;
 
-    Coref(String coid, List<Span<Term>> references) {
-	if (references.size() < 1) {
+    Coref(String coid, List<Span<Term>> mentions) {
+	if (mentions.size() < 1) {
 	    throw new IllegalStateException("Coreferences must contain at least one reference span");
 	}
-	if (references.get(0).size() < 1) {
+	if (mentions.get(0).size() < 1) {
 	    throw new IllegalStateException("Coreferences' reference's spans must contain at least one target");
 	}
 	this.coid = coid;
-	this.references = references;
+	this.mentions = mentions;
     }
 
     Coref(Coref coref, HashMap<String, Term> terms) {
 	this.coid = coref.coid;
 	/* Copy references */
 	String id = coref.getId();
-	this.references = new ArrayList<Span<Term>>();
+	this.mentions = new ArrayList<Span<Term>>();
 	for (Span<Term> span : coref.getSpans()) {
 	    /* Copy span */
 	    List<Term> targets = span.getTargets();
@@ -42,10 +42,10 @@ public class Coref {
 	    }
 	    if (span.hasHead()) {
 		Term copiedHead = terms.get(span.getHead().getId());
-		this.references.add(new Span<Term>(copiedTargets, copiedHead));
+		this.mentions.add(new Span<Term>(copiedTargets, copiedHead));
 	    }
 	    else {
-		this.references.add(new Span<Term>(copiedTargets));
+		this.mentions.add(new Span<Term>(copiedTargets));
 	    }
 	}
     }
@@ -60,25 +60,25 @@ public class Coref {
 
     /** Returns the term targets of the first span. When targets of other spans are needed getReferences() method should be used. */ 
     public List<Term> getTerms() {
-	return this.references.get(0).getTargets();
+	return this.mentions.get(0).getTargets();
     }
 
     /** Adds a term to the first span. */
     public void addTerm(Term term) {
-	this.references.get(0).addTarget(term);
+	this.mentions.get(0).addTarget(term);
     }
 
     /** Adds a term to the first span. */
     public void addTerm(Term term, boolean isHead) {
-	this.references.get(0).addTarget(term, isHead);
+	this.mentions.get(0).addTarget(term, isHead);
     }
 
     public List<Span<Term>> getSpans() {
-	return this.references;
+	return this.mentions;
     }
 
     public void addSpan(Span<Term> span) {
-	this.references.add(span);
+	this.mentions.add(span);
     }
 
     public String getSpanStr(Span<Term> span) {
@@ -95,7 +95,7 @@ public class Coref {
     /** Deprecated */
     public List<List<Target>> getReferences() {
 	List<List<Target>> list = new ArrayList<List<Target>>();
-	for (Span<Term> span : this.references) {
+	for (Span<Term> span : this.mentions) {
 	    list.add(KAFDocument.span2TargetList(span));
 	}
 	return list;
@@ -103,6 +103,6 @@ public class Coref {
 
     /** Deprecated */
     public void addReference(List<Target> span) {
-	this.references.add(KAFDocument.targetList2Span(span));
+	this.mentions.add(KAFDocument.targetList2Span(span));
     }
 }
