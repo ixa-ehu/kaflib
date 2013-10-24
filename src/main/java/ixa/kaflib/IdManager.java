@@ -36,7 +36,7 @@ class IdManager {
     private int terminalCounter;
     private int nonterminalCounter;
     private HashMap<String, Integer> componentCounter;
-    private HashMap<String, Integer> roleCounter;
+    private int roleCounter;
 
     IdManager() {
 	this.wfCounter = 0;
@@ -52,7 +52,7 @@ class IdManager {
 	this.terminalCounter = 0;
 	this.nonterminalCounter = 0;
 	this.componentCounter = new HashMap<String, Integer>();
-	this.roleCounter = new HashMap<String, Integer>();
+	this.roleCounter = 0;
     }
 
     String getNextWFId() {
@@ -116,17 +116,8 @@ class IdManager {
 	return newId;
     }
 
-    String getNextRoleId(String predicateId) {
-	String newId;
-	int nextIndex;
-	if (!roleCounter.containsKey(predicateId)) {
-	    nextIndex = 1;
-	} else {
-	    nextIndex = roleCounter.get(predicateId) + 1;
-	}
-	newId = predicateId + ROLE_PREFIX + Integer.toString(nextIndex);
-	roleCounter.put(predicateId, nextIndex);
-	return newId;
+    String getNextRoleId() {
+	return ROLE_PREFIX + Integer.toString(++roleCounter);
     }
 
     private int extractCounterFromId(String id) {
@@ -195,13 +186,7 @@ class IdManager {
 	componentCounter.put(termId, componentInd);
     }
 
-    void updateRoleCounter(String id, String predicateId) {
-	int roleInd;
-	Matcher matcher = Pattern.compile("^"+PREDICATE_PREFIX+"_?\\d+"+ROLE_PREFIX+"(\\d+)$").matcher(id);
-	if (!matcher.find()) {
-	    throw new IllegalStateException("IdManager doesn't recognise the given id's (" + id + ") format. Should be "+PREDICATE_PREFIX+"_?[0-9]+"+ROLE_PREFIX+"[0-9]+");
-	}
-	roleInd = Integer.valueOf(matcher.group(1));
-	roleCounter.put(predicateId, roleInd);
+    void updateRoleCounter(String id) {
+        roleCounter = extractCounterFromId(id);
     }
 }
