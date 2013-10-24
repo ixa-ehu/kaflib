@@ -364,15 +364,11 @@ class ReadWriteManager {
 		List<Element> corefElems = elem.getChildren();
 		for (Element corefElem : corefElems) {
 		    String coId = getAttribute("coid", corefElem);
-		    List<Element> referencesElem = corefElem.getChildren("references");
-		    if (referencesElem.size() < 1) {
-			throw new IllegalStateException("Every coref must contain a 'references' element");
-		    }
-		    List<Element> spanElems = referencesElem.get(0).getChildren();
+		    List<Element> spanElems = corefElem.getChildren("span");
 		    if (spanElems.size() < 1) {
 			throw new IllegalStateException("Every coref must contain a 'span' element inside 'references'");
 		    }
-		    List<Span<Term>> references = new ArrayList<Span<Term>>();
+		    List<Span<Term>> mentions = new ArrayList<Span<Term>>();
 		    for (Element spanElem : spanElems) {
 			Span<Term> span = kaf.newTermSpan();
 			List<Element> targetElems = spanElem.getChildren();
@@ -388,9 +384,9 @@ class ReadWriteManager {
 			    boolean isHead = isHead(targetElem);
 			    span.addTarget(targetTerm, isHead);
 			}
-			references.add(span);
+			mentions.add(span);
 		    }
-		    Coref newCoref = kaf.newCoref(coId, references);
+		    Coref newCoref = kaf.newCoref(coId, mentions);
 		}
 	    }
 	    if (elem.getName().equals("features")) {
@@ -1063,10 +1059,9 @@ class ReadWriteManager {
 	    for (Coref coref : corefs) {
 		Element corefElem = new Element("coref");
 		corefElem.setAttribute("coid", coref.getId());
-		Element referencesElem = new Element("references");
 		for (Span<Term> span : coref.getSpans()) {
 		    Comment spanComment = new Comment(coref.getSpanStr(span));
-		    referencesElem.addContent(spanComment);
+		    corefElem.addContent(spanComment);
 		    Element spanElem = new Element("span");
 		    for (Term target : span.getTargets()) {
 			Element targetElem = new Element("target");
@@ -1076,9 +1071,8 @@ class ReadWriteManager {
 			}
 			spanElem.addContent(targetElem);
 		    }
-		    referencesElem.addContent(spanElem);
+		    corefElem.addContent(spanElem);
 		}
-		corefElem.addContent(referencesElem);
 		corefsElem.addContent(corefElem);
 	    }
 	    root.addContent(corefsElem);

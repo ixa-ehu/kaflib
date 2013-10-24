@@ -395,9 +395,9 @@ public class KAFDocument {
      * @param references different mentions (list of targets) to the same entity.
      * @return a new coreference.
      */
-    public Coref newCoref(String id, List<Span<Term>> references) {
+    public Coref newCoref(String id, List<Span<Term>> mentions) {
 	idManager.updateCorefCounter(id);
-	Coref newCoref = new Coref(id, references);
+	Coref newCoref = new Coref(id, mentions);
 	annotationContainer.add(newCoref);
 	return newCoref;
     }
@@ -406,9 +406,9 @@ public class KAFDocument {
      * @param references different mentions (list of targets) to the same entity.
      * @return a new coreference.
      */
-    public Coref newCoref(List<Span<Term>> references) {
+    public Coref newCoref(List<Span<Term>> mentions) {
 	String newId = idManager.getNextCorefId();
-	Coref newCoref = new Coref(newId, references);
+	Coref newCoref = new Coref(newId, mentions);
 	annotationContainer.add(newCoref);
 	return newCoref;
     }
