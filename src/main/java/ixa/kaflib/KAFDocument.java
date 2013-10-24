@@ -540,7 +540,7 @@ public class KAFDocument {
      * @return a new role.
      */
     public Predicate.Role newRole(String id, Predicate predicate, String semRole, Span<Term> span) {
-	idManager.updateRoleCounter(id, predicate.getId());
+	idManager.updateRoleCounter(id);
 	Predicate.Role newRole = new Predicate.Role(id, semRole, span);
 	return newRole;
     }
@@ -552,7 +552,7 @@ public class KAFDocument {
      * @return a new role.
      */
     public Predicate.Role newRole(Predicate predicate, String semRole, Span<Term> span) {
-	String newId = idManager.getNextRoleId(predicate.getId());
+	String newId = idManager.getNextRoleId();
 	Predicate.Role newRole = new Predicate.Role(newId, semRole, span);
 	return newRole;
     }
