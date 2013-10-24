@@ -363,7 +363,7 @@ class ReadWriteManager {
 	    if (elem.getName().equals("coreferences")) {
 		List<Element> corefElems = elem.getChildren();
 		for (Element corefElem : corefElems) {
-		    String coId = getAttribute("coid", corefElem);
+		    String coId = getAttribute("id", corefElem);
 		    List<Element> spanElems = corefElem.getChildren("span");
 		    if (spanElems.size() < 1) {
 			throw new IllegalStateException("Every coref must contain a 'span' element inside 'references'");
@@ -1058,7 +1058,7 @@ class ReadWriteManager {
 	    Element corefsElem = new Element("coreferences");
 	    for (Coref coref : corefs) {
 		Element corefElem = new Element("coref");
-		corefElem.setAttribute("coid", coref.getId());
+		corefElem.setAttribute("id", coref.getId());
 		for (Span<Term> span : coref.getSpans()) {
 		    Comment spanComment = new Comment(coref.getSpanStr(span));
 		    corefElem.addContent(spanComment);
