@@ -9,6 +9,9 @@ public class Terminal implements TreeNode {
     /** The ID of the node */
     private String id;
 
+    /** The id of the edge between this node and its parent. */
+    private String edgeId;
+
     /** The term referenced by this terminal */
     private Span<Term> span;
 
@@ -23,6 +26,14 @@ public class Terminal implements TreeNode {
 
     public void setId(String id) {
 	this.id = id;
+    }
+
+    public String getEdgeId() {
+	return this.edgeId;
+    }
+
+    public void setEdgeId(String edgeId) {
+	this.edgeId = edgeId;
     }
 
     /** Return the first term in the span */

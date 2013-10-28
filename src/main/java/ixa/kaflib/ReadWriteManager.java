@@ -697,13 +697,15 @@ class ReadWriteManager {
 		    for (Element edgeElem : edgeElems) {
 			String fromId = getAttribute("from", edgeElem);
 			String toId = getAttribute("to", edgeElem);
+			String edgeId = getAttribute("id", edgeElem);
 			TreeNode parentNode = treeNodes.get(toId);
 			TreeNode childNode = treeNodes.get(fromId);
 			if ((parentNode == null) || (childNode == null)) {
-			    throw new KAFNotValidException("There is an problem with the edge(" + fromId + ", " + toId + "). One of its targets doesn't exist.");
+			    throw new KAFNotValidException("There is a problem with the edge(" + fromId + ", " + toId + "). One of its targets doesn't exist.");
 			}
 			((NonTerminal) parentNode).addChild(childNode);
 			rootNodes.put(fromId, false);
+			childNode.setEdgeId(edgeId);
 		    }
 		    // Constituent objects
 		    for (Map.Entry<String, Boolean> areRoot : rootNodes.entrySet()) {
@@ -815,11 +817,13 @@ class ReadWriteManager {
 
 
     private static class Edge {
+	String id;
 	String from;
 	String to;
 	boolean head;
 
 	Edge(TreeNode from, TreeNode to) {
+	    this.id = from.getEdgeId();
 	    this.from = from.getId();
 	    this.to = to.getId();
 	    this.head = from.getHead();
@@ -1418,6 +1422,7 @@ class ReadWriteManager {
 		treeElem.addContent(edgeCom);
 		for (Edge edge : edges) {
 		    Element edgeElem = new Element("edge");
+		    edgeElem.setAttribute("id", edge.id);
 		    edgeElem.setAttribute("from", edge.from);
 		    edgeElem.setAttribute("to", edge.to);
 		    if (edge.head) {
