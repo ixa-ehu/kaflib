@@ -582,7 +582,9 @@ public class KAFDocument {
 
     public NonTerminal newNonTerminal(String label) {
 	String newId = idManager.getNextNonterminalId();
+	String newEdgeId = idManager.getNextEdgeId();
 	NonTerminal newNonterminal = new NonTerminal(newId, label);
+	newNonterminal.setEdgeId(newEdgeId);
 	return newNonterminal;
     }
 
@@ -593,7 +595,9 @@ public class KAFDocument {
 
     public Terminal newTerminal(Span<Term> span) {
 	String newId = idManager.getNextTerminalId();
+	String newEdgeId = idManager.getNextEdgeId();
 	Terminal tn = new Terminal(newId, span);
+	tn.setEdgeId(newEdgeId);
 	return tn;
     }
 

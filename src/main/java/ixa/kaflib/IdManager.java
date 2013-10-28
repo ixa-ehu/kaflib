@@ -21,6 +21,7 @@ class IdManager {
     private static final String ROLE_PREFIX = "rl";
     private static final String TERMINAL_PREFIX = "ter";
     private static final String NONTERMINAL_PREFIX = "nter";
+    private static final String EDGE_PREFIX = "tre";
 
     /* Counters for each type of annotations */
     private int wfCounter;
@@ -35,6 +36,7 @@ class IdManager {
     private int predicateCounter;
     private int terminalCounter;
     private int nonterminalCounter;
+    private int edgeCounter;
     private HashMap<String, Integer> componentCounter;
     private int roleCounter;
 
@@ -51,6 +53,7 @@ class IdManager {
 	this.predicateCounter = 0;
 	this.terminalCounter = 0;
 	this.nonterminalCounter = 0;
+	this.edgeCounter = 0;
 	this.componentCounter = new HashMap<String, Integer>();
 	this.roleCounter = 0;
     }
@@ -101,6 +104,10 @@ class IdManager {
 
     String getNextNonterminalId() {
 	return NONTERMINAL_PREFIX + Integer.toString(++nonterminalCounter);
+    }
+
+    String getNextEdgeId() {
+	return EDGE_PREFIX + Integer.toString(++edgeCounter);
     }
 
     String getNextComponentId(String termId) {
@@ -174,6 +181,10 @@ class IdManager {
 
     void updateNonterminalCounter(String id) {
 	nonterminalCounter = extractCounterFromId(id);
+    }
+
+    void updateEdgeCounter(String id) {
+	edgeCounter = extractCounterFromId(id);
     }
 
     void updateComponentCounter(String id, String termId) {
