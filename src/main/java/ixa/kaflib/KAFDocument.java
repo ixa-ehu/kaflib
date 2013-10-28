@@ -420,10 +420,9 @@ public Chunk newChunk(String phrase, Span<Term> span) {
      * @param references it contains one or more span elements. A span can be used to reference the different occurrences of the same named entity in the document. If the entity is composed by multiple words, multiple target elements are used.
      * @return a new named entity.
      */
-public Entity newEntity(String id, String type, List<Span<Term>> references) {
+public Entity newEntity(String id, List<Span<Term>> references) {
 	idManager.updateEntityCounter(id);
 	Entity newEntity = new Entity(id, references);
-	newEntity.setType(type);
 	annotationContainer.add(newEntity);
 	return newEntity;
     }
@@ -433,10 +432,9 @@ public Entity newEntity(String id, String type, List<Span<Term>> references) {
      * @param references it contains one or more span elements. A span can be used to reference the different occurrences of the same named entity in the document. If the entity is composed by multiple words, multiple target elements are used.
      * @return a new named entity.
      */
-public Entity newEntity(String type, List<Span<Term>> references) {
+public Entity newEntity(List<Span<Term>> references) {
 	String newId = idManager.getNextEntityId();
 	Entity newEntity = new Entity(newId, references);
-	newEntity.setType(type);
 	annotationContainer.add(newEntity);
 	return newEntity;
     }
@@ -1057,7 +1055,9 @@ public Entity newEntity(String type, List<Span<Term>> references) {
 	for (List<Term> list : references) {
 	    spanReferences.add(this.list2Span(list));
 	}
-	return this.newEntity(id, type, spanReferences);
+	Entity entity = this.newEntity(id, spanReferences);
+	entity.setType(type);
+	return entity;
     }
 
     /** Deprecated */
