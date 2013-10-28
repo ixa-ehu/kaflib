@@ -371,9 +371,9 @@ public class KAFDocument {
      * @param references it contains one or more span elements. A span can be used to reference the different occurrences of the same named entity in the document. If the entity is composed by multiple words, multiple target elements are used.
      * @return a new named entity.
      */
-    public Entity newEntity(String id, String type, List<Span<Term>> references) {
+public Entity newEntity(String id, List<Span<Term>> references) {
 	idManager.updateEntityCounter(id);
-	Entity newEntity = new Entity(id, type, references);
+	Entity newEntity = new Entity(id, references);
 	annotationContainer.add(newEntity);
 	return newEntity;
     }
@@ -383,9 +383,9 @@ public class KAFDocument {
      * @param references it contains one or more span elements. A span can be used to reference the different occurrences of the same named entity in the document. If the entity is composed by multiple words, multiple target elements are used.
      * @return a new named entity.
      */
-    public Entity newEntity(String type, List<Span<Term>> references) {
+public Entity newEntity(List<Span<Term>> references) {
 	String newId = idManager.getNextEntityId();
-	Entity newEntity = new Entity(newId, type, references);
+	Entity newEntity = new Entity(newId, references);
 	annotationContainer.add(newEntity);
 	return newEntity;
     }
@@ -933,7 +933,9 @@ public class KAFDocument {
 	for (List<Term> list : references) {
 	    spanReferences.add(this.list2Span(list));
 	}
-	return this.newEntity(id, type, spanReferences);
+	Entity entity = this.newEntity(id, spanReferences);
+	entity.setType(type);
+	return entity;
     }
 
     /** Deprecated */
