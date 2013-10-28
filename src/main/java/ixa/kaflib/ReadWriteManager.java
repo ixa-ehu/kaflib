@@ -324,7 +324,7 @@ class ReadWriteManager {
 		List<Element> entityElems = elem.getChildren();
 		for (Element entityElem : entityElems) {
 		    String entId = getAttribute("eid", entityElem);
-		    String entType = getAttribute("type", entityElem);
+		    String entType = getOptAttribute("type", entityElem);
 		    List<Element> referencesElem = entityElem.getChildren("references");
 		    if (referencesElem.size() < 1) {
 			throw new IllegalStateException("Every entity must contain a 'references' element");
@@ -351,7 +351,10 @@ class ReadWriteManager {
 			}
 			references.add(span);
 		    }
-		    Entity newEntity = kaf.newEntity(entId, entType, references);
+		    Entity newEntity = kaf.newEntity(entId, references);
+		    if (entType != null) {
+			newEntity.setType(entType);
+		    }
 		    List<Element> externalReferencesElems = entityElem.getChildren("externalReferences");
 		    if (externalReferencesElems.size() > 0) {
 			List<ExternalRef> externalRefs = getExternalReferences(externalReferencesElems.get(0), kaf);

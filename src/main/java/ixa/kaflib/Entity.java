@@ -28,7 +28,7 @@ public class Entity implements Relational {
     /** External references (optional) */
     private List<ExternalRef> externalReferences;
 
-    Entity(String eid, String type, List<Span<Term>> references) {
+    Entity(String eid, List<Span<Term>> references) {
 	if (references.size() < 1) {
 	    throw new IllegalStateException("Entities must contain at least one reference span");
 	}
@@ -36,7 +36,6 @@ public class Entity implements Relational {
 	    throw new IllegalStateException("Entities' reference's spans must contain at least one target");
 	}
 	this.eid = eid;
-	this.type = type;
 	this.references = references;
 	this.externalReferences = new ArrayList<ExternalRef>();
     }
