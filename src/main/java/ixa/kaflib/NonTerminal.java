@@ -15,6 +15,9 @@ public class NonTerminal implements TreeNode {
     /** Wether the edge between this node and its parent is the "head" or not. */
     private boolean head;
 
+    /** The ID of the edge between this node and its parent. */
+    private String edgeId;
+
     /** Nodes' children */
     private List<TreeNode> children;
 
@@ -32,6 +35,14 @@ public class NonTerminal implements TreeNode {
 
     public void setId(String id) {
 	this.id = id;
+    }
+
+    public String getEdgeId() {
+	return this.edgeId;
+    }
+
+    public void setEdgeId(String edgeId) {
+	this.edgeId = edgeId;
     }
 
     public String getLabel() {
