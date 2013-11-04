@@ -128,9 +128,9 @@ class IdManager {
     }
 
     private int extractCounterFromId(String id) {
-	Matcher matcher = Pattern.compile("^[a-z]*_?(\\d+)$").matcher(id);
+	Matcher matcher = Pattern.compile(".*?(\\d+)$").matcher(id);
 	if (!matcher.find()) {
-	    throw new IllegalStateException("IdManager doesn't recognise the given id's (" + id  + ") format. Should be [a-z]*_?[0-9]+");
+	    throw new IllegalStateException("IdManager doesn't recognise the given id's (" + id  + ") format.");
 	}
 	return Integer.valueOf(matcher.group(1));
     }

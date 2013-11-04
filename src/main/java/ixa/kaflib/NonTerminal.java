@@ -37,6 +37,10 @@ public class NonTerminal implements TreeNode {
 	this.id = id;
     }
 
+    public boolean hasEdgeId() {
+	return this.edgeId != null;
+    }
+
     public String getEdgeId() {
 	return this.edgeId;
     }
