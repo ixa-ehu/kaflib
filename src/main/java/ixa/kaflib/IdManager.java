@@ -325,6 +325,7 @@ class IdManager {
 	      throw new IllegalStateException("IdManager doesn't recognise the given id's (" + id + ") format. Should be "+TERM_PREFIX+"_?[0-9]+\\"+COMPONENT_PREFIX+"[0-9]+");
 	    */
 	    this.inconsistentIdComponent = true;
+	    return;
 	}
 	componentInd = Integer.valueOf(matcher.group(1));
 	componentCounter.put(termId, componentInd);
