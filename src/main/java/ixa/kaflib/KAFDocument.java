@@ -1066,7 +1066,9 @@ public Entity newEntity(List<Span<Term>> references) {
 	for (List<Term> list : references) {
 	    spanReferences.add(this.list2Span(list));
 	}
-	return this.newEntity(type, spanReferences);
+	Entity entity = this.newEntity(spanReferences);
+	entity.setType(type);
+	return entity;
     }
 
     /** Deprecated */
