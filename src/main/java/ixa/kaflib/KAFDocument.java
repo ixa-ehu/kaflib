@@ -24,6 +24,7 @@ public class KAFDocument {
 	public String filename;
 	public String filetype;
 	public Integer pages;
+	public String creationtime;
 
 	private FileDesc() {}
     }

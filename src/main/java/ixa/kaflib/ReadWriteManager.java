@@ -130,6 +130,10 @@ class ReadWriteManager {
 		    if (pages != null) {
 			fd.pages = Integer.parseInt(pages);
 		    }
+		    String creationtime = getOptAttribute("creationtime", fileDescElem);
+		    if (creationtime != null) {
+			fd.creationtime = creationtime;
+		    }
 		}
 		Element publicElem = elem.getChild("public");
 		if (publicElem != null) {
@@ -855,16 +859,19 @@ class ReadWriteManager {
 	    if (fd.author != null) {
 		fdElem.setAttribute("author", fd.author);
 	    }
-	    if (fd.author != null) {
+	    if (fd.creationtime != null) {
+		fdElem.setAttribute("creationtime", fd.creationtime);
+	    }
+	    if (fd.title != null) {
 		fdElem.setAttribute("title", fd.title);
 	    }
-	    if (fd.author != null) {
+	    if (fd.filename != null) {
 		fdElem.setAttribute("filename", fd.filename);
 	    }
-	    if (fd.author != null) {
+	    if (fd.filetype != null) {
 		fdElem.setAttribute("filetype", fd.filetype);
 	    }
-	    if (fd.author != null) {
+	    if (fd.pages != null) {
 		fdElem.setAttribute("pages", Integer.toString(fd.pages));
 	    }
 	    kafHeaderElem.addContent(fdElem);
