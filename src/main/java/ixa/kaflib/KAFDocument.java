@@ -19,21 +19,20 @@ public class KAFDocument {
 
 
     public class FileDesc {
-	String author;
-	String title;
-	String filename;
-	String filetype;
-	Integer pages;
+	public String author;
+	public String title;
+	public String filename;
+	public String filetype;
+	public Integer pages;
 
 	private FileDesc() {}
     }
 
     public class Public {
-	String publicId;
-	String uri;
+	public String publicId;
+	public String uri;
     
-	private Public(String publicId) {
-	    this.publicId = publicId;
+	private Public() {
 	}
     }
 
@@ -236,8 +235,8 @@ public class KAFDocument {
 	return this.fileDesc;
     }
 
-    public Public createPublic(String publicId) {
-	this._public = new Public(publicId);
+    public Public createPublic() {
+	this._public = new Public();
 	return this._public;
     }
 

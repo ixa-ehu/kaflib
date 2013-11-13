@@ -133,8 +133,11 @@ class ReadWriteManager {
 		}
 		Element publicElem = elem.getChild("public");
 		if (publicElem != null) {
-		    String publicId = getAttribute("publicId", publicElem);
-		    KAFDocument.Public pub = kaf.createPublic(publicId);
+		    KAFDocument.Public pub = kaf.createPublic();
+		    String publicId = getOptAttribute("publicId", publicElem);
+		    if (publicId != null) {
+			pub.publicId = publicId;
+		    }
 		    String uri = getOptAttribute("uri", publicElem);
 		    if (uri != null) {
 			pub.uri = uri;
@@ -870,7 +873,9 @@ class ReadWriteManager {
 	KAFDocument.Public pub = kaf.getPublic();
 	if (pub != null) {
 	    Element pubElem = new Element("public");
-	    pubElem.setAttribute("publicId", pub.publicId);
+	    if (pub.publicId != null) {
+		pubElem.setAttribute("publicId", pub.publicId);
+	    }
 	    if (pub.uri != null) {
 		pubElem.setAttribute("uri", pub.uri);
 	    }
