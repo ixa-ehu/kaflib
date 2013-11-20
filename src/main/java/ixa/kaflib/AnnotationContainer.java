@@ -66,7 +66,25 @@ class AnnotationContainer {
     private HashMap<Integer, List<Term>> termsIndexedBySent;
 
     /** Hash map for mapping word forms to terms. */
-    private HashMap<String, Term> termsIndexedByWF;
+    private HashMap<String, List<Term>> termsIndexedByWF;
+
+    private HashMap<String, List<Dep>> depsIndexedByTerm;
+
+    private HashMap<String, List<Chunk>> chunksIndexedByTerm;
+
+    private HashMap<String, List<Entity>> entitiesIndexedByTerm;
+
+    private HashMap<String, List<Coref>> corefsIndexedByTerm;
+
+    private HashMap<String, List<Feature>> propertiesIndexedByTerm;
+
+    private HashMap<String, List<Feature>> categoriesIndexedByTerm;
+
+    private HashMap<String, List<Opinion>> opinionsIndexedByTerm;
+
+    private HashMap<String, List<Relation>> relationsIndexedByRelational;
+
+    private HashMap<String, List<Predicate>> predicatesIndexedByTerm;
 
     /** This creates a new AnnotationContainer object */
     AnnotationContainer() {
@@ -87,7 +105,16 @@ class AnnotationContainer {
 
 	textIndexedBySent = new HashMap<Integer, List<WF>>();
 	termsIndexedBySent = new HashMap<Integer, List<Term>>();
-	termsIndexedByWF = new HashMap<String, Term>();
+	termsIndexedByWF = new HashMap<String, List<Term>>();
+	depsIndexedByTerm = new HashMap<String, List<Dep>>();
+	chunksIndexedByTerm =  new HashMap<String, List<Chunk>>();
+	entitiesIndexedByTerm =  new HashMap<String, List<Entity>>();
+	corefsIndexedByTerm =  new HashMap<String, List<Coref>>();
+	propertiesIndexedByTerm =  new HashMap<String, List<Feature>>();
+	categoriesIndexedByTerm =  new HashMap<String, List<Feature>>();
+	opinionsIndexedByTerm =  new HashMap<String, List<Opinion>>();
+	relationsIndexedByRelational =  new HashMap<String, List<Relation>>();
+	predicatesIndexedByTerm = new HashMap<String, List<Predicate>>();
     }
 
     String getRawText() {
@@ -164,13 +191,19 @@ class AnnotationContainer {
 	//nextOffset += wf.getLength() + 1;
     }
 
+    private <T> void indexAnnotation(T annotation, String hashId, HashMap<String, List<T>> index) {
+	if (index.get(hashId) == null) {
+	    index.put(hashId, new ArrayList<T>());
+	}
+	index.get(hashId).add(annotation);
+    } 
+
     /** Adds a term to the container */
     void add(Term term) {
 	terms.add(term);
 	for (WF wf : term.getWFs()) {
-	    termsIndexedByWF.put(wf.getId(), term);
+	    indexAnnotation(term, wf.getId(), termsIndexedByWF);
 	}
-
 	/* Index by sentence */
         if (term.getSent() != -1) {
 	    indexTermBySent(term, term.getSent());
@@ -180,46 +213,96 @@ class AnnotationContainer {
     /** Adds a dependency to the container */
     void add(Dep dep) {
 	deps.add(dep);
+	/* Index by 'from' and 'to' terms */
+	if (dep.getFrom() != null) {
+	    String tId = dep.getFrom().getId();
+	    indexAnnotation(dep, tId, depsIndexedByTerm);
+	}
+	if (dep.getTo() != null) {
+	    String tId = dep.getTo().getId();
+	    indexAnnotation(dep, tId, depsIndexedByTerm);
+	}
     }
 
     /** Adds a chunk to the container */
     void add(Chunk chunk) {
 	chunks.add(chunk);
+	/* Index by terms */
+	for (Term term : chunk.getTerms()) {
+	    indexAnnotation(chunk, term.getId(), chunksIndexedByTerm);
+	}
     }
 
     /** Adds a named entity to the container */
     void add(Entity entity) {
 	entities.add(entity);
+	/* Index by terms */
+	for (Term term : entity.getTerms()) {
+	    indexAnnotation(entity, term.getId(), entitiesIndexedByTerm);
+	}
     }
 
     /** Adds a feature to the container. It checks if it is a property or a category. */
     void add(Feature feature) {
 	if (feature.isAProperty()) {
 	    properties.add(feature);
+	    /* Index by terms */
+	    for (Term term : feature.getTerms()) {
+		indexAnnotation(feature, term.getId(), propertiesIndexedByTerm);
+	    }
 	}
 	else {
 	    categories.add(feature);
+	    /* Index by terms */
+	    for (Term term : feature.getTerms()) {
+		indexAnnotation(feature, term.getId(), categoriesIndexedByTerm);
+	    }
 	}		
     }
 
     /** Adds a coreference to the container */
     void add(Coref coref) {
 	coreferences.add(coref);
+	/* Index by terms */
+	for (Term term : coref.getTerms()) {
+	    indexAnnotation(coref, term.getId(), corefsIndexedByTerm);
+	}
     }
 
     /** Adds an opinion to the container */
     void add(Opinion opinion) {
 	opinions.add(opinion);
+	/* Index by terms */
+	LinkedHashSet<Term> terms = new LinkedHashSet<Term>();
+	terms.addAll(opinion.getOpinionHolder().getTerms());
+	terms.addAll(opinion.getOpinionTarget().getTerms());
+	terms.addAll(opinion.getOpinionExpression().getTerms());	
+	for (Term term : terms) {
+	    indexAnnotation(opinion, term.getId(), opinionsIndexedByTerm);
+	}
     }
 
     /** Adds a relation to the container */
     void add(Relation relation) {
 	relations.add(relation);
+	/* Index by 'from' and 'to' terms */
+	if (relation.getFrom() != null) {
+	    String rId = relation.getFrom().getId();
+	    indexAnnotation(relation, rId, relationsIndexedByRelational);
+	}
+	if (relation.getTo() != null) {
+	    String rId = relation.getTo().getId();
+	    indexAnnotation(relation, rId, relationsIndexedByRelational);
+	}
     }
 
     /** Adds a predicate to the container */
     void add(Predicate predicate) {
 	predicates.add(predicate);
+	/* Index by terms */
+	for (Term term : predicate.getTerms()) {
+	    indexAnnotation(predicate, term.getId(), predicatesIndexedByTerm);
+	}
     }
 
     /** Adds a tree to the container */
@@ -278,6 +361,14 @@ class AnnotationContainer {
     }
 
     Term getTermByWF(WF wf) {
+	List<Term> terms = this.termsIndexedByWF.get(wf.getId());
+	if (terms == null) {
+	    return null;
+	}
+	return terms.get(0);
+    }
+
+    List<Term> getTermsByWF(WF wf) {
 	return this.termsIndexedByWF.get(wf.getId());
     }
 
@@ -288,9 +379,126 @@ class AnnotationContainer {
     List<Term> getTermsByWFs(List<WF> wfs) {
 	LinkedHashSet<Term> terms = new LinkedHashSet<Term>();
 	for (WF wf : wfs) {
-	    terms.add(this.termsIndexedByWF.get(wf.getId()));
+	    terms.add(getTermByWF(wf));
 	}
 	return new ArrayList<Term>(terms);
+    }
+
+    List<Dep> getDepsByTerm(Term term) {
+	List<Dep> deps = this.depsIndexedByTerm.get(term.getId());
+	return (deps == null) ? new ArrayList<Dep>() : deps;
+    }
+
+    List<Chunk> getChunksByTerm(Term term) {
+	List<Chunk> chunks = this.chunksIndexedByTerm.get(term.getId());
+	return (chunks == null) ? new ArrayList<Chunk>() : chunks;
+    }
+
+    List<Entity> getEntitiesByTerm(Term term) {
+	List<Entity> entities = this.entitiesIndexedByTerm.get(term.getId());
+	return (entities == null) ? new ArrayList<Entity>() : entities;
+    }
+
+    List<Coref> getCorefsByTerm(Term term) {
+	List<Coref> corefs = this.corefsIndexedByTerm.get(term.getId());
+	return (corefs == null) ? new ArrayList<Coref>() : corefs;
+    }
+
+    List<Feature> getPropertiesByTerm(Term term) {
+	List<Feature> properties = this.propertiesIndexedByTerm.get(term.getId());
+	return (properties == null) ? new ArrayList<Feature>() : properties;
+    }
+
+    List<Feature> getCategoriesByTerm(Term term) {
+	List<Feature> categories = this.categoriesIndexedByTerm.get(term.getId());
+	return (categories == null) ? new ArrayList<Feature>() : categories;	
+    }
+
+    List<Opinion> getOpinionsByTerm(Term term) {
+	List<Opinion> opinions = this.opinionsIndexedByTerm.get(term.getId());
+	return (opinions == null) ? new ArrayList<Opinion>() : opinions;	
+    }
+
+    List<Relation> getRelationsByRelational(Relational relational) {
+	List<Relation> relations = this.relationsIndexedByRelational.get(relational.getId());
+	return (relations == null) ? new ArrayList<Relation>() : relations;		
+    }
+
+    List<Predicate> getPredicatesByTerm(Term term) {
+	List<Predicate> predicates = this.predicatesIndexedByTerm.get(term.getId());
+	return (predicates == null) ? new ArrayList<Predicate>() : predicates;			
+    }
+
+    List<Dep> getDepsByTerms(List<Term> terms) {
+	LinkedHashSet<Dep> deps = new LinkedHashSet<Dep>();
+	for (Term term : terms) {
+	    deps.addAll(getDepsByTerm(term));
+	}
+	return new ArrayList<Dep>(deps);
+    }
+
+    List<Chunk> getChunksByTerms(List<Term> terms) {
+	LinkedHashSet<Chunk> chunks = new LinkedHashSet<Chunk>();
+	for (Term term : terms) {
+	    chunks.addAll(getChunksByTerm(term));
+	}
+	return new ArrayList<Chunk>(chunks);
+    }
+
+    List<Entity> getEntitiesByTerms(List<Term> terms) {
+	LinkedHashSet<Entity> entities = new LinkedHashSet<Entity>();
+	for (Term term : terms) {
+	    entities.addAll(getEntitiesByTerm(term));
+	}
+	return new ArrayList<Entity>(entities);
+    }
+
+    List<Coref> getCorefsByTerms(List<Term> terms) {
+	LinkedHashSet<Coref> corefs = new LinkedHashSet<Coref>();
+	for (Term term : terms) {
+	    corefs.addAll(getCorefsByTerm(term));
+	}
+	return new ArrayList<Coref>(corefs);
+    }
+
+    List<Feature> getPropertiesByTerms(List<Term> terms) {
+	LinkedHashSet<Feature> properties = new LinkedHashSet<Feature>();
+	for (Term term : terms) {
+	    properties.addAll(getPropertiesByTerm(term));
+	}
+	return new ArrayList<Feature>(properties);
+    }
+
+    List<Feature> getCategoriesByTerms(List<Term> terms) {
+	LinkedHashSet<Feature> categories = new LinkedHashSet<Feature>();
+	for (Term term : terms) {
+	    categories.addAll(getCategoriesByTerm(term));
+	}
+	return new ArrayList<Feature>(categories);
+    }
+
+    List<Opinion> getOpinionsByTerms(List<Term> terms) {
+	LinkedHashSet<Opinion> opinions = new LinkedHashSet<Opinion>();
+	for (Term term : terms) {
+	    opinions.addAll(getOpinionsByTerm(term));
+	}
+	return new ArrayList<Opinion>(opinions);
+    }
+
+    List<Relation> getRelationsByRelationals(List<Relational> relationals) {
+	LinkedHashSet<Relation> relations = new LinkedHashSet<Relation>();
+	for (Relational relational : relationals) {
+	    relations.addAll(getRelationsByRelational(relational));
+	}
+	return new ArrayList<Relation>(relations);
+    }
+
+    List<Predicate> getPredicatesByTerms(List<Term> terms) {
+	LinkedHashSet<Predicate> predicates = new LinkedHashSet<Predicate>();
+	for (Term term : terms) {
+	    predicates.addAll(getPredicatesByTerm(term));
+	}
+	return new ArrayList<Predicate>(predicates);
     }
 
     /** Returns next WF's offset. */
@@ -306,7 +514,7 @@ class AnnotationContainer {
     List<Term> getTermsByWFIds(List<String> wfIds) {
 	LinkedHashSet<Term> terms = new LinkedHashSet<Term>();
 	for (String wfId : wfIds) {
-	    terms.add(this.termsIndexedByWF.get(wfId));
+	    terms.addAll(this.termsIndexedByWF.get(wfId));
 	}
 	return new ArrayList<Term>(terms);
     }

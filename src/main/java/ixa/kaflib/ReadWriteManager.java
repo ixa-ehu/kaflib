@@ -181,7 +181,7 @@ class ReadWriteManager {
 		    wfIndex.put(newWf.getId(), newWf);
 		}
 	    }
-	    if (elem.getName().equals("terms")) {
+	    else if (elem.getName().equals("terms")) {
 		List<Element> termElems = elem.getChildren();
 		for (Element termElem : termElems) {
 		    String tid = getAttribute("id", termElem);
@@ -282,14 +282,14 @@ class ReadWriteManager {
 		    termIndex.put(newTerm.getId(), newTerm);
 		}
 	    }
-	    if (elem.getName().equals("deps")) {
+	    else if (elem.getName().equals("deps")) {
 		List<Element> depElems = elem.getChildren();
 		for (Element depElem : depElems) {
 		    String fromId = getAttribute("from", depElem);
 		    String toId = getAttribute("to", depElem);
 		    Term from = termIndex.get(fromId);
 		    if (from == null) {
-			    throw new KAFNotValidException("Term " + fromId + " not found when loading Dep (" + fromId + ", " + toId + ")");
+			throw new KAFNotValidException("Term " + fromId + " not found when loading Dep (" + fromId + ", " + toId + ")");
 		    }
 		    Term to = termIndex.get(toId);
 		    if (to == null) {
@@ -303,7 +303,8 @@ class ReadWriteManager {
 		    }
 		}
 	    }
-	    if (elem.getName().equals("chunks")) {
+	    else if (elem.getName().equals("chunks")) {
+		System.out.println("chunks");
 		List<Element> chunkElems = elem.getChildren();
 		for (Element chunkElem : chunkElems) {
 		    String chunkId = getAttribute("id", chunkElem);
@@ -341,7 +342,7 @@ class ReadWriteManager {
 		    }
 		}
 	    }
-	    if (elem.getName().equals("entities")) {
+	    else if (elem.getName().equals("entities")) {
 		List<Element> entityElems = elem.getChildren();
 		for (Element entityElem : entityElems) {
 		    String entId = getAttribute("id", entityElem);
@@ -384,7 +385,7 @@ class ReadWriteManager {
 		    relationalIndex.put(newEntity.getId(), newEntity);
 		}
 	    }
-	    if (elem.getName().equals("coreferences")) {
+	    else if (elem.getName().equals("coreferences")) {
 		List<Element> corefElems = elem.getChildren();
 		for (Element corefElem : corefElems) {
 		    String coId = getAttribute("id", corefElem);
@@ -413,7 +414,7 @@ class ReadWriteManager {
 		    Coref newCoref = kaf.newCoref(coId, mentions);
 		}
 	    }
-	    if (elem.getName().equals("features")) {
+	    else if (elem.getName().equals("features")) {
 		Element propertiesElem = elem.getChild("properties");
 		Element categoriesElem = elem.getChild("categories");
 		if (propertiesElem != null) {
@@ -497,7 +498,7 @@ class ReadWriteManager {
 		    }
 		}
 	    }
-	    if (elem.getName().equals("opinions")) {
+	    else if (elem.getName().equals("opinions")) {
 		List<Element> opinionElems = elem.getChildren("opinion");
 		for (Element opinionElem : opinionElems) {
 		    String opinionId = getAttribute("id", opinionElem);
@@ -583,7 +584,7 @@ class ReadWriteManager {
 		    }
 		}
 	    }
-	    if (elem.getName().equals("relations")) {
+	    else if (elem.getName().equals("relations")) {
 		List<Element> relationElems = elem.getChildren("relation");
 		for (Element relationElem : relationElems) {
 		    String id = getAttribute("id", relationElem);
@@ -608,7 +609,7 @@ class ReadWriteManager {
 		    }
 		}
 	    }
-	    if (elem.getName().equals("srl")) {
+	    else if (elem.getName().equals("srl")) {
 		List<Element> predicateElems = elem.getChildren("predicate");
 		for (Element predicateElem : predicateElems) {
 		    String id = getAttribute("id", predicateElem);
@@ -674,7 +675,7 @@ class ReadWriteManager {
 		    }
 		}
 	    }
-	    if (elem.getName().equals("constituency")) {
+	    else if (elem.getName().equals("constituency")) {
 		List<Element> treeElems = elem.getChildren("tree");
 		for (Element treeElem : treeElems) {
 		    HashMap<String, TreeNode> treeNodes = new HashMap<String, TreeNode>();

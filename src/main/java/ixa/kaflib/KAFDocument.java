@@ -261,7 +261,7 @@ public class KAFDocument {
      * @return a new word form.
      */
     public WF newWF(String id, String form, int sent) {
-	idManager.updateWFCounter(id);
+	idManager.updateWFCounter(id);		    
 	WF newWF = new WF(this.annotationContainer, id, form, sent);
 	annotationContainer.add(newWF);
 	return newWF;
@@ -755,8 +755,115 @@ public Entity newEntity(List<Span<Term>> references) {
 	return formattedDate;
     }
 
-    /** Merges the document with another one. **/
-    public void merge(KAFDocument doc) {
+    /** Copies the annotations to another KAF document */
+    private void copyAnnotationsToKAF(KAFDocument kaf,
+				      List<WF> wfs,
+				      List<Term> terms,
+				      List<Dep> deps,
+				      List<Chunk> chunks,
+				      List<Entity> entities,
+				      List<Coref> corefs,
+				      List<Feature> properties,
+				      List<Feature> categories,
+				      List<Opinion> opinions,
+				      List<Relation> relations,
+				      List<Predicate> predicates
+				      ) {
+	HashMap<String, WF> copiedWFs = new HashMap<String, WF>();
+	HashMap<String, Term> copiedTerms = new HashMap<String, Term>();
+	HashMap<String, Relational> copiedRelationals = new HashMap<String, Relational>();
+
+	// WFs
+	for (WF wf : wfs) {
+	    WF wfCopy = new WF(wf, kaf.getAnnotationContainer());
+	    kaf.insertWF(wfCopy);
+	    copiedWFs.put(wf.getId(), wfCopy);
+	}
+	// Terms
+	for (Term term : terms) {
+	    Term termCopy = new Term(term, copiedWFs);
+	    kaf.insertTerm(termCopy);
+	    copiedTerms.put(term.getId(), termCopy);
+	}
+	// Deps
+	for (Dep dep : deps) {
+	    Dep depCopy = new Dep(dep, copiedTerms);
+	    kaf.insertDep(depCopy);
+	}
+	// Chunks
+	for (Chunk chunk : chunks) {
+	    Chunk chunkCopy = new Chunk(chunk, copiedTerms);
+	    kaf.insertChunk(chunkCopy);
+	}
+	// Entities
+	for (Entity entity : entities) {
+	    Entity entityCopy = new Entity(entity, copiedTerms);
+	    kaf.insertEntity(entityCopy);
+	    copiedRelationals.put(entity.getId(), entityCopy);
+	}
+	// Coreferences
+	for (Coref coref : corefs) {
+	    Coref corefCopy = new Coref(coref, copiedTerms);
+	    kaf.insertCoref(corefCopy);
+	}
+	// Properties
+	for (Feature property : properties) {
+	    Feature propertyCopy = new Feature(property, copiedTerms);
+	    kaf.insertProperty(propertyCopy);
+	    copiedRelationals.put(property.getId(), propertyCopy);
+	}
+	// Categories
+	for (Feature category : categories) {
+	    Feature categoryCopy = new Feature(category, copiedTerms);
+	    kaf.insertCategory(categoryCopy);
+	    copiedRelationals.put(category.getId(), categoryCopy);
+	}
+	// Opinions
+	for (Opinion opinion : opinions) {
+	    Opinion opinionCopy = new Opinion(opinion, copiedTerms);
+	    kaf.insertOpinion(opinionCopy);
+	}
+	// Relations
+	for (Relation relation : relations) {
+	    Relation relationCopy = new Relation(relation, copiedRelationals);
+	    kaf.insertRelation(relationCopy);
+	}
+	// Predicates
+	/*
+	for (Predicate predicate : predicates) {
+	    Predicate predicateCopy = new Predicate(predicate, copiedTerms);
+	    kaf.insertPredicate(predicateCopy);
+	}
+	*/
+    }
+				      
+
+    /** Returns a new document containing all annotations related to the given WFs */
+    public KAFDocument split(List<WF> wfs) {
+        List<Term> terms = this.annotationContainer.getTermsByWFs(wfs);
+	List<Dep> deps = this.annotationContainer.getDepsByTerms(terms);
+	List<Chunk> chunks = this.annotationContainer.getChunksByTerms(terms);
+	List<Entity> entities = this.annotationContainer.getEntitiesByTerms(terms);
+	List<Coref> corefs = this.annotationContainer.getCorefsByTerms(terms);
+	List<Feature> properties = this.annotationContainer.getPropertiesByTerms(terms);
+	List<Feature> categories = this.annotationContainer.getCategoriesByTerms(terms);
+	List<Opinion> opinions = this.annotationContainer.getOpinionsByTerms(terms);
+	List<Predicate> predicates = this.annotationContainer.getPredicatesByTerms(terms);
+	List<Relational> relationals = new ArrayList<Relational>();
+	relationals.addAll(properties);
+	relationals.addAll(categories);
+	relationals.addAll(entities);
+	List<Relation> relations = this.annotationContainer.getRelationsByRelationals(relationals);
+
+	KAFDocument newKaf = new KAFDocument(this.getLang(), this.getVersion());
+	newKaf.addLinguisticProcessors(this.getLinguisticProcessors());
+	this.copyAnnotationsToKAF(newKaf, wfs, terms, deps, chunks, entities, corefs, properties, categories, opinions, relations, predicates);
+
+	return newKaf;
+    }
+
+    /** Joins the document with another one. **/
+    public void join(KAFDocument doc) {
 	HashMap<String, WF> copiedWFs = new HashMap<String, WF>(); // hash[old_id => new_WF_obj]
 	HashMap<String, Term> copiedTerms = new HashMap<String, Term>(); // hash[old_id => new_Term_obj]
 	HashMap<String, Relational> copiedRelationals = new HashMap<String, Relational>();
@@ -828,67 +935,67 @@ public Entity newEntity(List<Span<Term>> references) {
 	}
     }
 
-    private String insertWF(WF wf) {
+    public String insertWF(WF wf) {
 	String newId = idManager.getNextWFId();
 	wf.setId(newId);
 	annotationContainer.add(wf);
 	return newId;
     }
 
-    private String insertTerm(Term term) {
+    public String insertTerm(Term term) {
 	String newId = idManager.getNextTermId();
 	term.setId(newId);
 	annotationContainer.add(term);
 	return newId;
     }
 
-    private void insertDep(Dep dep) {
+    public void insertDep(Dep dep) {
 	annotationContainer.add(dep);
     }
 
-    private String insertChunk(Chunk chunk) {
+    public String insertChunk(Chunk chunk) {
 	String newId = idManager.getNextChunkId();
 	chunk.setId(newId);
 	annotationContainer.add(chunk);
 	return newId;
     }
 
-    private String insertEntity(Entity entity) {
+    public String insertEntity(Entity entity) {
 	String newId = idManager.getNextEntityId();
 	entity.setId(newId);
 	annotationContainer.add(entity);
 	return newId;
     }
 
-    private String insertCoref(Coref coref) {
+    public String insertCoref(Coref coref) {
 	String newId = idManager.getNextCorefId();
 	coref.setId(newId);
 	annotationContainer.add(coref);
 	return newId;
     }
 
-    private String insertProperty(Feature property) {
+    public String insertProperty(Feature property) {
 	String newId = idManager.getNextPropertyId();
 	property.setId(newId);
 	annotationContainer.add(property);
 	return newId;
     }
 
-    private String insertCategory(Feature category) {
+    public String insertCategory(Feature category) {
 	String newId = idManager.getNextCategoryId();
 	category.setId(newId);
 	annotationContainer.add(category);
 	return newId;
     }
 
-    private String insertOpinion(Opinion opinion) {
+    public String insertOpinion(Opinion opinion) {
 	String newId = idManager.getNextOpinionId();
 	opinion.setId(newId);
 	annotationContainer.add(opinion);
 	return newId;
     }
 
-    private String insertRelation(Relation relation) {
+    public String insertRelation(Relation relation) {
 	String newId = idManager.getNextRelationId();
 	relation.setId(newId);
 	annotationContainer.add(relation);
