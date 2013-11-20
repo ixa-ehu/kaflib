@@ -369,7 +369,8 @@ class AnnotationContainer {
     }
 
     List<Term> getTermsByWF(WF wf) {
-	return this.termsIndexedByWF.get(wf.getId());
+	List<Term> terms = this.termsIndexedByWF.get(wf.getId());
+	return (terms == null) ? new ArrayList<Term>() : terms;
     }
 
     /** Returns a list of terms containing the word forms given on argument.
@@ -379,7 +380,7 @@ class AnnotationContainer {
     List<Term> getTermsByWFs(List<WF> wfs) {
 	LinkedHashSet<Term> terms = new LinkedHashSet<Term>();
 	for (WF wf : wfs) {
-	    terms.add(getTermByWF(wf));
+	    terms.addAll(getTermsByWF(wf));
 	}
 	return new ArrayList<Term>(terms);
     }
