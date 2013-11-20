@@ -43,6 +43,10 @@ public class Tree { //?
 	Tree.check(tokens);
         HashMap<Integer, Integer> parMatching = Tree.matchParentheses(tokens);
 	HashMap<Integer, Term> termMatching = Tree.matchTerms(tokens, kaf.getTerms());
+	// behin-behineko irtenbidea errorea ekiditeko: hutsa itzuli
+	if (termMatching.size() == 0) {
+	    return;
+	}
 	List<Tree> trees = new ArrayList<Tree>();
 	int current = 0;
 	while (current < tokens.length) {
@@ -117,7 +121,11 @@ public class Tree { //?
 			termForm = new String("-RRB-");
 		    }
 		    if (!termForm.equals(tokens[i])) {
+			// behin-behineko irtenbidea errorea ekiditeko: hutsa itzuli
+			return new HashMap<Integer, Term>();
+			/*
 			throw new Exception("Can't perform parentheses=>NAF at constituency (tok_id: " + terms.get(nextTerm).getId()  + ", [" + termForm + "] != [" + tokens[i] + "])");
+			*/
 		    }
 		    mapping.put(i, terms.get(nextTerm));
 		    nextTerm++;
