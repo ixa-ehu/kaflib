@@ -1065,7 +1065,7 @@ class ReadWriteManager {
 	    Element corefsElem = new Element("coreferences");
 	    for (Coref coref : corefs) {
 		Element corefElem = new Element("coref");
-		corefElem.setAttribute("id", coref.getId());
+		corefElem.setAttribute("coid", coref.getId());
 		for (Span<Term> span : coref.getSpans()) {
 		    Comment spanComment = new Comment(coref.getSpanStr(span));
 		    corefElem.addContent(spanComment);
