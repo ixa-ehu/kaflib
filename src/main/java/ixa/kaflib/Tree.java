@@ -116,10 +116,10 @@ public class Tree { //?
 		    else if (termForm.equals(")")) {
 			termForm = new String("-RRB-");
 		    }
-                    else if (termForm.equals("{") { 
+                    else if (termForm.equals("{")) { 
                         termForm = new String("-LCB-");
                     }
-                    else if (termForm.equals("}") { 
+                    else if (termForm.equals("}")) { 
                         termForm = new String("-RCB-");
                     }
 		    if (!termForm.equals(tokens[i])) {
