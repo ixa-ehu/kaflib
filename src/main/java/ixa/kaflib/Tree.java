@@ -120,6 +120,12 @@ public class Tree { //?
 		    else if (termForm.equals(")")) {
 			termForm = new String("-RRB-");
 		    }
+                    else if (termForm.equals("{")) { 
+                        termForm = new String("-LCB-");
+                    }
+                    else if (termForm.equals("}")) { 
+                        termForm = new String("-RCB-");
+                    }
 		    if (!termForm.equals(tokens[i])) {
 			// behin-behineko irtenbidea errorea ekiditeko: hutsa itzuli
 			return new HashMap<Integer, Term>();
