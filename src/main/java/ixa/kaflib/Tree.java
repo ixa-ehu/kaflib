@@ -116,12 +116,12 @@ public class Tree { //?
 		    else if (termForm.equals(")")) {
 			termForm = new String("-RRB-");
 		    }
-                    else if (termForm.equals("{")) { 
-                        termForm = new String("-LCB-");
-                    }
-                    else if (termForm.equals("}")) { 
-                        termForm = new String("-RCB-");
-                    }
+            else if (termForm.equals("{")) { 
+            termForm = new String("-LCB-");
+            }
+            else if (termForm.equals("}")) { 
+            termForm = new String("-RCB-");
+            }
 		    if (!termForm.equals(tokens[i])) {
 			throw new Exception("Can't perform parentheses=>NAF at constituency (tok_id: " + terms.get(nextTerm).getId()  + ", [" + termForm + "] != [" + tokens[i] + "])");
 		    }

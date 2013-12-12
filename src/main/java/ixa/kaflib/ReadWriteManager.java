@@ -632,7 +632,7 @@ class ReadWriteManager {
 		    newPredicate.addRole(rolea);
 		}
 	    }
-	    if (elem.getName().equals("constituents")) {
+	    if (elem.getName().equals("constituency")) {
 		List<Element> treeElems = elem.getChildren("tree");
 		for (Element treeElem : treeElems) {
 		    HashMap<String, TreeNode> treeNodes = new HashMap<String, TreeNode>();
@@ -1308,7 +1308,7 @@ class ReadWriteManager {
 
 	List<Tree> constituents = annotationContainer.getConstituents();
 	if (constituents.size() > 0) {
-	    Element constituentsElem = new Element("constituents");
+	    Element constituentsElem = new Element("constituency");
 	    for (Tree tree : constituents) {
 		Element treeElem = new Element("tree");
 		constituentsElem.addContent(treeElem);
