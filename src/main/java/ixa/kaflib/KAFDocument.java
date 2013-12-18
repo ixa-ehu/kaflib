@@ -11,6 +11,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.io.IOException;
 import org.jdom2.JDOMException;
+import org.jdom2.Element;
 
 
 /** Respresents a KAF document. It's the main class of the library, as it keeps all elements of the document (word forms, terms, entities...) and manages all object creations. The document can be created by the user calling it's methods, or loading from an existing XML file.*/
@@ -674,6 +675,10 @@ public Entity newEntity(List<Span<Term>> references) {
 	return new Span<Term>(targets, head);
     }
 
+    void addUnknownLayer(Element layer) {
+	annotationContainer.add(layer);
+    }
+
     /** Returns the raw text **/
     public String getRawText() {
 	return annotationContainer.getRawText();
@@ -744,6 +749,10 @@ public Entity newEntity(List<Span<Term>> references) {
 
     public List<Tree> getConstituents() {
 	return annotationContainer.getConstituents();
+    }
+
+    List<Element> getUnknownLayers() {
+	return annotationContainer.getUnknownLayers();
     }
 
     /** Returns current timestamp. */

@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import org.jdom2.Element;
 
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
@@ -59,6 +60,9 @@ class AnnotationContainer {
     /** List to keep all trees */
     private List<Tree> trees;
 
+    /** UNKNOWN annotation layers in plain DOM format */
+    private List<Element> unknownLayers;
+
     /** Hash map to index word forms by the sentence. It maps sentence's IDs to a list of token IDs from that sentence.  */
     private HashMap<Integer, List<WF>> textIndexedBySent;
 
@@ -102,6 +106,7 @@ class AnnotationContainer {
 	relations = new ArrayList();
 	predicates = new ArrayList();
 	trees = new ArrayList();
+	unknownLayers = new ArrayList<Element>();
 
 	textIndexedBySent = new HashMap<Integer, List<WF>>();
 	termsIndexedBySent = new HashMap<Integer, List<Term>>();
@@ -179,6 +184,11 @@ class AnnotationContainer {
     /** Returns all trees */
     List<Tree> getConstituents() {
 	return trees;
+    }
+
+    /** Returns all unknown layers as a DOM Element list */
+    List<Element> getUnknownLayers() {
+	return unknownLayers;
     }
 
     void setRawText(String str) {
@@ -308,6 +318,11 @@ class AnnotationContainer {
     /** Adds a tree to the container */
     void add(Tree tree) {
 	trees.add(tree);
+    }
+
+    /** Adds an unknown layer to the container in DOM format */
+    void add(Element layer) {
+	unknownLayers.add(layer);
     }
 
     /** Index a WF by its sentence number */

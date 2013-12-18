@@ -148,10 +148,10 @@ class ReadWriteManager {
 		    }
 		}
 	    }
-	    if (elem.getName().equals("raw")) {
+	    else if (elem.getName().equals("raw")) {
 		kaf.setRawText(elem.getText());
 	    }
-	    if (elem.getName().equals("text")) {
+	    else if (elem.getName().equals("text")) {
 		List<Element> wfElems = elem.getChildren();
 		for (Element wfElem : wfElems) {
 		    String wid = getAttribute("id", wfElem);
@@ -725,6 +725,10 @@ class ReadWriteManager {
 			}
 		    }
 		}
+	    }
+	    else { // This layer is not recognised by the library
+		//elem.detach();
+		kaf.addUnknownLayer(elem);
 	    }
 	}
 
@@ -1450,9 +1454,15 @@ class ReadWriteManager {
 		    treeElem.addContent(edgeElem);
 		}
 	    }
-	    root.addContent(constituentsElem);
+	    root.addContent(constituentsElem);   
 	}
 	
+	List<Element> unknownLayers = annotationContainer.getUnknownLayers();
+	for (Element layer : unknownLayers) {
+	    layer.detach();
+	    root.addContent(layer);
+	}
+
 	return doc;
     }
 
