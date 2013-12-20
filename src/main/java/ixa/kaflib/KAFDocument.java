@@ -848,6 +848,7 @@ public Entity newEntity(List<Span<Term>> references) {
 				      
 
     /** Returns a new document containing all annotations related to the given WFs */
+    /* Couldn't index opinion by terms. Terms are added after the Opinion object is created, and there's no way to access the annotationContainer from the Opinion.*/
     public KAFDocument split(List<WF> wfs) {
         List<Term> terms = this.annotationContainer.getTermsByWFs(wfs);
 	List<Dep> deps = this.annotationContainer.getDepsByTerms(terms);
@@ -856,7 +857,7 @@ public Entity newEntity(List<Span<Term>> references) {
 	List<Coref> corefs = this.annotationContainer.getCorefsByTerms(terms);
 	List<Feature> properties = this.annotationContainer.getPropertiesByTerms(terms);
 	List<Feature> categories = this.annotationContainer.getCategoriesByTerms(terms);
-	List<Opinion> opinions = this.annotationContainer.getOpinionsByTerms(terms);
+	// List<Opinion> opinions = this.annotationContainer.getOpinionsByTerms(terms);
 	List<Predicate> predicates = this.annotationContainer.getPredicatesByTerms(terms);
 	List<Relational> relationals = new ArrayList<Relational>();
 	relationals.addAll(properties);
@@ -866,7 +867,7 @@ public Entity newEntity(List<Span<Term>> references) {
 
 	KAFDocument newKaf = new KAFDocument(this.getLang(), this.getVersion());
 	newKaf.addLinguisticProcessors(this.getLinguisticProcessors());
-	this.copyAnnotationsToKAF(newKaf, wfs, terms, deps, chunks, entities, corefs, properties, categories, opinions, relations, predicates);
+	this.copyAnnotationsToKAF(newKaf, wfs, terms, deps, chunks, entities, corefs, properties, categories, new ArrayList<Opinion>(), relations, predicates);
 
 	return newKaf;
     }

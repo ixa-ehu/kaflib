@@ -283,6 +283,7 @@ class AnnotationContainer {
     void add(Opinion opinion) {
 	opinions.add(opinion);
 	/* Index by terms */
+	/* Ezin hemen indexatu, terminoak oraindik ez baitira gehitu!!!
 	LinkedHashSet<Term> terms = new LinkedHashSet<Term>();
 	terms.addAll(opinion.getOpinionHolder().getTerms());
 	terms.addAll(opinion.getOpinionTarget().getTerms());
@@ -290,6 +291,7 @@ class AnnotationContainer {
 	for (Term term : terms) {
 	    indexAnnotation(opinion, term.getId(), opinionsIndexedByTerm);
 	}
+	*/
     }
 
     /** Adds a relation to the container */
