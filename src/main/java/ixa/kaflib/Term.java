@@ -105,7 +105,10 @@ public class Term {
 	 */
 	private String sentimentProductFeature;
 
-	Sentiment(String resource, String polarity) {}
+	Sentiment(String resource, String polarity) {
+	    this.resource = resource;
+	    this.polarity = polarity;
+	}
 
 	Sentiment(Sentiment sentiment) {
 	    this.resource = sentiment.resource;
