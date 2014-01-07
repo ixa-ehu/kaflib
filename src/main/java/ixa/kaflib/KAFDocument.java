@@ -262,13 +262,14 @@ public class KAFDocument {
      * @return a new word form.
      */
     public WF newWF(String id, String form, int sent) {
-	idManager.updateWFCounter(id);		    
+	idManager.updateWFCounter(id);
 	WF newWF = new WF(this.annotationContainer, id, form, sent);
 	annotationContainer.add(newWF);
 	return newWF;
     }
 
-    /** Creates a new WF object. It assigns an appropriate ID to it.  The WF is added to the document object.
+    /** Creates a new WF object. It assigns an appropriate ID to it and it also assigns offset and length
+     * attributes. The WF is added to the document object.
      * @param form text of the word form itself.
      * @return a new word form.
      */
@@ -282,16 +283,14 @@ public class KAFDocument {
 	return newWF;
     }
 
-    /** Creates a new WF object. It assigns an appropriate ID to it and it also assigns offset and length
-     * attributes. The WF is added to the document object.
+    /** Creates a new WF object. It assigns an appropriate ID to it.  The WF is added to the document object.
      * @param form text of the word form itself.
      * @return a new word form.
      */
     public WF newWF(String form, int offset, int sent) {
 	String newId = idManager.getNextWFId();
-	int offsetVal = offset;
 	WF newWF = new WF(this.annotationContainer, newId, form, sent);
-	newWF.setOffset(offsetVal);
+	newWF.setOffset(offset);
 	newWF.setLength(form.length());
 	annotationContainer.add(newWF);
 	return newWF;
@@ -1060,12 +1059,12 @@ public Entity newEntity(List<Span<Term>> references) {
 
     /** Deprecated */
     public WF createWF(String id, String form) {
-	return this.newWF(id, form);
+	return this.newWF(id, form, 0);
     }
 
     /** Deprecated */
     public WF createWF(String form) {
-	return this.newWF(form);
+	return this.newWF(form, 0);
     }
 
     /** Deprecated */

@@ -32,13 +32,6 @@ public class Tree { //?
     /***********************************************************/
 
     static void parenthesesToKaf(String parOut, KAFDocument kaf) throws Exception {
-	/*
-	List<Term> terms = kaf.getTerms();
-	Span<Term> span = kaf.newTermSpan();
-	span.addTarget(terms.get(1));
-	Terminal t = kaf.newTerminal(span);
-	Tree tree = kaf.newConstituent(t);
-	*/
 	String[] tokens = Tree.tokenize(parOut);
 	Tree.check(tokens);
         HashMap<Integer, Integer> parMatching = Tree.matchParentheses(tokens);
@@ -114,27 +107,49 @@ public class Tree { //?
 	    if ((!tokens[i].equals("(")) && (!tokens[i].equals(")"))) {
 		if ((!tokens[i-1].equals("(")) && (!tokens[i-1].equals(")"))) {
 		    String termForm = terms.get(nextTerm).getForm();
+		    String previousTermForm = "";
+		    if (nextTerm != 0) {
+			previousTermForm = terms.get(nextTerm-1).getForm();
+		    }
+
 		    if (termForm.equals("(")) {
 			termForm = new String("-LRB-");
 		    }
 		    else if (termForm.equals(")")) {
 			termForm = new String("-RRB-");
 		    }
-                    else if (termForm.equals("{")) { 
-                        termForm = new String("-LCB-");
-                    }
-                    else if (termForm.equals("}")) { 
-                        termForm = new String("-RCB-");
-                    }
-		    if (!termForm.equals(tokens[i])) {
-			// behin-behineko irtenbidea errorea ekiditeko: hutsa itzuli
-			return new HashMap<Integer, Term>();
-			/*
-			throw new Exception("Can't perform parentheses=>NAF at constituency (tok_id: " + terms.get(nextTerm).getId()  + ", [" + termForm + "] != [" + tokens[i] + "])");
-			*/
+		    else if (termForm.equals("{")) { 
+			termForm = new String("-LCB-");
 		    }
-		    mapping.put(i, terms.get(nextTerm));
-		    nextTerm++;
+		    else if (termForm.equals("}")) { 
+			termForm = new String("-RCB-");
+		    }
+
+		    
+		    if (termForm.equals(tokens[i]) || termForm.contains(tokens[i])) {
+			mapping.put(i, terms.get(nextTerm));			
+			nextTerm++;
+		    }
+		    else if ((nextTerm > 0) && previousTermForm.contains(tokens[i])) {
+			// The token is part of a multitoken
+			mapping.put(i, terms.get(nextTerm-1));
+			// Don't update nextTerm
+		    }
+		    else {
+			boolean matched = false;
+			nextTerm++;
+			while (!matched && (nextTerm != terms.size())) {
+			    if (terms.get(nextTerm).getForm().equals(tokens[i])) {
+				mapping.put(i, terms.get(nextTerm));
+				matched = true;
+			    }
+			    nextTerm++;
+			}
+			if (!matched) {
+			    //throw new Exception("Can't perform parentheses=>NAF at constituency (tok_id: " + terms.get(nextTerm).getId()  + ", [" + termForm + "] != [" + tokens[i] + "])");
+			    throw new Exception("Can't perform parentheses=>NAF at constituency: form \"" + tokens[i] + "\" not found in the KAF document.");
+			}
+		    }
 		}
 	    }
 	}

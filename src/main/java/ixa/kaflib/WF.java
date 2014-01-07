@@ -32,7 +32,7 @@ public class WF {
     WF(AnnotationContainer annotationContainer, String wid, String form, int sent) {
 	this.annotationContainer = annotationContainer;
 	this.wid = wid;
-	this.form = form;	
+	this.form = form;
         this.setSent(sent);
 	this.para = -1;
 	this.page = -1;
