@@ -662,7 +662,9 @@ class ReadWriteManager {
 		    for (Element edgeElem : edgeElems) {
 			String fromId = getAttribute("from", edgeElem);
 			String toId = getAttribute("to", edgeElem);
-			String edgeId = getAttribute("id", edgeElem);
+			String edgeId = getOptAttribute("id", edgeElem);
+			String head = getOptAttribute("head", edgeElem);
+			boolean isHead = (head != null && head.equals("true")) ? true : false;
 			TreeNode parentNode = treeNodes.get(toId);
 			TreeNode childNode = treeNodes.get(fromId);
 			if ((parentNode == null) || (childNode == null)) {
@@ -670,7 +672,12 @@ class ReadWriteManager {
 			}
 			((NonTerminal) parentNode).addChild(childNode);
 			rootNodes.put(fromId, false);
-			childNode.setEdgeId(edgeId);
+			if (edgeId != null) {
+			    childNode.setEdgeId(edgeId);
+			}
+			if (isHead) {
+			    ((NonTerminal) childNode).setHead(isHead);
+			}
 		    }
 		    // Constituent objects
 		    for (Map.Entry<String, Boolean> areRoot : rootNodes.entrySet()) {
