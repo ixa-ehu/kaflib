@@ -343,8 +343,8 @@ public class KAFDocument {
     /** Creates a Sentiment object.
      * @return a new sentiment.
      */
-    public Term.Sentiment newSentiment(String resource, String polarity) {
-	Term.Sentiment newSentiment = new Term.Sentiment(resource, polarity);
+    public Term.Sentiment newSentiment() {
+	Term.Sentiment newSentiment = new Term.Sentiment();
 	return newSentiment;
     }
 
@@ -1112,11 +1112,6 @@ public Entity newEntity(List<Span<Term>> references) {
     /** Deprecated */
     public Term createTermOptions(String type, String lemma, String pos, String morphofeat, List<WF> wfs) {
 	return this.newTermOptions(type, lemma, pos, morphofeat, this.<WF>list2Span(wfs));
-    }
-
-    /** Deprecated */
-    public Term.Sentiment newSentiment() {
-        return this.newSentiment("", "");
     }
 
     /** Deprecated */
