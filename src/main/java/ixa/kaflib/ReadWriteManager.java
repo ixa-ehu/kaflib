@@ -713,7 +713,7 @@ class ReadWriteManager {
 			String toId = getAttribute("to", edgeElem);
 			String edgeId = getOptAttribute("id", edgeElem);
 			String head = getOptAttribute("head", edgeElem);
-			boolean isHead = (head != null && head.equals("true")) ? true : false;
+			boolean isHead = (head != null && head.equals("yes")) ? true : false;
 			TreeNode parentNode = treeNodes.get(toId);
 			TreeNode childNode = treeNodes.get(fromId);
 			if ((parentNode == null) || (childNode == null)) {
