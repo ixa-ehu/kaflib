@@ -4,55 +4,14 @@ import java.util.List;
 import java.util.ArrayList;
 import org.jdom2.Element;
 
-public class Terminal implements TreeNode {
-
-    /** The ID of the node */
-    private String id;
-
-    /** The id of the edge between this node and its parent. */
-    private String edgeId;
+public class Terminal extends TreeNode {
 
     /** The term referenced by this terminal */
     private Span<Term> span;
 
     Terminal(String id, Span<Term> span) {
-	this.id = id;
+	super(id, false, true);
 	this.span = span;
-    }
-
-    public String getId() {
-	return this.id;
-    }
-
-    public void setId(String id) {
-	this.id = id;
-    }
-
-    public String getEdgeId() {
-	return this.edgeId;
-    }
-
-    public void setEdgeId(String edgeId) {
-	this.edgeId = edgeId;
-    }
-
-    /** Return the first term in the span */
-    public Term getTerm() {
-	List<Term> terms = this.span.getTargets();
-	if (terms.size() <= 0) {
-	    return null;
-	}
-	return terms.get(0);
-    }
-
-    /** Returns all terms in the span */
-    public List<Term> getTerms() {
-	return this.span.getTargets();
-    }
-    
-    /** Adds a term to the span */
-    public void addTerm(Term term) {
-	this.span.addTarget(term);
     }
 
     /** Returns the Span object */
@@ -71,20 +30,25 @@ public class Terminal implements TreeNode {
 	return str;
     }
 
-   public String getStr() {
-       String strValue = this.getStrValue();
-       if (strValue.startsWith("-") || strValue.endsWith("-")) {
-   		return strValue.replace("-", "- ");
+    public String getStr() {
+	String strValue = this.getStrValue();
+	if (strValue.startsWith("-") || strValue.endsWith("-")) {
+	    return strValue.replace("-", "- ");
    	}
    	else if (strValue.contains("--")) { 
-   		return strValue.replace("--", "-");
+	    return strValue.replace("--", "-");
    	}
    	else {
-   		return strValue;
+	    return strValue;
    	}
     }
 
-    public boolean getHead() {
-	return false;
+    public void addChild(TreeNode tn) throws Exception {
+	throw new Exception("It is not possible to add child nodes to Terminal nodes.");
     }
+
+    public List<TreeNode> getChildren() {
+	return null;
+    }
+
 }

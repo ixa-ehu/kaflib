@@ -164,14 +164,18 @@ public class Tree { //?
 	}
 	if (end - start == 1) {
 	    Terminal t = Tree.createTerminal(tokens[end], termMap.get(end), kaf);
-	    nt.addChild(t);
+	    try {
+		nt.addChild(t);
+	    } catch(Exception e) {}
 	}
 	else {
 	    int current = start + 1;
 	    while (current <= end) {
 		int subParEnd = parenthesesMap.get(current);
 		NonTerminal nnt = Tree.createNonTerminal(tokens, current+1, subParEnd-1, parenthesesMap, termMap, kaf);
-		nt.addChild(nnt);
+		try {
+		    nt.addChild(nnt);
+		} catch(Exception e) {}
 		current = subParEnd + 1;
 	    }
 	}
