@@ -626,6 +626,8 @@ public Entity newEntity(List<Span<Term>> references) {
 
     public NonTerminal newNonTerminal(String id, String label) {
 	NonTerminal tn = new NonTerminal(id, label);
+	String newEdgeId = idManager.getNextEdgeId();
+	tn.setEdgeId(newEdgeId);
 	return tn;
     }
 
@@ -639,6 +641,8 @@ public Entity newEntity(List<Span<Term>> references) {
 
     public Terminal newTerminal(String id, Span<Term> span) {
 	Terminal tn = new Terminal(id, span);
+	String newEdgeId = idManager.getNextEdgeId();
+	tn.setEdgeId(newEdgeId);
 	return tn;
     }
 
