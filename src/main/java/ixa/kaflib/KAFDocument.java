@@ -72,6 +72,11 @@ public class KAFDocument {
 	    this.timestamp = timestamp;
 	}
 
+	public void setTimestamp() {
+	    String timestamp = this.getTimestamp();
+	    this.timestamp = timestamp;
+	}
+
 	public String getTimestamp() {
 	    return this.timestamp;
 	}
