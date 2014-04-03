@@ -189,11 +189,10 @@ public class KAFDocument {
     }
 
     /** Adds a linguistic processor to the document header. The timestamp is added implicitly. */
-    public LinguisticProcessor addLinguisticProcessor(String layer, String name, String version) {
+    public LinguisticProcessor addLinguisticProcessor(String layer, String name) {
 	String timestamp = this.getTimestamp();
 	LinguisticProcessor lp = new LinguisticProcessor(name);
 	lp.setBeginTimestamp(timestamp);
-	lp.setVersion(version);
 	List<LinguisticProcessor> layerLps = lps.get(layer);
 	if (layerLps == null) {
 	    layerLps = new ArrayList<LinguisticProcessor>();
@@ -203,18 +202,19 @@ public class KAFDocument {
 	return lp;
     }
 
+    /** Adds a linguistic processor to the document header. The timestamp is added implicitly. */
+    public LinguisticProcessor addLinguisticProcessor(String layer, String name, String version) {
+        LinguisticProcessor newLp = this.addLinguisticProcessor(layer, name);
+	newLp.setVersion(version);
+	return newLp;
+    }
+
     /** Adds a linguistic processor to the document header */
     public LinguisticProcessor addLinguisticProcessor(String layer, String name, String timestamp, String version) {
-	LinguisticProcessor lp = new LinguisticProcessor(name);
-	lp.setBeginTimestamp(timestamp);
-	lp.setVersion(version);
-	List<LinguisticProcessor> layerLps = lps.get(layer);
-	if (layerLps == null) {
-	    layerLps = new ArrayList<LinguisticProcessor>();
-	    lps.put(layer, layerLps);
-	}
-	layerLps.add(lp);
-	return lp;
+	LinguisticProcessor newLp = this.addLinguisticProcessor(layer, name);
+	newLp.setVersion(version);
+	newLp.setBeginTimestamp(timestamp);
+	return newLp;
     }	
 
     public void addLinguisticProcessors(Map<String, List<LinguisticProcessor>> lps) {
