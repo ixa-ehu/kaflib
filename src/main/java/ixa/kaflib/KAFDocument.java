@@ -72,7 +72,7 @@ public class KAFDocument {
 	}
 
 	public void setTimestamp() {
-	    String timestamp = this.getTimestamp();
+	    String timestamp = this.createTimestamp();
 	    this.timestamp = timestamp;
 	}
 
@@ -89,7 +89,7 @@ public class KAFDocument {
 	}
 
 	public void setBeginTimestamp() {
-	    String timestamp = this.getTimestamp();
+	    String timestamp = this.createTimestamp();
 	    this.beginTimestamp = timestamp;
 	}
 
@@ -106,7 +106,7 @@ public class KAFDocument {
 	}
 
 	public void setEndTimestamp() {
-	    String timestamp = this.getTimestamp();
+	    String timestamp = this.createTimestamp();
 	    this.endTimestamp = timestamp;
 	}
 
@@ -204,7 +204,7 @@ public class KAFDocument {
 
     /** Adds a linguistic processor to the document header. The timestamp is added implicitly. */
     public LinguisticProcessor addLinguisticProcessor(String layer, String name) {
-	String timestamp = this.getTimestamp();
+	String timestamp = this.createTimestamp();
 	LinguisticProcessor lp = new LinguisticProcessor(name);
 	//lp.setBeginTimestamp(timestamp); // no default timestamp
 	List<LinguisticProcessor> layerLps = lps.get(layer);
@@ -785,7 +785,7 @@ public Entity newEntity(List<Span<Term>> references) {
     }
 
     /** Returns current timestamp. */
-    public String getTimestamp() {
+    public String createTimestamp() {
 	Date date = new Date();
 	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 	String formattedDate = sdf.format(date);
