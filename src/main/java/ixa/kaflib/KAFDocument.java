@@ -40,6 +40,7 @@ public class KAFDocument {
 
     public class LinguisticProcessor {
 	String name;
+	String timestamp;
 	String beginTimestamp;
 	String endTimestamp;
 	String version;
@@ -51,7 +52,7 @@ public class KAFDocument {
 	/* Deprecated */
 	private LinguisticProcessor(String name, String timestamp, String version) {
 	    this.name = name;
-	    this.beginTimestamp = timestamp;
+	    this.timestamp = timestamp;
 	    this.version = version;
 	}
 
@@ -61,6 +62,18 @@ public class KAFDocument {
 
 	public String getName() {
 	    return name;
+	}
+
+	public boolean hasTimestamp() {
+	    return this.timestamp != null;
+	}
+
+	public void setTimestamp(String timestamp) {
+	    this.timestamp = timestamp;
+	}
+
+	public String getTimestamp() {
+	    return this.timestamp;
 	}
 
 	public boolean hasBeginTimestamp() {
@@ -109,20 +122,6 @@ public class KAFDocument {
 	    return version;
 	}
 
-	/** Deprecated */
-	public boolean hasTimestamp() {
-	    return beginTimestamp != null;
-	}
-
-	/** Deprecated */
-	public void setTimestamp(String timestamp) {
-	    this.beginTimestamp = timestamp;
-	}
-
-	/** Deprecated */
-	public String getTimestamp() {
-	    return beginTimestamp;
-	}
     }
 
     /** Language identifier */
@@ -203,7 +202,7 @@ public class KAFDocument {
     public LinguisticProcessor addLinguisticProcessor(String layer, String name) {
 	String timestamp = this.getTimestamp();
 	LinguisticProcessor lp = new LinguisticProcessor(name);
-	lp.setBeginTimestamp(timestamp);
+	//lp.setBeginTimestamp(timestamp); // no default timestamp
 	List<LinguisticProcessor> layerLps = lps.get(layer);
 	if (layerLps == null) {
 	    layerLps = new ArrayList<LinguisticProcessor>();
@@ -218,6 +217,7 @@ public class KAFDocument {
 	    List<LinguisticProcessor> layerLps = entry.getValue();
 	    for (LinguisticProcessor lp : layerLps) {
 		LinguisticProcessor newLp = this.addLinguisticProcessor(entry.getKey(), lp.name);
+		if (lp.hasTimestamp()) newLp.setTimestamp(lp.getTimestamp());
 		if (lp.hasBeginTimestamp()) newLp.setBeginTimestamp(lp.getBeginTimestamp());
 		if (lp.hasEndTimestamp()) newLp.setEndTimestamp(lp.getEndTimestamp());
 		if (lp.hasVersion()) newLp.setVersion(lp.getVersion());
@@ -926,7 +926,7 @@ public Entity newEntity(List<Span<Term>> references) {
 	    for (LinguisticProcessor lp : lpList) {
 		if (!this.linguisticProcessorExists(layer, lp.name, lp.version)) {
 		    // Here it uses a deprecated method
-		    this.addLinguisticProcessor(layer, lp.name, lp.beginTimestamp, lp.version);
+		    this.addLinguisticProcessor(layer, lp.name, lp.timestamp, lp.version);
 		}
 	    }
 	}
