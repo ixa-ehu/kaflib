@@ -51,7 +51,7 @@ public class KAFDocument {
 	/* Deprecated */
 	private LinguisticProcessor(String name, String timestamp, String version) {
 	    this.name = name;
-	    this.beginTimestamp = beginTimestamp;
+	    this.beginTimestamp = timestamp;
 	    this.version = version;
 	}
 
@@ -80,7 +80,7 @@ public class KAFDocument {
 	}
 
 	public void setEndTimestamp(String timestamp) {
-	    this.endTimestamp = endTimestamp;
+	    this.endTimestamp = timestamp;
 	}
 
 	public String getEndTimestamp() {
