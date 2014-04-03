@@ -40,7 +40,8 @@ public class KAFDocument {
 
     public class LinguisticProcessor {
 	String name;
-	String timestamp;
+	String beginTimestamp;
+	String endTimestamp;
 	String version;
 
 	private LinguisticProcessor(String name) {
@@ -50,7 +51,7 @@ public class KAFDocument {
 	/* Deprecated */
 	private LinguisticProcessor(String name, String timestamp, String version) {
 	    this.name = name;
-	    this.timestamp = timestamp;
+	    this.beginTimestamp = beginTimestamp;
 	    this.version = version;
 	}
 
@@ -62,16 +63,28 @@ public class KAFDocument {
 	    return name;
 	}
 
-	public boolean hasTimestamp() {
-	    return timestamp != null;
+	public boolean hasBeginTimestamp() {
+	    return beginTimestamp != null;
 	}
 
-	public void setTimestamp(String timestamp) {
-	    this.timestamp = timestamp;
+	public void setBeginTimestamp(String timestamp) {
+	    this.beginTimestamp = timestamp;
 	}
 
-	public String getTimestamp() {
-	    return timestamp;
+	public String getBeginTimestamp() {
+	    return beginTimestamp;
+	}
+
+	public boolean hasEndTimestamp() {
+	    return endTimestamp != null;
+	}
+
+	public void setEndTimestamp(String timestamp) {
+	    this.endTimestamp = endTimestamp;
+	}
+
+	public String getEndTimestamp() {
+	    return endTimestamp;
 	}
 
 	public boolean hasVersion() {
@@ -84,6 +97,21 @@ public class KAFDocument {
 
 	public String getVersion() {
 	    return version;
+	}
+
+	/** Deprecated */
+	public boolean hasTimestamp() {
+	    return beginTimestamp != null;
+	}
+
+	/** Deprecated */
+	public void setTimestamp(String timestamp) {
+	    this.beginTimestamp = timestamp;
+	}
+
+	/** Deprecated */
+	public String getTimestamp() {
+	    return beginTimestamp;
 	}
     }
 
@@ -165,7 +193,7 @@ public class KAFDocument {
     public LinguisticProcessor addLinguisticProcessor(String layer, String name) {
 	String timestamp = this.getTimestamp();
 	LinguisticProcessor lp = new LinguisticProcessor(name);
-	lp.setTimestamp(timestamp);
+	lp.setBeginTimestamp(timestamp);
 	List<LinguisticProcessor> layerLps = lps.get(layer);
 	if (layerLps == null) {
 	    layerLps = new ArrayList<LinguisticProcessor>();
@@ -179,10 +207,10 @@ public class KAFDocument {
 	for (Map.Entry<String, List<LinguisticProcessor>> entry : lps.entrySet()) {
 	    List<LinguisticProcessor> layerLps = entry.getValue();
 	    for (LinguisticProcessor lp : layerLps) {
-		this.addLinguisticProcessor(entry.getKey(),
-					lp.name,
-					lp.timestamp,
-					lp.version);
+		LinguisticProcessor newLp = this.addLinguisticProcessor(entry.getKey(), lp.name);
+		if (lp.hasBeginTimestamp()) newLp.setBeginTimestamp(lp.getBeginTimestamp());
+		if (lp.hasEndTimestamp()) newLp.setEndTimestamp(lp.getEndTimestamp());
+		if (lp.hasVersion()) newLp.setVersion(lp.getVersion());
 	    }
 	}
     }
@@ -887,7 +915,8 @@ public Entity newEntity(List<Span<Term>> references) {
 	    List<LinguisticProcessor> lpList = entry.getValue();
 	    for (LinguisticProcessor lp : lpList) {
 		if (!this.linguisticProcessorExists(layer, lp.name, lp.version)) {
-		    this.addLinguisticProcessor(layer, lp.name, lp.timestamp, lp.version);
+		    // Here it uses a deprecated method
+		    this.addLinguisticProcessor(layer, lp.name, lp.beginTimestamp, lp.version);
 		}
 	    }
 	}
