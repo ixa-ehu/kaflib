@@ -79,7 +79,7 @@ public class KAFDocument {
 	}
 
 	public void setEndTimestamp(String timestamp) {
-	    this.endTimestamp = endTimestamp;
+	    this.endTimestamp = timestamp;
 	}
 
 	public String getEndTimestamp() {
