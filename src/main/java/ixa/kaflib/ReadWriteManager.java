@@ -96,9 +96,19 @@ class ReadWriteManager {
 		    List<Element> lpElems = lpsElem.getChildren();
 		    for (Element lpElem : lpElems) {
 			String name = getAttribute("name", lpElem);
-			String timestamp = getOptAttribute("timestamp", lpElem);
+			KAFDocument.LinguisticProcessor newLp = kaf.addLinguisticProcessor(layer, name);
+			String beginTimestamp = getOptAttribute("beginTimestamp", lpElem);
+			if (beginTimestamp != null) {
+			    newLp.setBeginTimestamp(beginTimestamp);
+			}
+			String endTimestamp = getOptAttribute("endTimestamp", lpElem);
+			if (endTimestamp != null) {
+			    newLp.setEndTimestamp(endTimestamp);
+			}
 			String version = getOptAttribute("version", lpElem);
-			kaf.addLinguisticProcessor(layer, name, timestamp, version);
+			if (version != null) {
+			    newLp.setVersion(version);
+			}
 		    }
 		}
 		Element fileDescElem = elem.getChild("fileDesc");
@@ -857,8 +867,15 @@ class ReadWriteManager {
 	    for (KAFDocument.LinguisticProcessor lp : (List<KAFDocument.LinguisticProcessor>) entry.getValue()) {
 		Element lpElem = new Element("lp");
 		lpElem.setAttribute("name", lp.name);
-		lpElem.setAttribute("timestamp", lp.timestamp);
-		lpElem.setAttribute("version", lp.version);
+		if (lp.hasBeginTimestamp()) {
+		    lpElem.setAttribute("beginTimestamp", lp.beginTimestamp);
+		}
+		if (lp.hasEndTimestamp()) {
+		    lpElem.setAttribute("endTimestamp", lp.endTimestamp);
+		}
+		if (lp.hasVersion()) {
+		    lpElem.setAttribute("version", lp.version);
+		}
 		lpsElem.addContent(lpElem);
 	    }
 	    kafHeaderElem.addContent(lpsElem);
