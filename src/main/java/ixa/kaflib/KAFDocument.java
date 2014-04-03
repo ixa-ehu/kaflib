@@ -70,6 +70,11 @@ public class KAFDocument {
 	    this.beginTimestamp = timestamp;
 	}
 
+	public void setBeginTimestamp() {
+	    String timestamp = this.getTimestamp();
+	    this.beginTimestamp = timestamp;
+	}
+
 	public String getBeginTimestamp() {
 	    return beginTimestamp;
 	}
@@ -79,6 +84,11 @@ public class KAFDocument {
 	}
 
 	public void setEndTimestamp(String timestamp) {
+	    this.endTimestamp = timestamp;
+	}
+
+	public void setEndTimestamp() {
+	    String timestamp = this.getTimestamp();
 	    this.endTimestamp = timestamp;
 	}
 
