@@ -740,9 +740,15 @@ public Entity newEntity(List<Span<Term>> references) {
 	return annotationContainer.getSentences();
     }
 
+    public Integer getFirstSentence() {
+	return annotationContainer.getText().get(0).getSent();
+    }
+
     public Integer getNumSentences() {
 	List<WF> wfs = annotationContainer.getText();
-	return wfs.get(wfs.size()-1).getSent();
+	Integer firstSentence = wfs.get(0).getSent();
+	Integer lastSentence = wfs.get(wfs.size()-1).getSent();
+	return lastSentence - firstSentence + 1;
     }
 
     public List<Integer> getSentsByParagraph(Integer para) {
