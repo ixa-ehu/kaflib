@@ -63,32 +63,33 @@ class AnnotationContainer {
     /** UNKNOWN annotation layers in plain DOM format */
     private List<Element> unknownLayers;
 
-    /** Hash map to index word forms by the sentence. It maps sentence's IDs to a list of token IDs from that sentence.  */
-    private HashMap<Integer, List<WF>> textIndexedBySent;
-
-    /** Hash map to index terms by the sentence. It maps sentence's IDs to a list of term IDs from that sentence.  */
-    private HashMap<Integer, List<Term>> termsIndexedBySent;
-
     /** Hash map for mapping word forms to terms. */
     private HashMap<String, List<Term>> termsIndexedByWF;
-
     private HashMap<String, List<Dep>> depsIndexedByTerm;
-
     private HashMap<String, List<Chunk>> chunksIndexedByTerm;
-
     private HashMap<String, List<Entity>> entitiesIndexedByTerm;
-
     private HashMap<String, List<Coref>> corefsIndexedByTerm;
-
     private HashMap<String, List<Feature>> propertiesIndexedByTerm;
-
     private HashMap<String, List<Feature>> categoriesIndexedByTerm;
-
     private HashMap<String, List<Opinion>> opinionsIndexedByTerm;
-
     private HashMap<String, List<Relation>> relationsIndexedByRelational;
-
     private HashMap<String, List<Predicate>> predicatesIndexedByTerm;
+
+    HashMap<Integer, List<WF>> textIndexedBySent;
+    HashMap<Integer, List<Term>> termsIndexedBySent;
+    HashMap<Integer, List<Entity>> entitiesIndexedBySent;
+    HashMap<Integer, List<Dep>> depsIndexedBySent;
+    HashMap<Integer, List<Chunk>> chunksIndexedBySent;
+    HashMap<Integer, List<Coref>> corefsIndexedBySent;
+    HashMap<Integer, List<Feature>> propertiesIndexedBySent;
+    HashMap<Integer, List<Feature>> categoriesIndexedBySent;
+    HashMap<Integer, List<Opinion>> opinionsIndexedBySent;
+    HashMap<Integer, List<Relation>> relationsIndexedBySent;
+    HashMap<Integer, List<Predicate>> predicatesIndexedBySent;
+    HashMap<Integer, List<Tree>> treesIndexedBySent;
+
+    HashMap<Integer, LinkedHashSet<Integer>> sentsIndexedByParagraphs;
+
 
     /** This creates a new AnnotationContainer object */
     AnnotationContainer() {
@@ -108,8 +109,6 @@ class AnnotationContainer {
 	trees = new ArrayList();
 	unknownLayers = new ArrayList<Element>();
 
-	textIndexedBySent = new HashMap<Integer, List<WF>>();
-	termsIndexedBySent = new HashMap<Integer, List<Term>>();
 	termsIndexedByWF = new HashMap<String, List<Term>>();
 	depsIndexedByTerm = new HashMap<String, List<Dep>>();
 	chunksIndexedByTerm =  new HashMap<String, List<Chunk>>();
@@ -120,6 +119,51 @@ class AnnotationContainer {
 	opinionsIndexedByTerm =  new HashMap<String, List<Opinion>>();
 	relationsIndexedByRelational =  new HashMap<String, List<Relation>>();
 	predicatesIndexedByTerm = new HashMap<String, List<Predicate>>();
+
+	textIndexedBySent = new HashMap<Integer, List<WF>>();
+	termsIndexedBySent = new HashMap<Integer, List<Term>>();
+	entitiesIndexedBySent = new HashMap<Integer, List<Entity>>();
+	depsIndexedBySent = new HashMap<Integer, List<Dep>>();
+	chunksIndexedBySent = new HashMap<Integer, List<Chunk>>();
+	corefsIndexedBySent = new HashMap<Integer, List<Coref>>();
+	propertiesIndexedBySent = new HashMap<Integer, List<Feature>>();
+	categoriesIndexedBySent = new HashMap<Integer, List<Feature>>();
+	opinionsIndexedBySent = new HashMap<Integer, List<Opinion>>();
+	relationsIndexedBySent = new HashMap<Integer, List<Relation>>();
+	predicatesIndexedBySent = new HashMap<Integer, List<Predicate>>();
+	treesIndexedBySent = new HashMap<Integer, List<Tree>>();
+
+	sentsIndexedByParagraphs = new HashMap<Integer, LinkedHashSet<Integer>>();
+    }
+
+    private <T> void indexBySent(T annotation, Integer sent, HashMap<Integer, List<T>> index) {
+	if (sent > 0) {
+	    if (index.get(sent) == null) {
+		index.put(sent, new ArrayList<T>());
+	    }
+	    index.get(sent).add(annotation);
+	}
+    }
+
+    void indexSentByPara(Integer sent, Integer para) {
+	if ((sent > 0) && (para > 0)) {
+	    if (this.sentsIndexedByParagraphs.get(para) == null) {
+		this.sentsIndexedByParagraphs.put(para, new LinkedHashSet<Integer>());
+	    }
+	    this.sentsIndexedByParagraphs.get(para).add(sent);
+	}
+    }
+
+    public List<Integer> getSentsByParagraph(Integer para) {
+	return new ArrayList<Integer>(this.sentsIndexedByParagraphs.get(para));
+    }
+
+    <T> List<T> getLayerByPara(Integer para, HashMap<Integer, List<T>> index) {
+	List<T> layer = new ArrayList<T>();
+	for (Integer sent : this.getSentsByParagraph(para)) {
+	    layer.addAll(index.get(sent));
+	}
+	return layer;
     }
 
     String getRawText() {
@@ -199,6 +243,7 @@ class AnnotationContainer {
     void add(WF wf) {
 	text.add(wf);
 	//nextOffset += wf.getLength() + 1;
+	this.indexBySent(wf, wf.getSent(), this.textIndexedBySent);
     }
 
     private <T> void indexAnnotation(T annotation, String hashId, HashMap<String, List<T>> index) {
@@ -214,10 +259,7 @@ class AnnotationContainer {
 	for (WF wf : term.getWFs()) {
 	    indexAnnotation(term, wf.getId(), termsIndexedByWF);
 	}
-	/* Index by sentence */
-        if (term.getSent() != -1) {
-	    indexTermBySent(term, term.getSent());
-	}
+	this.indexBySent(term, term.getSent(), this.termsIndexedBySent);
     }
 
     /** Adds a dependency to the container */
@@ -232,6 +274,7 @@ class AnnotationContainer {
 	    String tId = dep.getTo().getId();
 	    indexAnnotation(dep, tId, depsIndexedByTerm);
 	}
+	this.indexBySent(dep, dep.getFrom().getSent(), this.depsIndexedBySent);
     }
 
     /** Adds a chunk to the container */
@@ -241,6 +284,7 @@ class AnnotationContainer {
 	for (Term term : chunk.getTerms()) {
 	    indexAnnotation(chunk, term.getId(), chunksIndexedByTerm);
 	}
+	this.indexBySent(chunk, chunk.getSpan().getTargets().get(0).getSent(), this.chunksIndexedBySent);
     }
 
     /** Adds a named entity to the container */
@@ -250,6 +294,7 @@ class AnnotationContainer {
 	for (Term term : entity.getTerms()) {
 	    indexAnnotation(entity, term.getId(), entitiesIndexedByTerm);
 	}
+	this.indexBySent(entity, entity.getSpans().get(0).getTargets().get(0).getSent(), this.entitiesIndexedBySent);
     }
 
     /** Adds a feature to the container. It checks if it is a property or a category. */
@@ -260,6 +305,7 @@ class AnnotationContainer {
 	    for (Term term : feature.getTerms()) {
 		indexAnnotation(feature, term.getId(), propertiesIndexedByTerm);
 	    }
+	    //this.indexBySent(feature, feature.getSpans().get(0).getTargets().get(0).getSent(), this.propertiesIndexedBySent);
 	}
 	else {
 	    categories.add(feature);
@@ -267,7 +313,8 @@ class AnnotationContainer {
 	    for (Term term : feature.getTerms()) {
 		indexAnnotation(feature, term.getId(), categoriesIndexedByTerm);
 	    }
-	}		
+	    //this.indexBySent(feature, feature.getSpans().get(0).getTargets().get(0).getSent(), this.categoriesIndexedBySent);
+	}
     }
 
     /** Adds a coreference to the container */
@@ -277,6 +324,7 @@ class AnnotationContainer {
 	for (Term term : coref.getTerms()) {
 	    indexAnnotation(coref, term.getId(), corefsIndexedByTerm);
 	}
+	//this.indexBySent(coref, coref.getSpans().get(0).getTargets().get(0).getSent(), this.corefsIndexedBySent);
     }
 
     /** Adds an opinion to the container */
@@ -292,6 +340,7 @@ class AnnotationContainer {
 	    indexAnnotation(opinion, term.getId(), opinionsIndexedByTerm);
 	}
 	*/
+	
     }
 
     /** Adds a relation to the container */
@@ -315,6 +364,7 @@ class AnnotationContainer {
 	for (Term term : predicate.getTerms()) {
 	    indexAnnotation(predicate, term.getId(), predicatesIndexedByTerm);
 	}
+	this.indexBySent(predicate, predicate.getSpan().getTargets().get(0).getSent(), this.predicatesIndexedBySent);
     }
 
     /** Adds a tree to the container */
@@ -326,20 +376,6 @@ class AnnotationContainer {
     void add(Element layer) {
 	unknownLayers.add(layer);
     }
-
-    /** Index a WF by its sentence number */
-    void indexWFBySent(WF wf, Integer sent) {
-	if (sent == -1) {
-	    throw new IllegalStateException("You can't call indexWFBySent not having defined the sentence for this token");
-	}
-	List<WF> sentWfs = textIndexedBySent.get(sent);
-	if (sentWfs == null) {
-	    sentWfs = new ArrayList<WF>();
-	    textIndexedBySent.put(sent, sentWfs);
-	}
-	sentWfs.add(wf);
-    }
-
 
     /** Index a Term by its sentence number */
     void indexTermBySent(Term term, Integer sent) {

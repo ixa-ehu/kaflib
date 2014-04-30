@@ -740,6 +740,20 @@ public Entity newEntity(List<Span<Term>> references) {
 	return annotationContainer.getSentences();
     }
 
+    public Integer getNumSentences() {
+	List<WF> wfs = annotationContainer.getText();
+	return wfs.get(wfs.size()-1).getSent();
+    }
+
+    public List<Integer> getSentsByParagraph(Integer para) {
+	if (this.annotationContainer.sentsIndexedByParagraphs.get(para) == null) System.out.println(para+": 0");
+	return new ArrayList<Integer>(this.annotationContainer.sentsIndexedByParagraphs.get(para));
+    }
+
+    public Integer getNumParagraphs() {
+	return this.annotationContainer.sentsIndexedByParagraphs.keySet().size();
+    }
+
     /** Returns a list with all terms in the document. */
     public List<Term> getTerms() {
 	return annotationContainer.getTerms();
@@ -797,8 +811,56 @@ public Entity newEntity(List<Span<Term>> references) {
 	return annotationContainer.getConstituents();
     }
 
-    List<Element> getUnknownLayers() {
+    public List<Element> getUnknownLayers() {
 	return annotationContainer.getUnknownLayers();
+    }
+
+    public List<WF> getWFsBySent(Integer sent) {
+	return this.annotationContainer.textIndexedBySent.get(sent);
+    }
+
+    public List<WF> getWFsByPara(Integer para) {
+	return this.annotationContainer.getLayerByPara(para, this.annotationContainer.textIndexedBySent);
+    }
+
+    public List<Term> getTermsBySent(Integer sent) {
+	return this.annotationContainer.termsIndexedBySent.get(sent);
+    }
+
+    public List<Term> getTermsByPara(Integer para) {
+	return this.annotationContainer.getLayerByPara(para, this.annotationContainer.termsIndexedBySent);
+    }
+
+    public List<Entity> getEntitiesBySent(Integer sent) {
+	return this.annotationContainer.entitiesIndexedBySent.get(sent);
+    }
+
+    public List<Entity> getEntitiesByPara(Integer para) {
+	return this.annotationContainer.getLayerByPara(para, this.annotationContainer.entitiesIndexedBySent);
+    }
+
+    public List<Dep> getDepsBySent(Integer sent) {
+	return this.annotationContainer.depsIndexedBySent.get(sent);
+    }
+
+    public List<Dep> getDepsByPara(Integer para) {
+	return this.annotationContainer.getLayerByPara(para, this.annotationContainer.depsIndexedBySent);
+    }
+
+    public List<Chunk> getChunksBySent(Integer sent) {
+	return this.annotationContainer.chunksIndexedBySent.get(sent);
+    }
+
+    public List<Chunk> getChunksByPara(Integer para) {
+	return this.annotationContainer.getLayerByPara(para, this.annotationContainer.chunksIndexedBySent);
+    }
+
+    public List<Predicate> getPredicatesBySent(Integer sent) {
+	return this.annotationContainer.predicatesIndexedBySent.get(sent);
+    }
+
+    public List<Predicate> getPredicatesByPara(Integer para) {
+	return this.annotationContainer.getLayerByPara(para, this.annotationContainer.predicatesIndexedBySent);
     }
 
     /** Returns current timestamp. */

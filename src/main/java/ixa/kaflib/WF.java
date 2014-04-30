@@ -66,12 +66,14 @@ public class WF {
 
     public void setSent(int sent) {
 	this.sent = sent;
+	/*
 	annotationContainer.indexWFBySent(this, sent);
 	// If there's a term associated with this WF, index it as well
 	Term term = annotationContainer.getTermByWF(this);
 	if (term != null) {
 	    annotationContainer.indexTermBySent(term, sent);
 	}
+	*/
     }
 
     public boolean hasPara() {
@@ -84,6 +86,7 @@ public class WF {
 
     public void setPara(int para) {
 	this.para = para;
+	this.annotationContainer.indexSentByPara(this.sent, para);
     }
 
     public boolean hasPage() {

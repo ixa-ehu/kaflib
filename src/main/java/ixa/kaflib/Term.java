@@ -522,8 +522,8 @@ public class Term {
 	this.span = span;
     }
 
-    public int getSent() {
-	return this.getWFs().get(0).getSent();
+    public Integer getSent() {
+	return this.getSpan().getTargets().get(0).getSent();
     }
 
     public List<ExternalRef> getExternalRefs() {
