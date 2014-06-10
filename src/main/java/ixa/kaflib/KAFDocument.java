@@ -17,6 +17,9 @@ import org.jdom2.JDOMException;
 
 public class KAFDocument {
 
+    public enum Layer {
+	text, terms, deps, chunks, entities, properties, categories, coreferences, opinions, relations, srl, constituency;
+    }
 
     public class FileDesc {
 	String author;
@@ -1130,6 +1133,10 @@ public Entity newEntity(List<Span<Term>> references) {
      */
     public static Target createTarget(Term term, boolean isHead) {
 	return new Target(term, isHead);
+    }
+
+    public void removeLayer(Layer layer) {
+	this.annotationContainer.removeLayer(layer);
     }
 
     /** Converts a List into a Span */
