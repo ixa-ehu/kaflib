@@ -572,4 +572,47 @@ class AnnotationContainer {
 	}
 	return new ArrayList<Term>(terms);
     }
+
+    void removeLayer(KAFDocument.Layer layer) {
+	switch (layer) {
+	case text:
+	    this.text.clear();
+	    break;
+	case terms:
+	    this.terms.clear();
+	    break;
+	case deps:
+	    this.deps.clear();
+	    break;
+	case chunks:
+	    this.chunks.clear();
+	    break;
+	case entities:
+	    this.entities.clear();
+	    break;
+	case properties:
+	    this.properties.clear();
+	    break;
+	case categories:
+	    this.categories.clear();
+	    break;
+	case coreferences:
+	    this.coreferences.clear();
+	    break;
+	case opinions:
+	    this.opinions.clear();
+	    break;
+	case relations:
+	    this.relations.clear();
+	    break;
+	case srl:
+	    this.predicates.clear();
+	    break;
+	case constituency:
+	    this.trees.clear();
+	    break;
+	default:
+	    throw new IllegalArgumentException("Wrong layer");
+	}
+    }
 }
