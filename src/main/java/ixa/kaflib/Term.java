@@ -443,15 +443,19 @@ public class Term {
 
    public String getStr() {
        String strValue = this.getForm();
-       if (strValue.startsWith("-") || strValue.endsWith("-")) {
-   		return strValue.replace("-", "- ");
-   	}
-   	else if (strValue.contains("--")) { 
-   		return strValue.replace("--", "-");
-   	}
-   	else {
-   		return strValue;
-   	}
+       boolean valid = false;
+       while (!valid) {
+	   if (strValue.startsWith("-") || strValue.endsWith("-")) {
+	       strValue = strValue.replace("-", "- ");
+	   }
+	   else if (strValue.contains("--")) { 
+	       strValue = strValue.replace("--", "-");
+	   }
+	   else {
+	       valid = true;
+	   }
+       }
+       return strValue;
     }
 
     public boolean hasHead() {
