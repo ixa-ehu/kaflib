@@ -446,7 +446,7 @@ public class Term {
        boolean valid = false;
        while (!valid) {
 	   if (strValue.startsWith("-") || strValue.endsWith("-")) {
-	       strValue = strValue.replace("-", "- ");
+	       strValue = strValue.replace("-", " - ");
 	   }
 	   else if (strValue.contains("--")) { 
 	       strValue = strValue.replace("--", "-");
