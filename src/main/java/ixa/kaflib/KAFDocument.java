@@ -94,6 +94,7 @@ public class KAFDocument {
 	public void setBeginTimestamp() {
 	    String timestamp = createTimestamp();
 	    this.beginTimestamp = timestamp;
+	    this.timestamp = null;
 	}
 
 	public String getBeginTimestamp() {
@@ -106,6 +107,7 @@ public class KAFDocument {
 
 	public void setEndTimestamp(String timestamp) {
 	    this.endTimestamp = timestamp;
+	    this.timestamp = null;
 	}
 
 	public void setEndTimestamp() {
@@ -209,7 +211,7 @@ public class KAFDocument {
     public LinguisticProcessor addLinguisticProcessor(String layer, String name) {
 	String timestamp = createTimestamp();
 	LinguisticProcessor lp = new LinguisticProcessor(name);
-	lp.setBeginTimestamp(timestamp);
+	lp.setTimestamp(timestamp);
 	List<LinguisticProcessor> layerLps = lps.get(layer);
 	if (layerLps == null) {
 	    layerLps = new ArrayList<LinguisticProcessor>();
