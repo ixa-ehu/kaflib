@@ -209,7 +209,7 @@ public class KAFDocument {
     public LinguisticProcessor addLinguisticProcessor(String layer, String name) {
 	String timestamp = createTimestamp();
 	LinguisticProcessor lp = new LinguisticProcessor(name);
-	//lp.setBeginTimestamp(timestamp); // no default timestamp
+	lp.setBeginTimestamp(timestamp);
 	List<LinguisticProcessor> layerLps = lps.get(layer);
 	if (layerLps == null) {
 	    layerLps = new ArrayList<LinguisticProcessor>();
