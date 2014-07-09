@@ -27,7 +27,7 @@ class IdManager {
     /* Counters for each type of annotations */
     private int wfCounter;
     private int termCounter;
-    private int mwCounter;
+    //private int mwCounter;
     private int chunkCounter;
     private int entityCounter;
     private int corefCounter;
@@ -45,7 +45,7 @@ class IdManager {
     /* Inconsistent ID flags */
     private boolean inconsistentIdText;
     private boolean inconsistentIdTerm;
-    private boolean inconsistentIdMw;
+    //private boolean inconsistentIdMw;
     private boolean inconsistentIdComponent;
     private boolean inconsistentIdChunk;
     private boolean inconsistentIdEntity;
@@ -63,7 +63,7 @@ class IdManager {
     IdManager() {
 	this.wfCounter = 0;
 	this.termCounter = 0;
-	this.mwCounter = 0;
+	//this.mwCounter = 0;
 	this.chunkCounter = 0;
 	this.entityCounter = 0;
 	this.corefCounter = 0;
@@ -80,7 +80,7 @@ class IdManager {
 
 	this.inconsistentIdText = false;
 	this.inconsistentIdTerm = false;
-	this.inconsistentIdMw = false;
+	//this.inconsistentIdMw = false;
 	this.inconsistentIdComponent = false;
 	this.inconsistentIdChunk = false;
 	this.inconsistentIdEntity = false;
@@ -111,9 +111,11 @@ class IdManager {
     }
 
     String getNextMwId() {
+	/*
 	if (this.inconsistentIdMw) {
 	    throw new IllegalStateException("Inconsistent MW IDs. Can't create new MW IDs.");
 	}
+	*/
 	return MW_PREFIX + Integer.toString(++termCounter);
     }
 
@@ -218,11 +220,12 @@ class IdManager {
     }
 
     private int extractCounterFromId(String id) {
-	Matcher matcher = Pattern.compile(".*?(\\d+)$").matcher(id);
+	//Matcher matcher = Pattern.compile(".*?(\\d+)$").matcher(id);
+	Matcher matcher = Pattern.compile("\\d+$").matcher(id);
 	if (!matcher.find()) {
 	    throw new IllegalStateException("IdManager doesn't recognise the given id's (" + id  + ") format.");
 	}
-	return Integer.valueOf(matcher.group(1));
+	return Integer.valueOf(matcher.group(0));
     }
 
     void updateWFCounter(String id) {
@@ -251,7 +254,7 @@ class IdManager {
 		this.termCounter = idNum;
 	    }
 	} catch(IllegalStateException e) {
-	    this.inconsistentIdMw = true;
+	    //this.inconsistentIdMw = true;
 	}
     }
 
