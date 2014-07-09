@@ -402,19 +402,14 @@ public class KAFDocument {
 	return newTerm;
     }
 
-    public Term newCompound(List<Term> terms) {
-	String newLemma = new String();
+    public Term newCompound(List<Term> terms, String lemma) {
 	Span<WF> span = new Span<WF>();
 	for (Term term : terms) {
 	    span.addTargets(term.getSpan().getTargets()); 
-	    if (!newLemma.equals("")) {
-		newLemma += " ";
-	    }
-	    newLemma += term.getLemma();
 	}
 	String newId = idManager.getNextMwId();
 	Term compound = newTerm(newId, span, annotationContainer.termPosition(terms.get(0)));
-	compound.setLemma(newLemma);
+	compound.setLemma(lemma);
 	for (Term term : terms) {
 	    compound.addComponent(term);
 	    term.setCompound(compound);
