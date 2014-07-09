@@ -255,11 +255,21 @@ class AnnotationContainer {
 
     /** Adds a term to the container */
     void add(Term term) {
-	terms.add(term);
+	this.add(term, this.terms.size());
+    }
+
+    void add(Term term, int index) {
+	terms.add(index, term);
 	for (WF wf : term.getWFs()) {
 	    indexAnnotation(term, wf.getId(), termsIndexedByWF);
 	}
-	this.indexBySent(term, term.getSent(), this.termsIndexedBySent);
+	if (!term.isComponent()) {
+	    this.indexBySent(term, term.getSent(), this.termsIndexedBySent);
+	}
+    }
+
+    void remove(Term term) {
+	this.terms.remove(term);
     }
 
     /** Adds a dependency to the container */
@@ -401,6 +411,10 @@ class AnnotationContainer {
 	    sentences.add(wfs);
 	}
 	return sentences;
+    }
+
+    Integer termPosition(Term term) {
+	return this.terms.indexOf(term);
     }
 
     /** Returns WFs from a sentence */

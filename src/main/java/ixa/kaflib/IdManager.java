@@ -9,6 +9,7 @@ class IdManager {
     /* Prefix of each type of ids */
     private static final String WF_PREFIX = "w";
     private static final String TERM_PREFIX = "t";
+    private static final String MW_PREFIX = "t.mw";
     private static final String COMPONENT_PREFIX = ".";
     private static final String CHUNK_PREFIX = "c";
     private static final String ENTITY_PREFIX = "e";
@@ -26,6 +27,7 @@ class IdManager {
     /* Counters for each type of annotations */
     private int wfCounter;
     private int termCounter;
+    private int mwCounter;
     private int chunkCounter;
     private int entityCounter;
     private int corefCounter;
@@ -43,6 +45,7 @@ class IdManager {
     /* Inconsistent ID flags */
     private boolean inconsistentIdText;
     private boolean inconsistentIdTerm;
+    private boolean inconsistentIdMw;
     private boolean inconsistentIdComponent;
     private boolean inconsistentIdChunk;
     private boolean inconsistentIdEntity;
@@ -60,6 +63,7 @@ class IdManager {
     IdManager() {
 	this.wfCounter = 0;
 	this.termCounter = 0;
+	this.mwCounter = 0;
 	this.chunkCounter = 0;
 	this.entityCounter = 0;
 	this.corefCounter = 0;
@@ -76,6 +80,7 @@ class IdManager {
 
 	this.inconsistentIdText = false;
 	this.inconsistentIdTerm = false;
+	this.inconsistentIdMw = false;
 	this.inconsistentIdComponent = false;
 	this.inconsistentIdChunk = false;
 	this.inconsistentIdEntity = false;
@@ -103,6 +108,13 @@ class IdManager {
 	    throw new IllegalStateException("Inconsistent term IDs. Can't create new term IDs.");
 	}
 	return TERM_PREFIX + Integer.toString(++termCounter);
+    }
+
+    String getNextMwId() {
+	if (this.inconsistentIdMw) {
+	    throw new IllegalStateException("Inconsistent MW IDs. Can't create new MW IDs.");
+	}
+	return MW_PREFIX + Integer.toString(++termCounter);
     }
 
     String getNextChunkId() {
@@ -223,9 +235,23 @@ class IdManager {
 
     void updateTermCounter(String id) {
 	try {
-	    termCounter = extractCounterFromId(id);
+	    Integer idNum = extractCounterFromId(id);
+	    if (this.termCounter < idNum) {
+		this.termCounter = idNum;
+	    }
 	} catch(IllegalStateException e) {
 	    this.inconsistentIdTerm = true;
+	}
+    }
+
+    void updateMwCounter(String id) {
+	try {
+	    Integer idNum = extractCounterFromId(id);
+	    if (this.termCounter < idNum) {
+		this.termCounter = idNum;
+	    }
+	} catch(IllegalStateException e) {
+	    this.inconsistentIdMw = true;
 	}
     }
 

@@ -273,7 +273,8 @@ class ReadWriteManager {
 		    for (Element termsComponentElem : termsComponentElems) {
 			String compId = getAttribute("id", termsComponentElem);
 			boolean isHead = ((tHead != null) && tHead.equals(compId));
-			Term.Component newComponent = kaf.newComponent(compId, newTerm);
+			Term newComponent = kaf.newTerm(compId, new Span<WF>(), true);
+			newComponent.setCompound(newTerm);
 			List<Element> externalReferencesElems = termsComponentElem.getChildren("externalReferences");
 			if (externalReferencesElems.size() > 0) {
 			    List<ExternalRef> externalRefs = getExternalReferences(externalReferencesElems.get(0), kaf);
@@ -288,6 +289,7 @@ class ReadWriteManager {
 			    newComponent.setPos(compPos);
 			}
 			newTerm.addComponent(newComponent, isHead);
+			termIndex.put(newComponent.getId(), newComponent);
 		    }
 		    List<Element> externalReferencesElems = termElem.getChildren("externalReferences");
 		    if (externalReferencesElems.size() > 0) {
@@ -981,7 +983,7 @@ class ReadWriteManager {
 	    Element termsElem = new Element("terms");
 	    for (Term term : terms) {
 		String morphofeat;
-		Term.Component head;
+		Term head;
 		String termcase;
 		Comment termComment = new Comment(term.getStr());
 		termsElem.addContent(termComment);
@@ -1045,9 +1047,9 @@ class ReadWriteManager {
 		    spanElem.addContent(targetElem);
 		}
 		termElem.addContent(spanElem);
-		List<Term.Component> components = term.getComponents();
+		List<Term> components = term.getComponents();
 		if (components.size() > 0) {
-		    for (Term.Component component : components) {
+		    for (Term component : components) {
 			Element componentElem = new Element("component");
 			componentElem.setAttribute("id", component.getId());
 			if (component.hasLemma()) {

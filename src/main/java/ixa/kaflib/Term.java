@@ -39,16 +39,19 @@ public class Term {
     private Sentiment sentiment;
 
     /** If it's a compound term, it's components (optional) */
-    private List<Component> components;
+    private List<Term> components;
 
     /** Head component (optional) */
-    private Component head;
+    private Term head;
 
     /** Target elements are used to refer to the target word. If the term is a multiword, multiple target elements are used. (required)*/
     private Span<WF> span;
 
     /** ExternalReferences are used to associate terms to external lexical or semantic resources, such as elements of a Knowledge base: semantic lexicon  (like WordNet) or an ontology (optional) */
     private List<ExternalRef> externalReferences;
+
+    private boolean isComponent;
+    private Term compound; // Parent compound term of this component
 
     /** The term layer represents sentiment information which is context-independent and that can be found in a sentiment lexicon.
      * It is related to concepts expressed by words/ terms (e.g. beautiful) or multi-word expressions (e. g. out of order).
@@ -216,129 +219,45 @@ public class Term {
 	}
     }
 
-    /** Compound terms can be represented in KAF by including them within terms. For example, the Dutch term landbouwbeleid (English: agriculture policy) would contain two components: landbouw + beleid. */
-    public static class Component {
-
-	/** Component¡s ID (required) */
-	private String id;
-
-	/** Lemma of the component (optional) */
-	private String lemma;
-
-	/** Part of speech (optional) */
-	private String pos;
-
-	/** Declension case (optional) */
-	private String componentcase;
-
-	/** External references (optional) */
-	private List<ExternalRef> externalReferences;
-
-	Component(String id) {
-	    this.id = id;
-	    this.externalReferences = new ArrayList<ExternalRef>();
-	}
-
-	Component(Component component) {
-	    this.id = component.id;
-	    this.lemma = component.lemma;
-	    this.pos = component.pos;
-	    this.componentcase = component.componentcase;
-	    this.externalReferences = new ArrayList<ExternalRef>();
-	    for (ExternalRef externalRef : component.getExternalRefs()) {
-		this.externalReferences.add(new ExternalRef(externalRef));
-	    }
-	}
-
-	public String getId() {
-	    return id;
-	}
-
-	public boolean hasLemma() {
-	    return lemma != null;
-	}
-
-	public String getLemma() {
-	    return lemma;
-	}
-
-	public void setLemma(String val) {
-	    this.lemma = lemma;
-	}
-
-	public boolean hasPos() {
-	    return pos != null;
-	}
-
-	public String getPos() {
-	    return pos;
-	}
-
-	public void setPos(String val) {
-	    this.pos = pos;
-	}
-
-	public boolean hasCase() {
-	    return componentcase != null;
-	}
-
-	public String getCase() {
-	    return componentcase;
-	}
-
-	public void setCase(String val) {
-	    this.componentcase = componentcase;
-	}
-
-	public List<ExternalRef> getExternalRefs() {
-	    return externalReferences;
-	}
-
-	public void addExternalRef(ExternalRef val) {
-	    externalReferences.add(val);
-	}
-
-	public void addExternalRefs(List<ExternalRef> val) {
-	    externalReferences.addAll(val);
-	}
-    }
-
-    Term(String id, Span<WF> span) {
+    Term(String id, Span<WF> span, boolean isComponent) {
+	/*
 	if (span.size() < 1) {
 	    throw new IllegalStateException("A Term must have at least one WF");
 	}
+	*/
 	this.tid = id;
 	this.components = new ArrayList();
 	this.span = span;
 	this.externalReferences = new ArrayList<ExternalRef>();
+	this.isComponent = isComponent;
     }
 
     /* Copy constructor */
     Term(Term term, HashMap<String, WF> wfs) {
-	/* Copy simple fields */
+	// Copy simple fields
 	this.tid = term.tid;
 	this.type = term.type;
 	this.lemma = term.lemma;
 	this.pos = term.pos;
 	this.morphofeat = term.morphofeat;
 	this.termcase = term.termcase;
-	/* Copy sentiment */
+	// Copy sentiment
 	if (term.hasSentiment()) {
 	    this.sentiment = new Sentiment(term.sentiment);
 	}
-	/* Copy components and head */
-	HashMap<String, Component> newComponents = 
-	    new HashMap<String, Component>();
-	this.components = new ArrayList<Component>();
-	for (Component component : term.components) {
-	    Component copyComponent = new Component(component);
+	// Copy components and head
+	HashMap<String, Term> newComponents = 
+	    new HashMap<String, Term>();
+	this.components = new ArrayList<Term>();
+	for (Term component : term.components) {
+	    Term copyComponent = new Term(component, wfs);
 	    this.components.add(copyComponent);
 	    newComponents.put(component.getId(), copyComponent);
 	}
 	if (term.hasHead()) {
 	    this.head = newComponents.get(term.head.getId());
 	}
-	/* Copy span */
+	// Copy span
 	List<WF> targets = term.span.getTargets();
 	List<WF> copiedTargets = new ArrayList<WF>();
 	for (WF wf : targets) {
@@ -355,7 +274,7 @@ public class Term {
 	else {
 	    this.span = new Span<WF>(copiedTargets);
 	}
-	/* Copy external references */
+	// Copy external references
 	this.externalReferences = new ArrayList<ExternalRef>();
 	for (ExternalRef externalRef : term.getExternalRefs()) {
 	    this.externalReferences.add(new ExternalRef(externalRef));
@@ -462,7 +381,7 @@ public class Term {
 	return (this.head != null);
     }
 
-    public Component getHead() {
+    public Term getHead() {
         return this.head;
     }
 
@@ -487,15 +406,15 @@ public class Term {
         this.sentiment = sentiment;
     }
 
-    public List<Component> getComponents() {
+    public List<Term> getComponents() {
 	return this.components;
     }
 
-    public void addComponent(Component component) {
+    public void addComponent(Term component) {
 	components.add(component);
     }
 
-    public void addComponent(Component component, boolean isHead) {
+    public void addComponent(Term component, boolean isHead) {
 	components.add(component);
 	if (isHead) {
 	    this.head = component;
@@ -527,7 +446,11 @@ public class Term {
     }
 
     public Integer getSent() {
-	return this.getSpan().getTargets().get(0).getSent();
+	if (!this.isComponent()) {
+	    return this.getSpan().getTargets().get(0).getSent();
+	} else {
+	    return this.getCompound().getSent();
+	}
     }
 
     public List<ExternalRef> getExternalRefs() {
@@ -542,4 +465,18 @@ public class Term {
 	externalReferences.addAll(externalRefs);
     }
 
+    boolean isComponent() {
+	return this.isComponent;
+    }
+
+    public void setCompound(Term compound) {
+	this.compound = compound;
+	System.out.println(this.tid + ": ");
+	System.out.println(this.compound == null);
+    }
+
+    public Term getCompound() {
+	System.out.println(this.compound == null);
+	return this.compound;
+    }
 }

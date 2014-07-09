@@ -352,8 +352,24 @@ public class KAFDocument {
      */
     public Term newTerm(String id, Span<WF> span) {
 	idManager.updateTermCounter(id);
-	Term newTerm = new Term(id, span);
+	Term newTerm = new Term(id, span, false);
 	annotationContainer.add(newTerm);
+	return newTerm;
+    }
+
+    public Term newTerm(String id, Span<WF> span, boolean isComponent) {
+	idManager.updateTermCounter(id);
+	Term newTerm = new Term(id, span, isComponent);
+	if (!isComponent) {
+	    annotationContainer.add(newTerm);
+	}
+	return newTerm;
+    }
+
+    public Term newTerm(String id, Span<WF> span, Integer position) {
+	idManager.updateTermCounter(id);
+	Term newTerm = new Term(id, span, false);
+	annotationContainer.add(newTerm, position);
 	return newTerm;
     }
 
@@ -366,7 +382,7 @@ public class KAFDocument {
      */
     public Term newTerm(Span<WF> span) {
 	String newId = idManager.getNextTermId();
-	Term newTerm = new Term(newId, span);
+	Term newTerm = new Term(newId, span, false);
 	annotationContainer.add(newTerm);
 	return newTerm;
     }
@@ -380,10 +396,31 @@ public class KAFDocument {
      */
     public Term newTermOptions(String morphofeat, Span<WF> span) {
 	String newId = idManager.getNextTermId();
-	Term newTerm = new Term(newId, span);
+	Term newTerm = new Term(newId, span, false);
 	newTerm.setMorphofeat(morphofeat);
 	annotationContainer.add(newTerm);
 	return newTerm;
+    }
+
+    public Term newCompound(List<Term> terms) {
+	String newLemma = new String();
+	Span<WF> span = new Span<WF>();
+	for (Term term : terms) {
+	    span.addTargets(term.getSpan().getTargets()); 
+	    if (!newLemma.equals("")) {
+		newLemma += " ";
+	    }
+	    newLemma += term.getLemma();
+	}
+	String newId = idManager.getNextMwId();
+	Term compound = newTerm(newId, span, annotationContainer.termPosition(terms.get(0)));
+	compound.setLemma(newLemma);
+	for (Term term : terms) {
+	    compound.addComponent(term);
+	    term.setCompound(compound);
+	    this.annotationContainer.remove(term);
+	}
+	return compound;
     }
 
     /** Creates a Sentiment object.
@@ -392,31 +429,6 @@ public class KAFDocument {
     public Term.Sentiment newSentiment() {
 	Term.Sentiment newSentiment = new Term.Sentiment();
 	return newSentiment;
-    }
-
-    /** Creates a Component object to load an existing component. It receives the ID as an argument. It doesn't add the component to the term.
-     * @param id component's ID.
-     * @param term the term which this component is part of.
-     * @param lemma lemma of the component.
-     * @param pos part of speech of the component.
-     * @return a new component.
-     */
-    public Term.Component newComponent(String id, Term term) {
-	idManager.updateComponentCounter(id, term.getId());
-	Term.Component newComponent = new Term.Component(id);
-	return newComponent;
-    }
-
-    /** Creates a new Component. It assigns an appropriate ID to it. It uses the ID of the term to create a new ID for the component. It doesn't add the component to the term.
-     * @param term the term which this component is part of.
-     * @param lemma lemma of the component.
-     * @param pos part of speech of the component.
-     * @return a new component.
-     */
-    public Term.Component newComponent(Term term) {
-	String newId = idManager.getNextComponentId(term.getId());
-	Term.Component newComponent = new Term.Component(newId);
-	return newComponent;
     }
 
     /** Creates a new dependency. The Dep is added to the document object.
@@ -1238,31 +1250,40 @@ public Entity newEntity(List<Span<Term>> references) {
 	return this.newSentiment();
     }
     
+    
     /** Deprecated */
-    public Term.Component newComponent(String id, Term term, String lemma, String pos) {
-	Term.Component newComponent = this.newComponent(id, term);
+    /*
+    public Component newComponent(String id, Term term, String lemma, String pos) {
+	Component newComponent = this.newComponent(id, term);
 	newComponent.setLemma(lemma);
 	newComponent.setPos(pos);
 	return newComponent;
     }
+    */
 
     /** Deprecated */
-    public Term.Component newComponent(Term term, String lemma, String pos) {
+    
+    /*public Component newComponent(Term term, String lemma, String pos) {
 	Term.Component newComponent = this.newComponent(term);
 	newComponent.setLemma(lemma);
 	newComponent.setPos(pos);
 	return newComponent;
     }
+    */
 
     /** Deprecated */
-    public Term.Component createComponent(String id, Term term, String lemma, String pos) {
+    /*
+    public Component createComponent(String id, Term term, String lemma, String pos) {
 	return this.newComponent(id, term, lemma, pos);
     }
+    */
 
     /** Deprecated */
-    public Term.Component createComponent(Term term, String lemma, String pos) {
+    /*
+      public Component createComponent(Term term, String lemma, String pos) {
 	return this.newComponent(term, lemma, pos);
     }
+    */
 
     /** Deprecated */
     public Dep createDep(Term from, Term to, String rfunc) {
