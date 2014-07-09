@@ -446,11 +446,14 @@ public class Term {
     }
 
     public Integer getSent() {
+	return this.getSpan().getTargets().get(0).getSent();
+	/*
 	if (!this.isComponent()) {
 	    return this.getSpan().getTargets().get(0).getSent();
 	} else {
 	    return this.getCompound().getSent();
 	}
+	*/
     }
 
     public List<ExternalRef> getExternalRefs() {
