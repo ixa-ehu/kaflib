@@ -766,6 +766,10 @@ public Entity newEntity(List<Span<Term>> references) {
 	return new ArrayList<Integer>(this.annotationContainer.sentsIndexedByParagraphs.get(para));
     }
 
+    public Integer getFirstParagraph() {
+	return this.annotationContainer.getText().get(0).getPara();
+    }
+
     public Integer getNumParagraphs() {
 	return this.annotationContainer.sentsIndexedByParagraphs.keySet().size();
     }
