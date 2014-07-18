@@ -2,9 +2,10 @@ package ixa.kaflib;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.io.Serializable;
 import org.jdom2.Element;
 
-public class Terminal extends TreeNode {
+public class Terminal extends TreeNode implements Serializable {
 
     /** The term referenced by this terminal */
     private Span<Term> span;

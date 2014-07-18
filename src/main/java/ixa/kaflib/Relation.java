@@ -3,9 +3,10 @@ package ixa.kaflib;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.io.Serializable;
 
 /** Class for representing relations between entities and/or features. */
-public class Relation {
+public class Relation implements Serializable {
 
     /* Relation's ID (required) */
     private String id;

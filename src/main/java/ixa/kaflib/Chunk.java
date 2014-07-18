@@ -3,9 +3,11 @@ package ixa.kaflib;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.io.Serializable;
+
 
 /** Chunks are noun, verb or prepositional phrases, spanning terms. */
-public class Chunk {
+public class Chunk implements Serializable {
 
     /** Chunk's ID (required) */
     private String cid;

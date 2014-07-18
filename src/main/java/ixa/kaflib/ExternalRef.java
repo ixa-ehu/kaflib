@@ -1,6 +1,9 @@
 package ixa.kaflib;
 
-public class ExternalRef {
+import java.io.Serializable;
+
+
+public class ExternalRef implements Serializable {
     private String resource;
     private String reference;
     private float confidence;

@@ -2,9 +2,11 @@ package ixa.kaflib;
 
 import java.util.regex.*;
 import java.util.HashMap;
+import java.io.Serializable;
+
 
 /** Manages ID creation. Each ID is created taking into account the annotations of the same type created so far, in a document context. This class keeps a counter for each type of annotation (terms, chunks...). */
-class IdManager {
+class IdManager implements Serializable {
 
     /* Prefix of each type of ids */
     private static final String WF_PREFIX = "w";

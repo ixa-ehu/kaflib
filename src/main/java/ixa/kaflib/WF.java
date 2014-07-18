@@ -1,7 +1,10 @@
 package ixa.kaflib;
 
+import java.io.Serializable;
+
+
 /** Class for representing word forms. These are the result of the tokenization process. */
-public class WF {
+public class WF implements Serializable {
 
     private AnnotationContainer annotationContainer;
 

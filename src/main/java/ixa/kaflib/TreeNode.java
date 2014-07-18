@@ -1,8 +1,9 @@
 package ixa.kaflib;
 import org.jdom2.Element;
 import java.util.List;
+import java.io.Serializable;
 
-public abstract class TreeNode {
+public abstract class TreeNode implements Serializable {
 
     /** The ID of the node */
     private String id;

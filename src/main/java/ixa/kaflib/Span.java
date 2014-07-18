@@ -2,8 +2,9 @@ package ixa.kaflib;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.io.Serializable;
 
-public class Span<T> {
+public class Span<T> implements Serializable {
 
     //private List<String> targets;
     private List<T> targets;

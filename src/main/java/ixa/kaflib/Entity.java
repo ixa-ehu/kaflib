@@ -3,9 +3,10 @@ package ixa.kaflib;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.io.Serializable;
 
 /** A named entity is a term (or a multiword) that clearly identifies one item. The optional Named Entity layer is used to reference terms that are named entities. */
-public class Entity implements Relational {
+public class Entity implements Relational, Serializable {
 
     /** Named entity's ID (required) */
     private String eid;

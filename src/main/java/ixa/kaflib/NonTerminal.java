@@ -2,9 +2,11 @@ package ixa.kaflib;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.io.Serializable;
 import org.jdom2.Element;
 
-public class NonTerminal extends TreeNode {
+
+public class NonTerminal extends TreeNode implements Serializable {
 
     /** Label */
     private String label;

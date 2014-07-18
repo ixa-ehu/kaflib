@@ -3,9 +3,11 @@ package ixa.kaflib;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.io.Serializable;
+
 
 /** Class for representing features. There are two types of features: properties and categories. */
-public class Feature implements Relational {
+public class Feature implements Relational, Serializable {
 
     /* Feature's ID (required) */
     private String id;

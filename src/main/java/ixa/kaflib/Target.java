@@ -1,6 +1,9 @@
 package ixa.kaflib;
 
-public class Target {
+import java.io.Serializable;
+
+
+public class Target implements Serializable {
     private Term term;
     private boolean head;
 

@@ -2,8 +2,10 @@ package ixa.kaflib;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.io.Serializable;
 
-public class Predicate {
+
+public class Predicate implements Serializable {
 
     public static class Role {
 	private String rid;

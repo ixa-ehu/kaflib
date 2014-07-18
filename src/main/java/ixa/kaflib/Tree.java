@@ -4,9 +4,10 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Stack;
+import java.io.Serializable;
 
 /**  */
-public class Tree { //?
+public class Tree implements Serializable { //?
 
     private static final String HEAD_MARK = "=H";
 

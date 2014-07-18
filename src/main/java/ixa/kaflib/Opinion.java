@@ -3,9 +3,10 @@ package ixa.kaflib;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.io.Serializable;
 
 /** Class for representing opinions. */
-public class Opinion {
+public class Opinion implements Serializable {
 
     public static class OpinionHolder {
 	private String type;

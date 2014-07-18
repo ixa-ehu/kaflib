@@ -1,6 +1,7 @@
 package ixa.kaflib;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,7 +18,7 @@ import org.jdom2.Element;
 import org.jdom2.JDOMException;
 
 /** A container to keep all annotations of a document (word forms, terms, dependencies, chunks, entities and coreferences). There are different hash maps to index annotations by different properties as ID, sentence... It enables to retrieve annotations by different properties in an effective way. Performance is very important. */
-class AnnotationContainer {
+class AnnotationContainer implements Serializable {
 
     private String rawText;
 
