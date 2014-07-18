@@ -7,7 +7,7 @@ import java.io.Serializable;
 
 public class Predicate implements Serializable {
 
-    public static class Role {
+    public static class Role implements Serializable {
 	private String rid;
 	private String semRole;
 	private Span<Term> span;

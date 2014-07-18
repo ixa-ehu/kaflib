@@ -60,7 +60,7 @@ public class Term implements Serializable {
      * We provide possibilities to store sentiment information at word level and at sense/synset level. In the latter case, the sentiment information
      * is included in the “external_reference” section and a WSD process may identify the correct sense with its sentiment information. The extension contains the following information categories.
      */
-    public static class Sentiment {
+    public static class Sentiment implements Serializable {
 
 	/** Identifier and reference to an external sentiment resource (optional) */
 	private String resource;

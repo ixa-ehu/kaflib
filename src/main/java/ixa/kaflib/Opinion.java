@@ -8,7 +8,7 @@ import java.io.Serializable;
 /** Class for representing opinions. */
 public class Opinion implements Serializable {
 
-    public static class OpinionHolder {
+    public static class OpinionHolder implements Serializable {
 	private String type;
 	private Span<Term> span;
 
@@ -70,7 +70,7 @@ public class Opinion implements Serializable {
 	}
     }
 
-    public static class OpinionTarget {
+    public static class OpinionTarget implements Serializable {
 	private Span<Term> span;
 
 	OpinionTarget(Span<Term> span) {
@@ -119,7 +119,7 @@ public class Opinion implements Serializable {
 	}
     }
 
-    public static class OpinionExpression {
+    public static class OpinionExpression implements Serializable {
 	
 	/* Polarity (optional) */
 	private String polarity;

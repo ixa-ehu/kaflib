@@ -23,7 +23,7 @@ public class KAFDocument implements Serializable {
 	text, terms, deps, chunks, entities, properties, categories, coreferences, opinions, relations, srl, constituency;
     }
 
-    public class FileDesc {
+    public class FileDesc implements Serializable {
 	public String author;
 	public String title;
 	public String filename;
@@ -34,7 +34,7 @@ public class KAFDocument implements Serializable {
 	private FileDesc() {}
     }
 
-    public class Public {
+    public class Public implements Serializable {
 	public String publicId;
 	public String uri;
     
@@ -42,7 +42,7 @@ public class KAFDocument implements Serializable {
 	}
     }
 
-    public class LinguisticProcessor {
+    public class LinguisticProcessor implements Serializable {
 	String name;
 	String timestamp;
 	String beginTimestamp;
