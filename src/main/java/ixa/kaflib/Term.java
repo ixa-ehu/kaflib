@@ -476,12 +476,9 @@ public class Term implements Serializable {
 
     public void setCompound(Term compound) {
 	this.compound = compound;
-	System.out.println(this.tid + ": ");
-	System.out.println(this.compound == null);
     }
 
     public Term getCompound() {
-	System.out.println(this.compound == null);
 	return this.compound;
     }
 }
