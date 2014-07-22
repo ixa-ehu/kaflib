@@ -837,7 +837,8 @@ public Entity newEntity(List<Span<Term>> references) {
     }
 
     public List<WF> getWFsBySent(Integer sent) {
-	return this.annotationContainer.textIndexedBySent.get(sent);
+	List<WF> wfs = this.annotationContainer.textIndexedBySent.get(sent);
+	return (wfs == null) ? new ArrayList<WF>() : wfs;
     }
 
     public List<WF> getWFsByPara(Integer para) {
@@ -845,7 +846,8 @@ public Entity newEntity(List<Span<Term>> references) {
     }
 
     public List<Term> getTermsBySent(Integer sent) {
-	return this.annotationContainer.termsIndexedBySent.get(sent);
+	List<Term> terms = this.annotationContainer.termsIndexedBySent.get(sent);
+	return (terms == null) ? new ArrayList<Term>() : terms;
     }
 
     public List<Term> getTermsByPara(Integer para) {
@@ -853,7 +855,8 @@ public Entity newEntity(List<Span<Term>> references) {
     }
 
     public List<Entity> getEntitiesBySent(Integer sent) {
-	return this.annotationContainer.entitiesIndexedBySent.get(sent);
+	List<Entity> entities = this.annotationContainer.entitiesIndexedBySent.get(sent);
+	return (entities == null) ? new ArrayList<Entity>() : entities;
     }
 
     public List<Entity> getEntitiesByPara(Integer para) {
