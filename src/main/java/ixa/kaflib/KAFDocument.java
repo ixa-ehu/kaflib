@@ -810,7 +810,7 @@ public Entity newEntity(List<Span<Term>> references) {
 	return annotationContainer.getMarkSources();
     }
 
-    public List<Mark> getMarkables(String source) {
+    public List<Mark> getMarks(String source) {
 	return annotationContainer.getMarks(source);
     }
 
