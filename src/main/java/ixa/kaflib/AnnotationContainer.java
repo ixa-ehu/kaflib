@@ -205,7 +205,7 @@ class AnnotationContainer implements Serializable {
     }
 
     List<Mark> getMarks(String source) {
-	return marks.get(source);
+	return (marks.get(source) == null) ? new ArrayList<Mark>() : marks.get(source);
     }
 
     /** Returns all dependencies */
