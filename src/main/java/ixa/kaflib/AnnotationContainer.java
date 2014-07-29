@@ -31,7 +31,7 @@ class AnnotationContainer implements Serializable {
     /** List to keep all terms */
     private List<Term> terms;
 
-    private Map<String, List<Spot>> spots;
+    private Map<String, List<Mark>> marks;
 
     /** List to keep all dependencies */
     private List<Dep> deps;
@@ -68,7 +68,7 @@ class AnnotationContainer implements Serializable {
 
     /** Hash map for mapping word forms to terms. */
     private HashMap<String, List<Term>> termsIndexedByWF;
-    private HashMap<String, Map<String, List<Spot>>> spotsIndexedByTerm;
+    private HashMap<String, Map<String, List<Mark>>> marksIndexedByTerm;
     private HashMap<String, List<Dep>> depsIndexedByTerm;
     private HashMap<String, List<Chunk>> chunksIndexedByTerm;
     private HashMap<String, List<Entity>> entitiesIndexedByTerm;
@@ -81,7 +81,7 @@ class AnnotationContainer implements Serializable {
 
     HashMap<Integer, List<WF>> textIndexedBySent;
     HashMap<Integer, List<Term>> termsIndexedBySent;
-    HashMap<Integer, Map<String, List<Spot>>> spotsIndexedBySent;
+    HashMap<Integer, Map<String, List<Mark>>> marksIndexedBySent;
     HashMap<Integer, List<Entity>> entitiesIndexedBySent;
     HashMap<Integer, List<Dep>> depsIndexedBySent;
     HashMap<Integer, List<Chunk>> chunksIndexedBySent;
@@ -102,7 +102,7 @@ class AnnotationContainer implements Serializable {
 	text = new ArrayList();
 	nextOffset = 0;
 	terms = new ArrayList();
-	spots = new HashMap();
+	marks = new HashMap();
 	deps = new ArrayList();
 	chunks = new ArrayList();
 	entities = new ArrayList();
@@ -116,7 +116,7 @@ class AnnotationContainer implements Serializable {
 	unknownLayers = new ArrayList<Element>();
 
 	termsIndexedByWF = new HashMap<String, List<Term>>();
-	spotsIndexedByTerm = new HashMap<String, Map<String, List<Spot>>>();
+	marksIndexedByTerm = new HashMap<String, Map<String, List<Mark>>>();
 	depsIndexedByTerm = new HashMap<String, List<Dep>>();
 	chunksIndexedByTerm =  new HashMap<String, List<Chunk>>();
 	entitiesIndexedByTerm =  new HashMap<String, List<Entity>>();
@@ -129,7 +129,7 @@ class AnnotationContainer implements Serializable {
 
 	textIndexedBySent = new HashMap<Integer, List<WF>>();
 	termsIndexedBySent = new HashMap<Integer, List<Term>>();
-	spotsIndexedBySent = new HashMap<Integer, Map<String, List<Spot>>>();
+	marksIndexedBySent = new HashMap<Integer, Map<String, List<Mark>>>();
 	entitiesIndexedBySent = new HashMap<Integer, List<Entity>>();
 	depsIndexedBySent = new HashMap<Integer, List<Dep>>();
 	chunksIndexedBySent = new HashMap<Integer, List<Chunk>>();
@@ -153,15 +153,15 @@ class AnnotationContainer implements Serializable {
 	}
     }
 
-    private void indexSpotBySent(Spot spot, String source, Integer sent) {
+    private void indexMarkBySent(Mark mark, String source, Integer sent) {
 	if (sent > 0) {
-	    if (spotsIndexedBySent.get(sent) == null) {
-		spotsIndexedBySent.put(sent, new HashMap<String, List<Spot>>());
+	    if (marksIndexedBySent.get(sent) == null) {
+		marksIndexedBySent.put(sent, new HashMap<String, List<Mark>>());
 	    }
-	    if (spotsIndexedBySent.get(sent).get(source) == null) {
-		spotsIndexedBySent.get(sent).put(source, new ArrayList<Spot>());
+	    if (marksIndexedBySent.get(sent).get(source) == null) {
+		marksIndexedBySent.get(sent).put(source, new ArrayList<Mark>());
 	    }
-	    spotsIndexedBySent.get(sent).get(source).add(spot);
+	    marksIndexedBySent.get(sent).get(source).add(mark);
 	}
     } 
 
@@ -200,12 +200,12 @@ class AnnotationContainer implements Serializable {
 	return terms;
     }
 
-    List<String> getSpotSources() {
-	return new ArrayList<String>(spots.keySet());
+    List<String> getMarkSources() {
+	return new ArrayList<String>(marks.keySet());
     }
 
-    List<Spot> getSpots(String source) {
-	return spots.get(source);
+    List<Mark> getMarks(String source) {
+	return marks.get(source);
     }
 
     /** Returns all dependencies */
@@ -281,14 +281,14 @@ class AnnotationContainer implements Serializable {
 	index.get(hashId).add(annotation);
     } 
 
-    private void indexSpotByTerm(Spot spot, String source, String tid) {
-	if (spotsIndexedByTerm.get(tid) == null) {
-	    spotsIndexedByTerm.put(tid, new HashMap<String, List<Spot>>());
+    private void indexMarkByTerm(Mark mark, String source, String tid) {
+	if (marksIndexedByTerm.get(tid) == null) {
+	    marksIndexedByTerm.put(tid, new HashMap<String, List<Mark>>());
 	}
-	if (spotsIndexedByTerm.get(tid).get(source) == null) {
-	    spotsIndexedByTerm.get(tid).put(source, new ArrayList<Spot>());
+	if (marksIndexedByTerm.get(tid).get(source) == null) {
+	    marksIndexedByTerm.get(tid).put(source, new ArrayList<Mark>());
 	}
-	spotsIndexedByTerm.get(tid).get(source).add(spot);
+	marksIndexedByTerm.get(tid).get(source).add(mark);
     }
 
     /** Adds a term to the container */
@@ -310,17 +310,17 @@ class AnnotationContainer implements Serializable {
 	this.terms.remove(term);
     }
 
-    void add(Spot spot, String source) {
-	List<Spot> sourceSpots = spots.get(source);
-	if (sourceSpots == null) {
-	    sourceSpots = new ArrayList<Spot>();
+    void add(Mark mark, String source) {
+	List<Mark> sourceMarks = marks.get(source);
+	if (sourceMarks == null) {
+	    sourceMarks = new ArrayList<Mark>();
 	}
-	sourceSpots.add(spot);
-	spots.put(source, sourceSpots);
-	for (Term term : spot.getSpan().getTargets()) {
-	    indexSpotByTerm(spot, source, term.getId());
+	sourceMarks.add(mark);
+	marks.put(source, sourceMarks);
+	for (Term term : mark.getSpan().getTargets()) {
+	    indexMarkByTerm(mark, source, term.getId());
 	}
-        this.indexSpotBySent(spot, source, spot.getSpan().getTargets().get(0).getSent());
+        this.indexMarkBySent(mark, source, mark.getSpan().getTargets().get(0).getSent());
     }
 
     /** Adds a dependency to the container */
@@ -503,13 +503,13 @@ class AnnotationContainer implements Serializable {
 	return new ArrayList<Term>(terms);
     }
 
-    List<Spot> getSpotsByTerm(Term term, String source) {
-	Map<String, List<Spot>> spots = this.spotsIndexedByTerm.get(term.getId());
-	if (spots == null) {
-	    return new ArrayList<Spot>();
+    List<Mark> getMarksByTerm(Term term, String source) {
+	Map<String, List<Mark>> marks = this.marksIndexedByTerm.get(term.getId());
+	if (marks == null) {
+	    return new ArrayList<Mark>();
 	}
-	List<Spot> sourceSpots = spots.get(source);
-	return (sourceSpots == null) ? new ArrayList<Spot>() : sourceSpots;
+	List<Mark> sourceMarks = marks.get(source);
+	return (sourceMarks == null) ? new ArrayList<Mark>() : sourceMarks;
     }
 
     List<Dep> getDepsByTerm(Term term) {

@@ -20,7 +20,7 @@ import org.jdom2.Element;
 public class KAFDocument implements Serializable {
 
     public enum Layer {
-	text, terms, spots, deps, chunks, entities, properties, categories, coreferences, opinions, relations, srl, constituency;
+	text, terms, marks, deps, chunks, entities, properties, categories, coreferences, opinions, relations, srl, constituency;
     }
 
     public class FileDesc implements Serializable {
@@ -427,18 +427,18 @@ public class KAFDocument implements Serializable {
 	return newSentiment;
     }
 
-    public Spot newSpot(String id, String source, Span<Term> span) {
-	idManager.updateSpotCounter(id);
-	Spot newSpot = new Spot(id, span);
-	annotationContainer.add(newSpot, source);
-	return newSpot;
+    public Mark newMark(String id, String source, Span<Term> span) {
+	idManager.updateMarkCounter(id);
+	Mark newMark = new Mark(id, span);
+	annotationContainer.add(newMark, source);
+	return newMark;
     }
 
-    public Spot newSpot(String source, Span<Term> span) {
-	String newId = idManager.getNextSpotId();
-	Spot newSpot = new Spot(newId, span);
-	annotationContainer.add(newSpot, source);
-	return newSpot;
+    public Mark newMark(String source, Span<Term> span) {
+	String newId = idManager.getNextMarkId();
+	Mark newMark = new Mark(newId, span);
+	annotationContainer.add(newMark, source);
+	return newMark;
     }
 
     /** Creates a new dependency. The Dep is added to the document object.
@@ -804,6 +804,14 @@ public Entity newEntity(List<Span<Term>> references) {
 
     public List<Term> getSentenceTerms(int sent) {
 	return annotationContainer.getSentenceTerms(sent);
+    }
+
+    public List<String> getMarkSources() {
+	return annotationContainer.getMarkSources();
+    }
+
+    public List<Mark> getMarkables(String source) {
+	return annotationContainer.getMarks(source);
     }
 
     public List<Dep> getDeps() {

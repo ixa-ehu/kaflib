@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.io.Serializable;
 
 
-public class Spot implements Serializable {
+public class Mark implements Serializable {
 
     private String sid;
 
@@ -29,17 +29,17 @@ public class Spot implements Serializable {
 
     private String morphofeat;
 
-    private String spotcase;
+    private String markcase;
 
     private Span<Term> span;
 
     private List<ExternalRef> externalReferences;
 
 
-    Spot(String id, Span<Term> span) {
+    Mark(String id, Span<Term> span) {
 	/*
 	if (span.size() < 1) {
-	    throw new IllegalStateException("A Spot must have at least one WF");
+	    throw new IllegalStateException("A Mark must have at least one WF");
 	}
 	*/
 	this.sid = id;
@@ -104,15 +104,15 @@ public class Spot implements Serializable {
     }
 
     public boolean hasCase() {
-	return spotcase != null;
+	return markcase != null;
     }
 
     public String getCase() {
-	return spotcase;
+	return markcase;
     }
 
     public void setCase(String termcase) {
-	this.spotcase = spotcase;
+	this.markcase = markcase;
     }
 
     public String getStr() {

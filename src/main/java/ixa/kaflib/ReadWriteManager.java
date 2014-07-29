@@ -196,51 +196,51 @@ class ReadWriteManager {
 		    DOMToTerm(termElem, kaf, false, wfIndex, termIndex);
 		}
 	    }
-	    else if (elem.getName().equals("spots")) {
+	    else if (elem.getName().equals("markables")) {
 		String source = getAttribute("source", elem);
-		List<Element> spotElems = elem.getChildren();
-		for (Element spotElem : spotElems) {
-		    String sid = getAttribute("id", spotElem);
-		    Element spanElem = spotElem.getChild("span");
+		List<Element> markElems = elem.getChildren();
+		for (Element markElem : markElems) {
+		    String sid = getAttribute("id", markElem);
+		    Element spanElem = markElem.getChild("span");
 		    if (spanElem == null) {
-			throw new IllegalStateException("Every spot must contain a span element");
+			throw new IllegalStateException("Every mark must contain a span element");
 		    }
-		    List<Element> spotsTermElems = spanElem.getChildren("target");
+		    List<Element> marksTermElems = spanElem.getChildren("target");
 		    Span<Term> span = kaf.newTermSpan();
-		    for (Element spotsTermElem : spotsTermElems) {
-			String termId = getAttribute("id", spotsTermElem);
-			boolean isHead = isHead(spotsTermElem);
+		    for (Element marksTermElem : marksTermElems) {
+			String termId = getAttribute("id", marksTermElem);
+			boolean isHead = isHead(marksTermElem);
 			Term term = termIndex.get(termId);
 			if (term == null) {
-			    throw new KAFNotValidException("Term " + termId + " not found when loading spot " + sid);
+			    throw new KAFNotValidException("Term " + termId + " not found when loading mark " + sid);
 			}
 			span.addTarget(term, isHead);
 		    }
-		    Spot newSpot = kaf.newSpot(sid, source, span);
-		    String type = getOptAttribute("type", spotElem);
+		    Mark newMark = kaf.newMark(sid, source, span);
+		    String type = getOptAttribute("type", markElem);
 		    if (type != null) {
-			newSpot.setType(type);
+			newMark.setType(type);
 		    }
-		    String lemma = getOptAttribute("lemma", spotElem);
+		    String lemma = getOptAttribute("lemma", markElem);
 		    if (lemma != null) {
-			newSpot.setLemma(lemma);
+			newMark.setLemma(lemma);
 		    }
-		    String pos = getOptAttribute("pos", spotElem);
+		    String pos = getOptAttribute("pos", markElem);
 		    if (pos != null) {
-			newSpot.setPos(pos);
+			newMark.setPos(pos);
 		    }
-		    String tMorphofeat = getOptAttribute("morphofeat", spotElem);
+		    String tMorphofeat = getOptAttribute("morphofeat", markElem);
 		    if (tMorphofeat != null) {
-			newSpot.setMorphofeat(tMorphofeat);
+			newMark.setMorphofeat(tMorphofeat);
 		    }
-		    String spotcase = getOptAttribute("case", spotElem);
-		    if (spotcase != null) {
-			newSpot.setCase(spotcase);
+		    String markcase = getOptAttribute("case", markElem);
+		    if (markcase != null) {
+			newMark.setCase(markcase);
 		    }
-		    List<Element> externalReferencesElems = spotElem.getChildren("externalReferences");
+		    List<Element> externalReferencesElems = markElem.getChildren("externalReferences");
 		    if (externalReferencesElems.size() > 0) {
 			List<ExternalRef> externalRefs = getExternalReferences(externalReferencesElems.get(0), kaf);
-			newSpot.addExternalRefs(externalRefs);
+			newMark.addExternalRefs(externalRefs);
 		    }
 
 		}
@@ -1032,34 +1032,34 @@ class ReadWriteManager {
 	    root.addContent(termsElem);
 	}
 
-	List<String> spotSources = annotationContainer.getSpotSources();
-	for (String source : spotSources) {
-	    List<Spot> spots = annotationContainer.getSpots(source);
-	    if (spots.size() > 0) {
-		Element spotsElem = new Element("spots");
-		spotsElem.setAttribute("source", source);
-		for (Spot spot : spots) {
-		    Comment spotComment = new Comment(spot.getStr());
-		    spotsElem.addContent(spotComment);
-		    Element spotElem = new Element("spot");
-		    spotElem.setAttribute("id", spot.getId());
-		    if (spot.hasType()) {
-			spotElem.setAttribute("type", spot.getType());
+	List<String> markSources = annotationContainer.getMarkSources();
+	for (String source : markSources) {
+	    List<Mark> marks = annotationContainer.getMarks(source);
+	    if (marks.size() > 0) {
+		Element marksElem = new Element("markables");
+		marksElem.setAttribute("source", source);
+		for (Mark mark : marks) {
+		    Comment markComment = new Comment(mark.getStr());
+		    marksElem.addContent(markComment);
+		    Element markElem = new Element("mark");
+		    markElem.setAttribute("id", mark.getId());
+		    if (mark.hasType()) {
+			markElem.setAttribute("type", mark.getType());
 		    }
-		    if (spot.hasLemma()) {
-			spotElem.setAttribute("lemma", spot.getLemma());
+		    if (mark.hasLemma()) {
+			markElem.setAttribute("lemma", mark.getLemma());
 		    }
-		    if (spot.hasPos()) {
-			spotElem.setAttribute("pos", spot.getPos());
+		    if (mark.hasPos()) {
+			markElem.setAttribute("pos", mark.getPos());
 		    }
-		    if (spot.hasMorphofeat()) {
-			spotElem.setAttribute("morphofeat", spot.getMorphofeat());
+		    if (mark.hasMorphofeat()) {
+			markElem.setAttribute("morphofeat", mark.getMorphofeat());
 		    }
-		    if (spot.hasCase()) {
-			spotElem.setAttribute("case", spot.getCase());
+		    if (mark.hasCase()) {
+			markElem.setAttribute("case", mark.getCase());
 		    }
 		    Element spanElem = new Element("span");
-		    Span<Term> span = spot.getSpan();
+		    Span<Term> span = mark.getSpan();
 		    for (Term target : span.getTargets()) {
 			Element targetElem = new Element("target");
 			targetElem.setAttribute("id", target.getId());
@@ -1068,15 +1068,15 @@ class ReadWriteManager {
 			}
 			spanElem.addContent(targetElem);
 		    }
-		    spotElem.addContent(spanElem);
-		    List<ExternalRef> externalReferences = spot.getExternalRefs();
+		    markElem.addContent(spanElem);
+		    List<ExternalRef> externalReferences = mark.getExternalRefs();
 		    if (externalReferences.size() > 0) {
 			Element externalReferencesElem = externalReferencesToDOM(externalReferences);
-			spotElem.addContent(externalReferencesElem);
+			markElem.addContent(externalReferencesElem);
 		    }
-		    spotsElem.addContent(spotElem);
+		    marksElem.addContent(markElem);
 		}
-		root.addContent(spotsElem);
+		root.addContent(marksElem);
 	    }
 	}
 
