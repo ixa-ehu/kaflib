@@ -11,7 +11,7 @@ class IdManager implements Serializable {
     /* Prefix of each type of ids */
     private static final String WF_PREFIX = "w";
     private static final String TERM_PREFIX = "t";
-    private static final String MARK_PREFIX = "s";
+    private static final String MARK_PREFIX = "m";
     private static final String MW_PREFIX = "t.mw";
     private static final String COMPONENT_PREFIX = ".";
     private static final String CHUNK_PREFIX = "c";
