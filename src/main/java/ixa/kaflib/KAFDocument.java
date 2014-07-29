@@ -20,7 +20,7 @@ import org.jdom2.Element;
 public class KAFDocument implements Serializable {
 
     public enum Layer {
-	text, terms, deps, chunks, entities, properties, categories, coreferences, opinions, relations, srl, constituency;
+	text, terms, spots, deps, chunks, entities, properties, categories, coreferences, opinions, relations, srl, constituency;
     }
 
     public class FileDesc implements Serializable {
