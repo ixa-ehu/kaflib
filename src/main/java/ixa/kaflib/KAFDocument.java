@@ -427,6 +427,20 @@ public class KAFDocument implements Serializable {
 	return newSentiment;
     }
 
+    public Spot newSpot(String id, String source, Span<Term> span) {
+	idManager.updateSpotCounter(id);
+	Spot newSpot = new Spot(id, span);
+	annotationContainer.add(newSpot, source);
+	return newSpot;
+    }
+
+    public Spot newSpot(String source, Span<Term> span) {
+	String newId = idManager.getNextSpotId();
+	Spot newSpot = new Spot(newId, span);
+	annotationContainer.add(newSpot, source);
+	return newSpot;
+    }
+
     /** Creates a new dependency. The Dep is added to the document object.
      * @param from the origin term of the dependency.
      * @param to the target term of the dependency.

@@ -11,6 +11,7 @@ class IdManager implements Serializable {
     /* Prefix of each type of ids */
     private static final String WF_PREFIX = "w";
     private static final String TERM_PREFIX = "t";
+    private static final String SPOT_PREFIX = "s";
     private static final String MW_PREFIX = "t.mw";
     private static final String COMPONENT_PREFIX = ".";
     private static final String CHUNK_PREFIX = "c";
@@ -29,6 +30,7 @@ class IdManager implements Serializable {
     /* Counters for each type of annotations */
     private int wfCounter;
     private int termCounter;
+    private int spotCounter;
     //private int mwCounter;
     private int chunkCounter;
     private int entityCounter;
@@ -47,6 +49,7 @@ class IdManager implements Serializable {
     /* Inconsistent ID flags */
     private boolean inconsistentIdText;
     private boolean inconsistentIdTerm;
+    private boolean inconsistentIdSpot;
     //private boolean inconsistentIdMw;
     private boolean inconsistentIdComponent;
     private boolean inconsistentIdChunk;
@@ -65,6 +68,7 @@ class IdManager implements Serializable {
     IdManager() {
 	this.wfCounter = 0;
 	this.termCounter = 0;
+	this.spotCounter = 0;
 	//this.mwCounter = 0;
 	this.chunkCounter = 0;
 	this.entityCounter = 0;
@@ -82,6 +86,7 @@ class IdManager implements Serializable {
 
 	this.inconsistentIdText = false;
 	this.inconsistentIdTerm = false;
+	this.inconsistentIdSpot = false;
 	//this.inconsistentIdMw = false;
 	this.inconsistentIdComponent = false;
 	this.inconsistentIdChunk = false;
@@ -110,6 +115,13 @@ class IdManager implements Serializable {
 	    throw new IllegalStateException("Inconsistent term IDs. Can't create new term IDs.");
 	}
 	return TERM_PREFIX + Integer.toString(++termCounter);
+    }
+
+    String getNextSpotId() {
+	if (this.inconsistentIdSpot) {
+	    throw new IllegalStateException("Inconsistent spot IDs. Can't create new spot IDs.");
+	}
+	return SPOT_PREFIX + Integer.toString(++spotCounter);
     }
 
     String getNextMwId() {
@@ -246,6 +258,17 @@ class IdManager implements Serializable {
 	    }
 	} catch(IllegalStateException e) {
 	    this.inconsistentIdTerm = true;
+	}
+    }
+
+    void updateSpotCounter(String id) {
+	try {
+	    Integer idNum = extractCounterFromId(id);
+	    if (this.spotCounter < idNum) {
+		this.spotCounter = idNum;
+	    }
+	} catch(IllegalStateException e) {
+	    this.inconsistentIdSpot = true;
 	}
     }
 

@@ -196,6 +196,55 @@ class ReadWriteManager {
 		    DOMToTerm(termElem, kaf, false, wfIndex, termIndex);
 		}
 	    }
+	    else if (elem.getName().equals("spots")) {
+		String source = getAttribute("source", elem);
+		List<Element> spotElems = elem.getChildren();
+		for (Element spotElem : spotElems) {
+		    String sid = getAttribute("id", spotElem);
+		    Element spanElem = spotElem.getChild("span");
+		    if (spanElem == null) {
+			throw new IllegalStateException("Every spot must contain a span element");
+		    }
+		    List<Element> spotsTermElems = spanElem.getChildren("target");
+		    Span<Term> span = kaf.newTermSpan();
+		    for (Element spotsTermElem : spotsTermElems) {
+			String termId = getAttribute("id", spotsTermElem);
+			boolean isHead = isHead(spotsTermElem);
+			Term term = termIndex.get(termId);
+			if (term == null) {
+			    throw new KAFNotValidException("Term " + termId + " not found when loading spot " + sid);
+			}
+			span.addTarget(term, isHead);
+		    }
+		    Spot newSpot = kaf.newSpot(sid, source, span);
+		    String type = getOptAttribute("type", spotElem);
+		    if (type != null) {
+			newSpot.setType(type);
+		    }
+		    String lemma = getOptAttribute("lemma", spotElem);
+		    if (lemma != null) {
+			newSpot.setLemma(lemma);
+		    }
+		    String pos = getOptAttribute("pos", spotElem);
+		    if (pos != null) {
+			newSpot.setPos(pos);
+		    }
+		    String tMorphofeat = getOptAttribute("morphofeat", spotElem);
+		    if (tMorphofeat != null) {
+			newSpot.setMorphofeat(tMorphofeat);
+		    }
+		    String spotcase = getOptAttribute("case", spotElem);
+		    if (spotcase != null) {
+			newSpot.setCase(spotcase);
+		    }
+		    List<Element> externalReferencesElems = spotElem.getChildren("externalReferences");
+		    if (externalReferencesElems.size() > 0) {
+			List<ExternalRef> externalRefs = getExternalReferences(externalReferencesElems.get(0), kaf);
+			newSpot.addExternalRefs(externalRefs);
+		    }
+
+		}
+	    }
 	    else if (elem.getName().equals("deps")) {
 		List<Element> depElems = elem.getChildren();
 		for (Element depElem : depElems) {
@@ -981,6 +1030,54 @@ class ReadWriteManager {
 		termToDOM(term, false, termsElem);
 	    }
 	    root.addContent(termsElem);
+	}
+
+	List<String> spotSources = annotationContainer.getSpotSources();
+	for (String source : spotSources) {
+	    List<Spot> spots = annotationContainer.getSpots(source);
+	    if (spots.size() > 0) {
+		Element spotsElem = new Element("spots");
+		spotsElem.setAttribute("source", source);
+		for (Spot spot : spots) {
+		    Comment spotComment = new Comment(spot.getStr());
+		    spotsElem.addContent(spotComment);
+		    Element spotElem = new Element("spot");
+		    spotElem.setAttribute("id", spot.getId());
+		    if (spot.hasType()) {
+			spotElem.setAttribute("type", spot.getType());
+		    }
+		    if (spot.hasLemma()) {
+			spotElem.setAttribute("lemma", spot.getLemma());
+		    }
+		    if (spot.hasPos()) {
+			spotElem.setAttribute("pos", spot.getPos());
+		    }
+		    if (spot.hasMorphofeat()) {
+			spotElem.setAttribute("morphofeat", spot.getMorphofeat());
+		    }
+		    if (spot.hasCase()) {
+			spotElem.setAttribute("case", spot.getCase());
+		    }
+		    Element spanElem = new Element("span");
+		    Span<Term> span = spot.getSpan();
+		    for (Term target : span.getTargets()) {
+			Element targetElem = new Element("target");
+			targetElem.setAttribute("id", target.getId());
+			if (target == span.getHead()) {
+			    targetElem.setAttribute("head", "yes");
+			}
+			spanElem.addContent(targetElem);
+		    }
+		    spotElem.addContent(spanElem);
+		    List<ExternalRef> externalReferences = spot.getExternalRefs();
+		    if (externalReferences.size() > 0) {
+			Element externalReferencesElem = externalReferencesToDOM(externalReferences);
+			spotElem.addContent(externalReferencesElem);
+		    }
+		    spotsElem.addContent(spotElem);
+		}
+		root.addContent(spotsElem);
+	    }
 	}
 
 	List<Dep> deps = annotationContainer.getDeps();

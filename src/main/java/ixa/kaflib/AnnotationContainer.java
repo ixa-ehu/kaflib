@@ -31,6 +31,8 @@ class AnnotationContainer implements Serializable {
     /** List to keep all terms */
     private List<Term> terms;
 
+    private Map<String, List<Spot>> spots;
+
     /** List to keep all dependencies */
     private List<Dep> deps;
 
@@ -66,6 +68,7 @@ class AnnotationContainer implements Serializable {
 
     /** Hash map for mapping word forms to terms. */
     private HashMap<String, List<Term>> termsIndexedByWF;
+    private HashMap<String, Map<String, List<Spot>>> spotsIndexedByTerm;
     private HashMap<String, List<Dep>> depsIndexedByTerm;
     private HashMap<String, List<Chunk>> chunksIndexedByTerm;
     private HashMap<String, List<Entity>> entitiesIndexedByTerm;
@@ -78,6 +81,7 @@ class AnnotationContainer implements Serializable {
 
     HashMap<Integer, List<WF>> textIndexedBySent;
     HashMap<Integer, List<Term>> termsIndexedBySent;
+    HashMap<Integer, Map<String, List<Spot>>> spotsIndexedBySent;
     HashMap<Integer, List<Entity>> entitiesIndexedBySent;
     HashMap<Integer, List<Dep>> depsIndexedBySent;
     HashMap<Integer, List<Chunk>> chunksIndexedBySent;
@@ -98,6 +102,7 @@ class AnnotationContainer implements Serializable {
 	text = new ArrayList();
 	nextOffset = 0;
 	terms = new ArrayList();
+	spots = new HashMap();
 	deps = new ArrayList();
 	chunks = new ArrayList();
 	entities = new ArrayList();
@@ -111,6 +116,7 @@ class AnnotationContainer implements Serializable {
 	unknownLayers = new ArrayList<Element>();
 
 	termsIndexedByWF = new HashMap<String, List<Term>>();
+	spotsIndexedByTerm = new HashMap<String, Map<String, List<Spot>>>();
 	depsIndexedByTerm = new HashMap<String, List<Dep>>();
 	chunksIndexedByTerm =  new HashMap<String, List<Chunk>>();
 	entitiesIndexedByTerm =  new HashMap<String, List<Entity>>();
@@ -123,6 +129,7 @@ class AnnotationContainer implements Serializable {
 
 	textIndexedBySent = new HashMap<Integer, List<WF>>();
 	termsIndexedBySent = new HashMap<Integer, List<Term>>();
+	spotsIndexedBySent = new HashMap<Integer, Map<String, List<Spot>>>();
 	entitiesIndexedBySent = new HashMap<Integer, List<Entity>>();
 	depsIndexedBySent = new HashMap<Integer, List<Dep>>();
 	chunksIndexedBySent = new HashMap<Integer, List<Chunk>>();
@@ -145,6 +152,18 @@ class AnnotationContainer implements Serializable {
 	    index.get(sent).add(annotation);
 	}
     }
+
+    private void indexSpotBySent(Spot spot, String source, Integer sent) {
+	if (sent > 0) {
+	    if (spotsIndexedBySent.get(sent) == null) {
+		spotsIndexedBySent.put(sent, new HashMap<String, List<Spot>>());
+	    }
+	    if (spotsIndexedBySent.get(sent).get(source) == null) {
+		spotsIndexedBySent.get(sent).put(source, new ArrayList<Spot>());
+	    }
+	    spotsIndexedBySent.get(sent).get(source).add(spot);
+	}
+    } 
 
     void indexSentByPara(Integer sent, Integer para) {
 	if ((sent > 0) && (para > 0)) {
@@ -179,6 +198,14 @@ class AnnotationContainer implements Serializable {
     /** Returns all terms */
     List<Term> getTerms() {
 	return terms;
+    }
+
+    List<String> getSpotSources() {
+	return new ArrayList<String>(spots.keySet());
+    }
+
+    List<Spot> getSpots(String source) {
+	return spots.get(source);
     }
 
     /** Returns all dependencies */
@@ -254,6 +281,16 @@ class AnnotationContainer implements Serializable {
 	index.get(hashId).add(annotation);
     } 
 
+    private void indexSpotByTerm(Spot spot, String source, String tid) {
+	if (spotsIndexedByTerm.get(tid) == null) {
+	    spotsIndexedByTerm.put(tid, new HashMap<String, List<Spot>>());
+	}
+	if (spotsIndexedByTerm.get(tid).get(source) == null) {
+	    spotsIndexedByTerm.get(tid).put(source, new ArrayList<Spot>());
+	}
+	spotsIndexedByTerm.get(tid).get(source).add(spot);
+    }
+
     /** Adds a term to the container */
     void add(Term term) {
 	this.add(term, this.terms.size());
@@ -271,6 +308,19 @@ class AnnotationContainer implements Serializable {
 
     void remove(Term term) {
 	this.terms.remove(term);
+    }
+
+    void add(Spot spot, String source) {
+	List<Spot> sourceSpots = spots.get(source);
+	if (sourceSpots == null) {
+	    sourceSpots = new ArrayList<Spot>();
+	}
+	sourceSpots.add(spot);
+	spots.put(source, sourceSpots);
+	for (Term term : spot.getSpan().getTargets()) {
+	    indexSpotByTerm(spot, source, term.getId());
+	}
+        this.indexSpotBySent(spot, source, spot.getSpan().getTargets().get(0).getSent());
     }
 
     /** Adds a dependency to the container */
@@ -451,6 +501,15 @@ class AnnotationContainer implements Serializable {
 	    terms.addAll(getTermsByWF(wf));
 	}
 	return new ArrayList<Term>(terms);
+    }
+
+    List<Spot> getSpotsByTerm(Term term, String source) {
+	Map<String, List<Spot>> spots = this.spotsIndexedByTerm.get(term.getId());
+	if (spots == null) {
+	    return new ArrayList<Spot>();
+	}
+	List<Spot> sourceSpots = spots.get(source);
+	return (sourceSpots == null) ? new ArrayList<Spot>() : sourceSpots;
     }
 
     List<Dep> getDepsByTerm(Term term) {
