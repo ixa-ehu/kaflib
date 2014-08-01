@@ -17,6 +17,8 @@ class IdManager implements Serializable {
     private static final String CHUNK_PREFIX = "c";
     private static final String ENTITY_PREFIX = "e";
     private static final String COREF_PREFIX = "co";
+    private static final String TIMEX3_PREFIX = "tx";
+    private static final String LINKEDENTITY_PREFIX = "le";
     private static final String PROPERTY_PREFIX = "p";
     private static final String CATEGORY_PREFIX = "c";
     private static final String OPINION_PREFIX = "o";
@@ -35,6 +37,8 @@ class IdManager implements Serializable {
     private int chunkCounter;
     private int entityCounter;
     private int corefCounter;
+    private int timex3Counter;
+    private int linkedEntitiesCounter;
     private int propertyCounter;
     private int categoryCounter;
     private int opinionCounter;
@@ -55,6 +59,8 @@ class IdManager implements Serializable {
     private boolean inconsistentIdChunk;
     private boolean inconsistentIdEntity;
     private boolean inconsistentIdCoref;
+    private boolean inconsistentIdTimex3;
+    private boolean inconsistentIdLinkedEntities;
     private boolean inconsistentIdProperty;
     private boolean inconsistentIdCategory;
     private boolean inconsistentIdOpinion;
@@ -73,6 +79,8 @@ class IdManager implements Serializable {
 	this.chunkCounter = 0;
 	this.entityCounter = 0;
 	this.corefCounter = 0;
+	this.timex3Counter = 0;
+	this.linkedEntitiesCounter = 0;
 	this.propertyCounter = 0;
 	this.categoryCounter = 0;
 	this.opinionCounter = 0;
@@ -92,6 +100,8 @@ class IdManager implements Serializable {
 	this.inconsistentIdChunk = false;
 	this.inconsistentIdEntity = false;
 	this.inconsistentIdCoref = false;
+	this.inconsistentIdTimex3 = false;
+	this.inconsistentIdLinkedEntities = false;
 	this.inconsistentIdProperty = false;
 	this.inconsistentIdCategory = false;
 	this.inconsistentIdOpinion = false;
@@ -154,7 +164,21 @@ class IdManager implements Serializable {
 	return COREF_PREFIX + Integer.toString(++corefCounter);
     }
 
-    String getNextPropertyId() {
+    String getNextTimex3Id() {
+	if (this.inconsistentIdTimex3) {
+	    throw new IllegalStateException("Inconsistent timex3 IDs. Can't create new timex3 IDs.");
+	}
+	return TIMEX3_PREFIX + Integer.toString(++timex3Counter);
+    }
+
+	String getNextLinkedEntityId() {
+		if (this.inconsistentIdLinkedEntities) {
+			throw new IllegalStateException("Inconsistent linked entity IDs. Can't create new timex3 IDs.");
+		}
+		return LINKEDENTITY_PREFIX + Integer.toString(++linkedEntitiesCounter);
+	}
+
+	String getNextPropertyId() {
 	if (this.inconsistentIdProperty) {
 	    throw new IllegalStateException("Inconsistent property IDs. Can't create new property IDs.");
 	}
@@ -307,7 +331,23 @@ class IdManager implements Serializable {
 	}
     }
 
-    void updatePropertyCounter(String id) {
+    void updateTimex3Counter(String id) {
+	try {
+	    timex3Counter = extractCounterFromId(id);
+	} catch(IllegalStateException e) {
+	    this.inconsistentIdTimex3 = true;
+	}
+    }
+
+	void updateLinkedEntitiesCounter(String id) {
+		try {
+			linkedEntitiesCounter = extractCounterFromId(id);
+		} catch(IllegalStateException e) {
+			this.inconsistentIdLinkedEntities = true;
+		}
+	}
+
+	void updatePropertyCounter(String id) {
 	try {
 	    propertyCounter = extractCounterFromId(id);
 	} catch(IllegalStateException e) {

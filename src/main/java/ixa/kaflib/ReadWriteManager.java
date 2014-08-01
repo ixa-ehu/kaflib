@@ -2,7 +2,6 @@ package ixa.kaflib;
 
 import org.jdom2.Document;
 import org.jdom2.Element;
-import org.jdom2.Comment;
 import org.jdom2.Namespace;
 import org.jdom2.CDATA;
 import org.jdom2.output.XMLOutputter;
@@ -28,6 +27,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.regex.*;
+
+//todo: read facts and linkedEntities
 
 /** Reads XML files in KAF format and loads the content in a KAFDocument object, and writes the content into XML files. */
 class ReadWriteManager {
@@ -267,7 +268,7 @@ class ReadWriteManager {
 		}
 	    }
 	    else if (elem.getName().equals("chunks")) {
-		System.out.println("chunks");
+		//System.out.println("chunks");
 		List<Element> chunkElems = elem.getChildren();
 		for (Element chunkElem : chunkElems) {
 		    String chunkId = getAttribute("id", chunkElem);
@@ -375,6 +376,58 @@ class ReadWriteManager {
 			mentions.add(span);
 		    }
 		    Coref newCoref = kaf.newCoref(coId, mentions);
+		}
+	    }
+	    else if (elem.getName().equals("timeExpressions")) {
+		List<Element> timex3Elems = elem.getChildren();
+		for (Element timex3Elem : timex3Elems) {
+		    String timex3Id = getAttribute("id", timex3Elem);
+		    List<Element> spanElems = timex3Elem.getChildren("span");
+		    if (spanElems.size() < 1) {
+			throw new IllegalStateException("Every timex3 must contain a 'span' element inside 'references'");
+		    }
+		    List<Span<WF>> mentions = new ArrayList<Span<WF>>();
+		    for (Element spanElem : spanElems) {
+			Span<WF> span = kaf.newWFSpan();
+			List<Element> targetElems = spanElem.getChildren();
+			if (targetElems.size() < 1) {
+			    //throw new IllegalStateException("Every span in an entity must contain at least one target inside");
+			    mentions = null;
+			}
+			else{
+			    for (Element targetElem : targetElems) {
+				String targetTermId = getAttribute("id", targetElem);
+				WF wordForm = wfIndex.get(targetTermId);
+				//Term targetTerm = termIndex.get(targetTermId);
+				if (wordForm == null) {
+				    throw new KAFNotValidException("Word " + targetTermId + " not found when loading timex3 " + timex3Id);
+				}
+				boolean isHead = isHead(targetElem);
+				span.addTarget(wordForm, isHead);
+			    }
+			    mentions.add(span);
+			}
+		    }
+		   
+		    Timex3 newTimex3 = null;
+		    if(mentions == null){
+			newTimex3 = kaf.newTimex3(timex3Id);
+		    }
+		    else{
+			newTimex3 = kaf.newTimex3(timex3Id, mentions);
+		    }
+		    String timex3Type = getOptAttribute("type", timex3Elem);
+		    if (timex3Type != null) {
+			newTimex3.setType(timex3Type);
+		    }
+		    String timex3Value = getOptAttribute("value", timex3Elem);
+		    if (timex3Value != null) {
+			newTimex3.setValue(timex3Value);
+		    }
+		    String timex3Func = getOptAttribute("functionInDocument", timex3Elem);
+		    if (timex3Func != null) {
+			newTimex3.setFuncInDoc(timex3Func);
+		    }
 		}
 	    }
 	    else if (elem.getName().equals("features")) {
@@ -1183,6 +1236,79 @@ class ReadWriteManager {
 		corefsElem.addContent(corefElem);
 	    }
 	    root.addContent(corefsElem);
+	}
+
+	List<Timex3> timeExs = annotationContainer.getTimeExs();
+	if (timeExs.size() > 0){
+	    Element timeExsElem = new Element("timeExpressions");
+	    for (Timex3 timex3 : timeExs) {
+		Element timex3Elem = new Element("timex3");
+		timex3Elem.setAttribute("id", timex3.getId());
+		timex3Elem.setAttribute("type", timex3.getType());
+		timex3Elem.setAttribute("value", timex3.getValue());
+		for (Span<WF> span : timex3.getSpans()) {
+		    Comment spanComment = new Comment(timex3.getSpanStr(span));
+		    timex3Elem.addContent(spanComment);
+		    Element spanElem = new Element("span");
+		    for (WF target : span.getTargets()) {
+			Element targetElem = new Element("target");
+			targetElem.setAttribute("id", target.getId());
+			if (target == span.getHead()) {
+			    targetElem.setAttribute("head", "yes");
+			}
+			spanElem.addContent(targetElem);
+		    }
+		    timex3Elem.addContent(spanElem);
+		}
+		timeExsElem.addContent(timex3Elem);
+	    }
+	    root.addContent(timeExsElem);
+	}
+
+	List<Factuality> factualities = annotationContainer.getFactualities();
+	if (factualities.size() > 0) {
+		Element factsElement = new Element("factualitylayer");
+		for (Factuality f : factualities) {
+			Element fact = new Element("factvalue");
+			fact.setAttribute("id", f.getId());
+			fact.setAttribute("prediction", f.getMaxPart().getPrediction());
+			fact.setAttribute("confidence", Double.toString(f.getMaxPart().getConfidence()));
+
+			for (Factuality.FactualityPart p : f.getFactualityParts()) {
+				Element factPartial = new Element("factuality");
+				factPartial.setAttribute("prediction", p.getPrediction());
+				factPartial.setAttribute("confidence", Double.toString(p.getConfidence()));
+				fact.addContent(factPartial);
+			}
+
+			factsElement.addContent(fact);
+		}
+		root.addContent(factsElement);
+	}
+
+	List<LinkedEntity> linkedEntities = annotationContainer.getLinkedEntities();
+	if (linkedEntities.size() > 0) {
+		Element linkedEntityElement = new Element("linkedEntities");
+		for (LinkedEntity e : linkedEntities) {
+			Element lEnt = new Element("linkedEntity");
+			lEnt.setAttribute("id", e.getId());
+			lEnt.setAttribute("resource", e.getResource());
+			lEnt.setAttribute("reference", e.getReference());
+			lEnt.setAttribute("confidence", Double.toString(e.getConfidence()));
+
+			Comment spanComment = new Comment(e.getSpanStr());
+			lEnt.addContent(spanComment);
+			Element spanElem = new Element("span");
+			for (WF target : e.getWFs().getTargets()) {
+				Element targetElem = new Element("target");
+				targetElem.setAttribute("id", target.getId());
+				spanElem.addContent(targetElem);
+			}
+			lEnt.addContent(spanElem);
+
+			linkedEntityElement.addContent(lEnt);
+		}
+		root.addContent(linkedEntityElement);
 	}
 
 	Element featuresElem = new Element("features");

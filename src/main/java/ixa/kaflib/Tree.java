@@ -27,7 +27,6 @@ public class Tree implements Serializable { //?
     }
 
 
-
     /***********************************************************/
     /* Code for converting OpenNLP's parentheses output to NAF */
     /***********************************************************/

@@ -37,7 +37,7 @@ public class KAFDocument implements Serializable {
     public class Public implements Serializable {
 	public String publicId;
 	public String uri;
-    
+
 	private Public() {
 	}
     }
@@ -233,7 +233,7 @@ public class KAFDocument implements Serializable {
 	    }
 	}
     }
-    
+
     /** Returns a hash of linguistic processors from the document.
      *  Hash: layer => LP
      */
@@ -530,7 +530,62 @@ public Entity newEntity(List<Span<Term>> references) {
 	return newCoref;
     }
 
-    /** Creates a new property. It receives it's ID as an argument. The property is added to the document.
+    /** Creates a timeExpressions object to load an existing Timex3. It receives it's ID as an argument. The Timex3 is added to the document.
+     * @param id the ID of the coreference.
+     * @param references different mentions (list of targets) to the same entity.
+     * @return a new timex3.
+     */
+    public Timex3 newTimex3(String id, List<Span<WF>> mentions) {
+	idManager.updateTimex3Counter(id);
+	Timex3 newTimex3 = new Timex3(id, mentions);
+	annotationContainer.add(newTimex3);
+	return newTimex3;
+    }
+
+     /** Creates a new timeExpressions. It assigns an appropriate ID to it. The Coref is added to the document.
+     * @param references different mentions (list of targets) to the same entity.
+     * @return a new timex3.
+     */
+    public Timex3 newTimex3(List<Span<WF>> mentions) {
+	String newId = idManager.getNextTimex3Id();
+	Timex3 newTimex3 = new Timex3(newId, mentions);
+	annotationContainer.add(newTimex3);
+	return newTimex3;
+    }
+
+    /** Creates a new timeExpressions. It assigns an appropriate ID to it. The Coref is added to the document.
+     * @param references different mentions (list of targets) to the same entity.
+     * @return a new timex3.
+     */
+    public Timex3 newTimex3(String id) {
+	idManager.updateTimex3Counter(id);
+	Timex3 newTimex3 = new Timex3(id);
+	annotationContainer.add(newTimex3);
+	return newTimex3;
+    }
+
+	/** Creates a factualitylayer object and add it to the document
+	 * @param term the Term of the coreference.
+	 * @return a new factuality.
+	 */
+	public Factuality newFactuality(Term term) {
+		Factuality factuality = new Factuality(term);
+		annotationContainer.add(factuality);
+		return factuality;
+	}
+
+	/** Creates a LinkedEntity object and add it to the document
+	 * @param term the Term of the coreference.
+	 * @return a new factuality.
+	 */
+	public LinkedEntity newLinkedEntity(Span<WF> span) {
+		String newId = idManager.getNextLinkedEntityId();
+		LinkedEntity linkedEntity = new LinkedEntity(newId, span);
+		annotationContainer.add(linkedEntity);
+		return linkedEntity;
+	}
+
+	/** Creates a new property. It receives it's ID as an argument. The property is added to the document.
      * @param id the ID of the property.
      * @param lemma the lemma of the property.
      * @param references different mentions (list of targets) to the same property.
@@ -660,7 +715,7 @@ public Entity newEntity(List<Span<Term>> references) {
 	Predicate.Role newRole = new Predicate.Role(id, semRole, span);
 	return newRole;
     }
-    
+
     /** Creates a new Role object. It assigns an appropriate ID to it. It uses the ID of the predicate to create a new ID for the role. It doesn't add the role to the predicate.
      * @param predicate the predicate which this role is part of
      * @param semRole semantic role
@@ -831,6 +886,10 @@ public Entity newEntity(List<Span<Term>> references) {
 	return annotationContainer.getCorefs();
     }
 
+    public List<Timex3> getTimeExs() {
+	return annotationContainer.getTimeExs();
+    }
+
     /** Returns a list with all relations in the document */
     public List<Feature> getProperties() {
 	return annotationContainer.getProperties();
@@ -926,6 +985,7 @@ public Entity newEntity(List<Span<Term>> references) {
 				      List<Chunk> chunks,
 				      List<Entity> entities,
 				      List<Coref> corefs,
+				      List<Timex3> timeExs,
 				      List<Feature> properties,
 				      List<Feature> categories,
 				      List<Opinion> opinions,
@@ -969,6 +1029,11 @@ public Entity newEntity(List<Span<Term>> references) {
 	    Coref corefCopy = new Coref(coref, copiedTerms);
 	    kaf.insertCoref(corefCopy);
 	}
+	// TimeExpressions
+	for (Timex3 timex3 : timeExs) {
+	    Timex3 timex3Copy = new Timex3(timex3, copiedWFs);
+	    kaf.insertTimex3(timex3Copy);
+	}
 	// Properties
 	for (Feature property : properties) {
 	    Feature propertyCopy = new Feature(property, copiedTerms);
@@ -999,7 +1064,7 @@ public Entity newEntity(List<Span<Term>> references) {
 	}
 	*/
     }
-				      
+
 
     /** Returns a new document containing all annotations related to the given WFs */
     /* Couldn't index opinion by terms. Terms are added after the Opinion object is created, and there's no way to access the annotationContainer from the Opinion.*/
@@ -1009,6 +1074,7 @@ public Entity newEntity(List<Span<Term>> references) {
 	List<Chunk> chunks = this.annotationContainer.getChunksByTerms(terms);
 	List<Entity> entities = this.annotationContainer.getEntitiesByTerms(terms);
 	List<Coref> corefs = this.annotationContainer.getCorefsByTerms(terms);
+	List<Timex3> timeExs = this.annotationContainer.getTimeExsByWFs(wfs);
 	List<Feature> properties = this.annotationContainer.getPropertiesByTerms(terms);
 	List<Feature> categories = this.annotationContainer.getCategoriesByTerms(terms);
 	// List<Opinion> opinions = this.annotationContainer.getOpinionsByTerms(terms);
@@ -1021,7 +1087,7 @@ public Entity newEntity(List<Span<Term>> references) {
 
 	KAFDocument newKaf = new KAFDocument(this.getLang(), this.getVersion());
 	newKaf.addLinguisticProcessors(this.getLinguisticProcessors());
-	this.copyAnnotationsToKAF(newKaf, wfs, terms, deps, chunks, entities, corefs, properties, categories, new ArrayList<Opinion>(), relations, predicates);
+	this.copyAnnotationsToKAF(newKaf, wfs, terms, deps, chunks, entities, corefs, timeExs, properties, categories, new ArrayList<Opinion>(), relations, predicates);
 
 	return newKaf;
     }
@@ -1075,6 +1141,11 @@ public Entity newEntity(List<Span<Term>> references) {
 	for (Coref coref : doc.getCorefs()) {
 	    Coref corefCopy = new Coref(coref, copiedTerms);
 	    this.insertCoref(corefCopy);
+	}
+	// TimeExpressions
+	for (Timex3 timex3 : doc.getTimeExs()) {
+	    Timex3 timex3Copy = new Timex3(timex3, copiedWFs);
+	    this.insertTimex3(timex3Copy);
 	}
 	// Properties
 	for (Feature property : doc.getProperties()) {
@@ -1139,6 +1210,13 @@ public Entity newEntity(List<Span<Term>> references) {
 	return newId;
     }
 
+    public String insertTimex3(Timex3 timex3) {
+	String newId = idManager.getNextTimex3Id();
+	timex3.setId(newId);
+	annotationContainer.add(timex3);
+	return newId;
+    }
+
     public String insertProperty(Feature property) {
 	String newId = idManager.getNextPropertyId();
 	property.setId(newId);
@@ -1183,7 +1261,7 @@ public Entity newEntity(List<Span<Term>> references) {
 	ReadWriteManager.print(this);
     }
 
-    
+
     /**************************/
     /*** DEPRECATED METHODS ***/
     /**************************/
@@ -1202,7 +1280,7 @@ public Entity newEntity(List<Span<Term>> references) {
 	lp.setVersion(version);
 	return lp;
     }
-    
+
     /** Deprecated */
     public WF newWF(String id, String form) {
         return this.newWF(id, form, 0);
@@ -1274,8 +1352,7 @@ public Entity newEntity(List<Span<Term>> references) {
     public Term.Sentiment createSentiment() {
 	return this.newSentiment();
     }
-    
-    
+
     /** Deprecated */
     /*
     public Component newComponent(String id, Term term, String lemma, String pos) {
@@ -1420,7 +1497,7 @@ public Entity newEntity(List<Span<Term>> references) {
     public Relation createRelation(String id, Relational from, Relational to) {
 	return this.newRelation(id, from, to);
     }
-    
+
     /** Deprecated */
     public ExternalRef createExternalRef(String resource, String reference) {
 	return this.newExternalRef(resource, reference);
@@ -1433,7 +1510,7 @@ public Entity newEntity(List<Span<Term>> references) {
     public static Target createTarget(Term term) {
 	return new Target(term, false);
     }
-    
+
     /** Deprecated. Creates a new target. This method is overloaded. In this case, it receives a boolean argument which defines whether the target term is the head or not.
      * @param term target term.
      * @param isHead a boolean argument which defines whether the target term is the head or not.
@@ -1455,7 +1532,7 @@ public Entity newEntity(List<Span<Term>> references) {
 	}
 	return span;
     }
-    
+
     /** Converts a List into a Span */
     static <T> Span<T> list2Span(List<T> list, T head) {
 	Span<T> span = new Span<T>();
