@@ -48,7 +48,16 @@ class AnnotationContainer {
     /** List to keep all coreferences */
     private List<Coref> coreferences;
 
-    /** List to keep all opinions */
+    /** List to keep all timeExpressions */
+    private List<Timex3> timeExpressions;
+
+	/** List to keep all factualities */
+	private List<Factuality> factualities;
+
+	/** List to keep all linked entities */
+	private List<LinkedEntity> linkedEntities;
+
+	/** List to keep all opinions */
     private List<Opinion> opinions;
 
     /** List to keep all relations */
@@ -69,6 +78,9 @@ class AnnotationContainer {
     private HashMap<String, List<Chunk>> chunksIndexedByTerm;
     private HashMap<String, List<Entity>> entitiesIndexedByTerm;
     private HashMap<String, List<Coref>> corefsIndexedByTerm;
+    private HashMap<String, List<Timex3>> timeExsIndexedByWF;
+    private HashMap<String, List<Factuality>> factsIndexedByWF;
+    private HashMap<String, List<LinkedEntity>> linkedEntitiesIndexedByWF;
     private HashMap<String, List<Feature>> propertiesIndexedByTerm;
     private HashMap<String, List<Feature>> categoriesIndexedByTerm;
     private HashMap<String, List<Opinion>> opinionsIndexedByTerm;
@@ -81,6 +93,9 @@ class AnnotationContainer {
     HashMap<Integer, List<Dep>> depsIndexedBySent;
     HashMap<Integer, List<Chunk>> chunksIndexedBySent;
     HashMap<Integer, List<Coref>> corefsIndexedBySent;
+    HashMap<Integer, List<Timex3>> timeExsIndexedBySent;
+    HashMap<Integer, List<Factuality>> factsIndexedBySent;
+    HashMap<Integer, List<LinkedEntity>> linkedEntitiesIndexedBySent;
     HashMap<Integer, List<Feature>> propertiesIndexedBySent;
     HashMap<Integer, List<Feature>> categoriesIndexedBySent;
     HashMap<Integer, List<Opinion>> opinionsIndexedBySent;
@@ -103,6 +118,9 @@ class AnnotationContainer {
 	properties = new ArrayList();
 	categories = new ArrayList();
 	coreferences = new ArrayList();
+	timeExpressions = new ArrayList();
+	factualities = new ArrayList();
+	linkedEntities = new ArrayList();
 	opinions = new ArrayList();
 	relations = new ArrayList();
 	predicates = new ArrayList();
@@ -114,6 +132,9 @@ class AnnotationContainer {
 	chunksIndexedByTerm =  new HashMap<String, List<Chunk>>();
 	entitiesIndexedByTerm =  new HashMap<String, List<Entity>>();
 	corefsIndexedByTerm =  new HashMap<String, List<Coref>>();
+	timeExsIndexedByWF =  new HashMap<String, List<Timex3>>();
+	linkedEntitiesIndexedByWF =  new HashMap<String, List<LinkedEntity>>();
+	factsIndexedByWF = new HashMap<String, List<Factuality>>();
 	propertiesIndexedByTerm =  new HashMap<String, List<Feature>>();
 	categoriesIndexedByTerm =  new HashMap<String, List<Feature>>();
 	opinionsIndexedByTerm =  new HashMap<String, List<Opinion>>();
@@ -126,6 +147,9 @@ class AnnotationContainer {
 	depsIndexedBySent = new HashMap<Integer, List<Dep>>();
 	chunksIndexedBySent = new HashMap<Integer, List<Chunk>>();
 	corefsIndexedBySent = new HashMap<Integer, List<Coref>>();
+	timeExsIndexedBySent = new HashMap<Integer, List<Timex3>>();
+	linkedEntitiesIndexedBySent = new HashMap<Integer, List<LinkedEntity>>();
+	factsIndexedBySent =new HashMap<Integer, List<Factuality>>();
 	propertiesIndexedBySent = new HashMap<Integer, List<Feature>>();
 	categoriesIndexedBySent = new HashMap<Integer, List<Feature>>();
 	opinionsIndexedBySent = new HashMap<Integer, List<Opinion>>();
@@ -210,7 +234,20 @@ class AnnotationContainer {
 	return coreferences;
     }
 
-    /** Returns all opinions */
+    /** Returns all timeExpressions */
+    List<Timex3> getTimeExs() {
+	return timeExpressions;
+    }
+
+	List<Factuality> getFactualities() {
+		return factualities;
+	}
+
+	List<LinkedEntity> getLinkedEntities() {
+		return linkedEntities;
+	}
+
+	/** Returns all opinions */
     List<Opinion> getOpinions() {
 	return opinions;
     }
@@ -251,7 +288,7 @@ class AnnotationContainer {
 	    index.put(hashId, new ArrayList<T>());
 	}
 	index.get(hashId).add(annotation);
-    } 
+    }
 
     /** Adds a term to the container */
     void add(Term term) {
@@ -327,7 +364,40 @@ class AnnotationContainer {
 	//this.indexBySent(coref, coref.getSpans().get(0).getTargets().get(0).getSent(), this.corefsIndexedBySent);
     }
 
-    /** Adds an opinion to the container */
+    /** Adds a timeExpression to the container */
+    void add(Timex3 timex3) {
+	timeExpressions.add(timex3);
+	/* Index by terms */
+	if(timex3.getWFs() != null){
+	    for (WF wf : timex3.getWFs()) {
+		indexAnnotation(timex3, wf.getId(), timeExsIndexedByWF);
+	    }
+	}
+    }
+
+	/** Adds a factuality to the container */
+	void add(Factuality factuality) {
+		factualities.add(factuality);
+	/* Index by terms */
+		if(factuality.getWFs() != null){
+			for (WF wf : factuality.getWFs()) {
+				indexAnnotation(factuality, wf.getId(), factsIndexedByWF);
+			}
+		}
+	}
+
+	/** Adds a linked entity to the container */
+	void add(LinkedEntity linkedEntity) {
+		linkedEntities.add(linkedEntity);
+	/* Index by terms */
+		if(linkedEntity.getWFs() != null){
+			for (WF wf : linkedEntity.getWFs().getTargets()) {
+				indexAnnotation(linkedEntity, wf.getId(), linkedEntitiesIndexedByWF);
+			}
+		}
+	}
+
+	/** Adds an opinion to the container */
     void add(Opinion opinion) {
 	opinions.add(opinion);
 	/* Index by terms */
@@ -340,7 +410,7 @@ class AnnotationContainer {
 	    indexAnnotation(opinion, term.getId(), opinionsIndexedByTerm);
 	}
 	*/
-	
+
     }
 
     /** Adds a relation to the container */
@@ -458,6 +528,11 @@ class AnnotationContainer {
 	return (corefs == null) ? new ArrayList<Coref>() : corefs;
     }
 
+    List<Timex3> getTimeExsByWF(WF wf) {
+	List<Timex3> timeExs = this.timeExsIndexedByWF.get(wf.getId());
+	return (timeExs == null) ? new ArrayList<Timex3>() : timeExs;
+    }
+
     List<Feature> getPropertiesByTerm(Term term) {
 	List<Feature> properties = this.propertiesIndexedByTerm.get(term.getId());
 	return (properties == null) ? new ArrayList<Feature>() : properties;
@@ -465,22 +540,22 @@ class AnnotationContainer {
 
     List<Feature> getCategoriesByTerm(Term term) {
 	List<Feature> categories = this.categoriesIndexedByTerm.get(term.getId());
-	return (categories == null) ? new ArrayList<Feature>() : categories;	
+	return (categories == null) ? new ArrayList<Feature>() : categories;
     }
 
     List<Opinion> getOpinionsByTerm(Term term) {
 	List<Opinion> opinions = this.opinionsIndexedByTerm.get(term.getId());
-	return (opinions == null) ? new ArrayList<Opinion>() : opinions;	
+	return (opinions == null) ? new ArrayList<Opinion>() : opinions;
     }
 
     List<Relation> getRelationsByRelational(Relational relational) {
 	List<Relation> relations = this.relationsIndexedByRelational.get(relational.getId());
-	return (relations == null) ? new ArrayList<Relation>() : relations;		
+	return (relations == null) ? new ArrayList<Relation>() : relations;
     }
 
     List<Predicate> getPredicatesByTerm(Term term) {
 	List<Predicate> predicates = this.predicatesIndexedByTerm.get(term.getId());
-	return (predicates == null) ? new ArrayList<Predicate>() : predicates;			
+	return (predicates == null) ? new ArrayList<Predicate>() : predicates;
     }
 
     List<Dep> getDepsByTerms(List<Term> terms) {
@@ -513,6 +588,14 @@ class AnnotationContainer {
 	    corefs.addAll(getCorefsByTerm(term));
 	}
 	return new ArrayList<Coref>(corefs);
+    }
+
+    List<Timex3> getTimeExsByWFs(List<WF> wfs) {
+	LinkedHashSet<Timex3> timeExs = new LinkedHashSet<Timex3>();
+	for (WF wf : wfs) {
+	    timeExs.addAll(getTimeExsByWF(wf));
+	}
+	return new ArrayList<Timex3>(timeExs);
     }
 
     List<Feature> getPropertiesByTerms(List<Term> terms) {

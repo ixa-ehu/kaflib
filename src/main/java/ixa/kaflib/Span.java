@@ -4,8 +4,14 @@ import java.util.List;
 import java.util.ArrayList;
 
 public class Span<T> {
+	@Override
+	public String toString() {
+		return "Span{" +
+				"targets=" + targets +
+				'}';
+	}
 
-    //private List<String> targets;
+	//private List<String> targets;
     private List<T> targets;
     private T head;
 
