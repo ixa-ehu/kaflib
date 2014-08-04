@@ -5,8 +5,14 @@ import java.util.ArrayList;
 import java.io.Serializable;
 
 public class Span<T> implements Serializable {
+	@Override
+	public String toString() {
+		return "Span{" +
+				"targets=" + targets +
+				'}';
+	}
 
-    //private List<String> targets;
+	//private List<String> targets;
     private List<T> targets;
     private T head;
 
