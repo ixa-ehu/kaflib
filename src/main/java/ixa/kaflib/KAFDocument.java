@@ -1,16 +1,22 @@
 package ixa.kaflib;
 
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.io.File;
 import java.io.Reader;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.regex.Pattern;
 import java.io.IOException;
+
 import org.jdom2.JDOMException;
 import org.jdom2.Element;
 
@@ -1575,4 +1581,209 @@ public Entity newEntity(List<Span<Term>> references) {
     public List<Term> getTermsFromWFs(List<String> wfIds) {
 	return annotationContainer.getTermsByWFIds(wfIds);
     }
+    
+    // ADDED BY FRANCESCO
+
+    private static final Map<String, Character> DEP_PATH_CHARS = new HashMap<String, Character>();
+
+    private static final Map<String, Pattern> DEP_PATH_REGEXS = new HashMap<String, Pattern>();
+
+    private static char getDepPathChar(final String label) {
+    final String key = label.toLowerCase();
+    synchronized (DEP_PATH_CHARS) {
+        Character letter = DEP_PATH_CHARS.get(key);
+        if (letter == null) {
+            letter = 'a';
+            for (final Character ch : DEP_PATH_CHARS.values()) {
+                if (ch >= letter) {
+                    letter = (char) (ch + 1);
+                }
+            }
+            DEP_PATH_CHARS.put(key, letter);
+        }
+        return letter;
+    }
+    }
+
+    private static String getDepPathString(final Term from, final Iterable<Dep> path) {
+    final StringBuilder builder = new StringBuilder("_");
+    Term term = from; // current node in the path
+    for (final Dep dep : path) {
+        char prefix;
+        if (dep.getFrom() == term) {
+            prefix = '+';
+            term = dep.getTo();
+        } else {
+            prefix = '-';
+            term = dep.getFrom();
+        }
+        for (final String label : dep.getRfunc().split("-")) {
+            final Character letter = getDepPathChar(label);
+            builder.append(prefix).append(letter);
+        }
+        builder.append("_");
+    }
+    return builder.toString();
+    }
+
+    private static Pattern getDepPathRegex(final String pattern) {
+    synchronized (DEP_PATH_REGEXS) {
+        Pattern regex = DEP_PATH_REGEXS.get(pattern);
+        if (regex == null) {
+            final StringBuilder builder = new StringBuilder();
+            builder.append('_');
+            int start = -1;
+            for (int i = 0; i < pattern.length(); ++i) {
+                final char ch = pattern.charAt(i);
+                if (Character.isLetter(ch) || ch == '-') {
+                    if (start < 0) {
+                        start = i;
+                    }
+                } else {
+                    if (start >= 0) {
+                        final boolean inverse = pattern.charAt(start) == '-';
+                        final String label = pattern.substring(inverse ? start + 1 : start, i);
+                        final char letter = getDepPathChar(label);
+                        builder.append("([^_]*")
+                                .append(Pattern.quote((inverse ? "-" : "+") + letter))
+                                .append("[^_]*_)");
+                        start = -1;
+                    }
+                    if (!Character.isWhitespace(ch)) {
+                        builder.append(ch);
+                    }
+                }
+            }
+            regex = Pattern.compile(builder.toString());
+            DEP_PATH_REGEXS.put(pattern, regex);
+        }
+        return regex;
+    }
+    }
+
+    public boolean matchDepPath(final Term from, final Iterable<Dep> path, final String pattern) {
+    String pathString = getDepPathString(from, path);
+    Pattern pathRegex = getDepPathRegex(pattern);
+    return pathRegex.matcher(pathString).matches();
+    }
+
+    public List<Dep> getDepPath(final Term from, final Term to) {
+    if (from == to) {
+        return Collections.emptyList();
+    }
+    final List<Dep> toPath = new ArrayList<Dep>();
+    for (Dep dep = getDepToTerm(to); dep != null; dep = getDepToTerm(dep.getFrom())) {
+        toPath.add(dep);
+        if (dep.getFrom() == from) {
+            Collections.reverse(toPath);
+            return toPath;
+        }
+    }
+    final List<Dep> fromPath = new ArrayList<Dep>();
+    for (Dep dep = getDepToTerm(from); dep != null; dep = getDepToTerm(dep.getFrom())) {
+        fromPath.add(dep);
+        if (dep.getFrom() == to) {
+            return fromPath;
+        }
+        for (int i = 0; i < toPath.size(); ++i) {
+            if (dep.getFrom() == toPath.get(i).getFrom()) {
+                for (int j = i; j >= 0; --j) {
+                    fromPath.add(toPath.get(j));
+                }
+                return fromPath;
+            }
+        }
+    }
+    return null; // unconnected nodes
+    }
+
+    public Dep getDepToTerm(final Term term) {
+    for (final Dep dep : getDepsByTerm(term)) {
+        if (dep.getTo() == term) {
+            return dep;
+        }
+    }
+    return null;
+    }
+
+    public List<Dep> getDepsFromTerm(final Term term) {
+    final List<Dep> result = new ArrayList<Dep>();
+    for (final Dep dep : getDepsByTerm(term)) {
+        if (dep.getFrom() == term) {
+            result.add(dep);
+        }
+    }
+    return result;
+    }
+
+    public List<Dep> getDepsByTerm(final Term term) {
+    return this.annotationContainer.getDepsByTerm(term);
+    }
+    
+    public Term getTermsHead(Iterable<Term> descendents) {
+    final Set<Term> termSet = new HashSet<Term>();
+    for (Term term : descendents) {
+        termSet.add(term);
+    }
+    Term root = null;
+    for (final Term term : termSet) {
+        final Dep dep = getDepToTerm(term);
+        if (dep == null || !termSet.contains(dep.getFrom())) {
+            if (root == null) {
+                root = term;
+            } else if (root != term) {
+                return null;
+            }
+        }
+    }
+    return root;
+    }
+
+    public Set<Term> getTermsByDepAncestors(final Iterable<Term> ancestors) {
+    final Set<Term> terms = new HashSet<Term>();
+    final List<Term> queue = new LinkedList<Term>();
+    for (final Term term : ancestors) {
+        terms.add(term);
+        queue.add(term);
+    }
+    while (!queue.isEmpty()) {
+        final Term term = queue.remove(0);
+        final List<Dep> deps = getDepsByTerm(term);
+        for (final Dep dep : deps) {
+            if (dep.getFrom() == term) {
+                if (terms.add(dep.getTo())) {
+                    queue.add(dep.getTo());
+                }
+            }
+        }
+    }
+    return terms;
+    }
+
+    public Set<Term> getTermsByDepAncestors(final Iterable<Term> ancestors, final String pattern) {
+    final Set<Term> result = new HashSet<Term>();
+    for (final Term term : ancestors) {
+        for (final Term descendent : getTermsByDepAncestors(Collections.singleton(term))) {
+            final List<Dep> path = getDepPath(term, descendent);
+            if (matchDepPath(term, path, pattern)) {
+                result.add(descendent);
+            }
+        }
+    }
+    return result;
+    }
+    
+    public List<Entity> getEntitiesByTerm(Term term) {
+    return this.annotationContainer.getEntitiesByTerm(term);
+    }
+
+
+    public List<Predicate> getPredicates() {
+    return this.annotationContainer.getPredicates();
+    }
+    
+    public List<Predicate> getPredicatesByTerm(Term term) {
+    return this.annotationContainer.getPredicatesByTerm(term);
+    }
+
 }
