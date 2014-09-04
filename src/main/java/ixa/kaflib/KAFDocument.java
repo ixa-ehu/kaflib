@@ -886,23 +886,57 @@ public Entity newEntity(List<Span<Term>> references) {
     }
 
     public List<Dep> getDepsBySent(Integer sent) {
-	return this.annotationContainer.depsIndexedBySent.get(sent);
+	List<Dep> deps = this.annotationContainer.depsIndexedBySent.get(sent);
+	return (deps == null) ? new ArrayList<Dep>() : deps;
     }
 
     public List<Dep> getDepsByPara(Integer para) {
 	return this.annotationContainer.getLayerByPara(para, this.annotationContainer.depsIndexedBySent);
     }
 
+    public List<Tree> getConstituentsBySent(Integer sent) {
+	List<Tree> trees = this.annotationContainer.constituentsIndexedBySent.get(sent);
+	return (trees == null) ? new ArrayList<Tree>() : trees;
+    }
+
+    public List<Tree> getConstituentsByPara(Integer para) {
+	return this.annotationContainer.getLayerByPara(para, this.annotationContainer.constituentsIndexedBySent);
+    }
+
     public List<Chunk> getChunksBySent(Integer sent) {
-	return this.annotationContainer.chunksIndexedBySent.get(sent);
+	List<Chunk> chunks = this.annotationContainer.chunksIndexedBySent.get(sent);
+	return (chunks == null) ? new ArrayList<Chunk>() : chunks;
     }
 
     public List<Chunk> getChunksByPara(Integer para) {
 	return this.annotationContainer.getLayerByPara(para, this.annotationContainer.chunksIndexedBySent);
     }
 
+    /*
+    public List<Coref> getCorefsBySent(Integer sent) {
+	List<Coref> corefs = this.annotationContainer.corefsIndexedBySent.get(sent);
+	return (corefs == null) ? new ArrayList<Coref>() : corefs;
+    }
+
+    public List<Coref> getCorefsByPara(Integer para) {
+	return this.annotationContainer.getLayerByPara(para, this.annotationContainer.corefsIndexedBySent);
+    }
+    */
+
+    /*
+    public List<Opinion> getOpinionsBySent(Integer sent) {
+	List<Opinion> opinions = this.annotationContainer.opinionsIndexedBySent.get(sent);
+	return (opinions == null) ? new ArrayList<Opinion>() : opinions;
+    }
+
+    public List<Opinion> getOpinionsByPara(Integer para) {
+	return this.annotationContainer.getLayerByPara(para, this.annotationContainer.opinionsIndexedBySent);
+    }
+    */
+
     public List<Predicate> getPredicatesBySent(Integer sent) {
-	return this.annotationContainer.predicatesIndexedBySent.get(sent);
+	List<Predicate> predicates = this.annotationContainer.predicatesIndexedBySent.get(sent);
+	return (predicates == null) ? new ArrayList<Predicate>() : predicates;
     }
 
     public List<Predicate> getPredicatesByPara(Integer para) {

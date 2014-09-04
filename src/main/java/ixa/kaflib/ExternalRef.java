@@ -6,7 +6,7 @@ import java.io.Serializable;
 public class ExternalRef implements Serializable {
     private String resource;
     private String reference;
-    private float confidence;
+    private Float confidence;
     private ExternalRef externalRef;
 
     ExternalRef(String resource, String reference) {
@@ -44,11 +44,11 @@ public class ExternalRef implements Serializable {
 	return confidence != -1.0;
     }
 
-    public float getConfidence() {
+    public Float getConfidence() {
 	return confidence;
     }
 
-    public void setConfidence(float val) {
+    public void setConfidence(Float val) {
 	confidence = val;
     }
 

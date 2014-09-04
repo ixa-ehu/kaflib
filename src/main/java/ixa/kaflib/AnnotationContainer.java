@@ -91,7 +91,7 @@ class AnnotationContainer implements Serializable {
     HashMap<Integer, List<Opinion>> opinionsIndexedBySent;
     HashMap<Integer, List<Relation>> relationsIndexedBySent;
     HashMap<Integer, List<Predicate>> predicatesIndexedBySent;
-    HashMap<Integer, List<Tree>> treesIndexedBySent;
+    HashMap<Integer, List<Tree>> constituentsIndexedBySent;
 
     HashMap<Integer, LinkedHashSet<Integer>> sentsIndexedByParagraphs;
 
@@ -139,7 +139,7 @@ class AnnotationContainer implements Serializable {
 	opinionsIndexedBySent = new HashMap<Integer, List<Opinion>>();
 	relationsIndexedBySent = new HashMap<Integer, List<Relation>>();
 	predicatesIndexedBySent = new HashMap<Integer, List<Predicate>>();
-	treesIndexedBySent = new HashMap<Integer, List<Tree>>();
+	constituentsIndexedBySent = new HashMap<Integer, List<Tree>>();
 
 	sentsIndexedByParagraphs = new HashMap<Integer, LinkedHashSet<Integer>>();
     }
@@ -431,6 +431,12 @@ class AnnotationContainer implements Serializable {
     /** Adds a tree to the container */
     void add(Tree tree) {
 	trees.add(tree);
+	TreeNode currentNode = tree.getRoot();
+	while (!currentNode.isTerminal()) {
+	    currentNode = ((NonTerminal) currentNode).getChildren().get(0);
+	}
+	Integer sent = ((Terminal) currentNode).getSpan().getTargets().get(0).getSent(); 
+	this.indexBySent(tree, sent, this.constituentsIndexedBySent);
     }
 
     /** Adds an unknown layer to the container in DOM format */
