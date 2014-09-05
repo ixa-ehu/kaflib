@@ -193,7 +193,7 @@ class ReadWriteManager {
 	    else if (elem.getName().equals("terms")) {
 		List<Element> termElems = elem.getChildren();
 		for (Element termElem : termElems) {
-		    DOMToTerm(termElem, kaf, false, wfIndex, termIndex);
+		    DOMToTerm(termElem, kaf, false, wfIndex, termIndex, null);
 		}
 	    }
 	    else if (elem.getName().equals("markables")) {
@@ -705,13 +705,16 @@ class ReadWriteManager {
 	return kaf;
     }
 
-    private static void DOMToTerm(Element termElem, KAFDocument kaf, boolean isComponent, Map<String, WF> wfIndex, Map<String, Term> termIndex) throws KAFNotValidException {
+    private static void DOMToTerm(Element termElem, KAFDocument kaf, boolean isComponent, Map<String, WF> wfIndex, Map<String, Term> termIndex, Term parentTerm) throws KAFNotValidException {
 	String tid = getAttribute("id", termElem);
 	Element spanElem = termElem.getChild("span");
-	if (spanElem == null) {
-	    throw new IllegalStateException("Every term must contain a span element");
+	List<Element> termsWfElems = new ArrayList<Element>();
+	if (!isComponent) {
+	    if (spanElem == null) {
+		throw new IllegalStateException("Every term must contain a span element");
+	    }
+	    termsWfElems = spanElem.getChildren("target");
 	}
-	List<Element> termsWfElems = spanElem.getChildren("target");
 	Span<WF> span = kaf.newWFSpan();
 	for (Element termsWfElem : termsWfElems) {
 	    String wfId = getAttribute("id", termsWfElem);
@@ -785,8 +788,10 @@ class ReadWriteManager {
 	if (!isComponent) {
 	    List<Element> termsComponentElems = termElem.getChildren("component");
 	    for (Element termsComponentElem : termsComponentElems) {
-	        DOMToTerm(termsComponentElem, kaf, true, wfIndex, termIndex);
+	        DOMToTerm(termsComponentElem, kaf, true, wfIndex, termIndex, newTerm);
 	    }
+	} else {
+	    parentTerm.addComponent(newTerm);
 	}
 	List<Element> externalReferencesElems = termElem.getChildren("externalReferences");
 	if (externalReferencesElems.size() > 0) {
@@ -1505,8 +1510,10 @@ class ReadWriteManager {
 	String morphofeat;
 	Term head;
 	String termcase;
-	Comment termComment = new Comment(term.getStr());
-	termsElem.addContent(termComment);
+	if (!isComponent) {
+	    Comment termComment = new Comment(term.getStr());
+	    termsElem.addContent(termComment);
+	}
 	String tag = (isComponent) ? "component" : "term";
 	Element termElem = new Element(tag);
 	termElem.setAttribute("id", term.getId());
@@ -1557,18 +1564,19 @@ class ReadWriteManager {
 	    }
 	    termElem.addContent(sentimentElem);
 	}
-	Element spanElem = new Element("span");
-	Span<WF> span = term.getSpan();
-	for (WF target : term.getWFs()) {
-	    Element targetElem = new Element("target");
-	    targetElem.setAttribute("id", target.getId());
-	    if (target == span.getHead()) {
-		targetElem.setAttribute("head", "yes");
-	    }
-	    spanElem.addContent(targetElem);
-	}
-	termElem.addContent(spanElem);
 	if (!isComponent) {
+	    Element spanElem = new Element("span");
+	    Span<WF> span = term.getSpan();
+	    for (WF target : term.getWFs()) {
+		Element targetElem = new Element("target");
+		targetElem.setAttribute("id", target.getId());
+		if (target == span.getHead()) {
+		    targetElem.setAttribute("head", "yes");
+		}
+		spanElem.addContent(targetElem);
+	    }
+	    termElem.addContent(spanElem);
+
 	    List<Term> components = term.getComponents();
 	    if (components.size() > 0) {
 		for (Term component : components) {
