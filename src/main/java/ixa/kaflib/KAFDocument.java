@@ -854,6 +854,10 @@ public Entity newEntity(List<Span<Term>> references) {
 	return annotationContainer.getConstituents();
     }
 
+    public List<Predicate> getPredicates() {
+	return annotationContainer.getPredicates();
+    }
+
     public List<Element> getUnknownLayers() {
 	return annotationContainer.getUnknownLayers();
     }
