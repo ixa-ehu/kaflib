@@ -367,6 +367,15 @@ public class KAFDocument implements Serializable {
 	return newTerm;
     }
 
+    public Term newTerm(Span<WF> span, boolean isComponent) {
+	String newId = idManager.getNextTermId();
+	Term newTerm = new Term(newId, span, isComponent);
+	if (!isComponent) {
+	    annotationContainer.add(newTerm);
+	}
+	return newTerm;
+    }    
+
     public Term newTerm(String id, Span<WF> span, Integer position) {
 	idManager.updateTermCounter(id);
 	Term newTerm = new Term(id, span, false);
@@ -957,6 +966,7 @@ public Entity newEntity(List<Span<Term>> references) {
     }
 
     /** Copies the annotations to another KAF document */
+    /*
     private void copyAnnotationsToKAF(KAFDocument kaf,
 				      List<WF> wfs,
 				      List<Term> terms,
@@ -1035,12 +1045,14 @@ public Entity newEntity(List<Span<Term>> references) {
 	    Predicate predicateCopy = new Predicate(predicate, copiedTerms);
 	    kaf.insertPredicate(predicateCopy);
 	}
-	*/
+
     }
+*/
 				      
 
     /** Returns a new document containing all annotations related to the given WFs */
     /* Couldn't index opinion by terms. Terms are added after the Opinion object is created, and there's no way to access the annotationContainer from the Opinion.*/
+    /*
     public KAFDocument split(List<WF> wfs) {
         List<Term> terms = this.annotationContainer.getTermsByWFs(wfs);
 	List<Dep> deps = this.annotationContainer.getDepsByTerms(terms);
@@ -1063,13 +1075,15 @@ public Entity newEntity(List<Span<Term>> references) {
 
 	return newKaf;
     }
+    */
 
     /** Joins the document with another one. **/
     public void join(KAFDocument doc) {
-	HashMap<String, WF> copiedWFs = new HashMap<String, WF>(); // hash[old_id => new_WF_obj]
-	HashMap<String, Term> copiedTerms = new HashMap<String, Term>(); // hash[old_id => new_Term_obj]
-	HashMap<String, Relational> copiedRelationals = new HashMap<String, Relational>();
+	HashMap<String, WF> wfIndex = new HashMap<String, WF>(); // hash[old_id => new_WF_obj]
+	HashMap<String, Term> termIndex = new HashMap<String, Term>(); // hash[old_id => new_Term_obj]
+	//HashMap<String, Relational> copiedRelationals = new HashMap<String, Relational>();
 	// Linguistic processors
+	/*
 	Map<String, List<LinguisticProcessor>> lps = doc.getLinguisticProcessors();
 	for (Map.Entry<String, List<LinguisticProcessor>> entry : lps.entrySet()) {
 	    String layer = entry.getKey();
@@ -1081,128 +1095,281 @@ public Entity newEntity(List<Span<Term>> references) {
 		}
 	    }
 	}
+	*/
 	// WFs
 	for (WF wf : doc.getWFs()) {
-	    WF wfCopy = new WF(wf, this.annotationContainer);
-	    this.insertWF(wfCopy);
-	    copiedWFs.put(wf.getId(), wfCopy);
+	    WF newWf = this.createFromWF(wf);
+	    wfIndex.put(wf.getId(), newWf);
 	}
 	// Terms
 	for (Term term : doc.getTerms()) {
-	    Term termCopy = new Term(term, copiedWFs);
-	    this.insertTerm(termCopy);
-	    copiedTerms.put(term.getId(), termCopy);
+	    Term newTerm = this.createFromTerm(term, wfIndex);
+	    termIndex.put(term.getId(), newTerm);
 	}
 	// Deps
 	for (Dep dep : doc.getDeps()) {
-	    Dep depCopy = new Dep(dep, copiedTerms);
-	    this.insertDep(depCopy);
+	    Dep newDep = this.createFromDep(dep, termIndex);
 	}
 	// Chunks
 	for (Chunk chunk : doc.getChunks()) {
-	    Chunk chunkCopy = new Chunk(chunk, copiedTerms);
-	    this.insertChunk(chunkCopy);
+	    Chunk newChunk = this.createFromChunk(chunk, termIndex);
 	}
 	// Entities
 	for (Entity entity : doc.getEntities()) {
-	    Entity entityCopy = new Entity(entity, copiedTerms);
-	    this.insertEntity(entityCopy);
-	    copiedRelationals.put(entity.getId(), entityCopy);
+	    Entity newEntity = this.createFromEntity(entity, termIndex);
+	}
+	// Constituents
+	for (Tree tree : doc.getConstituents()) {
+	    Tree newTree = this.createFromConstituent(tree, termIndex);
 	}
 	// Coreferences
 	for (Coref coref : doc.getCorefs()) {
-	    Coref corefCopy = new Coref(coref, copiedTerms);
-	    this.insertCoref(corefCopy);
+	    Coref newCoref = this.createFromCoref(coref, termIndex);
+	}
+	// Opinions
+	for (Opinion opinion : doc.getOpinions()) {
+	    Opinion newOpinion = this.createFromOpinion(opinion, termIndex);
+	}
+	// SRL
+	for (Predicate predicate : doc.getPredicates()) {
+	    Predicate newPredicate = this.createFromPredicate(predicate, termIndex);
 	}
 	// Properties
+	/*
 	for (Feature property : doc.getProperties()) {
 	    Feature propertyCopy = new Feature(property, copiedTerms);
 	    this.insertProperty(propertyCopy);
 	    copiedRelationals.put(property.getId(), propertyCopy);
 	}
+	*/
 	// Categories
+	/*
 	for (Feature category : doc.getCategories()) {
 	    Feature categoryCopy = new Feature(category, copiedTerms);
 	    this.insertCategory(categoryCopy);
 	    copiedRelationals.put(category.getId(), categoryCopy);
 	}
-	// Opinions
-	for (Opinion opinion : doc.getOpinions()) {
-	    Opinion opinionCopy = new Opinion(opinion, copiedTerms);
-	    this.insertOpinion(opinionCopy);
-	}
+	*/
 	// Relations
+	/*
 	for (Relation relation : doc.getRelations()) {
-	    Relation relationCopy = new Relation(relation, copiedRelationals);
-	    this.insertRelation(relationCopy);
+	    Relation newCopy = this.createFromRelation(relation, termIndex);
+	}
+	*/
+    }
+
+    public WF createFromWF(WF origWf)
+    {
+	WF newWf = this.newWF(origWf.getForm(), origWf.getOffset());
+	newWf.setSent(origWf.getSent());
+	if (origWf.hasPara()) newWf.setPara(origWf.getPara());
+	if (origWf.hasPage()) newWf.setPage(origWf.getPage());
+	if (origWf.hasOffset()) newWf.setLength(origWf.getLength());
+	if (origWf.hasXpath()) newWf.setXpath(origWf.getXpath());
+	return newWf;
+    }
+
+    public Term createFromTerm(Term origTerm, HashMap<String, WF> wfIndex)
+    {
+	Span<WF> newSpan = this.newWFSpan();
+	for (WF origWf : origTerm.getSpan().getTargets()) {
+	    newSpan.addTarget(wfIndex.get(origWf.getId()));
+	}
+	Term newTerm = (origTerm.isComponent()) ? this.newTerm(newSpan, true) : this.newTerm(newSpan);
+	if (origTerm.hasType()) newTerm.setType(origTerm.getType());
+	if (origTerm.hasLemma()) newTerm.setLemma(origTerm.getLemma());
+	if (origTerm.hasPos()) newTerm.setPos(origTerm.getPos());
+	if (origTerm.hasMorphofeat()) newTerm.setMorphofeat(origTerm.getMorphofeat());
+	if (origTerm.hasCase()) newTerm.setCase(origTerm.getCase());
+        if (origTerm.hasSentiment()) {
+	    Term.Sentiment origSentiment = origTerm.getSentiment();
+	    Term.Sentiment newSentiment = this.newSentiment();
+	    if (origSentiment.hasResource()) newSentiment.setResource(origSentiment.getResource());
+	    if (origSentiment.hasPolarity()) newSentiment.setPolarity(origSentiment.getPolarity());
+	    if (origSentiment.hasStrength()) newSentiment.setStrength(origSentiment.getStrength());
+	    if (origSentiment.hasSubjectivity()) newSentiment.setSubjectivity(origSentiment.getSubjectivity());
+	    if (origSentiment.hasSentimentSemanticType()) newSentiment.setSentimentSemanticType(origSentiment.getSentimentSemanticType());
+	    if (origSentiment.hasSentimentModifier()) newSentiment.setSentimentModifier(origSentiment.getSentimentModifier());
+	    if (origSentiment.hasSentimentMarker()) newSentiment.setSentimentMarker(origSentiment.getSentimentMarker());
+	    if (origSentiment.hasSentimentProductFeature()) newSentiment.setSentimentProductFeature(origSentiment.getSentimentProductFeature());
+	    newTerm.setSentiment(newSentiment);
+	}
+	List<ExternalRef> extRefs = this.createFromExternalRefs(origTerm.getExternalRefs());
+	newTerm.addExternalRefs(extRefs);
+	if (!newTerm.isComponent()) {
+	    List<Term> origComponents = new ArrayList<Term>();
+	    for (Term origComponent : origComponents) {
+		Term newComponent = this.createFromTerm(origComponent, wfIndex);
+		newTerm.addComponent(newComponent);
+	    }
+	}
+	return newTerm;
+    }
+
+    public Dep createFromDep(Dep origDep, HashMap<String, Term> termIndex)
+    {
+	Dep newDep = this.newDep(termIndex.get(origDep.getFrom().getId()), termIndex.get(origDep.getTo().getId()), origDep.getRfunc());
+	if (origDep.hasCase()) newDep.setCase(origDep.getCase());
+	return newDep;
+    }
+
+    public Chunk createFromChunk(Chunk origChunk, HashMap<String, Term> termIndex)
+    {
+	Span<Term> newSpan = this.newTermSpan();
+	for (Term origTerm : origChunk.getSpan().getTargets()) {
+	    newSpan.addTarget(termIndex.get(origTerm.getId()));
+	}
+	Chunk newChunk = this.newChunk(origChunk.getPhrase(), newSpan);
+	if (origChunk.hasCase()) newChunk.setCase(origChunk.getCase());
+	return newChunk;
+    }
+
+    public Entity createFromEntity(Entity origEntity, HashMap<String, Term> termIndex)
+    {
+	List<Span<Term>> newReferences = new ArrayList<Span<Term>>();
+	for (Span<Term> span : origEntity.getSpans()) {
+	    Span<Term> newSpan = this.newTermSpan();
+	    for (Term origTerm : span.getTargets()) {
+		newSpan.addTarget(termIndex.get(origTerm.getId()));
+	    }
+	    newReferences.add(newSpan);
+	}
+	Entity newEntity = this.newEntity(newReferences);
+	if (origEntity.hasType()) newEntity.setType(origEntity.getType());
+	List<ExternalRef> extRefs = this.createFromExternalRefs(origEntity.getExternalRefs());
+	newEntity.addExternalRefs(extRefs);
+	return newEntity;
+    }
+    
+    public Tree createFromConstituent(Tree origTree, HashMap<String, Term> termIndex)
+    {
+	TreeNode newRoot = this.createFromTreeNode(origTree.getRoot(), termIndex);
+	Tree newTree = this.newConstituent(newRoot);
+	return newTree;
+    }
+
+    public TreeNode createFromTreeNode(TreeNode origNode, HashMap<String, Term> termIndex)
+    {
+	if (origNode.isTerminal()) {
+	    Span<Term> origSpan = ((Terminal) origNode).getSpan();
+	    Span<Term> newSpan = this.newTermSpan();
+	    for (Term origTerm : origSpan.getTargets()) {
+		newSpan.addTarget(termIndex.get(origTerm.getId()));
+	    }
+	    Terminal newNode = this.newTerminal(newSpan);
+	    if (origNode.hasEdgeId()) newNode.setEdgeId(origNode.getEdgeId());
+	    return newNode;
+	}
+	else {
+	    String label = ((NonTerminal) origNode).getLabel();
+	    NonTerminal newNode = this.newNonTerminal(label);
+	    for (TreeNode origChild : ((NonTerminal) origNode).getChildren()) {
+		TreeNode newChild = this.createFromTreeNode(origChild, termIndex);
+		try {
+		    newNode.addChild(newChild);
+		} catch (Exception e) {}
+	    }
+	    if (origNode.hasEdgeId()) newNode.setEdgeId(origNode.getEdgeId());
+	    return newNode;
 	}
     }
 
-    public String insertWF(WF wf) {
-	String newId = idManager.getNextWFId();
-	wf.setId(newId);
-	annotationContainer.add(wf);
-	return newId;
+    public Coref createFromCoref(Coref origCoref, HashMap<String, Term> termIndex)
+    {
+	List<Span<Term>> newMentions = new ArrayList<Span<Term>>();
+	for (Span<Term> span : origCoref.getSpans()) {
+	    Span<Term> newSpan = this.newTermSpan();
+	    for (Term origTerm : span.getTargets()) {
+		newSpan.addTarget(termIndex.get(origTerm.getId()));
+	    }
+	    newMentions.add(newSpan);
+	}
+	Coref newCoref = this.newCoref(newMentions);
+	return newCoref;
     }
 
-    public String insertTerm(Term term) {
-	String newId = idManager.getNextTermId();
-	term.setId(newId);
-	annotationContainer.add(term);
-	return newId;
+    public Opinion createFromOpinion(Opinion origOpinion, HashMap<String, Term> termIndex)
+    {
+	Opinion newOpinion = this.newOpinion();
+
+	if (origOpinion.hasOpinionHolder()) {
+	    Opinion.OpinionHolder origHolder = origOpinion.getOpinionHolder();
+	    Span<Term> newSpan = this.newTermSpan();
+	    for (Term origTerm : origHolder.getSpan().getTargets()) {
+		newSpan.addTarget(termIndex.get(origTerm.getId()));
+	    }
+	    Opinion.OpinionHolder newHolder = newOpinion.createOpinionHolder(newSpan);
+	    if (origHolder.hasType()) newHolder.setType(origHolder.getType());
+	}
+
+	if (origOpinion.hasOpinionTarget()) {
+	    Opinion.OpinionTarget origTarget = origOpinion.getOpinionTarget();
+	    Span<Term> newSpan = this.newTermSpan();
+	    for (Term origTerm : origTarget.getSpan().getTargets()) {
+		newSpan.addTarget(termIndex.get(origTerm.getId()));
+	    }
+	    Opinion.OpinionTarget newTarget = newOpinion.createOpinionTarget(newSpan);
+	}
+
+	if (origOpinion.hasOpinionExpression()) {
+	    Opinion.OpinionExpression origExpression = origOpinion.getOpinionExpression();
+	    Span<Term> newSpan = this.newTermSpan();
+	    for (Term origTerm : origExpression.getSpan().getTargets()) {
+		newSpan.addTarget(termIndex.get(origTerm.getId()));
+	    }
+	    Opinion.OpinionExpression newExpression = newOpinion.createOpinionExpression(newSpan);
+	    if (origExpression.hasPolarity()) newExpression.setPolarity(origExpression.getPolarity());
+	    if (origExpression.hasStrength()) newExpression.setStrength(origExpression.getStrength());
+	    if (origExpression.hasSubjectivity()) newExpression.setSubjectivity(origExpression.getSubjectivity());
+	    if (origExpression.hasSentimentSemanticType()) newExpression.setSentimentSemanticType(origExpression.getSentimentSemanticType());
+	    if (origExpression.hasSentimentProductFeature()) newExpression.setSentimentProductFeature(origExpression.getSentimentProductFeature());
+	}
+
+	return newOpinion;
     }
 
-    public void insertDep(Dep dep) {
-	annotationContainer.add(dep);
+    public Predicate createFromPredicate(Predicate origPredicate, HashMap<String, Term> termIndex)
+    {
+	Span<Term> newSpan = this.newTermSpan();
+	for (Term origTerm : origPredicate.getSpan().getTargets()) {
+	    newSpan.addTarget(termIndex.get(origTerm.getId()));
+	}
+	Predicate newPredicate = this.newPredicate(newSpan);
+	if (origPredicate.hasUri()) newPredicate.setUri(origPredicate.getUri());
+	if (origPredicate.hasConfidence()) newPredicate.setConfidence(origPredicate.getConfidence());
+	List<Predicate.Role> origRoles = origPredicate.getRoles();
+	List<Predicate.Role> newRoles = new ArrayList<Predicate.Role>();
+	for (Predicate.Role origRole : origRoles) {
+	    Span<Term> newRoleSpan = this.newTermSpan();
+	    for (Term origTerm : origRole.getSpan().getTargets()) {
+		newRoleSpan.addTarget(termIndex.get(origTerm.getId()));
+	    }
+	    Predicate.Role newRole = this.newRole(newPredicate, origRole.getSemRole(), newRoleSpan);
+	    List<ExternalRef> extRefs = this.createFromExternalRefs(origRole.getExternalRefs());
+	    newRole.addExternalRefs(extRefs);
+	    newPredicate.addRole(newRole);
+	}
+	List<ExternalRef> extRefs = this.createFromExternalRefs(origPredicate.getExternalRefs());
+	newPredicate.addExternalRefs(extRefs);
+	return newPredicate;
     }
 
-    public String insertChunk(Chunk chunk) {
-	String newId = idManager.getNextChunkId();
-	chunk.setId(newId);
-	annotationContainer.add(chunk);
-	return newId;
+    public List<ExternalRef> createFromExternalRefs(List<ExternalRef> origExternalRefs)
+    {
+	List<ExternalRef> newExtRefs = new ArrayList<ExternalRef>();
+	for (ExternalRef origExtRef : origExternalRefs) {
+	    newExtRefs.add(this.createFromExternalRef(origExtRef));
+	}
+	return newExtRefs;
     }
 
-    public String insertEntity(Entity entity) {
-	String newId = idManager.getNextEntityId();
-	entity.setId(newId);
-	annotationContainer.add(entity);
-	return newId;
-    }
-
-    public String insertCoref(Coref coref) {
-	String newId = idManager.getNextCorefId();
-	coref.setId(newId);
-	annotationContainer.add(coref);
-	return newId;
-    }
-
-    public String insertProperty(Feature property) {
-	String newId = idManager.getNextPropertyId();
-	property.setId(newId);
-	annotationContainer.add(property);
-	return newId;
-    }
-
-    public String insertCategory(Feature category) {
-	String newId = idManager.getNextCategoryId();
-	category.setId(newId);
-	annotationContainer.add(category);
-	return newId;
-    }
-
-    public String insertOpinion(Opinion opinion) {
-	String newId = idManager.getNextOpinionId();
-	opinion.setId(newId);
-	annotationContainer.add(opinion);
-	return newId;
-    }
-
-    public String insertRelation(Relation relation) {
-	String newId = idManager.getNextRelationId();
-	relation.setId(newId);
-	annotationContainer.add(relation);
-	return newId;
+    public ExternalRef createFromExternalRef(ExternalRef origExternalRef)
+    {
+	ExternalRef newExtRef = this.newExternalRef(origExternalRef.getResource(), origExternalRef.getReference());
+	if (origExternalRef.hasConfidence()) newExtRef.setConfidence(origExternalRef.getConfidence());
+	if (origExternalRef.hasExternalRef())
+	    newExtRef.setExternalRef(this.createFromExternalRef(origExternalRef.getExternalRef()));
+	return newExtRef;
     }
 
     /** Saves the KAF document to an XML file.

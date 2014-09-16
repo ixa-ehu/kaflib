@@ -403,7 +403,7 @@ public class Term implements Serializable {
     public Sentiment getSentiment() {
 	return sentiment;
     }
-
+    
     public void setSentiment(Sentiment sentiment) {
         this.sentiment = sentiment;
     }

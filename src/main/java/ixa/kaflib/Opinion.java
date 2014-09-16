@@ -283,6 +283,18 @@ public class Opinion implements Serializable {
 	this.id = id;
     }
 
+    public boolean hasOpinionHolder() {
+	return opinionHolder != null;
+    }
+
+    public boolean hasOpinionTarget() {
+	return opinionTarget != null;
+    }
+
+    public boolean hasOpinionExpression() {
+	return opinionExpression != null;
+    }
+
     public OpinionHolder getOpinionHolder() {
 	return opinionHolder;
     }
