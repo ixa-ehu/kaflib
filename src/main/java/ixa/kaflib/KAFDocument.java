@@ -436,14 +436,14 @@ public class KAFDocument implements Serializable {
 	return newSentiment;
     }
 
-    public Mark newMark(String id, String source, Span<Term> span) {
+    public Mark newMark(String id, String source, Span<WF> span) {
 	idManager.updateMarkCounter(id);
 	Mark newMark = new Mark(id, span);
 	annotationContainer.add(newMark, source);
 	return newMark;
     }
 
-    public Mark newMark(String source, Span<Term> span) {
+    public Mark newMark(String source, Span<WF> span) {
 	String newId = idManager.getNextMarkId();
 	Mark newMark = new Mark(newId, span);
 	annotationContainer.add(newMark, source);

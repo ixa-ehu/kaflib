@@ -205,16 +205,16 @@ class ReadWriteManager {
 		    if (spanElem == null) {
 			throw new IllegalStateException("Every mark must contain a span element");
 		    }
-		    List<Element> marksTermElems = spanElem.getChildren("target");
-		    Span<Term> span = kaf.newTermSpan();
-		    for (Element marksTermElem : marksTermElems) {
-			String termId = getAttribute("id", marksTermElem);
-			boolean isHead = isHead(marksTermElem);
-			Term term = termIndex.get(termId);
-			if (term == null) {
-			    throw new KAFNotValidException("Term " + termId + " not found when loading mark " + sid);
+		    List<Element> marksWfElems = spanElem.getChildren("target");
+		    Span<WF> span = kaf.newWFSpan();
+		    for (Element marksWfElem : marksWfElems) {
+			String wfId = getAttribute("id", marksWfElem);
+			boolean isHead = isHead(marksWfElem);
+			WF wf = wfIndex.get(wfId);
+			if (wf == null) {
+			    throw new KAFNotValidException("WF " + wfId + " not found when loading mark " + sid);
 			}
-			span.addTarget(term, isHead);
+			span.addTarget(wf, isHead);
 		    }
 		    Mark newMark = kaf.newMark(sid, source, span);
 		    String type = getOptAttribute("type", markElem);
@@ -1064,8 +1064,8 @@ class ReadWriteManager {
 			markElem.setAttribute("case", mark.getCase());
 		    }
 		    Element spanElem = new Element("span");
-		    Span<Term> span = mark.getSpan();
-		    for (Term target : span.getTargets()) {
+		    Span<WF> span = mark.getSpan();
+		    for (WF target : span.getTargets()) {
 			Element targetElem = new Element("target");
 			targetElem.setAttribute("id", target.getId());
 			if (target == span.getHead()) {

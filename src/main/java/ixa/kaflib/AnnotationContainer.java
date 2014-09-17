@@ -68,7 +68,7 @@ class AnnotationContainer implements Serializable {
 
     /** Hash map for mapping word forms to terms. */
     private HashMap<String, List<Term>> termsIndexedByWF;
-    private HashMap<String, Map<String, List<Mark>>> marksIndexedByTerm;
+    private HashMap<String, Map<String, List<Mark>>> marksIndexedByWf;
     private HashMap<String, List<Dep>> depsIndexedByTerm;
     private HashMap<String, List<Chunk>> chunksIndexedByTerm;
     private HashMap<String, List<Entity>> entitiesIndexedByTerm;
@@ -116,7 +116,7 @@ class AnnotationContainer implements Serializable {
 	unknownLayers = new ArrayList<Element>();
 
 	termsIndexedByWF = new HashMap<String, List<Term>>();
-	marksIndexedByTerm = new HashMap<String, Map<String, List<Mark>>>();
+	marksIndexedByWf = new HashMap<String, Map<String, List<Mark>>>();
 	depsIndexedByTerm = new HashMap<String, List<Dep>>();
 	chunksIndexedByTerm =  new HashMap<String, List<Chunk>>();
 	entitiesIndexedByTerm =  new HashMap<String, List<Entity>>();
@@ -281,14 +281,14 @@ class AnnotationContainer implements Serializable {
 	index.get(hashId).add(annotation);
     } 
 
-    private void indexMarkByTerm(Mark mark, String source, String tid) {
-	if (marksIndexedByTerm.get(tid) == null) {
-	    marksIndexedByTerm.put(tid, new HashMap<String, List<Mark>>());
+    private void indexMarkByWf(Mark mark, String source, String tid) {
+	if (marksIndexedByWf.get(tid) == null) {
+	    marksIndexedByWf.put(tid, new HashMap<String, List<Mark>>());
 	}
-	if (marksIndexedByTerm.get(tid).get(source) == null) {
-	    marksIndexedByTerm.get(tid).put(source, new ArrayList<Mark>());
+	if (marksIndexedByWf.get(tid).get(source) == null) {
+	    marksIndexedByWf.get(tid).put(source, new ArrayList<Mark>());
 	}
-	marksIndexedByTerm.get(tid).get(source).add(mark);
+	marksIndexedByWf.get(tid).get(source).add(mark);
     }
 
     /** Adds a term to the container */
@@ -317,8 +317,8 @@ class AnnotationContainer implements Serializable {
 	}
 	sourceMarks.add(mark);
 	marks.put(source, sourceMarks);
-	for (Term term : mark.getSpan().getTargets()) {
-	    indexMarkByTerm(mark, source, term.getId());
+	for (WF wf : mark.getSpan().getTargets()) {
+	    indexMarkByWf(mark, source, wf.getId());
 	}
         this.indexMarkBySent(mark, source, mark.getSpan().getTargets().get(0).getSent());
     }
@@ -509,8 +509,8 @@ class AnnotationContainer implements Serializable {
 	return new ArrayList<Term>(terms);
     }
 
-    List<Mark> getMarksByTerm(Term term, String source) {
-	Map<String, List<Mark>> marks = this.marksIndexedByTerm.get(term.getId());
+    List<Mark> getMarksByWf(WF wf, String source) {
+	Map<String, List<Mark>> marks = this.marksIndexedByWf.get(wf.getId());
 	if (marks == null) {
 	    return new ArrayList<Mark>();
 	}

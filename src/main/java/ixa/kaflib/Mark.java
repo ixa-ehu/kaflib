@@ -31,12 +31,12 @@ public class Mark implements Serializable {
 
     private String markcase;
 
-    private Span<Term> span;
+    private Span<WF> span;
 
     private List<ExternalRef> externalReferences;
 
 
-    Mark(String id, Span<Term> span) {
+    Mark(String id, Span<WF> span) {
 	/*
 	if (span.size() < 1) {
 	    throw new IllegalStateException("A Mark must have at least one WF");
@@ -111,26 +111,26 @@ public class Mark implements Serializable {
 	return markcase;
     }
 
-    public void setCase(String termcase) {
+    public void setCase(String markcase) {
 	this.markcase = markcase;
     }
 
     public String getStr() {
 	String str = "";
-	for (Term term : span.getTargets()) {
+	for (WF wf : span.getTargets()) {
 	    if (!str.isEmpty()) {
 		str += " ";
 	    }
-	    str += term.getStr();
+	    str += wf.getForm();
 	}
 	return str;
     }
 
-    public Span<Term> getSpan() {
+    public Span<WF> getSpan() {
 	return this.span;
     }
 
-    public void setSpan(Span<Term> span) {
+    public void setSpan(Span<WF> span) {
 	this.span = span;
     }
 
