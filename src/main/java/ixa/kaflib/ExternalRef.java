@@ -7,7 +7,12 @@ public class ExternalRef implements Serializable {
     private String resource;
     private String reference;
     private Float confidence;
+    private String reftype;
+    private String status;
+    private String source;
     private ExternalRef externalRef;
+    private Term.Sentiment sentiment;
+
 
     ExternalRef(String resource, String reference) {
 	this.resource = resource;
@@ -22,6 +27,7 @@ public class ExternalRef implements Serializable {
 	if (externalReference.externalRef != null) {
 	    this.externalRef = new ExternalRef(externalReference.externalRef);
 	}
+	this.sentiment = externalReference.sentiment;
     }
 
     public String getResource() {
@@ -38,6 +44,42 @@ public class ExternalRef implements Serializable {
 
     public void setReference(String val) {
 	reference = val;
+    }
+
+    public boolean hasReftype() {
+	return this.reftype != null;
+    }
+
+    public String getReftype() {
+	return this.reftype;
+    }
+
+    public void setReftype(String reftype) {
+	this.reftype = reftype;
+    }
+
+    public boolean hasStatus() {
+	return this.status != null;
+    }
+
+    public String getStatus() {
+	return this.status;
+    }
+
+    public void setStatus(String status) {
+	this.status = status;
+    }
+
+    public boolean hasSource() {
+	return this.source != null;
+    }
+
+    public String getSource() {
+	return this.source;
+    }
+
+    public void setSource(String source) {
+	this.source = source;
     }
 
     public boolean hasConfidence() {
@@ -62,5 +104,17 @@ public class ExternalRef implements Serializable {
 
     public void setExternalRef(ExternalRef externalRef) {
 	this.externalRef = externalRef;
+    }
+
+    public boolean hasSentiment() {
+	return this.sentiment != null;
+    }
+
+    public Term.Sentiment getSentiment() {
+	return this.sentiment;
+    }
+
+    public void setSentiment(Term.Sentiment sentiment) {
+	this.sentiment = sentiment;
     }
 }
