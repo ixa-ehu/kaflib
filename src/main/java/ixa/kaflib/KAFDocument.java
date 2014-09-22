@@ -803,6 +803,14 @@ public Entity newEntity(List<Span<Term>> references) {
 	return annotationContainer.getTerms();
     }
 
+    /** Retrieve the term at position index.
+     * @param index the global index of the term in the document, starting at zero.
+     * @return the required term.
+     */
+    public Term termNth(Integer index) {
+        return annotationContainer.getTerms().get(index) ;
+    }
+
     /** Returns a list of terms containing the word forms given on argument.
      * @param wfs a list of word forms whose terms will be found.
      * @return a list of terms containing the given word forms.
