@@ -177,13 +177,9 @@ public class KAFDocument implements Serializable {
     /** Creates a new KAFDocument loading the content read from the reader given on argument.
      * @param stream Reader to read KAF content.
      */
-    public static KAFDocument createFromStream(Reader stream) throws IOException {
+    public static KAFDocument createFromStream(Reader stream) throws IOException, JDOMException {
 	KAFDocument kaf = null;
-	try {
-	    kaf = ReadWriteManager.load(stream);
-	} catch(JDOMException e) {
-	    e.printStackTrace();
-	}
+	kaf = ReadWriteManager.load(stream);
 	return kaf;
     }
 
