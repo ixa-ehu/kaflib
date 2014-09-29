@@ -1657,7 +1657,7 @@ public Entity newEntity(List<Span<Term>> references) {
     }
 
     /** Converts a List into a Span */
-    static <T> Span<T> list2Span(List<T> list) {
+    static <T extends IReferable> Span<T> list2Span(List<T> list) {
 	Span<T> span = new Span<T>();
 	for (T elem : list) {
 	    span.addTarget(elem);
@@ -1666,7 +1666,7 @@ public Entity newEntity(List<Span<Term>> references) {
     }
     
     /** Converts a List into a Span */
-    static <T> Span<T> list2Span(List<T> list, T head) {
+    static <T extends IReferable> Span<T> list2Span(List<T> list, T head) {
 	Span<T> span = new Span<T>();
 	for (T elem : list) {
 	    if (head == elem) {

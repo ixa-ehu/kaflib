@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 
 /** Class for representing word forms. These are the result of the tokenization process. */
-public class WF implements Serializable {
+public class WF implements Serializable, IReferable {
 
     private AnnotationContainer annotationContainer;
 
@@ -146,5 +146,10 @@ public class WF implements Serializable {
 
     public void setForm(String form) {
 	this.form = form;
+    }
+
+    @Override
+    public int compareTo(IReferable o) {
+	return this.getId().compareTo(o.getId());
     }
 }
