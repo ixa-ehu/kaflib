@@ -1462,8 +1462,9 @@ public Entity newEntity(List<Span<Term>> references) {
     {
 	ExternalRef newExtRef = this.newExternalRef(origExternalRef.getResource(), origExternalRef.getReference());
 	if (origExternalRef.hasConfidence()) newExtRef.setConfidence(origExternalRef.getConfidence());
-	if (origExternalRef.hasExternalRef())
-	    newExtRef.setExternalRef(this.createFromExternalRef(origExternalRef.getExternalRef()));
+	for(ExternalRef subRef : origExternalRef.getExternalRefs()) {
+	    newExtRef.addExternalRef(createFromExternalRef(subRef));
+	}
 	return newExtRef;
     }
 
