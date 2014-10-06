@@ -20,6 +20,7 @@ public class ExternalRef implements Serializable {
 	this.resource = resource;
 	this.reference = reference;
 	this.confidence = -1.0f;
+	this.externalRefs = new ArrayList<ExternalRef>();
     }
 
     ExternalRef(ExternalRef externalReference) {
