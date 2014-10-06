@@ -194,7 +194,7 @@ class ReadWriteManager {
 	    else if (elem.getName().equals("terms")) {
 		List<Element> termElems = elem.getChildren();
 		for (Element termElem : termElems) {
-		    DOMToTerm(termElem, kaf, false, wfIndex, termIndex);
+		    DOMToTerm(termElem, kaf, false, wfIndex, termIndex, null);
 		}
 	    }
 	    else if (elem.getName().equals("markables")) {
@@ -206,16 +206,16 @@ class ReadWriteManager {
 		    if (spanElem == null) {
 			throw new IllegalStateException("Every mark must contain a span element");
 		    }
-		    List<Element> marksTermElems = spanElem.getChildren("target");
-		    Span<Term> span = kaf.newTermSpan();
-		    for (Element marksTermElem : marksTermElems) {
-			String termId = getAttribute("id", marksTermElem);
-			boolean isHead = isHead(marksTermElem);
-			Term term = termIndex.get(termId);
-			if (term == null) {
-			    throw new KAFNotValidException("Term " + termId + " not found when loading mark " + sid);
+		    List<Element> marksWfElems = spanElem.getChildren("target");
+		    Span<WF> span = kaf.newWFSpan();
+		    for (Element marksWfElem : marksWfElems) {
+			String wfId = getAttribute("id", marksWfElem);
+			boolean isHead = isHead(marksWfElem);
+			WF wf = wfIndex.get(wfId);
+			if (wf == null) {
+			    throw new KAFNotValidException("WF " + wfId + " not found when loading mark " + sid);
 			}
-			span.addTarget(term, isHead);
+			span.addTarget(wf, isHead);
 		    }
 		    Mark newMark = kaf.newMark(sid, source, span);
 		    String type = getOptAttribute("type", markElem);
@@ -758,13 +758,16 @@ class ReadWriteManager {
 	return kaf;
     }
 
-    private static void DOMToTerm(Element termElem, KAFDocument kaf, boolean isComponent, Map<String, WF> wfIndex, Map<String, Term> termIndex) throws KAFNotValidException {
+    private static void DOMToTerm(Element termElem, KAFDocument kaf, boolean isComponent, Map<String, WF> wfIndex, Map<String, Term> termIndex, Term parentTerm) throws KAFNotValidException {
 	String tid = getAttribute("id", termElem);
 	Element spanElem = termElem.getChild("span");
-	if (spanElem == null) {
-	    throw new IllegalStateException("Every term must contain a span element");
+	List<Element> termsWfElems = new ArrayList<Element>();
+	if (!isComponent) {
+	    if (spanElem == null) {
+		throw new IllegalStateException("Every term must contain a span element");
+	    }
+	    termsWfElems = spanElem.getChildren("target");
 	}
-	List<Element> termsWfElems = spanElem.getChildren("target");
 	Span<WF> span = kaf.newWFSpan();
 	for (Element termsWfElem : termsWfElems) {
 	    String wfId = getAttribute("id", termsWfElem);
@@ -799,47 +802,17 @@ class ReadWriteManager {
 	}
 	List<Element> sentimentElems = termElem.getChildren("sentiment");
 	if (sentimentElems.size() > 0) {
-	    Element sentimentElem = sentimentElems.get(0);
-	    Term.Sentiment newSentiment = kaf.newSentiment();
-	    String sentResource = getOptAttribute("resource", sentimentElem);
-	    if (sentResource != null) {
-		newSentiment.setResource(sentResource);
-	    }
-	    String sentPolarity = getOptAttribute("polarity", sentimentElem);
-	    if (sentPolarity != null) {
-		newSentiment.setPolarity(sentPolarity);
-	    }		
-	    String sentStrength = getOptAttribute("strength", sentimentElem);
-	    if (sentStrength != null) {
-		newSentiment.setStrength(sentStrength);
-	    }
-	    String sentSubjectivity = getOptAttribute("subjectivity", sentimentElem);
-	    if (sentSubjectivity != null) {
-		newSentiment.setSubjectivity(sentSubjectivity);
-	    }
-	    String sentSentimentSemanticType = getOptAttribute("sentiment_semantic_type", sentimentElem);
-	    if (sentSentimentSemanticType != null) {
-		newSentiment.setSentimentSemanticType(sentSentimentSemanticType);
-	    }
-	    String sentSentimentModifier = getOptAttribute("sentiment_modifier", sentimentElem);
-	    if (sentSentimentModifier != null) {
-		newSentiment.setSentimentModifier(sentSentimentModifier);
-	    }
-	    String sentSentimentMarker = getOptAttribute("sentiment_marker", sentimentElem);
-	    if (sentSentimentMarker != null) {
-		newSentiment.setSentimentMarker(sentSentimentMarker);
-	    }
-	    String sentSentimentProductFeature = getOptAttribute("sentiment_product_feature", sentimentElem);
-	    if (sentSentimentProductFeature != null) {
-		newSentiment.setSentimentProductFeature(sentSentimentProductFeature);
-	    }
-	    newTerm.setSentiment(newSentiment);
+	    Term.Sentiment sentiment = DOMToSentiment(sentimentElems.get(0), kaf);
+	    newTerm.setSentiment(sentiment);
 	}
+	    
 	if (!isComponent) {
 	    List<Element> termsComponentElems = termElem.getChildren("component");
 	    for (Element termsComponentElem : termsComponentElems) {
-	        DOMToTerm(termsComponentElem, kaf, true, wfIndex, termIndex);
+	        DOMToTerm(termsComponentElem, kaf, true, wfIndex, termIndex, newTerm);
 	    }
+	} else {
+	    parentTerm.addComponent(newTerm);
 	}
 	List<Element> externalReferencesElems = termElem.getChildren("externalReferences");
 	if (externalReferencesElems.size() > 0) {
@@ -849,12 +822,42 @@ class ReadWriteManager {
 	termIndex.put(newTerm.getId(), newTerm);
     }
 
-
-
-
-
-
-
+    private static Term.Sentiment DOMToSentiment(Element sentimentElem, KAFDocument kaf) {
+	Term.Sentiment newSentiment = kaf.newSentiment();
+	String sentResource = getOptAttribute("resource", sentimentElem);
+	if (sentResource != null) {
+	    newSentiment.setResource(sentResource);
+	}
+	String sentPolarity = getOptAttribute("polarity", sentimentElem);
+	if (sentPolarity != null) {
+	    newSentiment.setPolarity(sentPolarity);
+	}		
+	String sentStrength = getOptAttribute("strength", sentimentElem);
+	if (sentStrength != null) {
+	    newSentiment.setStrength(sentStrength);
+	}
+	String sentSubjectivity = getOptAttribute("subjectivity", sentimentElem);
+	if (sentSubjectivity != null) {
+	    newSentiment.setSubjectivity(sentSubjectivity);
+	}
+	String sentSentimentSemanticType = getOptAttribute("sentiment_semantic_type", sentimentElem);
+	if (sentSentimentSemanticType != null) {
+	    newSentiment.setSentimentSemanticType(sentSentimentSemanticType);
+	}
+	String sentSentimentModifier = getOptAttribute("sentiment_modifier", sentimentElem);
+	if (sentSentimentModifier != null) {
+	    newSentiment.setSentimentModifier(sentSentimentModifier);
+	}
+	String sentSentimentMarker = getOptAttribute("sentiment_marker", sentimentElem);
+	if (sentSentimentMarker != null) {
+	    newSentiment.setSentimentMarker(sentSentimentMarker);
+	}
+	String sentSentimentProductFeature = getOptAttribute("sentiment_product_feature", sentimentElem);
+	if (sentSentimentProductFeature != null) {
+	    newSentiment.setSentimentProductFeature(sentSentimentProductFeature);
+	}
+        return newSentiment;
+    }
 
 
     private static Span<Term> loadTermSpan(Element spanElem, HashMap<String, Term> terms, String objId) throws KAFNotValidException {
@@ -907,11 +910,27 @@ class ReadWriteManager {
 	if (confidence != null) {
 	    newExternalRef.setConfidence(Float.valueOf(confidence));
 	}
+	String reftype = getOptAttribute("reftype", externalRefElem);
+	if (reftype != null) {
+	    newExternalRef.setReftype(reftype);
+	}
+	String status = getOptAttribute("status", externalRefElem);
+	if (status != null) {
+	    newExternalRef.setStatus(status);
+	}
+	String source = getOptAttribute("source", externalRefElem);
+	if (source != null) {
+	    newExternalRef.setSource(source);
+	}
+	List<Element> sentimentElems = externalRefElem.getChildren("sentiment");
+	if (sentimentElems.size() > 0) {
+	    Term.Sentiment sentiment = DOMToSentiment(sentimentElems.get(0), kaf);
+	    newExternalRef.setSentiment(sentiment);
+	}
 	List<Element> subRefElems = externalRefElem.getChildren("externalRef");
-	if (subRefElems.size() > 0) {
-	    Element subRefElem = subRefElems.get(0);
+	for(Element subRefElem :  subRefElems) {
 	    ExternalRef subRef = getExternalRef(subRefElem, kaf);
-	    newExternalRef.setExternalRef(subRef);
+	    newExternalRef.addExternalRef(subRef);
 	}
 	return newExternalRef;
     }
@@ -1112,8 +1131,8 @@ class ReadWriteManager {
 			markElem.setAttribute("case", mark.getCase());
 		    }
 		    Element spanElem = new Element("span");
-		    Span<Term> span = mark.getSpan();
-		    for (Term target : span.getTargets()) {
+		    Span<WF> span = mark.getSpan();
+		    for (WF target : span.getTargets()) {
 			Element targetElem = new Element("target");
 			targetElem.setAttribute("id", target.getId());
 			if (target == span.getHead()) {
@@ -1631,8 +1650,10 @@ class ReadWriteManager {
 	String morphofeat;
 	Term head;
 	String termcase;
-	Comment termComment = new Comment(term.getStr());
-	termsElem.addContent(termComment);
+	if (!isComponent) {
+	    Comment termComment = new Comment(term.getStr());
+	    termsElem.addContent(termComment);
+	}
 	String tag = (isComponent) ? "component" : "term";
 	Element termElem = new Element(tag);
 	termElem.setAttribute("id", term.getId());
@@ -1656,45 +1677,22 @@ class ReadWriteManager {
 	}
 	if (term.hasSentiment()) {
 	    Term.Sentiment sentiment = term.getSentiment();
-	    Element sentimentElem = new Element("sentiment");
-	    if (sentiment.hasResource()) {
-		sentimentElem.setAttribute("resource", sentiment.getResource());
-	    }
-	    if (sentiment.hasPolarity()) {
-		sentimentElem.setAttribute("polarity", sentiment.getPolarity());
-	    }
-	    if (sentiment.hasStrength()) {
-		sentimentElem.setAttribute("strength", sentiment.getStrength());
-	    }
-	    if (sentiment.hasSubjectivity()) {
-		sentimentElem.setAttribute("subjectivity", sentiment.getSubjectivity());
-	    }
-	    if (sentiment.hasSentimentSemanticType()) {
-		sentimentElem.setAttribute("sentiment_semantic_type", sentiment.getSentimentSemanticType());
-	    }
-	    if (sentiment.hasSentimentModifier()) {
-		sentimentElem.setAttribute("sentiment_modifier", sentiment.getSentimentModifier());
-	    }
-	    if (sentiment.hasSentimentMarker()) {
-		sentimentElem.setAttribute("sentiment_marker", sentiment.getSentimentMarker());
-	    }
-	    if (sentiment.hasSentimentProductFeature()) {
-		sentimentElem.setAttribute("sentiment_product_feature", sentiment.getSentimentProductFeature());
-	    }
+	    Element sentimentElem = sentimentToDOM(sentiment);
 	    termElem.addContent(sentimentElem);
 	}
-	Element spanElem = new Element("span");
-	Span<WF> span = term.getSpan();
-	for (WF target : term.getWFs()) {
-	    Element targetElem = new Element("target");
-	    targetElem.setAttribute("id", target.getId());
-	    if (target == span.getHead()) {
-		targetElem.setAttribute("head", "yes");
-	    }
-	    spanElem.addContent(targetElem);
-	}
-	termElem.addContent(spanElem);
 	if (!isComponent) {
+	    Element spanElem = new Element("span");
+	    Span<WF> span = term.getSpan();
+	    for (WF target : term.getWFs()) {
+		Element targetElem = new Element("target");
+		targetElem.setAttribute("id", target.getId());
+		if (target == span.getHead()) {
+		    targetElem.setAttribute("head", "yes");
+		}
+		spanElem.addContent(targetElem);
+	    }
+	    termElem.addContent(spanElem);
+
 	    List<Term> components = term.getComponents();
 	    if (components.size() > 0) {
 		for (Term component : components) {
@@ -1739,11 +1737,53 @@ class ReadWriteManager {
 	if (externalRef.hasConfidence()) {
 	    externalRefElem.setAttribute("confidence", Float.toString(externalRef.getConfidence()));
 	}
-	if (externalRef.hasExternalRef()) {
-	    Element subExternalRefElem = externalRefToDOM(externalRef.getExternalRef());
+	if (externalRef.hasReftype()) {
+	    externalRefElem.setAttribute("reftype", externalRef.getReftype());
+	}
+	if (externalRef.hasStatus()) {
+	    externalRefElem.setAttribute("status", externalRef.getStatus());
+	}
+	if (externalRef.hasSource()) {
+	    externalRefElem.setAttribute("source", externalRef.getSource());
+	}
+	if (externalRef.hasSentiment()) {
+	    Element sentimentElem = sentimentToDOM(externalRef.getSentiment());
+	    externalRefElem.addContent(sentimentElem);
+	}
+	for(ExternalRef subExternalRef : externalRef.getExternalRefs()) {
+	    Element subExternalRefElem = externalRefToDOM(subExternalRef);
 	    externalRefElem.addContent(subExternalRefElem);
 	}
 	return externalRefElem;
+    }
+
+    private static Element sentimentToDOM(Term.Sentiment sentiment) {
+	Element sentimentElem = new Element("sentiment");
+	if (sentiment.hasResource()) {
+	    sentimentElem.setAttribute("resource", sentiment.getResource());
+	}
+	if (sentiment.hasPolarity()) {
+	    sentimentElem.setAttribute("polarity", sentiment.getPolarity());
+	}
+	if (sentiment.hasStrength()) {
+	    sentimentElem.setAttribute("strength", sentiment.getStrength());
+	}
+	if (sentiment.hasSubjectivity()) {
+	    sentimentElem.setAttribute("subjectivity", sentiment.getSubjectivity());
+	}
+	if (sentiment.hasSentimentSemanticType()) {
+	    sentimentElem.setAttribute("sentiment_semantic_type", sentiment.getSentimentSemanticType());
+	}
+	if (sentiment.hasSentimentModifier()) {
+	    sentimentElem.setAttribute("sentiment_modifier", sentiment.getSentimentModifier());
+	}
+	if (sentiment.hasSentimentMarker()) {
+	    sentimentElem.setAttribute("sentiment_marker", sentiment.getSentimentMarker());
+	}
+	if (sentiment.hasSentimentProductFeature()) {
+	    sentimentElem.setAttribute("sentiment_product_feature", sentiment.getSentimentProductFeature());
+	}
+	return sentimentElem;
     }
 
     private static int cmpId(String id1, String id2) {

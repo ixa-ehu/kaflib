@@ -7,7 +7,7 @@ import java.io.Serializable;
 
 
 /** Class for representing terms. Terms refer to previous word forms (and groups multi-words) and attach lemma, part of speech, synset and name entity information. */
-public class Term implements Serializable {
+public class Term implements Serializable, IReferable {
 
     /** Term's ID (required) */
     private String tid;
@@ -403,7 +403,7 @@ public class Term implements Serializable {
     public Sentiment getSentiment() {
 	return sentiment;
     }
-
+    
     public void setSentiment(Sentiment sentiment) {
         this.sentiment = sentiment;
     }
@@ -480,5 +480,10 @@ public class Term implements Serializable {
 
     public Term getCompound() {
 	return this.compound;
+    }
+
+    @Override
+    public int compareTo(IReferable o) {
+	return this.getId().compareTo(o.getId());
     }
 }
