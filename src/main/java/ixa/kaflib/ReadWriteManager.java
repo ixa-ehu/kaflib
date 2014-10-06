@@ -875,10 +875,9 @@ class ReadWriteManager {
 	    newExternalRef.setSentiment(sentiment);
 	}
 	List<Element> subRefElems = externalRefElem.getChildren("externalRef");
-	if (subRefElems.size() > 0) {
-	    Element subRefElem = subRefElems.get(0);
+	for(Element subRefElem :  subRefElems) {
 	    ExternalRef subRef = getExternalRef(subRefElem, kaf);
-	    newExternalRef.setExternalRef(subRef);
+	    newExternalRef.addExternalRef(subRef);
 	}
 	return newExternalRef;
     }
@@ -1625,8 +1624,8 @@ class ReadWriteManager {
 	    Element sentimentElem = sentimentToDOM(externalRef.getSentiment());
 	    externalRefElem.addContent(sentimentElem);
 	}
-	if (externalRef.hasExternalRef()) {
-	    Element subExternalRefElem = externalRefToDOM(externalRef.getExternalRef());
+	for(ExternalRef subExternalRef : externalRef.getExternalRefs()) {
+	    Element subExternalRefElem = externalRefToDOM(subExternalRef);
 	    externalRefElem.addContent(subExternalRefElem);
 	}
 	return externalRefElem;

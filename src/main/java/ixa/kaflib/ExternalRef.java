@@ -1,5 +1,7 @@
 package ixa.kaflib;
 
+import java.util.List;
+import java.util.ArrayList;
 import java.io.Serializable;
 
 
@@ -10,7 +12,7 @@ public class ExternalRef implements Serializable {
     private String reftype;
     private String status;
     private String source;
-    private ExternalRef externalRef;
+    private List<ExternalRef> externalRefs;
     private Term.Sentiment sentiment;
 
 
@@ -24,8 +26,8 @@ public class ExternalRef implements Serializable {
 	this.resource = externalReference.resource;
 	this.reference = externalReference.reference;
 	this.confidence = externalReference.confidence;
-	if (externalReference.externalRef != null) {
-	    this.externalRef = new ExternalRef(externalReference.externalRef);
+	if (externalReference.externalRefs != null) {
+	    this.externalRefs = new ArrayList<ExternalRef>(externalReference.externalRefs);
 	}
 	this.sentiment = externalReference.sentiment;
     }
@@ -95,15 +97,21 @@ public class ExternalRef implements Serializable {
     }
 
     public boolean hasExternalRef() {
-	return this.externalRef != null;
+	return this.externalRefs.size() > 0;
     }
 
-    public ExternalRef getExternalRef() {
-	return externalRef;
+    public List<ExternalRef> getExternalRefs() {
+	return externalRefs;
     }
+
+    public void addExternalRef(ExternalRef externalRef) {
+	this.externalRefs.add(externalRef);
+    }
+
+    // Deprecated. Add to the end of the list.
 
     public void setExternalRef(ExternalRef externalRef) {
-	this.externalRef = externalRef;
+	this.externalRefs.add(externalRef);
     }
 
     public boolean hasSentiment() {
