@@ -28,12 +28,16 @@ public class Timex3 {
     }
 
     Timex3(String timex3id, List<Span<WF>> mentions) {
+	/*
 	if (mentions.size() < 1) {
 	    throw new IllegalStateException("Timex3 must contain at least one reference span");
 	}
+	*/
+	/*
 	if (mentions.get(0).size() < 1) {
 	   throw new IllegalStateException("Timex3' reference's spans must contain at least one target");
 	}
+	*/
 	this.timex3id = timex3id;
 	this.mentions = mentions;
     }

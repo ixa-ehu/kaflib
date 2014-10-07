@@ -383,9 +383,11 @@ class ReadWriteManager {
 		for (Element timex3Elem : timex3Elems) {
 		    String timex3Id = getAttribute("id", timex3Elem);
 		    List<Element> spanElems = timex3Elem.getChildren("span");
+		    /*
 		    if (spanElems.size() < 1) {
 			throw new IllegalStateException("Every timex3 must contain a 'span' element inside 'references'");
 		    }
+		    */
 		    List<Span<WF>> mentions = new ArrayList<Span<WF>>();
 		    for (Element spanElem : spanElems) {
 			Span<WF> span = kaf.newWFSpan();
