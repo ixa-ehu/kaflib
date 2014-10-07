@@ -3,13 +3,14 @@ package ixa.kaflib;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.io.Serializable;
 
 /** The coreference layer creates clusters of term spans (which we call mentions) which share the same referent. For instance, “London” and “the capital city of England” are two mentions referring to the same entity. It is said that those mentions corefer. */
-public class Coref implements Serializable {
+public class Coref {
 
     /** Coreference's ID (required) */
     private String coid;
+
+    private String type;
 
     /** Mentions to the same entity (at least one required) */
     private List<Span<Term>> mentions;
@@ -27,6 +28,7 @@ public class Coref implements Serializable {
 
     Coref(Coref coref, HashMap<String, Term> terms) {
 	this.coid = coref.coid;
+	this.type = coref.type;
 	/* Copy references */
 	String id = coref.getId();
 	this.mentions = new ArrayList<Span<Term>>();
@@ -57,6 +59,14 @@ public class Coref implements Serializable {
 
     void setId(String id) {
 	this.coid = id;
+    }
+
+    public String getType() {
+	return type;
+    }
+
+    void setType(String t) {
+	this.type = t;
     }
 
     /** Returns the term targets of the first span. When targets of other spans are needed getReferences() method should be used. */ 

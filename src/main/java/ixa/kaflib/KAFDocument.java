@@ -26,7 +26,7 @@ import org.jdom2.Element;
 public class KAFDocument implements Serializable {
 
     public enum Layer {
-	text, terms, marks, deps, chunks, entities, properties, categories, coreferences, opinions, relations, srl, constituency;
+	text, terms, marks, deps, chunks, entities, properties, categories, coreferences, timeExpressions, temporalRelations, causalRelations, opinions, relations, srl, constituency;
     }
 
     public class FileDesc implements Serializable {
@@ -570,6 +570,34 @@ public Entity newEntity(List<Span<Term>> references) {
 	return newTimex3;
     }
 
+
+    /** Creates a new tlink. The Tlink is added to the document object.
+     * @param from the source id of the relation.
+     * @param to the target id of the relation.
+     * @param relType the type of the relation.
+     * @param fromType the source type (event or timex).
+     * @param to the target type (event or timex).
+     * @return a new tlink.
+     */
+    public Tlink newTlink(String id, String from, String to, String relType, String fromType, String toType) {
+	Tlink newTlink = new Tlink(id, from, to, relType, fromType, toType);
+	annotationContainer.add(newTlink);
+	return newTlink;
+    }
+
+    
+    /** Creates a new clink. The Clink is added to the document object.
+     * @param from the source id of the relation.
+     * @param to the target id of the relation.
+     * @param relType the type of the relation.
+     * @return a new tlink.
+     */
+    public Clink newClink(String id, String from, String to, String relType) {
+	Clink newClink = new Clink(id, from, to, relType);
+	annotationContainer.add(newClink);
+	return newClink;
+    }
+
 	/** Creates a factualitylayer object and add it to the document
 	 * @param term the Term of the coreference.
 	 * @return a new factuality.
@@ -897,6 +925,17 @@ public Entity newEntity(List<Span<Term>> references) {
     }
 
     /** Returns a list with all relations in the document */
+    public List<Tlink> getTlinks() {
+	return annotationContainer.getTlinks();
+    }
+
+     /** Returns a list with all relations in the document */
+    public List<Clink> getClinks() {
+	return annotationContainer.getClinks();
+    }
+
+
+    /** Returns a list with all relations in the document */
     public List<Feature> getProperties() {
 	return annotationContainer.getProperties();
     }
@@ -992,6 +1031,8 @@ public Entity newEntity(List<Span<Term>> references) {
 				      List<Entity> entities,
 				      List<Coref> corefs,
 				      List<Timex3> timeExs,
+				      List<Tlink> tlinks,
+				      List<Clink> clinks,
 				      List<Feature> properties,
 				      List<Feature> categories,
 				      List<Opinion> opinions,
@@ -1040,6 +1081,16 @@ public Entity newEntity(List<Span<Term>> references) {
 	    Timex3 timex3Copy = new Timex3(timex3, copiedWFs);
 	    kaf.insertTimex3(timex3Copy);
 	}
+	// Tlinks
+	for (Tlink tlink : tlinks) {
+	    Tlink tlinkCopy = new Tlink(tlink);
+	    kaf.insertTlink(tlinkCopy);
+	}
+	// Clinks
+	for (Clink clink : clinks) {
+	    Clink clinkCopy = new Clink(clink);
+	    kaf.insertClink(clinkCopy);
+	}
 	// Properties
 	for (Feature property : properties) {
 	    Feature propertyCopy = new Feature(property, copiedTerms);
@@ -1081,6 +1132,8 @@ public Entity newEntity(List<Span<Term>> references) {
 	List<Entity> entities = this.annotationContainer.getEntitiesByTerms(terms);
 	List<Coref> corefs = this.annotationContainer.getCorefsByTerms(terms);
 	List<Timex3> timeExs = this.annotationContainer.getTimeExsByWFs(wfs);
+	List<Tlink> tlinks = new ArrayList<Tlink>();
+	List<Clink> clinks = new ArrayList<Clink>();
 	List<Feature> properties = this.annotationContainer.getPropertiesByTerms(terms);
 	List<Feature> categories = this.annotationContainer.getCategoriesByTerms(terms);
 	// List<Opinion> opinions = this.annotationContainer.getOpinionsByTerms(terms);
@@ -1093,7 +1146,7 @@ public Entity newEntity(List<Span<Term>> references) {
 
 	KAFDocument newKaf = new KAFDocument(this.getLang(), this.getVersion());
 	newKaf.addLinguisticProcessors(this.getLinguisticProcessors());
-	this.copyAnnotationsToKAF(newKaf, wfs, terms, deps, chunks, entities, corefs, timeExs, properties, categories, new ArrayList<Opinion>(), relations, predicates);
+	this.copyAnnotationsToKAF(newKaf, wfs, terms, deps, chunks, entities, corefs, timeExs, tlinks, clinks, properties, categories, new ArrayList<Opinion>(), relations, predicates);
 
 	return newKaf;
     }
@@ -1152,6 +1205,16 @@ public Entity newEntity(List<Span<Term>> references) {
 	for (Timex3 timex3 : doc.getTimeExs()) {
 	    Timex3 timex3Copy = new Timex3(timex3, copiedWFs);
 	    this.insertTimex3(timex3Copy);
+	}
+	// Tlinks
+	for (Tlink tlink : doc.getTlinks()) {
+	    Tlink tlinkCopy = new Tlink(tlink);
+	    this.insertTlink(tlinkCopy);
+	}
+	// Clinks
+	for (Clink clink : doc.getClinks()) {
+	    Clink clinkCopy = new Clink(clink);
+	    this.insertClink(clinkCopy);
 	}
 	// Properties
 	for (Feature property : doc.getProperties()) {
@@ -1221,6 +1284,14 @@ public Entity newEntity(List<Span<Term>> references) {
 	timex3.setId(newId);
 	annotationContainer.add(timex3);
 	return newId;
+    }
+
+    public void insertTlink(Tlink tlink) {
+	annotationContainer.add(tlink);
+    }
+
+    public void insertClink(Clink clink) {
+	annotationContainer.add(clink);
     }
 
     public String insertProperty(Feature property) {
@@ -1446,6 +1517,16 @@ public Entity newEntity(List<Span<Term>> references) {
 	    spanReferences.add(this.targetList2Span(list));
 	}
 	return this.newCoref(spanReferences);
+    }
+
+    /** Deprecated */
+    public Tlink createTlink(String id, String from, String to, String relType, String fromType, String toType) {
+	return this.newTlink(id, from, to, relType, fromType, toType);
+    }
+
+    /** Deprecated */
+    public Clink createClink(String id, String from, String to, String relType) {
+	return this.newClink(id, from, to, relType);
     }
 
     /** Deprecated */

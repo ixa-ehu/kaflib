@@ -54,6 +54,12 @@ class AnnotationContainer implements Serializable {
     /** List to keep all timeExpressions */
     private List<Timex3> timeExpressions;
 
+    /** List to keep all tlink */
+    private List<Tlink> tlinks;
+
+    /** List to keep all clink */
+    private List<Clink> clinks;
+
 	/** List to keep all factualities */
 	private List<Factuality> factualities;
 
@@ -83,6 +89,8 @@ class AnnotationContainer implements Serializable {
     private HashMap<String, List<Entity>> entitiesIndexedByTerm;
     private HashMap<String, List<Coref>> corefsIndexedByTerm;
     private HashMap<String, List<Timex3>> timeExsIndexedByWF;
+    private HashMap<String, List<Tlink>> tlinksIndexedByTerm;
+    private HashMap<String, List<Clink>> clinksIndexedByTerm;
     private HashMap<String, List<Factuality>> factsIndexedByWF;
     private HashMap<String, List<LinkedEntity>> linkedEntitiesIndexedByWF;
     private HashMap<String, List<Feature>> propertiesIndexedByTerm;
@@ -99,6 +107,8 @@ class AnnotationContainer implements Serializable {
     HashMap<Integer, List<Chunk>> chunksIndexedBySent;
     HashMap<Integer, List<Coref>> corefsIndexedBySent;
     HashMap<Integer, List<Timex3>> timeExsIndexedBySent;
+    HashMap<Integer, List<Tlink>> tlinksIndexedBySent;
+    HashMap<Integer, List<Clink>> clinksIndexedBySent;
     HashMap<Integer, List<Factuality>> factsIndexedBySent;
     HashMap<Integer, List<LinkedEntity>> linkedEntitiesIndexedBySent;
     HashMap<Integer, List<Feature>> propertiesIndexedBySent;
@@ -125,6 +135,8 @@ class AnnotationContainer implements Serializable {
 	categories = new ArrayList();
 	coreferences = new ArrayList();
 	timeExpressions = new ArrayList();
+	tlinks = new ArrayList();
+	clinks = new ArrayList();
 	factualities = new ArrayList();
 	linkedEntities = new ArrayList();
 	opinions = new ArrayList();
@@ -140,6 +152,8 @@ class AnnotationContainer implements Serializable {
 	entitiesIndexedByTerm =  new HashMap<String, List<Entity>>();
 	corefsIndexedByTerm =  new HashMap<String, List<Coref>>();
 	timeExsIndexedByWF =  new HashMap<String, List<Timex3>>();
+	tlinksIndexedByTerm = new HashMap<String, List<Tlink>>();
+	clinksIndexedByTerm = new HashMap<String, List<Clink>>();
 	linkedEntitiesIndexedByWF =  new HashMap<String, List<LinkedEntity>>();
 	factsIndexedByWF = new HashMap<String, List<Factuality>>();
 	propertiesIndexedByTerm =  new HashMap<String, List<Feature>>();
@@ -156,6 +170,8 @@ class AnnotationContainer implements Serializable {
 	chunksIndexedBySent = new HashMap<Integer, List<Chunk>>();
 	corefsIndexedBySent = new HashMap<Integer, List<Coref>>();
 	timeExsIndexedBySent = new HashMap<Integer, List<Timex3>>();
+	tlinksIndexedBySent = new HashMap<Integer, List<Tlink>>();
+	clinksIndexedBySent = new HashMap<Integer, List<Clink>>();
 	linkedEntitiesIndexedBySent = new HashMap<Integer, List<LinkedEntity>>();
 	factsIndexedBySent =new HashMap<Integer, List<Factuality>>();
 	propertiesIndexedBySent = new HashMap<Integer, List<Feature>>();
@@ -265,6 +281,16 @@ class AnnotationContainer implements Serializable {
     /** Returns all timeExpressions */
     List<Timex3> getTimeExs() {
 	return timeExpressions;
+    }
+
+    /** Returns all tlink */
+    List<Tlink> getTlinks() {
+	return tlinks;
+    }
+
+    /** Returns all clink */
+    List<Clink> getClinks() {
+	return clinks;
     }
 
 	List<Factuality> getFactualities() {
@@ -433,6 +459,34 @@ class AnnotationContainer implements Serializable {
 	    for (WF wf : timex3.getWFs()) {
 		indexAnnotation(timex3, wf.getId(), timeExsIndexedByWF);
 	    }
+	}
+    }
+
+    /** Adds a tlink to the container */
+    void add(Tlink tlink) {
+	tlinks.add(tlink);
+	/* Index by 'from' and 'to' terms */
+	if (tlink.getFrom() != null) {
+	    String tId = tlink.getFrom();
+	    indexAnnotation(tlink, tId, tlinksIndexedByTerm);
+	}
+	if (tlink.getTo() != null) {
+	    String tId = tlink.getTo();
+	    indexAnnotation(tlink, tId, tlinksIndexedByTerm);
+	}
+    }
+
+    /** Adds a tlink to the container */
+    void add(Clink clink) {
+	clinks.add(clink);
+	/* Index by 'from' and 'to' terms */
+	if (clink.getFrom() != null) {
+	    String tId = clink.getFrom();
+	    indexAnnotation(clink, tId, clinksIndexedByTerm);
+	}
+	if (clink.getTo() != null) {
+	    String tId = clink.getTo();
+	    indexAnnotation(clink, tId, clinksIndexedByTerm);
 	}
     }
 
@@ -607,6 +661,12 @@ class AnnotationContainer implements Serializable {
 	return (timeExs == null) ? new ArrayList<Timex3>() : timeExs;
     }
 
+    //List<Tlink> getTlinksByTerm(Term term) {
+    //List<Dep> deps = this.depsIndexedByTerm.get(term.getId());
+    //return (deps == null) ? new ArrayList<Dep>() : deps;
+    //}
+    
+
     List<Feature> getPropertiesByTerm(Term term) {
 	List<Feature> properties = this.propertiesIndexedByTerm.get(term.getId());
 	return (properties == null) ? new ArrayList<Feature>() : properties;
@@ -756,6 +816,15 @@ class AnnotationContainer implements Serializable {
 	case coreferences:
 	    this.coreferences.clear();
 	    break;
+	case timeExpressions:
+	    this.timeExpressions.clear();
+	    break;
+	    //case tlinks:
+	    //this.tlinks.clear();
+	    //break;
+	    //case clinks:
+	    //this.clinks.clear();
+	    //break;
 	case opinions:
 	    this.opinions.clear();
 	    break;

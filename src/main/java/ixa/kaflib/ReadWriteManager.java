@@ -376,6 +376,10 @@ class ReadWriteManager {
 			mentions.add(span);
 		    }
 		    Coref newCoref = kaf.newCoref(coId, mentions);
+		    String cotype = getOptAttribute("type", corefElem);
+		    if (cotype != null){
+			newCoref.setType(cotype);
+		    }
 		}
 	    }
 	    else if (elem.getName().equals("timeExpressions")) {
@@ -383,9 +387,9 @@ class ReadWriteManager {
 		for (Element timex3Elem : timex3Elems) {
 		    String timex3Id = getAttribute("id", timex3Elem);
 		    List<Element> spanElems = timex3Elem.getChildren("span");
-		    if (spanElems.size() < 1) {
+		    /*if (spanElems.size() < 1) {
 			throw new IllegalStateException("Every timex3 must contain a 'span' element inside 'references'");
-		    }
+			}*/
 		    List<Span<WF>> mentions = new ArrayList<Span<WF>>();
 		    for (Element spanElem : spanElems) {
 			Span<WF> span = kaf.newWFSpan();
@@ -430,6 +434,40 @@ class ReadWriteManager {
 		    }
 		}
 	    }
+
+	    else if (elem.getName().equals("temporalRelations")) {
+		List<Element> tlinkElems = elem.getChildren();
+		for (Element tlinkElem : tlinkElems) {
+		    String fromId = getAttribute("from", tlinkElem);
+		    String toId = getAttribute("to", tlinkElem);
+		    String fromType = getAttribute("fromType", tlinkElem);
+		    String toType = getAttribute("toType", tlinkElem);
+		    /*if (from == null) {
+			throw new KAFNotValidException("Term " + fromId + " not found when loading Dep (" + fromId + ", " + toId + ")");
+		    }
+		    Term to = termIndex.get(toId);
+		    if (to == null) {
+			throw new KAFNotValidException("Term " + toId + " not found when loading Dep (" + fromId + ", " + toId + ")");
+		    }*/
+		    String relType = getAttribute("relType", tlinkElem);
+		    String tlinkId = getAttribute("id", tlinkElem);
+		    Tlink newTlink = kaf.newTlink(tlinkId, fromId, toId, relType, fromType, toType);
+		    
+		}
+	    }
+
+	    else if (elem.getName().equals("causalRelations")) {
+		List<Element> clinkElems = elem.getChildren();
+		for (Element clinkElem : clinkElems) {
+		    String fromId = getAttribute("from", clinkElem);
+		    String toId = getAttribute("to", clinkElem);
+		    String relType = getAttribute("relType", clinkElem);
+		    String clinkId = getAttribute("id", clinkElem);
+		    Clink newClink = kaf.newClink(clinkId, fromId, toId, relType);
+		    
+		}
+	    }
+
 	    else if (elem.getName().equals("features")) {
 		Element propertiesElem = elem.getChild("properties");
 		Element categoriesElem = elem.getChild("categories");
@@ -1264,6 +1302,43 @@ class ReadWriteManager {
 	    }
 	    root.addContent(timeExsElem);
 	}
+
+
+	List<Tlink> tlinks = annotationContainer.getTlinks();
+	if (tlinks.size() > 0) {
+	    Element tlinksElem = new Element("temporalRelations");
+	    for (Tlink tlink : tlinks) {
+		Comment tlinkComment = new Comment(tlink.getStr());
+		tlinksElem.addContent(tlinkComment);
+		Element tlinkElem = new Element("tlink");
+		tlinkElem.setAttribute("from", tlink.getFrom());
+		tlinkElem.setAttribute("to", tlink.getTo());
+		tlinkElem.setAttribute("relType", tlink.getRelType());
+		tlinkElem.setAttribute("fromType", tlink.getFromType());
+		tlinkElem.setAttribute("toType", tlink.getToType());
+		tlinkElem.setAttribute("id", tlink.getId());
+		tlinksElem.addContent(tlinkElem);
+	    }
+	    root.addContent(tlinksElem);
+	}
+
+	
+	List<Clink> clinks = annotationContainer.getClinks();
+	if (clinks.size() > 0) {
+	    Element clinksElem = new Element("causalRelations");
+	    for (Clink clink : clinks) {
+		Comment clinkComment = new Comment(clink.getStr());
+		clinksElem.addContent(clinkComment);
+		Element clinkElem = new Element("clink");
+		clinkElem.setAttribute("from", clink.getFrom());
+		clinkElem.setAttribute("to", clink.getTo());
+		clinkElem.setAttribute("relType", clink.getRelType());
+		clinkElem.setAttribute("id", clink.getId());
+		clinksElem.addContent(clinkElem);
+	    }
+	    root.addContent(clinksElem);
+	}
+
 
 	List<Factuality> factualities = annotationContainer.getFactualities();
 	if (factualities.size() > 0) {
