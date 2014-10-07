@@ -9,88 +9,119 @@ import java.util.List;
  */
 public class Factuality {
 
-	Term word;
-	ArrayList<FactualityPart> factualityParts = new ArrayList<FactualityPart>();
+    private WF word;
+    private String prediction;
+    private Double confidence;
+    //ArrayList<FactualityPart> factualityParts = new ArrayList<FactualityPart>();
 
-	public Factuality(Term word) {
-		this.word = word;
+    public Factuality(WF word, String prediction) {
+	this.word = word;
+	this.prediction = prediction;
+    }
+
+    public String getId() {
+	return this.word.getId();
+    } 
+
+    public WF getWF() {
+	return word;
+    }
+
+    public String getPrediction() {
+	return this.prediction;
+    }
+
+    public void setPrediction(String prediction) {
+	this.prediction = prediction;
+    }
+
+    public boolean hasConfidence() {
+	return this.confidence != null;
+    }
+
+    public void setConfidence(Double confidence) {
+	this.confidence = confidence;
+    }
+
+    public Double getConfidence() {
+	return this.confidence;
+    }
+
+    
+    
+    /*
+    public ArrayList<FactualityPart> getFactualityParts() {
+	return factualityParts;
+    }
+
+    public void addFactualityPart(FactualityPart part) {
+	this.factualityParts.add(part);
+    }
+
+    public void addFactualityPart(String prediction, double confidence) {
+	this.addFactualityPart(new FactualityPart(prediction, confidence));
+    }
+    
+    public List<WF> getWFs() {
+	return word.getWFs();
+    }
+
+    public FactualityPart getMaxPart() {
+	FactualityPart ret = null;
+	double base = 0;
+
+	for (FactualityPart p : factualityParts) {
+	    if (p.getConfidence() > base) {
+		ret = p;
+		base = p.getConfidence();
+	    }
 	}
 
-	public Term getWord() {
-		return word;
+	return ret;
+    }
+    
+    private class FactualityPart {
+
+	String prediction;
+	Double confidence;
+
+	FactualityPart(String prediction) {
+	    this.prediction = prediction;
 	}
 
-	public void setWord(Term word) {
-		this.word = word;
+	FactualityPart(String prediction, double confidence) {
+	    this.prediction = prediction;
+	    this.confidence = confidence;
 	}
 
-	public ArrayList<FactualityPart> getFactualityParts() {
-		return factualityParts;
+	String getPrediction() {
+	    return prediction;
 	}
 
-	public void addFactualityPart(FactualityPart part) {
-		this.factualityParts.add(part);
+	void setPrediction(String prediction) {
+	    this.prediction = prediction;
 	}
 
-	public void addFactualityPart(String prediction, double confidence) {
-		this.addFactualityPart(new FactualityPart(prediction, confidence));
+	boolean hasConfidence() {
+	    return this.confidence != null;
 	}
 
-	public String getId() {
-		return word.getWFs().get(0).getId();
+	double getConfidence() {
+	    return confidence;
 	}
 
-	public List<WF> getWFs() {
-		return word.getWFs();
+	void setConfidence(Double confidence) {
+	    this.confidence = confidence;
 	}
 
-	public FactualityPart getMaxPart() {
-		FactualityPart ret = null;
-		double base = 0;
-
-		for (FactualityPart p : factualityParts) {
-			if (p.getConfidence() > base) {
-				ret = p;
-				base = p.getConfidence();
-			}
-		}
-
-		return ret;
+	@Override
+	public String toString() {
+	    return "FactualityPart{" +
+		"prediction='" + prediction + '\'' +
+		", confidence=" + confidence +
+		'}';
 	}
-
-	class FactualityPart {
-
-		String prediction;
-		double confidence;
-
-		FactualityPart(String prediction, double confidence) {
-			this.prediction = prediction;
-			this.confidence = confidence;
-		}
-
-		String getPrediction() {
-			return prediction;
-		}
-
-		void setPrediction(String prediction) {
-			this.prediction = prediction;
-		}
-
-		double getConfidence() {
-			return confidence;
-		}
-
-		void setConfidence(double confidence) {
-			this.confidence = confidence;
-		}
-
-		@Override
-		public String toString() {
-			return "FactualityPart{" +
-					"prediction='" + prediction + '\'' +
-					", confidence=" + confidence +
-					'}';
-		}
-	}
+    }
+    */
 
 }

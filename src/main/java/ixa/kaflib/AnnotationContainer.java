@@ -438,13 +438,9 @@ class AnnotationContainer implements Serializable {
 
 	/** Adds a factuality to the container */
 	void add(Factuality factuality) {
-		factualities.add(factuality);
-	/* Index by terms */
-		if(factuality.getWFs() != null){
-			for (WF wf : factuality.getWFs()) {
-				indexAnnotation(factuality, wf.getId(), factsIndexedByWF);
-			}
-		}
+	    factualities.add(factuality);
+	    /* Index by terms */
+	    indexAnnotation(factuality, factuality.getWF().getId(), factsIndexedByWF);
 	}
 
 	/** Adds a linked entity to the container */

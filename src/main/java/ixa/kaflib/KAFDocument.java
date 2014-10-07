@@ -579,11 +579,11 @@ public Entity newEntity(List<Span<Term>> references) {
 	 * @param term the Term of the coreference.
 	 * @return a new factuality.
 	 */
-	public Factuality newFactuality(Term term) {
-		Factuality factuality = new Factuality(term);
-		annotationContainer.add(factuality);
-		return factuality;
-	}
+    public Factuality newFactuality(WF wf, String prediction) {
+	Factuality factuality = new Factuality(wf, prediction);
+	annotationContainer.add(factuality);
+	return factuality;
+    }
 
 	/** Creates a LinkedEntity object and add it to the document
 	 * @param term the Term of the coreference.
@@ -934,6 +934,10 @@ public Entity newEntity(List<Span<Term>> references) {
 
     public List<Predicate> getPredicates() {
 	return annotationContainer.getPredicates();
+    }
+
+    public List<Factuality> getFactualities() {
+	return annotationContainer.getFactualities();
     }
 
     public List<Element> getUnknownLayers() {

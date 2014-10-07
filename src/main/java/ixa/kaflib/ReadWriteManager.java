@@ -751,6 +751,22 @@ class ReadWriteManager {
 		    }
 		}
 	    }
+	    else if (elem.getName().equals("factualitylayer")) {
+		List<Element> factualityElems = elem.getChildren("factvalue");
+		for (Element factualityElem : factualityElems) {
+		    String id = getAttribute("id", factualityElem);
+		    String prediction = getAttribute("prediction", factualityElem);
+		    String confidenceStr = getAttribute("confidence", factualityElem);
+		    Double confidence = null;
+		    if (confidenceStr != null) {
+			confidence = Double.parseDouble(confidenceStr);
+		    }
+		    Factuality factuality = kaf.newFactuality(wfIndex.get(id), prediction);
+		    if (confidence != null) {
+			factuality.setConfidence(confidence);
+		    }
+		}
+	    }
 	    else { // This layer is not recognised by the library
 		//elem.detach();
 		kaf.addUnknownLayer(elem);
@@ -1292,15 +1308,16 @@ class ReadWriteManager {
 		for (Factuality f : factualities) {
 			Element fact = new Element("factvalue");
 			fact.setAttribute("id", f.getId());
-			fact.setAttribute("prediction", f.getMaxPart().getPrediction());
-			fact.setAttribute("confidence", Double.toString(f.getMaxPart().getConfidence()));
-
+			fact.setAttribute("prediction", f.getPrediction());
+			fact.setAttribute("confidence", Double.toString(f.getConfidence()));
+			/*
 			for (Factuality.FactualityPart p : f.getFactualityParts()) {
 				Element factPartial = new Element("factuality");
 				factPartial.setAttribute("prediction", p.getPrediction());
 				factPartial.setAttribute("confidence", Double.toString(p.getConfidence()));
 				fact.addContent(factPartial);
 			}
+			*/
 
 			factsElement.addContent(fact);
 		}
