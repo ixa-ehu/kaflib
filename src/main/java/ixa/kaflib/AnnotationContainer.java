@@ -429,8 +429,8 @@ class AnnotationContainer implements Serializable {
     void add(Timex3 timex3) {
 	timeExpressions.add(timex3);
 	/* Index by terms */
-	if(timex3.getWFs() != null){
-	    for (WF wf : timex3.getWFs()) {
+	if(timex3.hasSpan()){
+	    for (WF wf : timex3.getSpan().getTargets()) {
 		indexAnnotation(timex3, wf.getId(), timeExsIndexedByWF);
 	    }
 	}

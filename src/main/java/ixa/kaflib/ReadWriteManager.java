@@ -382,53 +382,68 @@ class ReadWriteManager {
 		List<Element> timex3Elems = elem.getChildren();
 		for (Element timex3Elem : timex3Elems) {
 		    String timex3Id = getAttribute("id", timex3Elem);
-		    List<Element> spanElems = timex3Elem.getChildren("span");
-		    /*
-		    if (spanElems.size() < 1) {
-			throw new IllegalStateException("Every timex3 must contain a 'span' element inside 'references'");
+		    String timex3Type = getAttribute("type", timex3Elem);
+		    Timex3 timex3 = kaf.newTimex3(timex3Id, timex3Type);
+		    String timex3BeginPointId = getOptAttribute("beginPoint", timex3Elem);
+		    if (timex3BeginPointId != null) {
+			Term beginPoint = termIndex.get(timex3BeginPointId);
+			timex3.setBeginPoint(beginPoint);
 		    }
-		    */
-		    List<Span<WF>> mentions = new ArrayList<Span<WF>>();
-		    for (Element spanElem : spanElems) {
-			Span<WF> span = kaf.newWFSpan();
-			List<Element> targetElems = spanElem.getChildren();
-			if (targetElems.size() < 1) {
-			    //throw new IllegalStateException("Every span in an entity must contain at least one target inside");
-			    mentions = null;
-			}
-			else{
-			    for (Element targetElem : targetElems) {
-				String targetTermId = getAttribute("id", targetElem);
-				WF wordForm = wfIndex.get(targetTermId);
-				//Term targetTerm = termIndex.get(targetTermId);
-				if (wordForm == null) {
-				    throw new KAFNotValidException("Word " + targetTermId + " not found when loading timex3 " + timex3Id);
-				}
-				boolean isHead = isHead(targetElem);
-				span.addTarget(wordForm, isHead);
-			    }
-			    mentions.add(span);
-			}
+		    String timex3EndPointId = getOptAttribute("endPoint", timex3Elem);
+		    if (timex3EndPointId != null) {
+			Term endPoint = termIndex.get(timex3EndPointId);
+			timex3.setEndPoint(endPoint);
 		    }
-		   
-		    Timex3 newTimex3 = null;
-		    if(mentions == null){
-			newTimex3 = kaf.newTimex3(timex3Id);
+		    String timex3Quant = getOptAttribute("quant", timex3Elem);
+		    if (timex3Quant != null) {
+			timex3.setQuant(timex3Quant);
 		    }
-		    else{
-			newTimex3 = kaf.newTimex3(timex3Id, mentions);
+		    String timex3Freq = getOptAttribute("freq", timex3Elem);
+		    if (timex3Freq != null) {
+			timex3.setFreq(timex3Freq);
 		    }
-		    String timex3Type = getOptAttribute("type", timex3Elem);
-		    if (timex3Type != null) {
-			newTimex3.setType(timex3Type);
+		    String timex3FuncInDoc = getOptAttribute("functionInDocument", timex3Elem);
+		    if (timex3FuncInDoc != null) {
+			timex3.setFunctionInDocument(timex3FuncInDoc);
+		    }
+		    String timex3TempFunc = getOptAttribute("temporalFunction", timex3Elem);
+		    if (timex3TempFunc != null) {
+			Boolean tempFunc = timex3TempFunc.equals("true");
+			timex3.setTemporalFunction(tempFunc);
 		    }
 		    String timex3Value = getOptAttribute("value", timex3Elem);
 		    if (timex3Value != null) {
-			newTimex3.setValue(timex3Value);
+			timex3.setValue(timex3Value);
 		    }
-		    String timex3Func = getOptAttribute("functionInDocument", timex3Elem);
-		    if (timex3Func != null) {
-			newTimex3.setFuncInDoc(timex3Func);
+		    String timex3ValueFromFunction = getOptAttribute("valueFromFunction", timex3Elem);
+		    if (timex3ValueFromFunction != null) {
+			timex3.setValueFromFunction(timex3ValueFromFunction);
+		    }
+		    String timex3Mod = getOptAttribute("mod", timex3Elem);
+		    if (timex3Mod != null) {
+			timex3.setMod(timex3Mod);
+		    }
+		    String timex3AnchorTimeId = getOptAttribute("anchorTimeId", timex3Elem);
+		    if (timex3AnchorTimeId != null) {
+			timex3.setAnchorTimeId(timex3AnchorTimeId);
+		    }
+		    String timex3Comment = getOptAttribute("comment", timex3Elem);
+		    if (timex3Comment != null) {
+			timex3.setComment(timex3Comment);
+		    }
+		    Element spanElem = timex3Elem.getChild("span");
+		    if (spanElem != null) {
+			Span<WF> timex3Span = kaf.newWFSpan();
+			for (Element targetElem : spanElem.getChildren("target")) {
+			    String targetId = getAttribute("id", targetElem);
+			    WF wf = wfIndex.get(targetId);
+			    if (wf == null) {
+				throw new KAFNotValidException("Word form " + targetId + " not found when loading timex3 " + timex3Id);
+			    }
+			    boolean isHead = isHead(targetElem);
+			    timex3Span.addTarget(wf, isHead);
+			}
+			timex3.setSpan(timex3Span);
 		    }
 		}
 	    }
@@ -1282,7 +1297,54 @@ class ReadWriteManager {
 		Element timex3Elem = new Element("timex3");
 		timex3Elem.setAttribute("id", timex3.getId());
 		timex3Elem.setAttribute("type", timex3.getType());
-		timex3Elem.setAttribute("value", timex3.getValue());
+		if (timex3.hasBeginPoint()) {
+		    timex3Elem.setAttribute("beginPoint", timex3.getBeginPoint().getId());
+		}
+		if (timex3.hasEndPoint()) {
+		    timex3Elem.setAttribute("endPoint", timex3.getEndPoint().getId());
+		}
+		if (timex3.hasQuant()) {
+		    timex3Elem.setAttribute("quant", timex3.getQuant());
+		}
+		if (timex3.hasFreq()) {
+		    timex3Elem.setAttribute("freq", timex3.getFreq());
+		}
+		if (timex3.hasFunctionInDocument()) {
+		    timex3Elem.setAttribute("functionInDocument", timex3.getFunctionInDocument());
+		}
+		if (timex3.hasTemporalFunction()) {
+		    String tempFun = timex3.getTemporalFunction() ? "true" : "false";
+		    timex3Elem.setAttribute("temporalFunction", tempFun);
+		}
+		if (timex3.hasValue()) {
+		    timex3Elem.setAttribute("value", timex3.getValue());
+		}
+		if (timex3.hasValueFromFunction()) {
+		    timex3Elem.setAttribute("valueFromFunction", timex3.getValueFromFunction());
+		}
+		if (timex3.hasMod()) {
+		    timex3Elem.setAttribute("mod", timex3.getMod());
+		}
+		if (timex3.hasAnchorTimeId()) {
+		    timex3Elem.setAttribute("anchorTimeId", timex3.getAnchorTimeId());
+		}
+		if (timex3.hasComment()) {
+		    timex3Elem.setAttribute("comment", timex3.getComment());
+		}
+		if (timex3.hasSpan()) {
+		    Element spanElem = new Element("span");
+		    Span<WF> span = timex3.getSpan();
+		    for (WF target : span.getTargets()) {
+			Element targetElem = new Element("target");
+			targetElem.setAttribute("id", target.getId());
+			if (target == span.getHead()) {
+			    targetElem.setAttribute("head", "yes");
+			}
+			spanElem.addContent(targetElem);
+		    }
+		    timex3Elem.addContent(spanElem);
+		}
+		/*
 		for (Span<WF> span : timex3.getSpans()) {
 		    Comment spanComment = new Comment(timex3.getSpanStr(span));
 		    timex3Elem.addContent(spanComment);
@@ -1297,6 +1359,7 @@ class ReadWriteManager {
 		    }
 		    timex3Elem.addContent(spanElem);
 		}
+		*/
 		timeExsElem.addContent(timex3Elem);
 	    }
 	    root.addContent(timeExsElem);

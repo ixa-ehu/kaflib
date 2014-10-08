@@ -546,9 +546,9 @@ public Entity newEntity(List<Span<Term>> references) {
      * @param references different mentions (list of targets) to the same entity.
      * @return a new timex3.
      */
-    public Timex3 newTimex3(String id, List<Span<WF>> mentions) {
+    public Timex3 newTimex3(String id, String type) {
 	idManager.updateTimex3Counter(id);
-	Timex3 newTimex3 = new Timex3(id, mentions);
+	Timex3 newTimex3 = new Timex3(id, type);
 	annotationContainer.add(newTimex3);
 	return newTimex3;
     }
@@ -557,20 +557,9 @@ public Entity newEntity(List<Span<Term>> references) {
      * @param references different mentions (list of targets) to the same entity.
      * @return a new timex3.
      */
-    public Timex3 newTimex3(List<Span<WF>> mentions) {
+    public Timex3 newTimex3(String type) {
 	String newId = idManager.getNextTimex3Id();
-	Timex3 newTimex3 = new Timex3(newId, mentions);
-	annotationContainer.add(newTimex3);
-	return newTimex3;
-    }
-
-    /** Creates a new timeExpressions. It assigns an appropriate ID to it. The Coref is added to the document.
-     * @param references different mentions (list of targets) to the same entity.
-     * @return a new timex3.
-     */
-    public Timex3 newTimex3(String id) {
-	idManager.updateTimex3Counter(id);
-	Timex3 newTimex3 = new Timex3(id);
+	Timex3 newTimex3 = new Timex3(newId, type);
 	annotationContainer.add(newTimex3);
 	return newTimex3;
     }
