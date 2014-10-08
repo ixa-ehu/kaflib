@@ -564,6 +564,20 @@ public Entity newEntity(List<Span<Term>> references) {
 	return newTimex3;
     }
 
+    public TLink newTLink(String id, TLinkReferable from, TLinkReferable to, String relType) {
+	idManager.updateTLinkCounter(id);
+	TLink newTLink = new TLink(id, from, to, relType);
+	annotationContainer.add(newTLink);
+	return newTLink;
+    }
+
+    public TLink newTLink(TLinkReferable from, TLinkReferable to, String relType) {
+	String newId = idManager.getNextTLinkId();
+	TLink newTLink = new TLink(newId, from, to, relType);
+	annotationContainer.add(newTLink);
+	return newTLink;
+    }
+
 	/** Creates a factualitylayer object and add it to the document
 	 * @param term the Term of the coreference.
 	 * @return a new factuality.
@@ -896,6 +910,10 @@ public Entity newEntity(List<Span<Term>> references) {
 
     public List<Timex3> getTimeExs() {
 	return annotationContainer.getTimeExs();
+    }
+
+    public List<TLink> getTLinks() {
+	return annotationContainer.getTLinks();
     }
 
     /** Returns a list with all relations in the document */

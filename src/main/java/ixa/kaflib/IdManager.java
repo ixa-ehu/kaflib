@@ -18,6 +18,7 @@ class IdManager implements Serializable {
     private static final String ENTITY_PREFIX = "e";
     private static final String COREF_PREFIX = "co";
     private static final String TIMEX3_PREFIX = "tx";
+    private static final String TLINK_PREFIX = "tlink";
     private static final String LINKEDENTITY_PREFIX = "le";
     private static final String PROPERTY_PREFIX = "p";
     private static final String CATEGORY_PREFIX = "c";
@@ -38,6 +39,7 @@ class IdManager implements Serializable {
     private int entityCounter;
     private int corefCounter;
     private int timex3Counter;
+    private int tlinkCounter;
     private int linkedEntitiesCounter;
     private int propertyCounter;
     private int categoryCounter;
@@ -60,6 +62,7 @@ class IdManager implements Serializable {
     private boolean inconsistentIdEntity;
     private boolean inconsistentIdCoref;
     private boolean inconsistentIdTimex3;
+    private boolean inconsistentIdTLink;
     private boolean inconsistentIdLinkedEntities;
     private boolean inconsistentIdProperty;
     private boolean inconsistentIdCategory;
@@ -80,6 +83,7 @@ class IdManager implements Serializable {
 	this.entityCounter = 0;
 	this.corefCounter = 0;
 	this.timex3Counter = 0;
+	this.tlinkCounter = 0;
 	this.linkedEntitiesCounter = 0;
 	this.propertyCounter = 0;
 	this.categoryCounter = 0;
@@ -101,6 +105,7 @@ class IdManager implements Serializable {
 	this.inconsistentIdEntity = false;
 	this.inconsistentIdCoref = false;
 	this.inconsistentIdTimex3 = false;
+	this.inconsistentIdTLink = false;
 	this.inconsistentIdLinkedEntities = false;
 	this.inconsistentIdProperty = false;
 	this.inconsistentIdCategory = false;
@@ -169,6 +174,13 @@ class IdManager implements Serializable {
 	    throw new IllegalStateException("Inconsistent timex3 IDs. Can't create new timex3 IDs.");
 	}
 	return TIMEX3_PREFIX + Integer.toString(++timex3Counter);
+    }
+
+    String getNextTLinkId() {
+	if (this.inconsistentIdTLink) {
+	    throw new IllegalStateException("Inconsistent tlink IDs. Can't create new tlink IDs.");
+	}
+	return TLINK_PREFIX + Integer.toString(++tlinkCounter);
     }
 
 	String getNextLinkedEntityId() {
@@ -336,6 +348,14 @@ class IdManager implements Serializable {
 	    timex3Counter = extractCounterFromId(id);
 	} catch(IllegalStateException e) {
 	    this.inconsistentIdTimex3 = true;
+	}
+    }
+
+    void updateTLinkCounter(String id) {
+	try {
+	    tlinkCounter = extractCounterFromId(id);
+	} catch(IllegalStateException e) {
+	    this.inconsistentIdTLink = true;
 	}
     }
 

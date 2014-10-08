@@ -84,6 +84,8 @@ class ReadWriteManager {
 	HashMap<String, WF> wfIndex = new HashMap<String, WF>();
 	HashMap<String, Term> termIndex = new HashMap<String, Term>();
 	HashMap<String, Relational> relationalIndex = new HashMap<String, Relational>();
+	HashMap<String, Coref> corefIndex = new HashMap<String, Coref>();
+	HashMap<String, Timex3> timexIndex = new HashMap<String, Timex3>();
 	Element rootElem = dom.getRootElement();
 	String lang = getAttribute("lang", rootElem, Namespace.XML_NAMESPACE);
 	String kafVersion = getAttribute("version", rootElem);
@@ -376,6 +378,7 @@ class ReadWriteManager {
 			mentions.add(span);
 		    }
 		    Coref newCoref = kaf.newCoref(coId, mentions);
+		    corefIndex.put(newCoref.getId(), newCoref);
 		}
 	    }
 	    else if (elem.getName().equals("timeExpressions")) {
@@ -445,6 +448,23 @@ class ReadWriteManager {
 			}
 			timex3.setSpan(timex3Span);
 		    }
+		    timexIndex.put(timex3.getId(), timex3);
+		}
+	    }
+	    else if (elem.getName().equals("temporalRelations")) {
+		List<Element> tLinkElems = elem.getChildren("tlink");
+		for (Element tLinkElem : tLinkElems) {
+		    String tlid = getAttribute("id", tLinkElem);
+		    String fromId = getAttribute("from", tLinkElem);
+		    String toId = getAttribute("to", tLinkElem);
+		    String fromType = getAttribute("fromType", tLinkElem);
+		    String toType = getAttribute("toType", tLinkElem);
+		    String relType = getAttribute("relType", tLinkElem);
+		    TLinkReferable from = fromType.equals("event")
+			? corefIndex.get(fromId) : timexIndex.get(fromId);
+		    TLinkReferable to = toType.equals("event")
+			? corefIndex.get(toId) : timexIndex.get(toId);
+		    TLink tLink = kaf.newTLink(tlid, from, to, relType);
 		}
 	    }
 	    else if (elem.getName().equals("features")) {
@@ -1363,6 +1383,22 @@ class ReadWriteManager {
 		timeExsElem.addContent(timex3Elem);
 	    }
 	    root.addContent(timeExsElem);
+	}
+
+	List<TLink> tLinks = annotationContainer.getTLinks();
+	if (tLinks.size() > 0) {
+	    Element tLinksElem = new Element("temporalRelations");
+	    for (TLink tLink : tLinks) {
+		Element tLinkElem = new Element("tlink");
+		tLinkElem.setAttribute("id", tLink.getId());
+		tLinkElem.setAttribute("from", tLink.getFrom().getId());
+		tLinkElem.setAttribute("to", tLink.getTo().getId());
+		tLinkElem.setAttribute("fromType", tLink.getFromType());
+		tLinkElem.setAttribute("toType", tLink.getToType());
+		tLinkElem.setAttribute("relType", tLink.getRelType());
+		tLinksElem.addContent(tLinkElem);
+	    }
+	    root.addContent(tLinksElem);
 	}
 
 	List<Factuality> factualities = annotationContainer.getFactualities();

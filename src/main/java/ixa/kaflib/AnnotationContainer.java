@@ -54,6 +54,9 @@ class AnnotationContainer implements Serializable {
     /** List to keep all timeExpressions */
     private List<Timex3> timeExpressions;
 
+    /** List to keep all tLinks */
+    private List<TLink> tLinks;
+
 	/** List to keep all factualities */
 	private List<Factuality> factualities;
 
@@ -125,6 +128,7 @@ class AnnotationContainer implements Serializable {
 	categories = new ArrayList();
 	coreferences = new ArrayList();
 	timeExpressions = new ArrayList();
+	tLinks = new ArrayList();
 	factualities = new ArrayList();
 	linkedEntities = new ArrayList();
 	opinions = new ArrayList();
@@ -265,6 +269,11 @@ class AnnotationContainer implements Serializable {
     /** Returns all timeExpressions */
     List<Timex3> getTimeExs() {
 	return timeExpressions;
+    }
+
+    /** Returns all tlinks */
+    List<TLink> getTLinks() {
+	return this.tLinks;
     }
 
 	List<Factuality> getFactualities() {
@@ -434,6 +443,12 @@ class AnnotationContainer implements Serializable {
 		indexAnnotation(timex3, wf.getId(), timeExsIndexedByWF);
 	    }
 	}
+    }
+
+    /** Adds a tlink to the container */
+    void add(TLink tLink) {
+	tLinks.add(tLink);
+	/* Index by from/to (???) */
     }
 
 	/** Adds a factuality to the container */
