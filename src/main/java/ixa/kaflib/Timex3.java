@@ -250,6 +250,16 @@ public class Timex3 implements TLinkReferable {
 	this.span = span;
     }
 
+    public String getSpanStr(Span<WF> span) {
+	String str = "";
+	for (WF wf : span.getTargets()) {
+	    if (!str.isEmpty()) {
+		str += " ";
+	    }
+	    str += wf.getForm();
+	}
+	return str;
+    }
 
     /** Returns the term targets of the first span. When targets of other spans are needed getReferences() method should be used. */
     /*

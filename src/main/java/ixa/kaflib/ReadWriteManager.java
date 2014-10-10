@@ -1352,8 +1352,10 @@ class ReadWriteManager {
 		    timex3Elem.setAttribute("comment", timex3.getComment());
 		}
 		if (timex3.hasSpan()) {
-		    Element spanElem = new Element("span");
 		    Span<WF> span = timex3.getSpan();
+		    Comment spanComment = new Comment(timex3.getSpanStr(span));
+		    timex3Elem.addContent(spanComment);
+		    Element spanElem = new Element("span");
 		    for (WF target : span.getTargets()) {
 			Element targetElem = new Element("target");
 			targetElem.setAttribute("id", target.getId());
@@ -1389,6 +1391,9 @@ class ReadWriteManager {
 	if (tLinks.size() > 0) {
 	    Element tLinksElem = new Element("temporalRelations");
 	    for (TLink tLink : tLinks) {
+		Comment tLinkComment = new Comment
+		    (tLink.getRelType() + "(" + tLink.getFrom().getId() + ", " + tLink.getTo().getId() + ")");
+		tLinksElem.addContent(tLinkComment);
 		Element tLinkElem = new Element("tlink");
 		tLinkElem.setAttribute("id", tLink.getId());
 		tLinkElem.setAttribute("from", tLink.getFrom().getId());
