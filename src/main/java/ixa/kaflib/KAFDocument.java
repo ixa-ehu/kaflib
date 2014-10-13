@@ -49,13 +49,15 @@ public class KAFDocument implements Serializable {
     }
 
     public class LinguisticProcessor implements Serializable {
+	String layer;
 	String name;
 	String timestamp;
 	String beginTimestamp;
 	String endTimestamp;
 	String version;
 
-	private LinguisticProcessor(String name) {
+	private LinguisticProcessor(String name, String layer) {
+	    this.layer = layer;
 	    this.name = name;
 	}
 
@@ -64,6 +66,10 @@ public class KAFDocument implements Serializable {
 	    this.name = name;
 	    this.timestamp = timestamp;
 	    this.version = version;
+	}
+
+	public String getLayer() {
+	    return this.layer;
 	}
 
 	public void setName(String name) {
@@ -212,7 +218,7 @@ public class KAFDocument implements Serializable {
     /** Adds a linguistic processor to the document header. The timestamp is added implicitly. */
     public LinguisticProcessor addLinguisticProcessor(String layer, String name) {
 	String timestamp = createTimestamp();
-	LinguisticProcessor lp = new LinguisticProcessor(name);
+	LinguisticProcessor lp = new LinguisticProcessor(name, layer);
 	//lp.setBeginTimestamp(timestamp); // no default timestamp
 	List<LinguisticProcessor> layerLps = lps.get(layer);
 	if (layerLps == null) {
@@ -241,6 +247,16 @@ public class KAFDocument implements Serializable {
      */
     public Map<String, List<LinguisticProcessor>> getLinguisticProcessors() {
 	return lps;
+    }
+
+    public List<LinguisticProcessor> getLinguisticProcessorList() {
+	List<LinguisticProcessor> result = new ArrayList<LinguisticProcessor>();
+	for (List<LinguisticProcessor> lps : this.lps.values()) {
+	    for (LinguisticProcessor lp : lps) {
+		result.add(lp);
+	    }
+	}
+	return result;
     }
 
     /** Returns wether the given linguistic processor is already defined or not. Both name and version must be exactly the same. */
