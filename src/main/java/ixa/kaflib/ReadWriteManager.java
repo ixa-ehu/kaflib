@@ -378,6 +378,10 @@ class ReadWriteManager {
 			mentions.add(span);
 		    }
 		    Coref newCoref = kaf.newCoref(coId, mentions);
+		    String corefType = getOptAttribute("type", corefElem);
+		    if (corefType != null) {
+			newCoref.setType(corefType);
+		    }
 		    corefIndex.put(newCoref.getId(), newCoref);
 		}
 	    }
@@ -1291,6 +1295,9 @@ class ReadWriteManager {
 	    for (Coref coref : corefs) {
 		Element corefElem = new Element("coref");
 		corefElem.setAttribute("id", coref.getId());
+		if (coref.hasType()) {
+		    corefElem.setAttribute("type", coref.getType());
+		}
 		for (Span<Term> span : coref.getSpans()) {
 		    Comment spanComment = new Comment(coref.getSpanStr(span));
 		    corefElem.addContent(spanComment);

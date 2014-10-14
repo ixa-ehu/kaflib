@@ -11,6 +11,9 @@ public class Coref implements TLinkReferable, Serializable {
     /** Coreference's ID (required) */
     private String coid;
 
+    /** (optional) */
+    private String type;
+
     /** Mentions to the same entity (at least one required) */
     private List<Span<Term>> mentions;
 
@@ -57,6 +60,18 @@ public class Coref implements TLinkReferable, Serializable {
 
     void setId(String id) {
 	this.coid = id;
+    }
+
+    public boolean hasType() {
+	return this.type != null;
+    }
+
+    public String getType() {
+	return this.type;
+    }
+
+    public void setType(String type) {
+	this.type = type;
     }
 
     /** Returns the term targets of the first span. When targets of other spans are needed getReferences() method should be used. */ 
