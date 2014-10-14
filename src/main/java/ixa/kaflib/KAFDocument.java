@@ -594,6 +594,20 @@ public Entity newEntity(List<Span<Term>> references) {
 	return newTLink;
     }
 
+    public CLink newCLink(String id, Coref from, Coref to) {
+	idManager.updateCLinkCounter(id);
+	CLink newCLink = new CLink(id, from, to);
+	annotationContainer.add(newCLink);
+	return newCLink;
+    }
+
+    public CLink newCLink(Coref from, Coref to) {
+	String newId = idManager.getNextCLinkId();
+	CLink newCLink = new CLink(newId, from, to);
+	annotationContainer.add(newCLink);
+	return newCLink;
+    }
+
 	/** Creates a factualitylayer object and add it to the document
 	 * @param term the Term of the coreference.
 	 * @return a new factuality.
@@ -930,6 +944,10 @@ public Entity newEntity(List<Span<Term>> references) {
 
     public List<TLink> getTLinks() {
 	return annotationContainer.getTLinks();
+    }
+
+    public List<CLink> getCLinks() {
+	return annotationContainer.getCLinks();
     }
 
     /** Returns a list with all relations in the document */

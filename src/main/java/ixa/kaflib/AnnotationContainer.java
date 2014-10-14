@@ -57,6 +57,9 @@ class AnnotationContainer implements Serializable {
     /** List to keep all tLinks */
     private List<TLink> tLinks;
 
+    /** List to keep all tLinks */
+    private List<CLink> cLinks;
+
 	/** List to keep all factualities */
 	private List<Factuality> factualities;
 
@@ -129,6 +132,7 @@ class AnnotationContainer implements Serializable {
 	coreferences = new ArrayList();
 	timeExpressions = new ArrayList();
 	tLinks = new ArrayList();
+	cLinks = new ArrayList();
 	factualities = new ArrayList();
 	linkedEntities = new ArrayList();
 	opinions = new ArrayList();
@@ -274,6 +278,11 @@ class AnnotationContainer implements Serializable {
     /** Returns all tlinks */
     List<TLink> getTLinks() {
 	return this.tLinks;
+    }
+
+    /** Returns all clinks */
+    List<CLink> getCLinks() {
+	return this.cLinks;
     }
 
 	List<Factuality> getFactualities() {
@@ -448,6 +457,12 @@ class AnnotationContainer implements Serializable {
     /** Adds a tlink to the container */
     void add(TLink tLink) {
 	tLinks.add(tLink);
+	/* Index by from/to (???) */
+    }
+
+    /** Adds a clink to the container */
+    void add(CLink cLink) {
+	cLinks.add(cLink);
 	/* Index by from/to (???) */
     }
 

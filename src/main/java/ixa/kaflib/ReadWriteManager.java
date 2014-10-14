@@ -471,6 +471,21 @@ class ReadWriteManager {
 		    TLink tLink = kaf.newTLink(tlid, from, to, relType);
 		}
 	    }
+	    else if (elem.getName().equals("causalRelations")) {
+		List<Element> clinkElems = elem.getChildren("clink");
+		for (Element clinkElem : clinkElems) {
+		    String clid = getAttribute("id", clinkElem);
+		    String fromId = getAttribute("from", clinkElem);
+		    String toId = getAttribute("to", clinkElem);
+		    String relType = getOptAttribute("relType", clinkElem);
+		    Coref from = corefIndex.get(fromId);
+		    Coref to =corefIndex.get(toId);
+		    CLink clink = kaf.newCLink(clid, from, to);
+		    if (relType != null) {
+			clink.setRelType(relType);
+		    }
+		}
+	    }
 	    else if (elem.getName().equals("features")) {
 		Element propertiesElem = elem.getChild("properties");
 		Element categoriesElem = elem.getChild("categories");
@@ -1411,6 +1426,29 @@ class ReadWriteManager {
 		tLinksElem.addContent(tLinkElem);
 	    }
 	    root.addContent(tLinksElem);
+	}
+
+	List<CLink> cLinks = annotationContainer.getCLinks();
+	if (cLinks.size() > 0) {
+	    Element cLinksElem = new Element("causalRelations");
+	    for (CLink cLink : cLinks) {
+		String commentStr = "";
+		if (cLink.hasRelType()) {
+		    commentStr += cLink.getRelType();
+		}
+		commentStr += "(" + cLink.getFrom().getId() + ", " + cLink.getTo().getId() + ")";
+		Comment cLinkComment = new Comment(commentStr);
+		cLinksElem.addContent(cLinkComment);
+		Element cLinkElem = new Element("clink");
+		cLinkElem.setAttribute("id", cLink.getId());
+		cLinkElem.setAttribute("from", cLink.getFrom().getId());
+		cLinkElem.setAttribute("to", cLink.getTo().getId());
+		if (cLink.hasRelType()) {
+		    cLinkElem.setAttribute("relType", cLink.getRelType());
+		}
+		cLinksElem.addContent(cLinkElem);
+	    }
+	    root.addContent(cLinksElem);
 	}
 
 	List<Factuality> factualities = annotationContainer.getFactualities();
