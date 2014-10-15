@@ -1,7 +1,9 @@
 package ixa.kaflib;
 
+import java.io.Serializable;
 
-public class CLink {
+
+public class CLink implements Serializable {
 
     private String id;
 

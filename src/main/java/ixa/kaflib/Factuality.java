@@ -3,11 +3,13 @@ package ixa.kaflib;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.io.Serializable;
+
 
 /**
  * Factuality layer
  */
-public class Factuality {
+public class Factuality implements Serializable {
 
     private WF word;
     private String prediction;

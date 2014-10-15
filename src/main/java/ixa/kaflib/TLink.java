@@ -1,7 +1,9 @@
 package ixa.kaflib;
 
+import java.io.Serializable;
 
-public class TLink {
+
+public class TLink implements Serializable {
 
     private String id;
 
