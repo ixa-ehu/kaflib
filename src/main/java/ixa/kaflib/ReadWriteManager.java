@@ -117,6 +117,10 @@ class ReadWriteManager {
 			if (version != null) {
 			    newLp.setVersion(version);
 			}
+			String hostname = getOptAttribute("hostname", lpElem);
+			if (hostname != null) {
+			    newLp.setHostname(hostname);
+			}
 		    }
 		}
 		Element fileDescElem = elem.getChild("fileDesc");
@@ -1130,6 +1134,9 @@ class ReadWriteManager {
 		}
 		if (lp.hasVersion()) {
 		    lpElem.setAttribute("version", lp.version);
+		}
+		if (lp.hasHostname()) {
+		    lpElem.setAttribute("hostname", lp.hostname);
 		}
 		lpsElem.addContent(lpElem);
 	    }

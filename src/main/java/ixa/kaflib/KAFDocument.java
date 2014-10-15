@@ -16,6 +16,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.regex.Pattern;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 import org.jdom2.JDOMException;
 import org.jdom2.Element;
@@ -55,6 +57,7 @@ public class KAFDocument implements Serializable {
 	String beginTimestamp;
 	String endTimestamp;
 	String version;
+	String hostname;
 
 	private LinguisticProcessor(String name, String layer) {
 	    this.layer = layer;
@@ -143,6 +146,18 @@ public class KAFDocument implements Serializable {
 	    return version;
 	}
 
+	public Boolean hasHostname() {
+	    return this.hostname != null;
+	}
+
+	public String getHostname() {
+	    return this.hostname;
+	}
+
+	public void setHostname(String hostname) {
+	    this.hostname = hostname;
+	}
+
     }
 
     /** Language identifier */
@@ -219,6 +234,9 @@ public class KAFDocument implements Serializable {
     public LinguisticProcessor addLinguisticProcessor(String layer, String name) {
 	String timestamp = createTimestamp();
 	LinguisticProcessor lp = new LinguisticProcessor(name, layer);
+	try {
+	    lp.setHostname(InetAddress.getLocalHost().getHostName());
+	} catch(UnknownHostException e) {}
 	//lp.setBeginTimestamp(timestamp); // no default timestamp
 	List<LinguisticProcessor> layerLps = lps.get(layer);
 	if (layerLps == null) {
