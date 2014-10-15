@@ -382,6 +382,11 @@ class ReadWriteManager {
 		    if (corefType != null) {
 			newCoref.setType(corefType);
 		    }
+		    List<Element> externalReferencesElems = corefElem.getChildren("externalReferences");
+		    if (externalReferencesElems.size() > 0) {
+			List<ExternalRef> externalRefs = getExternalReferences(externalReferencesElems.get(0), kaf);
+			newCoref.addExternalRefs(externalRefs);
+		    }
 		    corefIndex.put(newCoref.getId(), newCoref);
 		}
 	    }
@@ -1326,6 +1331,11 @@ class ReadWriteManager {
 			spanElem.addContent(targetElem);
 		    }
 		    corefElem.addContent(spanElem);
+		}
+		List<ExternalRef> externalReferences = coref.getExternalRefs();
+		if (externalReferences.size() > 0) {
+		    Element externalReferencesElem = externalReferencesToDOM(externalReferences);
+		    corefElem.addContent(externalReferencesElem);
 		}
 		corefsElem.addContent(corefElem);
 	    }

@@ -17,6 +17,10 @@ public class Coref implements TLinkReferable, Serializable {
     /** Mentions to the same entity (at least one required) */
     private List<Span<Term>> mentions;
 
+    /** External references (optional) */
+    private List<ExternalRef> externalReferences;
+
+
     Coref(String coid, List<Span<Term>> mentions) {
 	if (mentions.size() < 1) {
 	    throw new IllegalStateException("Coreferences must contain at least one reference span");
@@ -26,6 +30,7 @@ public class Coref implements TLinkReferable, Serializable {
 	}
 	this.coid = coid;
 	this.mentions = mentions;
+	this.externalReferences = new ArrayList<ExternalRef>();
     }
 
     Coref(Coref coref, HashMap<String, Term> terms) {
@@ -72,6 +77,18 @@ public class Coref implements TLinkReferable, Serializable {
 
     public void setType(String type) {
 	this.type = type;
+    }
+
+    public List<ExternalRef> getExternalRefs() {
+	return externalReferences;
+    }
+
+    public void addExternalRef(ExternalRef externalRef) {
+	externalReferences.add(externalRef);
+    }
+
+    public void addExternalRefs(List<ExternalRef> externalRefs) {
+	externalReferences.addAll(externalRefs);
     }
 
     /** Returns the term targets of the first span. When targets of other spans are needed getReferences() method should be used. */ 
