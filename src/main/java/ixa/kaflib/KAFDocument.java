@@ -106,6 +106,11 @@ public class KAFDocument implements Serializable {
 
 	public void setBeginTimestamp(String timestamp) {
 	    this.beginTimestamp = timestamp;
+	    if (!this.hasHostname()) {
+		try {
+		    this.setHostname(InetAddress.getLocalHost().getHostName());
+		} catch(UnknownHostException e) {}
+	    }
 	}
 
 	public void setBeginTimestamp() {
@@ -234,9 +239,6 @@ public class KAFDocument implements Serializable {
     public LinguisticProcessor addLinguisticProcessor(String layer, String name) {
 	String timestamp = createTimestamp();
 	LinguisticProcessor lp = new LinguisticProcessor(name, layer);
-	try {
-	    lp.setHostname(InetAddress.getLocalHost().getHostName());
-	} catch(UnknownHostException e) {}
 	//lp.setBeginTimestamp(timestamp); // no default timestamp
 	List<LinguisticProcessor> layerLps = lps.get(layer);
 	if (layerLps == null) {
