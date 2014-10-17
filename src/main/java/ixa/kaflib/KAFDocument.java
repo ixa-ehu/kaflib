@@ -115,7 +115,7 @@ public class KAFDocument implements Serializable {
 
 	public void setBeginTimestamp() {
 	    String timestamp = createTimestamp();
-	    this.beginTimestamp = timestamp;
+	    this.setBeginTimestamp(timestamp);
 	}
 
 	public String getBeginTimestamp() {
