@@ -107,7 +107,7 @@ class ReadWriteManager {
 			}
 			String beginTimestamp = getOptAttribute("beginTimestamp", lpElem);
 			if (beginTimestamp != null) {
-			    newLp.setBeginTimestamp(beginTimestamp);
+			    newLp.beginTimestamp = beginTimestamp;
 			}
 			String endTimestamp = getOptAttribute("endTimestamp", lpElem);
 			if (endTimestamp != null) {

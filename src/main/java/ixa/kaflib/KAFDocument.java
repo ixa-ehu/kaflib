@@ -255,7 +255,7 @@ public class KAFDocument implements Serializable {
 	    for (LinguisticProcessor lp : layerLps) {
 		LinguisticProcessor newLp = this.addLinguisticProcessor(entry.getKey(), lp.name);
 		if (lp.hasTimestamp()) newLp.setTimestamp(lp.getTimestamp());
-		if (lp.hasBeginTimestamp()) newLp.setBeginTimestamp(lp.getBeginTimestamp());
+		if (lp.hasBeginTimestamp()) newLp.beginTimestamp = lp.beginTimestamp;
 		if (lp.hasEndTimestamp()) newLp.setEndTimestamp(lp.getEndTimestamp());
 		if (lp.hasVersion()) newLp.setVersion(lp.getVersion());
 	    }
