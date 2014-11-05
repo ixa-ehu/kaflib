@@ -2,25 +2,46 @@
 	 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>ixa.kaflib</groupId>
+  <groupId>com.github.ixa-ehu</groupId>
   <artifactId>kaflib-naf</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.0.0</version>
   <packaging>jar</packaging>
+  
+  <name>${project.groupId}:${project.artifactId}</name>
+  <description>Kaflib is a java library to create and edit KAF/NAF documents.</description>
+  <url>https://github.com/ixa-ehu/kaflib</url>
 
-  <name>kaflib</name>
-  <url>http://maven.apache.org</url>
+  <licenses>
+    <license>
+      <name>The Apache License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <name>Zuhaitz Beloki</name>
+      <email>zuhaitz.beloki@ehu.es</email>
+      <organization>Ixa taldea (EHU)</organization>
+      <organizationUrl>http://ixa.si.ehu.es</organizationUrl>
+    </developer>
+  </developers>
+
+  <scm>
+    <connection>scm:git:git@github.com:ixa-ehu/kaflib.git</connection>
+    <developerConnection>scm:git:git@github.com:ixa-ehu/kaflib.git</developerConnection>
+    <url>git@github.com:ixa-ehu/kaflib.git</url>
+  </scm>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <internal.repo.path>file:///home/zuhaitz/kaf/mvn-repo</internal.repo.path>
   </properties>
 
   <distributionManagement>
-    <repository>
-      <id>internal.repo</id>
-      <name>Internal Repository</name>
-      <url>${internal.repo.path}</url>
-    </repository>
+    <snapshotRepository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    </snapshotRepository>
   </distributionManagement>
 
   <dependencies>
@@ -29,7 +50,6 @@
       <artifactId>jdom2</artifactId>
       <version>2.0.4</version>
     </dependency>
-
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
@@ -44,17 +64,17 @@
 
     <plugins>
       <plugin>
-	<groupId>org.apache.maven.plugins</groupId>
-	<artifactId>maven-javadoc-plugin</artifactId>
-	<executions>
-	  <execution>
-	    <id>attach-javadocs</id>
-	    <goals>
-	      <goal>jar</goal>
-	    </goals>
-	  </execution>
-	</executions>
+	<groupId>org.sonatype.plugins</groupId>
+	<artifactId>nexus-staging-maven-plugin</artifactId>
+	<version>1.6.3</version>
+	<extensions>true</extensions>
+	<configuration>
+          <serverId>ossrh</serverId>
+          <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+          <autoReleaseAfterClose>false</autoReleaseAfterClose>
+	</configuration>
       </plugin>
+
       <plugin>
 	<artifactId>maven-compiler-plugin</artifactId>
 	<configuration>
@@ -65,5 +85,56 @@
       </plugin> 
     </plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <id>release</id>
+      <build>
+	<plugins>
+	  <plugin>
+	    <groupId>org.apache.maven.plugins</groupId>
+	    <artifactId>maven-source-plugin</artifactId>
+	    <version>2.2.1</version>
+	    <executions>
+              <execution>
+		<id>attach-sources</id>
+		<goals>
+		  <goal>jar-no-fork</goal>
+		</goals>
+              </execution>
+	    </executions>
+	  </plugin>
+
+	  <plugin>
+	    <groupId>org.apache.maven.plugins</groupId>
+	    <artifactId>maven-javadoc-plugin</artifactId>
+	    <executions>
+	      <execution>
+		<id>attach-javadocs</id>
+		<goals>
+		  <goal>jar</goal>
+		</goals>
+	      </execution>
+	    </executions>
+	  </plugin>
+
+	  <plugin>
+	    <groupId>org.apache.maven.plugins</groupId>
+	    <artifactId>maven-gpg-plugin</artifactId>
+	    <version>1.5</version>
+	    <executions>
+              <execution>
+		<id>sign-artifacts</id>
+		<phase>verify</phase>
+		<goals>
+		  <goal>sign</goal>
+		</goals>
+              </execution>
+	    </executions>
+	  </plugin>
+	</plugins>
+      </build>
+    </profile>
+  </profiles>
 
 </project>
