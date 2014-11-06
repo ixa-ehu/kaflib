@@ -3,12 +3,12 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.github.ixa-ehu</groupId>
-  <artifactId>naflib</artifactId>
+  <artifactId>kaflib-naf</artifactId>
   <version>1.0.0</version>
   <packaging>jar</packaging>
   
   <name>${project.groupId}:${project.artifactId}</name>
-  <description>Naflib is a java library to create and edit NAF documents.</description>
+  <description>Kaflib-naf is a java library to create and edit NAF documents.</description>
   <url>https://github.com/ixa-ehu/naflib</url>
 
   <licenses>
@@ -28,9 +28,9 @@
   </developers>
 
   <scm>
-    <connection>scm:git:git@github.com:ixa-ehu/naflib.git</connection>
-    <developerConnection>scm:git:git@github.com:ixa-ehu/naflib.git</developerConnection>
-    <url>git@github.com:ixa-ehu/naflib.git</url>
+    <connection>scm:git:git@github.com:ixa-ehu/kaflib-naf.git</connection>
+    <developerConnection>scm:git:git@github.com:ixa-ehu/kaflib-naf.git</developerConnection>
+    <url>git@github.com:ixa-ehu/kaflib-naf.git</url>
   </scm>
 
   <properties>
