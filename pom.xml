@@ -3,13 +3,13 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.github.ixa-ehu</groupId>
-  <artifactId>kaflib-naf</artifactId>
+  <artifactId>naflib</artifactId>
   <version>1.0.0</version>
   <packaging>jar</packaging>
   
   <name>${project.groupId}:${project.artifactId}</name>
-  <description>Kaflib is a java library to create and edit KAF/NAF documents.</description>
-  <url>https://github.com/ixa-ehu/kaflib</url>
+  <description>Naflib is a java library to create and edit NAF documents.</description>
+  <url>https://github.com/ixa-ehu/naflib</url>
 
   <licenses>
     <license>
@@ -28,9 +28,9 @@
   </developers>
 
   <scm>
-    <connection>scm:git:git@github.com:ixa-ehu/kaflib.git</connection>
-    <developerConnection>scm:git:git@github.com:ixa-ehu/kaflib.git</developerConnection>
-    <url>git@github.com:ixa-ehu/kaflib.git</url>
+    <connection>scm:git:git@github.com:ixa-ehu/naflib.git</connection>
+    <developerConnection>scm:git:git@github.com:ixa-ehu/naflib.git</developerConnection>
+    <url>git@github.com:ixa-ehu/naflib.git</url>
   </scm>
 
   <properties>
@@ -71,7 +71,7 @@
 	<configuration>
           <serverId>ossrh</serverId>
           <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-          <autoReleaseAfterClose>false</autoReleaseAfterClose>
+          <autoReleaseAfterClose>true</autoReleaseAfterClose>
 	</configuration>
       </plugin>
 
