@@ -24,7 +24,7 @@ Maven dependency for the NAF version:
 <dependency>
     <groupId>com.github.ixa-ehu</groupId>
     <artifactId>kaflib-naf</artifactId>
-    <version>1.0.0</version> <!-- Set the last version here -->
+    <version>1.0.0</version> <!-- Set the latest version here -->
 </dependency>
 ````
 
@@ -33,7 +33,7 @@ Maven dependency for the KAF version:
 <dependency>
     <groupId>com.github.ixa-ehu</groupId>
     <artifactId>kaflib</artifactId>
-    <version>1.0.0</version> <!-- Set the last version here -->
+    <version>1.0.0</version> <!-- Set the latest version here -->
 </dependency>
 ````
 
