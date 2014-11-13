@@ -42,11 +42,11 @@ public class TLink implements Serializable {
     }
 
     public String getFromType() {
-	return (this.from instanceof Coref) ? "event" : "timex";
+	return (this.from instanceof Predicate) ? "event" : "timex";
     }
 
     public String getToType() {
-	return (this.to instanceof Coref) ? "event" : "timex";
+	return (this.to instanceof Predicate) ? "event" : "timex";
     }
 
     public String getRelType() {

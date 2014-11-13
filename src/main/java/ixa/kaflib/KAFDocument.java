@@ -614,14 +614,14 @@ public Entity newEntity(List<Span<Term>> references) {
 	return newTLink;
     }
 
-    public CLink newCLink(String id, Coref from, Coref to) {
+    public CLink newCLink(String id, Predicate from, Predicate to) {
 	idManager.updateCLinkCounter(id);
 	CLink newCLink = new CLink(id, from, to);
 	annotationContainer.add(newCLink);
 	return newCLink;
     }
 
-    public CLink newCLink(Coref from, Coref to) {
+    public CLink newCLink(Predicate from, Predicate to) {
 	String newId = idManager.getNextCLinkId();
 	CLink newCLink = new CLink(newId, from, to);
 	annotationContainer.add(newCLink);

@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.io.Serializable;
 
 
-public class Predicate implements Serializable {
+public class Predicate implements TLinkReferable, Serializable {
 
     public static class Role implements Serializable {
 	private String rid;

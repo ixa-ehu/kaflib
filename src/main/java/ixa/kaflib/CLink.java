@@ -7,14 +7,14 @@ public class CLink implements Serializable {
 
     private String id;
 
-    private Coref from;
+    private Predicate from;
 
-    private Coref to;
+    private Predicate to;
 
     private String relType;
 
     
-    CLink(String id, Coref from, Coref to) {
+    CLink(String id, Predicate from, Predicate to) {
 	this.id = id;
 	this.from = from;
 	this.to = to;
@@ -24,19 +24,19 @@ public class CLink implements Serializable {
 	return this.id;
     }
 
-    public Coref getFrom() {
+    public Predicate getFrom() {
 	return this.from;
     }
 
-    public void setFrom(Coref from) {
+    public void setFrom(Predicate from) {
 	this.from = from;
     }
 
-    public Coref getTo() {
+    public Predicate getTo() {
 	return this.to;
     }
 
-    public void setTo(Coref to) {
+    public void setTo(Predicate to) {
 	this.to = to;
     }
 

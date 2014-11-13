@@ -84,7 +84,7 @@ class ReadWriteManager {
 	HashMap<String, WF> wfIndex = new HashMap<String, WF>();
 	HashMap<String, Term> termIndex = new HashMap<String, Term>();
 	HashMap<String, Relational> relationalIndex = new HashMap<String, Relational>();
-	HashMap<String, Coref> corefIndex = new HashMap<String, Coref>();
+	HashMap<String, Predicate> predicateIndex = new HashMap<String, Predicate>();
 	HashMap<String, Timex3> timexIndex = new HashMap<String, Timex3>();
 	Element rootElem = dom.getRootElement();
 	String lang = getAttribute("lang", rootElem, Namespace.XML_NAMESPACE);
@@ -391,7 +391,6 @@ class ReadWriteManager {
 			List<ExternalRef> externalRefs = getExternalReferences(externalReferencesElems.get(0), kaf);
 			newCoref.addExternalRefs(externalRefs);
 		    }
-		    corefIndex.put(newCoref.getId(), newCoref);
 		}
 	    }
 	    else if (elem.getName().equals("timeExpressions")) {
@@ -474,9 +473,9 @@ class ReadWriteManager {
 		    String toType = getAttribute("toType", tLinkElem);
 		    String relType = getAttribute("relType", tLinkElem);
 		    TLinkReferable from = fromType.equals("event")
-			? corefIndex.get(fromId) : timexIndex.get(fromId);
+			? predicateIndex.get(fromId) : timexIndex.get(fromId);
 		    TLinkReferable to = toType.equals("event")
-			? corefIndex.get(toId) : timexIndex.get(toId);
+			? predicateIndex.get(toId) : timexIndex.get(toId);
 		    TLink tLink = kaf.newTLink(tlid, from, to, relType);
 		}
 	    }
@@ -487,8 +486,8 @@ class ReadWriteManager {
 		    String fromId = getAttribute("from", clinkElem);
 		    String toId = getAttribute("to", clinkElem);
 		    String relType = getOptAttribute("relType", clinkElem);
-		    Coref from = corefIndex.get(fromId);
-		    Coref to =corefIndex.get(toId);
+		    Predicate from = predicateIndex.get(fromId);
+		    Predicate to = predicateIndex.get(toId);
 		    CLink clink = kaf.newCLink(clid, from, to);
 		    if (relType != null) {
 			clink.setRelType(relType);
@@ -754,6 +753,7 @@ class ReadWriteManager {
 			}
 			newPredicate.addRole(newRole);
 		    }
+		    predicateIndex.put(newPredicate.getId(), newPredicate);
 		}
 	    }
 	    else if (elem.getName().equals("constituency")) {
