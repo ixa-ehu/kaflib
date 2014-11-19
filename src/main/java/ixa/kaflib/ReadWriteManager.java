@@ -1426,48 +1426,6 @@ class ReadWriteManager {
 	    root.addContent(timeExsElem);
 	}
 
-	List<TLink> tLinks = annotationContainer.getTLinks();
-	if (tLinks.size() > 0) {
-	    Element tLinksElem = new Element("temporalRelations");
-	    for (TLink tLink : tLinks) {
-		Comment tLinkComment = new Comment
-		    (tLink.getRelType() + "(" + tLink.getFrom().getId() + ", " + tLink.getTo().getId() + ")");
-		tLinksElem.addContent(tLinkComment);
-		Element tLinkElem = new Element("tlink");
-		tLinkElem.setAttribute("id", tLink.getId());
-		tLinkElem.setAttribute("from", tLink.getFrom().getId());
-		tLinkElem.setAttribute("to", tLink.getTo().getId());
-		tLinkElem.setAttribute("fromType", tLink.getFromType());
-		tLinkElem.setAttribute("toType", tLink.getToType());
-		tLinkElem.setAttribute("relType", tLink.getRelType());
-		tLinksElem.addContent(tLinkElem);
-	    }
-	    root.addContent(tLinksElem);
-	}
-
-	List<CLink> cLinks = annotationContainer.getCLinks();
-	if (cLinks.size() > 0) {
-	    Element cLinksElem = new Element("causalRelations");
-	    for (CLink cLink : cLinks) {
-		String commentStr = "";
-		if (cLink.hasRelType()) {
-		    commentStr += cLink.getRelType();
-		}
-		commentStr += "(" + cLink.getFrom().getId() + ", " + cLink.getTo().getId() + ")";
-		Comment cLinkComment = new Comment(commentStr);
-		cLinksElem.addContent(cLinkComment);
-		Element cLinkElem = new Element("clink");
-		cLinkElem.setAttribute("id", cLink.getId());
-		cLinkElem.setAttribute("from", cLink.getFrom().getId());
-		cLinkElem.setAttribute("to", cLink.getTo().getId());
-		if (cLink.hasRelType()) {
-		    cLinkElem.setAttribute("relType", cLink.getRelType());
-		}
-		cLinksElem.addContent(cLinkElem);
-	    }
-	    root.addContent(cLinksElem);
-	}
-
 	List<Factuality> factualities = annotationContainer.getFactualities();
 	if (factualities.size() > 0) {
 		Element factsElement = new Element("factualitylayer");
@@ -1820,6 +1778,48 @@ class ReadWriteManager {
 		}
 	    }
 	    root.addContent(constituentsElem);   
+	}
+
+	List<TLink> tLinks = annotationContainer.getTLinks();
+	if (tLinks.size() > 0) {
+	    Element tLinksElem = new Element("temporalRelations");
+	    for (TLink tLink : tLinks) {
+		Comment tLinkComment = new Comment
+		    (tLink.getRelType() + "(" + tLink.getFrom().getId() + ", " + tLink.getTo().getId() + ")");
+		tLinksElem.addContent(tLinkComment);
+		Element tLinkElem = new Element("tlink");
+		tLinkElem.setAttribute("id", tLink.getId());
+		tLinkElem.setAttribute("from", tLink.getFrom().getId());
+		tLinkElem.setAttribute("to", tLink.getTo().getId());
+		tLinkElem.setAttribute("fromType", tLink.getFromType());
+		tLinkElem.setAttribute("toType", tLink.getToType());
+		tLinkElem.setAttribute("relType", tLink.getRelType());
+		tLinksElem.addContent(tLinkElem);
+	    }
+	    root.addContent(tLinksElem);
+	}
+
+	List<CLink> cLinks = annotationContainer.getCLinks();
+	if (cLinks.size() > 0) {
+	    Element cLinksElem = new Element("causalRelations");
+	    for (CLink cLink : cLinks) {
+		String commentStr = "";
+		if (cLink.hasRelType()) {
+		    commentStr += cLink.getRelType();
+		}
+		commentStr += "(" + cLink.getFrom().getId() + ", " + cLink.getTo().getId() + ")";
+		Comment cLinkComment = new Comment(commentStr);
+		cLinksElem.addContent(cLinkComment);
+		Element cLinkElem = new Element("clink");
+		cLinkElem.setAttribute("id", cLink.getId());
+		cLinkElem.setAttribute("from", cLink.getFrom().getId());
+		cLinkElem.setAttribute("to", cLink.getTo().getId());
+		if (cLink.hasRelType()) {
+		    cLinkElem.setAttribute("relType", cLink.getRelType());
+		}
+		cLinksElem.addContent(cLinkElem);
+	    }
+	    root.addContent(cLinksElem);
 	}
 	
 	List<Element> unknownLayers = annotationContainer.getUnknownLayers();
