@@ -757,7 +757,10 @@ class AnnotationContainer implements Serializable {
     List<Term> getTermsByWFIds(List<String> wfIds) {
 	LinkedHashSet<Term> terms = new LinkedHashSet<Term>();
 	for (String wfId : wfIds) {
-	    terms.addAll(this.termsIndexedByWF.get(wfId));
+	    List<Term> newTerms = this.termsIndexedByWF.get(wfId);
+	    if (newTerms != null) {
+	        terms.addAll(newTerms);
+	    }
 	}
 	return new ArrayList<Term>(terms);
     }
