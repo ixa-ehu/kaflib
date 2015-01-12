@@ -177,7 +177,7 @@ class AnnotationContainer implements Serializable {
     }
 
     private <T> void indexBySent(T annotation, Integer sent, HashMap<Integer, List<T>> index) {
-	if (sent > 0) {
+	if (sent >= 0) {
 	    if (index.get(sent) == null) {
 		index.put(sent, new ArrayList<T>());
 	    }
@@ -186,7 +186,7 @@ class AnnotationContainer implements Serializable {
     }
 
     private void indexMarkBySent(Mark mark, String source, Integer sent) {
-	if (sent > 0) {
+	if (sent >= 0) {
 	    if (marksIndexedBySent.get(sent) == null) {
 		marksIndexedBySent.put(sent, new HashMap<String, List<Mark>>());
 	    }
@@ -198,7 +198,7 @@ class AnnotationContainer implements Serializable {
     } 
 
     void indexSentByPara(Integer sent, Integer para) {
-	if ((sent > 0) && (para > 0)) {
+	if ((sent >= 0) && (para >= 0)) {
 	    if (this.sentsIndexedByParagraphs.get(para) == null) {
 		this.sentsIndexedByParagraphs.put(para, new LinkedHashSet<Integer>());
 	    }
