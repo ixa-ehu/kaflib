@@ -813,7 +813,7 @@ class ReadWriteManager {
 			    if (type == null) {
 				kaf.newConstituent(rootNode);
 			    } else {
-				kaf.newTree(rootNode, type);
+				kaf.newConstituent(rootNode, type);
 			    }
 			}
 		    }
@@ -1715,14 +1715,14 @@ class ReadWriteManager {
 	    root.addContent(predicatesElem);
 	}
 
-        List<String> treeTypes = annotationContainer.getTreeTypes();
+        List<String> treeTypes = annotationContainer.getConstituentTypes();
 	if (treeTypes.size() > 0) {
 	    Element constituentsElem = new Element("constituency");	
 	    for (String type : treeTypes) {
-		List<Tree> trees = annotationContainer.getTrees(type);
+		List<Tree> trees = annotationContainer.getConstituents(type);
 		for (Tree tree : trees) {
 		    Element treeElem = new Element("tree");
-		    if (!tree.getType().equals("constituent")) {
+		    if (!tree.getType().equals("notype")) {
 			treeElem.setAttribute("type", tree.getType());
 		    }
 		    constituentsElem.addContent(treeElem);

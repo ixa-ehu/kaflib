@@ -801,14 +801,14 @@ public Entity newEntity(List<Span<Term>> references) {
 	return new ExternalRef(resource, reference);
     }
 
-    public Tree newTree(TreeNode root, String type) {
+    public Tree newConstituent(TreeNode root, String type) {
 	Tree tree = new Tree(root, type);
 	annotationContainer.add(tree);
 	return tree;
     }
 
     public Tree newConstituent(TreeNode root) {
-	return this.newTree(root, "constituent");
+	return this.newConstituent(root, "notype");
     }
 
     public void addConstituencyFromParentheses(String parseOut) throws Exception {
@@ -993,12 +993,12 @@ public Entity newEntity(List<Span<Term>> references) {
 	return annotationContainer.getRelations();
     }
 
-    public List<Tree> getTrees(String type) {
-	return annotationContainer.getTrees(type);
+    public List<Tree> getConstituents(String type) {
+	return annotationContainer.getConstituents(type);
     }
 
     public List<Tree> getConstituents() {
-	return annotationContainer.getTrees("constituent");
+	return annotationContainer.getConstituents("notype");
     }
 
     public List<Predicate> getPredicates() {
@@ -1049,7 +1049,7 @@ public Entity newEntity(List<Span<Term>> references) {
 	return this.annotationContainer.getLayerByPara(para, this.annotationContainer.depsIndexedBySent);
     }
 
-    public List<Tree> getTreesBySent(String treeType, Integer sent) {
+    public List<Tree> getConstituentsBySent(String treeType, Integer sent) {
 	Map<Integer, List<Tree>> typeTreeIndex = this.annotationContainer.treesIndexedBySent.get(treeType);
 	if (typeTreeIndex == null) {
 	    return new ArrayList<Tree>();
@@ -1059,10 +1059,10 @@ public Entity newEntity(List<Span<Term>> references) {
     }
 
     public List<Tree> getConstituentsBySent(Integer sent) {
-        return getTreesBySent("constituent", sent);
+        return getConstituentsBySent("notype", sent);
     }
 
-    public List<Tree> getTreesByPara(String treeType, Integer para) {
+    public List<Tree> getConstituentsByPara(String treeType, Integer para) {
 	HashMap<Integer, List<Tree>> typeTreeIndex = this.annotationContainer.treesIndexedBySent.get(treeType);
 	if (typeTreeIndex == null) {
 	    return new ArrayList<Tree>();
@@ -1071,7 +1071,7 @@ public Entity newEntity(List<Span<Term>> references) {
     }
 
     public List<Tree> getConstituentsByPara(Integer para) {
-	return this.getTreesByPara("constituent", para);
+	return this.getConstituentsByPara("notype", para);
     }
 
     public List<Chunk> getChunksBySent(Integer sent) {

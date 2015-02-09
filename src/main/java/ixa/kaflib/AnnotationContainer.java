@@ -317,11 +317,11 @@ class AnnotationContainer implements Serializable {
 	return predicates;
     }
 
-    List<String> getTreeTypes() {
+    List<String> getConstituentTypes() {
 	return new ArrayList<String>(trees.keySet());
     }
 
-    List<Tree> getTrees(String type) {
+    List<Tree> getConstituents(String type) {
 	List<Tree> trees = this.trees.get(type);
 	return trees == null ? new ArrayList<Tree>() : trees;
     }
