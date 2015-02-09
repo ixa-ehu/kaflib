@@ -11,11 +11,23 @@ public class Tree implements Serializable { //?
 
     private static final String HEAD_MARK = "=H";
 
+    /** Type */
+    private String type;
+
     /** Tree's root node */
     private TreeNode root;
 
-    Tree(TreeNode root) {
+    Tree(TreeNode root, String type) {
 	this.root = root;
+	this.type = type;
+    }
+
+    public String getType() {
+	return this.type;
+    }
+
+    public void setType(String type) {
+	this.type = type;
     }
 
     public TreeNode getRoot() {

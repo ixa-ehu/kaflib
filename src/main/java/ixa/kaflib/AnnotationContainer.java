@@ -76,7 +76,7 @@ class AnnotationContainer implements Serializable {
     private List<Predicate> predicates;
 
     /** List to keep all trees */
-    private List<Tree> trees;
+    private Map<String, List<Tree>> trees; // type => trees
 
     /** UNKNOWN annotation layers in plain DOM format */
     private List<Element> unknownLayers;
@@ -112,7 +112,7 @@ class AnnotationContainer implements Serializable {
     HashMap<Integer, List<Opinion>> opinionsIndexedBySent;
     HashMap<Integer, List<Relation>> relationsIndexedBySent;
     HashMap<Integer, List<Predicate>> predicatesIndexedBySent;
-    HashMap<Integer, List<Tree>> constituentsIndexedBySent;
+    HashMap<String, HashMap<Integer, List<Tree>>> treesIndexedBySent; // type => (sent => trees)
 
     HashMap<Integer, LinkedHashSet<Integer>> sentsIndexedByParagraphs;
 
@@ -138,7 +138,7 @@ class AnnotationContainer implements Serializable {
 	opinions = new ArrayList();
 	relations = new ArrayList();
 	predicates = new ArrayList();
-	trees = new ArrayList();
+	trees = new HashMap<String, List<Tree>>();
 	unknownLayers = new ArrayList<Element>();
 
 	termsIndexedByWF = new HashMap<String, List<Term>>();
@@ -171,7 +171,7 @@ class AnnotationContainer implements Serializable {
 	opinionsIndexedBySent = new HashMap<Integer, List<Opinion>>();
 	relationsIndexedBySent = new HashMap<Integer, List<Relation>>();
 	predicatesIndexedBySent = new HashMap<Integer, List<Predicate>>();
-	constituentsIndexedBySent = new HashMap<Integer, List<Tree>>();
+	treesIndexedBySent = new HashMap<String, HashMap<Integer, List<Tree>>>();
 
 	sentsIndexedByParagraphs = new HashMap<Integer, LinkedHashSet<Integer>>();
     }
@@ -185,6 +185,15 @@ class AnnotationContainer implements Serializable {
 	}
     }
 
+    private <T> void indexTreeBySent(Tree tree, String type, Integer sent) {
+	HashMap<Integer, List<Tree>> treeIndex = this.treesIndexedBySent.get(type);
+	if (treeIndex == null) {
+	    treeIndex = new HashMap<Integer, List<Tree>>();
+	    this.treesIndexedBySent.put(type, treeIndex);
+	}
+	indexBySent(tree, sent, treeIndex);
+    }
+    
     private void indexMarkBySent(Mark mark, String source, Integer sent) {
 	if (sent >= 0) {
 	    if (marksIndexedBySent.get(sent) == null) {
@@ -308,9 +317,13 @@ class AnnotationContainer implements Serializable {
 	return predicates;
     }
 
-    /** Returns all trees */
-    List<Tree> getConstituents() {
-	return trees;
+    List<String> getTreeTypes() {
+	return new ArrayList<String>(trees.keySet());
+    }
+
+    List<Tree> getTrees(String type) {
+	List<Tree> trees = this.trees.get(type);
+	return trees == null ? new ArrayList<Tree>() : trees;
     }
 
     /** Returns all unknown layers as a DOM Element list */
@@ -525,14 +538,21 @@ class AnnotationContainer implements Serializable {
     }
 
     /** Adds a tree to the container */
-    void add(Tree tree) {
-	trees.add(tree);
+    void add(Tree tree) {	
+	String type = tree.getType();
+	List<Tree> typeTrees = this.trees.get(type);
+	if (typeTrees == null) {
+	    typeTrees = new ArrayList<Tree>();
+	    this.trees.put(type, typeTrees);
+	}
+	typeTrees.add(tree);
+	
 	TreeNode currentNode = tree.getRoot();
 	while (!currentNode.isTerminal()) {
 	    currentNode = ((NonTerminal) currentNode).getChildren().get(0);
 	}
 	Integer sent = ((Terminal) currentNode).getSpan().getTargets().get(0).getSent(); 
-	this.indexBySent(tree, sent, this.constituentsIndexedBySent);
+	this.indexTreeBySent(tree, type, sent);
     }
 
     /** Adds an unknown layer to the container in DOM format */

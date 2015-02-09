@@ -759,6 +759,7 @@ class ReadWriteManager {
 	    else if (elem.getName().equals("constituency")) {
 		List<Element> treeElems = elem.getChildren("tree");
 		for (Element treeElem : treeElems) {
+		    String type = getOptAttribute("type", treeElem);
 		    HashMap<String, TreeNode> treeNodes = new HashMap<String, TreeNode>();
 		    HashMap<String, Boolean> rootNodes = new HashMap<String, Boolean>();
 		    // Terminals
@@ -809,7 +810,11 @@ class ReadWriteManager {
 		    for (Map.Entry<String, Boolean> areRoot : rootNodes.entrySet()) {
 			if (areRoot.getValue()) {
 			    TreeNode rootNode = treeNodes.get(areRoot.getKey());
-			    kaf.newConstituent(rootNode);
+			    if (type == null) {
+				kaf.newConstituent(rootNode);
+			    } else {
+				kaf.newTree(rootNode, type);
+			    }
 			}
 		    }
 		}
@@ -1710,74 +1715,80 @@ class ReadWriteManager {
 	    root.addContent(predicatesElem);
 	}
 
-	List<Tree> constituents = annotationContainer.getConstituents();
-	if (constituents.size() > 0) {
-	    Element constituentsElem = new Element("constituency");
-	    for (Tree tree : constituents) {
-		Element treeElem = new Element("tree");
-		constituentsElem.addContent(treeElem);
-		List<NonTerminal> nonTerminals = new LinkedList<NonTerminal>();
-		List<Terminal> terminals = new LinkedList<Terminal>();
-		List<Edge> edges = new ArrayList<Edge>();
-		TreeNode rootNode = tree.getRoot();
-		extractTreeNodes(rootNode, nonTerminals, terminals, edges);
-		Collections.sort(nonTerminals, new Comparator<NonTerminal>() {
-			public int compare(NonTerminal nt1, NonTerminal nt2) {
-			    if (cmpId(nt1.getId(), nt2.getId()) < 0) {
-				return -1;
-			    } else if (nt1.getId().equals(nt2.getId())) {
-				return 0;
-			    } else {
-				return 1;
-			    }
-			}
-		    });
-		Collections.sort(terminals, new Comparator<Terminal>() {
-			public int compare(Terminal t1, Terminal t2) {
-			    if (cmpId(t1.getId(), t2.getId()) < 0) {
-				return -1;
-			    } else if (t1.getId().equals(t2.getId())) {
-				return 0;
-			    } else {
-				return 1;
-			    }
-			}
-		    });
-		Comment ntCom = new Comment("Non-terminals");
-		treeElem.addContent(ntCom);
-		for (NonTerminal node : nonTerminals) {
-		    Element nodeElem = new Element("nt");
-		    nodeElem.setAttribute("id", node.getId());
-		    nodeElem.setAttribute("label", node.getLabel());
-		    treeElem.addContent(nodeElem);
-		}
-		Comment tCom = new Comment("Terminals");
-		treeElem.addContent(tCom);
-		for (Terminal node : terminals) {
-		    Element nodeElem = new Element("t");
-		    nodeElem.setAttribute("id", node.getId());
-		    nodeElem.addContent(createTermSpanElem(node.getSpan()));
-		    // Comment
-		    Comment tStrCom = new Comment(node.getStr());
-		    treeElem.addContent(tStrCom);
-		    treeElem.addContent(nodeElem);
-		}
-		Comment edgeCom = new Comment("Tree edges");
-		treeElem.addContent(edgeCom);
-		for (Edge edge : edges) {
-		    Element edgeElem = new Element("edge");
-		    if (edge.id != null) {
-			edgeElem.setAttribute("id", edge.id);
+        List<String> treeTypes = annotationContainer.getTreeTypes();
+	if (treeTypes.size() > 0) {
+	    Element constituentsElem = new Element("constituency");	
+	    for (String type : treeTypes) {
+		List<Tree> trees = annotationContainer.getTrees(type);
+		for (Tree tree : trees) {
+		    Element treeElem = new Element("tree");
+		    if (!tree.getType().equals("constituent")) {
+			treeElem.setAttribute("type", tree.getType());
 		    }
-		    edgeElem.setAttribute("from", edge.from);
-		    edgeElem.setAttribute("to", edge.to);
-		    if (edge.head) {
-			edgeElem.setAttribute("head", "yes");
+		    constituentsElem.addContent(treeElem);
+		    List<NonTerminal> nonTerminals = new LinkedList<NonTerminal>();
+		    List<Terminal> terminals = new LinkedList<Terminal>();
+		    List<Edge> edges = new ArrayList<Edge>();
+		    TreeNode rootNode = tree.getRoot();
+		    extractTreeNodes(rootNode, nonTerminals, terminals, edges);
+		    Collections.sort(nonTerminals, new Comparator<NonTerminal>() {
+			    public int compare(NonTerminal nt1, NonTerminal nt2) {
+				if (cmpId(nt1.getId(), nt2.getId()) < 0) {
+				    return -1;
+				} else if (nt1.getId().equals(nt2.getId())) {
+				    return 0;
+				} else {
+				    return 1;
+				}
+			    }
+			});
+		    Collections.sort(terminals, new Comparator<Terminal>() {
+			    public int compare(Terminal t1, Terminal t2) {
+				if (cmpId(t1.getId(), t2.getId()) < 0) {
+				    return -1;
+				} else if (t1.getId().equals(t2.getId())) {
+				    return 0;
+				} else {
+				    return 1;
+				}
+			    }
+			});
+		    Comment ntCom = new Comment("Non-terminals");
+		    treeElem.addContent(ntCom);
+		    for (NonTerminal node : nonTerminals) {
+			Element nodeElem = new Element("nt");
+			nodeElem.setAttribute("id", node.getId());
+			nodeElem.setAttribute("label", node.getLabel());
+			treeElem.addContent(nodeElem);
 		    }
-		    treeElem.addContent(edgeElem);
-		}
+		    Comment tCom = new Comment("Terminals");
+		    treeElem.addContent(tCom);
+		    for (Terminal node : terminals) {
+			Element nodeElem = new Element("t");
+			nodeElem.setAttribute("id", node.getId());
+			nodeElem.addContent(createTermSpanElem(node.getSpan()));
+			// Comment
+			Comment tStrCom = new Comment(node.getStr());
+			treeElem.addContent(tStrCom);
+			treeElem.addContent(nodeElem);
+		    }
+		    Comment edgeCom = new Comment("Tree edges");
+		    treeElem.addContent(edgeCom);
+		    for (Edge edge : edges) {
+			Element edgeElem = new Element("edge");
+			if (edge.id != null) {
+			    edgeElem.setAttribute("id", edge.id);
+			}
+			edgeElem.setAttribute("from", edge.from);
+			edgeElem.setAttribute("to", edge.to);
+			if (edge.head) {
+			    edgeElem.setAttribute("head", "yes");
+			}
+			treeElem.addContent(edgeElem);
+		    }
+		}  
 	    }
-	    root.addContent(constituentsElem);   
+	    root.addContent(constituentsElem); 
 	}
 
 	List<TLink> tLinks = annotationContainer.getTLinks();
