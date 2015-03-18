@@ -215,7 +215,7 @@ class AnnotationContainer implements Serializable {
 	}
     }
 
-    public List<Integer> getSentsByParagraph(Integer para) {
+    List<Integer> getSentsByParagraph(Integer para) {
 	return new ArrayList<Integer>(this.sentsIndexedByParagraphs.get(para));
     }
 
@@ -785,44 +785,46 @@ class AnnotationContainer implements Serializable {
 	return new ArrayList<Term>(terms);
     }
 
-    void removeLayer(KAFDocument.Layer layer) {
+    void removeLayer(KAFDocument.Layers layer) {
 	switch (layer) {
-	case text:
+	case TEXT:
 	    this.text.clear();
 	    break;
-	case terms:
+	case TERMS:
 	    this.terms.clear();
 	    break;
-	case deps:
+	case DEPS:
 	    this.deps.clear();
 	    break;
-	case chunks:
+	case CHUNKS:
 	    this.chunks.clear();
 	    break;
-	case entities:
+	case ENTITIES:
 	    this.entities.clear();
 	    break;
-	case properties:
-	    this.properties.clear();
-	    break;
-	case categories:
-	    this.categories.clear();
-	    break;
-	case coreferences:
+	case COREFERENCES:
 	    this.coreferences.clear();
 	    break;
-	case opinions:
+	case OPINIONS:
 	    this.opinions.clear();
 	    break;
-	case relations:
-	    this.relations.clear();
-	    break;
-	case srl:
+	case SRL:
 	    this.predicates.clear();
 	    break;
-	case constituency:
+	case CONSTITUENCY:
 	    this.trees.clear();
 	    break;
+	    /*
+	case RELATIONS:
+	    this.relations.clear();
+	    break;
+	case PROPERTIES:
+	    this.properties.clear();
+	    break;
+	case CATEGORIES:
+	    this.categories.clear();
+	    break;
+	    */
 	default:
 	    throw new IllegalArgumentException("Wrong layer");
 	}

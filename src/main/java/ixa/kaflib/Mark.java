@@ -3,12 +3,9 @@ package ixa.kaflib;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.io.Serializable;
 
 
-public class Mark implements Serializable {
-
-    private String sid;
+public class Mark extends IdentifiableAnnotation {
 
     private String type;
 
@@ -42,17 +39,9 @@ public class Mark implements Serializable {
 	    throw new IllegalStateException("A Mark must have at least one WF");
 	}
 	*/
-	this.sid = id;
+	super(id);
 	this.span = span;
 	this.externalReferences = new ArrayList<ExternalRef>();
-    }
-
-    public String getId() {
-	return sid;
-    }
-
-    void setId(String id) {
-	this.sid = id;
     }
 
     public boolean hasType() {

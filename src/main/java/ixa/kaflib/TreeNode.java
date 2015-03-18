@@ -1,12 +1,9 @@
 package ixa.kaflib;
-import org.jdom2.Element;
+
 import java.util.List;
-import java.io.Serializable;
 
-public abstract class TreeNode implements Serializable {
 
-    /** The ID of the node */
-    private String id;
+public abstract class TreeNode extends IdentifiableAnnotation {
 
     /** The id of the edge between this node and its parent. */
     private String edgeId;
@@ -18,17 +15,9 @@ public abstract class TreeNode implements Serializable {
 
 
     public TreeNode(String id, boolean head, boolean isTerminal) {
-	this.id = id;
+        super(id);
 	this.head = head;
 	this.isTerminal = isTerminal;
-    }
-
-    public String getId() {
-	return this.id;
-    }
-
-    public void setId(String id) {
-	this.id = id;
     }
 
     public boolean hasEdgeId() {

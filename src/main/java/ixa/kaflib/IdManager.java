@@ -1,14 +1,18 @@
 package ixa.kaflib;
 
 import java.util.regex.*;
+import java.util.Map;
 import java.util.HashMap;
 import java.io.Serializable;
+import ixa.kaflib.KAFDocument.Annotations;
 
 
 /** Manages ID creation. Each ID is created taking into account the annotations of the same type created so far, in a document context. This class keeps a counter for each type of annotation (terms, chunks...). */
 class IdManager implements Serializable {
 
     /* Prefix of each type of ids */
+    private Map<Annotations, String> prefixes;
+
     private static final String WF_PREFIX = "w";
     private static final String TERM_PREFIX = "t";
     private static final String MARK_PREFIX = "m";
@@ -20,7 +24,7 @@ class IdManager implements Serializable {
     private static final String TIMEX3_PREFIX = "tx";
     private static final String TLINK_PREFIX = "tlink";
     private static final String CLINK_PREFIX = "clink";
-    private static final String LINKEDENTITY_PREFIX = "le";
+    private static final String LINKED_ENTITY_PREFIX = "le";
     private static final String PROPERTY_PREFIX = "p";
     private static final String CATEGORY_PREFIX = "c";
     private static final String OPINION_PREFIX = "o";
@@ -32,253 +36,53 @@ class IdManager implements Serializable {
     private static final String EDGE_PREFIX = "tre";
 
     /* Counters for each type of annotations */
-    private int wfCounter;
-    private int termCounter;
-    private int markCounter;
-    //private int mwCounter;
-    private int chunkCounter;
-    private int entityCounter;
-    private int corefCounter;
-    private int timex3Counter;
-    private int tlinkCounter;
-    private int clinkCounter;
-    private int linkedEntitiesCounter;
-    private int propertyCounter;
-    private int categoryCounter;
-    private int opinionCounter;
-    private int relationCounter;
-    private int predicateCounter;
-    private int terminalCounter;
-    private int nonterminalCounter;
-    private int edgeCounter;
-    private HashMap<String, Integer> componentCounter;
-    private int roleCounter;
+    private Map<Annotations, Integer> counters;
 
     /* Inconsistent ID flags */
-    private boolean inconsistentIdText;
-    private boolean inconsistentIdTerm;
-    private boolean inconsistentIdMark;
-    //private boolean inconsistentIdMw;
-    private boolean inconsistentIdComponent;
-    private boolean inconsistentIdChunk;
-    private boolean inconsistentIdEntity;
-    private boolean inconsistentIdCoref;
-    private boolean inconsistentIdTimex3;
-    private boolean inconsistentIdTLink;
-    private boolean inconsistentIdCLink;
-    private boolean inconsistentIdLinkedEntities;
-    private boolean inconsistentIdProperty;
-    private boolean inconsistentIdCategory;
-    private boolean inconsistentIdOpinion;
-    private boolean inconsistentIdRelation;
-    private boolean inconsistentIdPredicate;
-    private boolean inconsistentIdRole;
-    private boolean inconsistentIdTerminal;
-    private boolean inconsistentIdNonTerminal;
-    private boolean inconsistentIdEdge;
+    private Map<Annotations, Boolean> inconsistentId;
+
 
     IdManager() {
-	this.wfCounter = 0;
-	this.termCounter = 0;
-	this.markCounter = 0;
-	//this.mwCounter = 0;
-	this.chunkCounter = 0;
-	this.entityCounter = 0;
-	this.corefCounter = 0;
-	this.timex3Counter = 0;
-	this.tlinkCounter = 0;
-	this.clinkCounter = 0;
-	this.linkedEntitiesCounter = 0;
-	this.propertyCounter = 0;
-	this.categoryCounter = 0;
-	this.opinionCounter = 0;
-	this.relationCounter = 0;
-	this.predicateCounter = 0;
-	this.terminalCounter = 0;
-	this.nonterminalCounter = 0;
-	this.edgeCounter = 0;
-	this.componentCounter = new HashMap<String, Integer>();
-	this.roleCounter = 0;
-
-	this.inconsistentIdText = false;
-	this.inconsistentIdTerm = false;
-	this.inconsistentIdMark = false;
-	//this.inconsistentIdMw = false;
-	this.inconsistentIdComponent = false;
-	this.inconsistentIdChunk = false;
-	this.inconsistentIdEntity = false;
-	this.inconsistentIdCoref = false;
-	this.inconsistentIdTimex3 = false;
-	this.inconsistentIdTLink = false;
-	this.inconsistentIdCLink = false;
-	this.inconsistentIdLinkedEntities = false;
-	this.inconsistentIdProperty = false;
-	this.inconsistentIdCategory = false;
-	this.inconsistentIdOpinion = false;
-	this.inconsistentIdRelation = false;
-	this.inconsistentIdPredicate = false;
-	this.inconsistentIdRole = false;
-	this.inconsistentIdTerminal = false;
-	this.inconsistentIdNonTerminal = false;
-	this.inconsistentIdEdge = false;
-    }
-
-    String getNextWFId() {
-	if (this.inconsistentIdText) {
-	    throw new IllegalStateException("Inconsistent WF IDs. Can't create new WF IDs.");
-	}
-	return WF_PREFIX + Integer.toString(++wfCounter);
-    }
-
-    String getNextTermId() {
-	if (this.inconsistentIdTerm) {
-	    throw new IllegalStateException("Inconsistent term IDs. Can't create new term IDs.");
-	}
-	return TERM_PREFIX + Integer.toString(++termCounter);
-    }
-
-    String getNextMarkId() {
-	if (this.inconsistentIdMark) {
-	    throw new IllegalStateException("Inconsistent mark IDs. Can't create new mark IDs.");
-	}
-	return MARK_PREFIX + Integer.toString(++markCounter);
-    }
-
-    String getNextMwId() {
-	/*
-	if (this.inconsistentIdMw) {
-	    throw new IllegalStateException("Inconsistent MW IDs. Can't create new MW IDs.");
-	}
-	*/
-	return MW_PREFIX + Integer.toString(++termCounter);
-    }
-
-    String getNextChunkId() {
-	if (this.inconsistentIdChunk) {
-	    throw new IllegalStateException("Inconsistent chunk IDs. Can't create new chunk IDs.");
-	}
-	return CHUNK_PREFIX + Integer.toString(++chunkCounter);
-    }
-    
-    String getNextEntityId() {
-	if (this.inconsistentIdEntity) {
-	    throw new IllegalStateException("Inconsistent entity IDs. Can't create new entity IDs.");
-	}
-	return ENTITY_PREFIX + Integer.toString(++entityCounter);
-    }
-    
-    String getNextCorefId() {
-	if (this.inconsistentIdCoref) {
-	    throw new IllegalStateException("Inconsistent coref IDs. Can't create new coref IDs.");
-	}
-	return COREF_PREFIX + Integer.toString(++corefCounter);
-    }
-
-    String getNextTimex3Id() {
-	if (this.inconsistentIdTimex3) {
-	    throw new IllegalStateException("Inconsistent timex3 IDs. Can't create new timex3 IDs.");
-	}
-	return TIMEX3_PREFIX + Integer.toString(++timex3Counter);
-    }
-
-    String getNextTLinkId() {
-	if (this.inconsistentIdTLink) {
-	    throw new IllegalStateException("Inconsistent tlink IDs. Can't create new tlink IDs.");
-	}
-	return TLINK_PREFIX + Integer.toString(++tlinkCounter);
-    }
-
-    String getNextCLinkId() {
-	if (this.inconsistentIdCLink) {
-	    throw new IllegalStateException("Inconsistent clink IDs. Can't create new clink IDs.");
-	}
-	return CLINK_PREFIX + Integer.toString(++clinkCounter);
-    }
-
-	String getNextLinkedEntityId() {
-		if (this.inconsistentIdLinkedEntities) {
-			throw new IllegalStateException("Inconsistent linked entity IDs. Can't create new timex3 IDs.");
-		}
-		return LINKEDENTITY_PREFIX + Integer.toString(++linkedEntitiesCounter);
+	this.prefixes = new HashMap<Annotations, String>();
+	this.prefixes.put(Annotations.WF, WF_PREFIX);
+	this.prefixes.put(Annotations.TERM, TERM_PREFIX);
+	this.prefixes.put(Annotations.COMPONENT, COMPONENT_PREFIX);
+	this.prefixes.put(Annotations.ENTITY, ENTITY_PREFIX);
+	this.prefixes.put(Annotations.CHUNK, CHUNK_PREFIX);
+	this.prefixes.put(Annotations.NON_TERMINAL, NONTERMINAL_PREFIX);
+	this.prefixes.put(Annotations.TERMINAL, TERMINAL_PREFIX);
+	this.prefixes.put(Annotations.EDGE, EDGE_PREFIX);
+	this.prefixes.put(Annotations.COREF, COREF_PREFIX);
+	this.prefixes.put(Annotations.OPINION, OPINION_PREFIX);
+	this.prefixes.put(Annotations.CLINK, CLINK_PREFIX);
+	this.prefixes.put(Annotations.TLINK, TLINK_PREFIX);
+	this.prefixes.put(Annotations.PREDICATE, PREDICATE_PREFIX);
+	this.prefixes.put(Annotations.ROLE, ROLE_PREFIX);
+	this.prefixes.put(Annotations.TIMEX3, TIMEX3_PREFIX);
+	this.prefixes.put(Annotations.MARK, MARK_PREFIX);
+	this.prefixes.put(Annotations.LINKED_ENTITY, LINKED_ENTITY_PREFIX);
+	this.prefixes.put(Annotations.PROPERTY, PROPERTY_PREFIX);
+	this.prefixes.put(Annotations.CATEGORY, CATEGORY_PREFIX);
+	this.prefixes.put(Annotations.RELATION, RELATION_PREFIX);
+	
+	this.counters = new HashMap<Annotations, Integer>();
+	for (Annotations ann : Annotations.values()) {
+	    this.counters.put(ann, 0);
 	}
 
-	String getNextPropertyId() {
-	if (this.inconsistentIdProperty) {
-	    throw new IllegalStateException("Inconsistent property IDs. Can't create new property IDs.");
+	this.inconsistentId = new HashMap<Annotations, Boolean>();
+	for (Annotations ann : Annotations.values()) {
+	    this.inconsistentId.put(ann, false);
 	}
-	return PROPERTY_PREFIX + Integer.toString(++propertyCounter);
     }
 
-    String getNextCategoryId() {
-	if (this.inconsistentIdCategory) {
-	    throw new IllegalStateException("Inconsistent category IDs. Can't create new category IDs.");
+    String getNextId(Annotations ann) {
+	if (this.inconsistentId.get(ann)) {
+	    throw new IllegalStateException("Inconsistent " + ann + "IDs. Can't create new " + ann + " IDs.");
 	}
-	return CATEGORY_PREFIX + Integer.toString(++categoryCounter);
-    }
-
-    String getNextOpinionId() {
-	if (this.inconsistentIdOpinion) {
-	    throw new IllegalStateException("Inconsistent opinion IDs. Can't create new opinion IDs.");
-	}
-	return OPINION_PREFIX + Integer.toString(++opinionCounter);
-    }
-
-    String getNextRelationId() {
-	if (this.inconsistentIdRelation) {
-	    throw new IllegalStateException("Inconsistent relation IDs. Can't create new relation IDs.");
-	}
-	return RELATION_PREFIX + Integer.toString(++relationCounter);
-    }
-
-    String getNextPredicateId() {
-	if (this.inconsistentIdPredicate) {
-	    throw new IllegalStateException("Inconsistent predicate IDs. Can't create new predicate IDs.");
-	}
-	return PREDICATE_PREFIX + Integer.toString(++predicateCounter);
-    }
-
-    String getNextTerminalId() {
-	if (this.inconsistentIdTerminal) {
-	    throw new IllegalStateException("Inconsistent terminal IDs. Can't create new terminal IDs.");
-	}
-	return TERMINAL_PREFIX + Integer.toString(++terminalCounter);
-    }
-
-    String getNextNonterminalId() {
-	if (this.inconsistentIdNonTerminal) {
-	    throw new IllegalStateException("Inconsistent non-terminal IDs. Can't create new non-terminal IDs.");
-	}
-	return NONTERMINAL_PREFIX + Integer.toString(++nonterminalCounter);
-    }
-
-    String getNextEdgeId() {
-	if (this.inconsistentIdEdge) {
-	    throw new IllegalStateException("Inconsistent edge IDs. Can't create new edge IDs.");
-	}
-	return EDGE_PREFIX + Integer.toString(++edgeCounter);
-    }
-
-    String getNextComponentId(String termId) {
-	String newId;
-	int nextIndex;
-	if (this.inconsistentIdComponent) {
-	    throw new IllegalStateException("Inconsistent component IDs. Can't create new component IDs.");
-	}
-	if (!componentCounter.containsKey(termId)) {
-	    nextIndex = 1;
-	} else {
-	    nextIndex = componentCounter.get(termId) + 1;
-	}
-	newId = termId + COMPONENT_PREFIX + Integer.toString(nextIndex);
-	componentCounter.put(termId, nextIndex);
-	return newId;
-    }
-
-    String getNextRoleId() {
-	if (this.inconsistentIdRole) {
-	    throw new IllegalStateException("Inconsistent role IDs. Can't create new role IDs.");
-	}
-	return ROLE_PREFIX + Integer.toString(++roleCounter);
+	Integer nextCount = this.counters.get(ann) + 1;
+	this.counters.put(ann, nextCount);
+	return this.prefixes.get(ann) + Integer.toString(nextCount);
     }
 
     private int extractCounterFromId(String id) {
@@ -290,186 +94,15 @@ class IdManager implements Serializable {
 	return Integer.valueOf(matcher.group(0));
     }
 
-    void updateWFCounter(String id) {
+    void updateCounter(Annotations ann, String id) {
 	try {
-	    wfCounter = extractCounterFromId(id);
-	} catch(IllegalStateException e) {
-	    this.inconsistentIdText = true;
-	}
-    }
-
-    void updateTermCounter(String id) {
-	try {
-	    Integer idNum = extractCounterFromId(id);
-	    if (this.termCounter < idNum) {
-		this.termCounter = idNum;
+	    Integer currentCounter = this.counters.get(ann);
+	    Integer newCounter = extractCounterFromId(id);
+	    if (currentCounter < newCounter) {
+		this.counters.put(ann, newCounter);
 	    }
 	} catch(IllegalStateException e) {
-	    this.inconsistentIdTerm = true;
-	}
-    }
-
-    void updateMarkCounter(String id) {
-	try {
-	    Integer idNum = extractCounterFromId(id);
-	    if (this.markCounter < idNum) {
-		this.markCounter = idNum;
-	    }
-	} catch(IllegalStateException e) {
-	    this.inconsistentIdMark = true;
-	}
-    }
-
-    void updateMwCounter(String id) {
-	try {
-	    Integer idNum = extractCounterFromId(id);
-	    if (this.termCounter < idNum) {
-		this.termCounter = idNum;
-	    }
-	} catch(IllegalStateException e) {
-	    //this.inconsistentIdMw = true;
-	}
-    }
-
-    void updateChunkCounter(String id) {
-	try {
-	    chunkCounter = extractCounterFromId(id);
-	} catch(IllegalStateException e) {
-	    this.inconsistentIdChunk = true;
-	}
-    }
-
-    void updateEntityCounter(String id) {
-	try {
-	    entityCounter = extractCounterFromId(id);
-	} catch(IllegalStateException e) {
-	    this.inconsistentIdEntity = true;
-	}
-    }
-
-    void updateCorefCounter(String id) {
-	try {
-	    corefCounter = extractCounterFromId(id);
-	} catch(IllegalStateException e) {
-	    this.inconsistentIdCoref = true;
-	}
-    }
-
-    void updateTimex3Counter(String id) {
-	try {
-	    timex3Counter = extractCounterFromId(id);
-	} catch(IllegalStateException e) {
-	    this.inconsistentIdTimex3 = true;
-	}
-    }
-
-    void updateTLinkCounter(String id) {
-	try {
-	    tlinkCounter = extractCounterFromId(id);
-	} catch(IllegalStateException e) {
-	    this.inconsistentIdTLink = true;
-	}
-    }
-
-    void updateCLinkCounter(String id) {
-	try {
-	    clinkCounter = extractCounterFromId(id);
-	} catch(IllegalStateException e) {
-	    this.inconsistentIdCLink = true;
-	}
-    }
-
-	void updateLinkedEntitiesCounter(String id) {
-		try {
-			linkedEntitiesCounter = extractCounterFromId(id);
-		} catch(IllegalStateException e) {
-			this.inconsistentIdLinkedEntities = true;
-		}
-	}
-
-	void updatePropertyCounter(String id) {
-	try {
-	    propertyCounter = extractCounterFromId(id);
-	} catch(IllegalStateException e) {
-	    this.inconsistentIdProperty = true;
-	}
-    }
-
-    void updateCategoryCounter(String id) {
-	try {
-	    categoryCounter = extractCounterFromId(id);
-	} catch(IllegalStateException e) {
-	    this.inconsistentIdCategory = true;
-	}
-    }
-
-    void updateOpinionCounter(String id) {
-	try {
-	    opinionCounter = extractCounterFromId(id);
-	} catch(IllegalStateException e) {
-	    this.inconsistentIdOpinion = true;
-	}
-    }
-
-    void updateRelationCounter(String id) {
-	try {
-	    relationCounter = extractCounterFromId(id);
-	} catch(IllegalStateException e) {
-	    this.inconsistentIdRelation = true;
-	}
-    }
-
-    void updatePredicateCounter(String id) {
-	try {
-	    predicateCounter = extractCounterFromId(id);
-	} catch(IllegalStateException e) {
-	    this.inconsistentIdPredicate = true;
-	}
-    }
-
-    void updateTerminalCounter(String id) {
-	try {
-	    terminalCounter = extractCounterFromId(id);
-	} catch(IllegalStateException e) {
-	    this.inconsistentIdTerminal = true;
-	}
-    }
-
-    void updateNonterminalCounter(String id) {
-	try {
-	    nonterminalCounter = extractCounterFromId(id);
-	} catch(IllegalStateException e) {
-	    this.inconsistentIdNonTerminal = true;
-	}
-    }
-
-    void updateEdgeCounter(String id) {
-	try {
-	    edgeCounter = extractCounterFromId(id);
-	} catch(IllegalStateException e) {
-	    this.inconsistentIdEdge = true;
-	}
-    }
-
-    void updateComponentCounter(String id, String termId) {
-	int componentInd;
-	Matcher matcher = Pattern.compile("^"+TERM_PREFIX+"_?\\d+\\"+COMPONENT_PREFIX+"(\\d+)$").matcher(id);
-	if (!matcher.find()) {
-	    /*
-	      throw new IllegalStateException("IdManager doesn't recognise the given id's (" + id + ") format. Should be "+TERM_PREFIX+"_?[0-9]+\\"+COMPONENT_PREFIX+"[0-9]+");
-	    */
-	    this.inconsistentIdComponent = true;
-	    return;
-	}
-	componentInd = Integer.valueOf(matcher.group(1));
-	componentCounter.put(termId, componentInd);
-    }
-
-    void updateRoleCounter(String id) {
-	try {
-	    roleCounter = extractCounterFromId(id);
-	} catch(IllegalStateException e) {
-	    this.inconsistentIdRole = true;
+	    this.inconsistentId.put(ann, true);
 	}
     }
 }

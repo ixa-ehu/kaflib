@@ -1,15 +1,10 @@
 package ixa.kaflib;
 
-import java.io.Serializable;
-
 
 /** Class for representing word forms. These are the result of the tokenization process. */
-public class WF implements Serializable, IReferable {
+public class WF extends IdentifiableAnnotation {
 
     private AnnotationContainer annotationContainer;
-
-    /** ID of the word form (required) */
-    private String wid;
 
     /** Sentence id (required) */
     private int sent;
@@ -32,9 +27,9 @@ public class WF implements Serializable, IReferable {
     /** The word form text (required) */
     private String form;
 
-    WF(AnnotationContainer annotationContainer, String wid, String form, int sent) {
+    WF(AnnotationContainer annotationContainer, String id, String form, int sent) {
+	super(id);
 	this.annotationContainer = annotationContainer;
-	this.wid = wid;
 	this.form = form;
         this.setSent(sent);
 	this.para = -1;
@@ -44,8 +39,8 @@ public class WF implements Serializable, IReferable {
     }
 
     WF(WF wf, AnnotationContainer annotationContainer) {
+	super(wf.getId());
 	this.annotationContainer = annotationContainer;
-	this.wid = wf.wid;
 	this.sent = wf.sent;
 	this.para = wf.para;
 	this.page = wf.page;
@@ -53,14 +48,6 @@ public class WF implements Serializable, IReferable {
 	this.length = wf.length;
 	this.xpath = wf.xpath;
 	this.form = wf.form;
-    }
-
-    public String getId() {
-	return wid;
-    }
-
-    public void setId(String wid) {
-	this.wid = wid;
     }
 
     public int getSent() {
@@ -153,8 +140,4 @@ public class WF implements Serializable, IReferable {
 	return this.getForm();
     }
 
-    @Override
-    public int compareTo(IReferable o) {
-	return this.getId().compareTo(o.getId());
-    }
 }

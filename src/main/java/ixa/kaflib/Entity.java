@@ -3,13 +3,10 @@ package ixa.kaflib;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.io.Serializable;
+
 
 /** A named entity is a term (or a multiword) that clearly identifies one item. The optional Named Entity layer is used to reference terms that are named entities. */
-public class Entity implements Relational, Serializable {
-
-    /** Named entity's ID (required) */
-    private String eid;
+public class Entity extends IdentifiableAnnotation implements Relational {
 
     /** Type of the named entity (optional). Currently, 8 values are possible: 
      * - Person
@@ -29,20 +26,20 @@ public class Entity implements Relational, Serializable {
     /** External references (optional) */
     private List<ExternalRef> externalReferences;
 
-    Entity(String eid, List<Span<Term>> references) {
+    Entity(String id, List<Span<Term>> references) {
+	super(id);
 	if (references.size() < 1) {
 	    throw new IllegalStateException("Entities must contain at least one reference span");
 	}
 	if (references.get(0).size() < 1) {
 	    throw new IllegalStateException("Entities' reference's spans must contain at least one target");
 	}
-	this.eid = eid;
 	this.references = references;
 	this.externalReferences = new ArrayList<ExternalRef>();
     }
 
     Entity(Entity entity, HashMap<String, Term> terms) {
-	this.eid = entity.eid;
+	super(entity.getId());
 	this.type = entity.type;
 	/* Copy references */
 	String id = entity.getId();
@@ -71,14 +68,6 @@ public class Entity implements Relational, Serializable {
 	for (ExternalRef externalRef : entity.getExternalRefs()) {
 	    this.externalReferences.add(new ExternalRef(externalRef));
 	}
-    }
-
-    public String getId() {
-	return eid;
-    }
-
-    void setId(String id) {
-	this.eid = id;
     }
 
     public boolean hasType() {

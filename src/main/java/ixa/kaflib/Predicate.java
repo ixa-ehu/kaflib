@@ -2,30 +2,20 @@ package ixa.kaflib;
 
 import java.util.List;
 import java.util.ArrayList;
-import java.io.Serializable;
 
 
-public class Predicate implements TLinkReferable, Serializable {
+public class Predicate extends IdentifiableAnnotation implements TLinkReferable {
 
-    public static class Role implements Serializable {
-	private String rid;
+    public static class Role extends IdentifiableAnnotation {
 	private String semRole;
 	private Span<Term> span;
 	private List<ExternalRef> externalReferences;
 
 	Role(String id, String semRole, Span span) {
-	    this.rid = id;
+	    super(id);
 	    this.semRole = semRole;
 	    this.span = span;
 	    this.externalReferences = new ArrayList<ExternalRef>();
-	}
-
-	public String getId() {
-	    return this.rid;
-	}
-
-	public void setId(String id) {
-	    this.rid = id;
 	}
 
 	public String getSemRole() {
@@ -80,7 +70,6 @@ public class Predicate implements TLinkReferable, Serializable {
 	}
     }
 
-    private String id;
     private String uri;
     private float confidence;
     private Span<Term> span;
@@ -88,19 +77,11 @@ public class Predicate implements TLinkReferable, Serializable {
     private List<ExternalRef> externalReferences;
 
     Predicate(String id, Span<Term> span) {
-	this.id = id;
+        super(id);
 	this.span = span;
 	this.roles = new ArrayList<Role>();
 	this.confidence = -1.0f;
 	this.externalReferences = new ArrayList<ExternalRef>();
-    }
-
-    public String getId() {
-	return this.id;
-    }
-
-    public void setId(String id) {
-	this.id = id;
     }
 
     public boolean hasUri() {

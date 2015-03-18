@@ -3,14 +3,10 @@ package ixa.kaflib;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.io.Serializable;
 
 
 /** Class for representing terms. Terms refer to previous word forms (and groups multi-words) and attach lemma, part of speech, synset and name entity information. */
-public class Term implements Serializable, IReferable {
-
-    /** Term's ID (required) */
-    private String tid;
+public class Term extends IdentifiableAnnotation {
 
     /** Type of the term (optional). Currently, 2 values are possible: open and close. */
     private String type;
@@ -60,7 +56,7 @@ public class Term implements Serializable, IReferable {
      * We provide possibilities to store sentiment information at word level and at sense/synset level. In the latter case, the sentiment information
      * is included in the “external_reference” section and a WSD process may identify the correct sense with its sentiment information. The extension contains the following information categories.
      */
-    public static class Sentiment implements Serializable {
+    public static class Sentiment extends Annotation {
 
 	/** Identifier and reference to an external sentiment resource (optional) */
 	private String resource;
@@ -227,7 +223,7 @@ public class Term implements Serializable, IReferable {
 	    throw new IllegalStateException("A Term must have at least one WF");
 	}
 	*/
-	this.tid = id;
+	super(id);
 	this.components = new ArrayList();
 	this.span = span;
 	this.externalReferences = new ArrayList<ExternalRef>();
@@ -237,7 +233,7 @@ public class Term implements Serializable, IReferable {
     /* Copy constructor */
     Term(Term term, HashMap<String, WF> wfs) {
 	// Copy simple fields
-	this.tid = term.tid;
+	super(term.getId());
 	this.type = term.type;
 	this.lemma = term.lemma;
 	this.pos = term.pos;
@@ -281,14 +277,6 @@ public class Term implements Serializable, IReferable {
 	for (ExternalRef externalRef : term.getExternalRefs()) {
 	    this.externalReferences.add(new ExternalRef(externalRef));
 	}
-    }
-
-    public String getId() {
-	return tid;
-    }
-
-    void setId(String id) {
-	this.tid = id;
     }
 
     public boolean hasType() {
@@ -481,9 +469,5 @@ public class Term implements Serializable, IReferable {
     public Term getCompound() {
 	return this.compound;
     }
-
-    @Override
-    public int compareTo(IReferable o) {
-	return this.getId().compareTo(o.getId());
-    }
+    
 }

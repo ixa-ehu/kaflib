@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.io.Serializable;
 
-public class Span<T extends IReferable> implements Serializable {
+public class Span<T extends IdentifiableAnnotation> implements Serializable {
 
     //private List<String> targets;
     private List<T> targets;

@@ -7,12 +7,7 @@ import java.util.List;
 /**
  * Linked Entity in the text.
  */
-public class LinkedEntity {
-
-	/**
-	 * LinkedEntity's ID (required)
-	 */
-	private String linkedEntityId;
+public class LinkedEntity extends IdentifiableAnnotation {
 
 	/**
 	 * LinedEntity's properties
@@ -26,24 +21,24 @@ public class LinkedEntity {
 	 */
 	private Span<WF> mentions;
 
-	LinkedEntity(String linkedEntityId) {
-		this.linkedEntityId = linkedEntityId;
+	LinkedEntity(String id) {
+	    super(id);
 		this.mentions = new Span<WF>();
 	}
 
-	LinkedEntity(String linkedEntityId, Span<WF> mentions) {
+	LinkedEntity(String id, Span<WF> mentions) {
+		super(id);
 		if (mentions.size() < 1) {
 			throw new IllegalStateException("LinkedEntity must contain at least one reference span");
 		}
 //		if (mentions.get(0).size() < 1) {
 //			throw new IllegalStateException("LinkedEntity' reference's spans must contain at least one target");
 //		}
-		this.linkedEntityId = linkedEntityId;
 		this.mentions = mentions;
 	}
 
 	LinkedEntity(LinkedEntity linkedEntity, HashMap<String, WF> WFs) {
-		this.linkedEntityId = linkedEntity.linkedEntityId;
+	    super(linkedEntity.getId());
 		this.resource = linkedEntity.resource;
 		this.reference = linkedEntity.reference;
 		this.confidence = linkedEntity.confidence;
@@ -92,14 +87,6 @@ public class LinkedEntity {
 
 	public void setConfidence(double confidence) {
 		this.confidence = confidence;
-	}
-
-	public String getId() {
-		return linkedEntityId;
-	}
-
-	void setId(String id) {
-		this.linkedEntityId = id;
 	}
 
 	public String getSpanStr() {

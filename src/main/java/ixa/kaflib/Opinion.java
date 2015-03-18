@@ -3,12 +3,12 @@ package ixa.kaflib;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.io.Serializable;
+
 
 /** Class for representing opinions. */
-public class Opinion implements Serializable {
+public class Opinion extends IdentifiableAnnotation {
 
-    public static class OpinionHolder implements Serializable {
+    public static class OpinionHolder extends Annotation {
 	private String type;
 	private Span<Term> span;
 
@@ -70,7 +70,7 @@ public class Opinion implements Serializable {
 	}
     }
 
-    public static class OpinionTarget implements Serializable {
+    public static class OpinionTarget extends Annotation {
 	private Span<Term> span;
 
 	OpinionTarget(Span<Term> span) {
@@ -119,7 +119,7 @@ public class Opinion implements Serializable {
 	}
     }
 
-    public static class OpinionExpression implements Serializable {
+    public static class OpinionExpression extends Annotation {
 	
 	/* Polarity (optional) */
 	private String polarity;
@@ -248,22 +248,18 @@ public class Opinion implements Serializable {
 	    this.span = span;
 	}
     }
-    
-    private String id;
 
     private OpinionHolder opinionHolder;
-
     private OpinionTarget opinionTarget;
-
     private OpinionExpression opinionExpression;
 
 
     Opinion(String id) {
-	this.id = id;
+	super(id);
     }
 
     Opinion(Opinion opinion, HashMap<String, Term> terms) {
-	this.id = opinion.id;
+        super(opinion.getId());
 	if (opinion.opinionHolder != null) {
 	    this.opinionHolder = new OpinionHolder(opinion.opinionHolder, terms);
 	}
@@ -273,14 +269,6 @@ public class Opinion implements Serializable {
 	if (opinion.opinionExpression != null) {
 	    this.opinionExpression = new OpinionExpression(opinion.opinionExpression, terms);
 	}
-    }
-
-    public String getId() {
-	return this.id;
-    }
-
-    void setId(String id) {
-	this.id = id;
     }
 
     public boolean hasOpinionHolder() {

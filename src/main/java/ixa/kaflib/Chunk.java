@@ -3,14 +3,10 @@ package ixa.kaflib;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.io.Serializable;
 
 
 /** Chunks are noun, verb or prepositional phrases, spanning terms. */
-public class Chunk implements Serializable {
-
-    /** Chunk's ID (required) */
-    private String cid;
+public class Chunk extends IdentifiableAnnotation {
 
     /** Type of the phrase (optional) */
     private String phrase;
@@ -21,16 +17,16 @@ public class Chunk implements Serializable {
     /** Chunk's target terms (at least one required) */
     private Span<Term> span;
 
-    Chunk(String cid, Span<Term> span) {
+    Chunk(String id, Span<Term> span) {
+	super(id);
 	if (span.size() < 1) {
 	    throw new IllegalStateException("Chunks must contain at least one term target");
 	}
-	this.cid = cid;
 	this.span = span;
     }
 
     Chunk(Chunk chunk, HashMap<String, Term> terms) {
-	this.cid = chunk.cid;
+	super(chunk.getId());
 	this.phrase = chunk.phrase;
 	this.chunkcase = chunk.chunkcase;
 	/* Copy span */
@@ -52,14 +48,6 @@ public class Chunk implements Serializable {
 	else {
 	    this.span = new Span<Term>(copiedTargets);
 	}
-    }
-
-    public String getId() {
-	return cid;
-    }
-
-    void setId(String id) {
-	this.cid = id;
     }
 
     public boolean hasHead() {

@@ -1,11 +1,7 @@
 package ixa.kaflib;
 
-import java.io.Serializable;
 
-
-public class TLink implements Serializable {
-
-    private String id;
+public class TLink extends IdentifiableAnnotation {
 
     private TLinkReferable from;
 
@@ -15,14 +11,10 @@ public class TLink implements Serializable {
 
     
     TLink(String id, TLinkReferable from, TLinkReferable to, String relType) {
-	this.id = id;
+        super(id);
 	this.from = from;
 	this.to = to;
 	this.relType = relType;
-    }
-
-    public String getId() {
-	return this.id;
     }
 
     public TLinkReferable getFrom() {

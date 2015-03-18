@@ -1,11 +1,7 @@
 package ixa.kaflib;
 
-import java.io.Serializable;
 
-
-public class CLink implements Serializable {
-
-    private String id;
+public class CLink extends IdentifiableAnnotation {
 
     private Predicate from;
 
@@ -15,13 +11,9 @@ public class CLink implements Serializable {
 
     
     CLink(String id, Predicate from, Predicate to) {
-	this.id = id;
+	super(id);
 	this.from = from;
 	this.to = to;
-    }
-
-    public String getId() {
-	return this.id;
     }
 
     public Predicate getFrom() {

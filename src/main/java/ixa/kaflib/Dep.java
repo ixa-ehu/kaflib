@@ -2,11 +2,10 @@ package ixa.kaflib;
 
 import java.util.List;
 import java.util.HashMap;
-import java.io.Serializable;
 
 
 /** Dependencies represent dependency relations among terms. */
-public class Dep implements Serializable {
+public class Dep extends Annotation {
 
     /** Source term of the dependency (required) */
     private Term from;

@@ -24,11 +24,61 @@ import org.jdom2.Element;
 
 
 /** Respresents a KAF document. It's the main class of the library, as it keeps all elements of the document (word forms, terms, entities...) and manages all object creations. The document can be created by the user calling it's methods, or loading from an existing XML file.*/
-
 public class KAFDocument implements Serializable {
 
-    public enum Layer {
-	raw, text, terms, marks, deps, chunks, entities, properties, categories, coreferences, opinions, relations, srl, constituency, timeExpressions, temporalRelations, causalRelations, factualityLayer;
+    public enum Layers {
+	RAW,
+	TEXT,
+	TERMS,
+	ENTITIES,
+	CHUNKS,
+	DEPS,
+	CONSTITUENCY,
+	COREFERENCES,
+	OPINIONS,
+	CAUSAL_RELATIONS,
+	TEMPORAL_RELATIONS,
+	SRL,
+	TIME_EXPRESSIONS,
+	FACTUALITY_LAYER,
+	MARKABLES,
+	PROPERTIES,
+	CATEGORIES,
+	RELATIONS;
+    }
+
+    public enum Annotations {
+	WF,
+	TERM,
+	MW,
+	COMPONENT,
+	SENTIMENT,
+	ENTITY,
+	CHUNK,
+	DEP,
+	TREE,
+	NON_TERMINAL,
+	TERMINAL,
+	EDGE,
+	COREF,
+	OPINION,
+	OPINION_HOLDER,
+	OPINION_TARGET,
+	OPINION_EXPRESSION,
+	CLINK,
+	TLINK,
+	PREDICATE,
+	ROLE,
+	TIMEX3,
+	FACTUALITY,
+	MARK,
+	PROPERTY,
+	CATEGORY,
+	LINKED_ENTITY,
+	RELATION,
+	/*
+	  MW,
+	*/
     }
 
     public class FileDesc implements Serializable {
@@ -347,7 +397,7 @@ public class KAFDocument implements Serializable {
      * @return a new word form.
      */
     public WF newWF(String id, String form, int sent) {
-	idManager.updateWFCounter(id);
+	idManager.updateCounter(Annotations.WF, id);
 	WF newWF = new WF(this.annotationContainer, id, form, sent);
 	annotationContainer.add(newWF);
 	return newWF;
@@ -359,7 +409,7 @@ public class KAFDocument implements Serializable {
      * @return a new word form.
      */
     public WF newWF(String form, int offset) {
-	String newId = idManager.getNextWFId();
+	String newId = idManager.getNextId(Annotations.WF);
 	int offsetVal = offset;
 	WF newWF = new WF(this.annotationContainer, newId, form, 0);
 	newWF.setOffset(offsetVal);
@@ -373,7 +423,7 @@ public class KAFDocument implements Serializable {
      * @return a new word form.
      */
     public WF newWF(String form, int offset, int sent) {
-	String newId = idManager.getNextWFId();
+	String newId = idManager.getNextId(Annotations.WF);
 	WF newWF = new WF(this.annotationContainer, newId, form, sent);
 	newWF.setOffset(offset);
 	newWF.setLength(form.length());
@@ -390,14 +440,14 @@ public class KAFDocument implements Serializable {
      * @return a new term.
      */
     public Term newTerm(String id, Span<WF> span) {
-	idManager.updateTermCounter(id);
+	idManager.updateCounter(Annotations.TERM, id);
 	Term newTerm = new Term(id, span, false);
 	annotationContainer.add(newTerm);
 	return newTerm;
     }
 
     public Term newTerm(String id, Span<WF> span, boolean isComponent) {
-	idManager.updateTermCounter(id);
+	idManager.updateCounter(Annotations.TERM, id);
 	Term newTerm = new Term(id, span, isComponent);
 	if (!isComponent) {
 	    annotationContainer.add(newTerm);
@@ -406,7 +456,7 @@ public class KAFDocument implements Serializable {
     }
 
     public Term newTerm(Span<WF> span, boolean isComponent) {
-	String newId = idManager.getNextTermId();
+	String newId = idManager.getNextId(Annotations.TERM);
 	Term newTerm = new Term(newId, span, isComponent);
 	if (!isComponent) {
 	    annotationContainer.add(newTerm);
@@ -415,7 +465,7 @@ public class KAFDocument implements Serializable {
     }    
 
     public Term newTerm(String id, Span<WF> span, Integer position) {
-	idManager.updateTermCounter(id);
+	idManager.updateCounter(Annotations.TERM, id);
 	Term newTerm = new Term(id, span, false);
 	annotationContainer.add(newTerm, position);
 	return newTerm;
@@ -429,7 +479,7 @@ public class KAFDocument implements Serializable {
      * @return a new term.
      */
     public Term newTerm(Span<WF> span) {
-	String newId = idManager.getNextTermId();
+	String newId = idManager.getNextId(Annotations.TERM);
 	Term newTerm = new Term(newId, span, false);
 	annotationContainer.add(newTerm);
 	return newTerm;
@@ -443,7 +493,7 @@ public class KAFDocument implements Serializable {
      * @return a new term.
      */
     public Term newTermOptions(String morphofeat, Span<WF> span) {
-	String newId = idManager.getNextTermId();
+	String newId = idManager.getNextId(Annotations.TERM);
 	Term newTerm = new Term(newId, span, false);
 	newTerm.setMorphofeat(morphofeat);
 	annotationContainer.add(newTerm);
@@ -455,7 +505,7 @@ public class KAFDocument implements Serializable {
 	for (Term term : terms) {
 	    span.addTargets(term.getSpan().getTargets()); 
 	}
-	String newId = idManager.getNextMwId();
+	String newId = idManager.getNextId(Annotations.MW);
 	Term compound = newTerm(newId, span, annotationContainer.termPosition(terms.get(0)));
 	compound.setLemma(lemma);
 	for (Term term : terms) {
@@ -475,14 +525,14 @@ public class KAFDocument implements Serializable {
     }
 
     public Mark newMark(String id, String source, Span<WF> span) {
-	idManager.updateMarkCounter(id);
+	idManager.updateCounter(Annotations.MARK, id);
 	Mark newMark = new Mark(id, span);
 	annotationContainer.add(newMark, source);
 	return newMark;
     }
 
     public Mark newMark(String source, Span<WF> span) {
-	String newId = idManager.getNextMarkId();
+	String newId = idManager.getNextId(Annotations.MARK);
 	Mark newMark = new Mark(newId, span);
 	annotationContainer.add(newMark, source);
 	return newMark;
@@ -508,7 +558,7 @@ public Dep newDep(Term from, Term to, String rfunc) {
  * @return a new chunk.
  */
 public Chunk newChunk(String id, String phrase, Span<Term> span) {
-    idManager.updateChunkCounter(id);
+    idManager.updateCounter(Annotations.CHUNK, id);
     Chunk newChunk = new Chunk(id, span);
     newChunk.setPhrase(phrase);
     annotationContainer.add(newChunk);
@@ -522,7 +572,7 @@ public Chunk newChunk(String id, String phrase, Span<Term> span) {
  * @return a new chunk.
  */
 public Chunk newChunk(String phrase, Span<Term> span) {
-    String newId = idManager.getNextChunkId();
+    String newId = idManager.getNextId(Annotations.CHUNK);
     Chunk newChunk = new Chunk(newId, span);
     newChunk.setPhrase(phrase);
     annotationContainer.add(newChunk);
@@ -536,7 +586,7 @@ public Chunk newChunk(String phrase, Span<Term> span) {
      * @return a new named entity.
      */
 public Entity newEntity(String id, List<Span<Term>> references) {
-	idManager.updateEntityCounter(id);
+    idManager.updateCounter(Annotations.ENTITY, id);
 	Entity newEntity = new Entity(id, references);
 	annotationContainer.add(newEntity);
 	return newEntity;
@@ -548,7 +598,7 @@ public Entity newEntity(String id, List<Span<Term>> references) {
      * @return a new named entity.
      */
 public Entity newEntity(List<Span<Term>> references) {
-	String newId = idManager.getNextEntityId();
+	String newId = idManager.getNextId(Annotations.ENTITY);
 	Entity newEntity = new Entity(newId, references);
 	annotationContainer.add(newEntity);
 	return newEntity;
@@ -560,7 +610,7 @@ public Entity newEntity(List<Span<Term>> references) {
      * @return a new coreference.
      */
     public Coref newCoref(String id, List<Span<Term>> mentions) {
-	idManager.updateCorefCounter(id);
+	idManager.updateCounter(Annotations.COREF, id);
 	Coref newCoref = new Coref(id, mentions);
 	annotationContainer.add(newCoref);
 	return newCoref;
@@ -571,7 +621,7 @@ public Entity newEntity(List<Span<Term>> references) {
      * @return a new coreference.
      */
     public Coref newCoref(List<Span<Term>> mentions) {
-	String newId = idManager.getNextCorefId();
+	String newId = idManager.getNextId(Annotations.COREF);
 	Coref newCoref = new Coref(newId, mentions);
 	annotationContainer.add(newCoref);
 	return newCoref;
@@ -583,7 +633,7 @@ public Entity newEntity(List<Span<Term>> references) {
      * @return a new timex3.
      */
     public Timex3 newTimex3(String id, String type) {
-	idManager.updateTimex3Counter(id);
+	idManager.updateCounter(Annotations.TIMEX3, id);
 	Timex3 newTimex3 = new Timex3(id, type);
 	annotationContainer.add(newTimex3);
 	return newTimex3;
@@ -594,35 +644,35 @@ public Entity newEntity(List<Span<Term>> references) {
      * @return a new timex3.
      */
     public Timex3 newTimex3(String type) {
-	String newId = idManager.getNextTimex3Id();
+	String newId = idManager.getNextId(Annotations.TIMEX3);
 	Timex3 newTimex3 = new Timex3(newId, type);
 	annotationContainer.add(newTimex3);
 	return newTimex3;
     }
 
     public TLink newTLink(String id, TLinkReferable from, TLinkReferable to, String relType) {
-	idManager.updateTLinkCounter(id);
+	idManager.updateCounter(Annotations.TLINK, id);
 	TLink newTLink = new TLink(id, from, to, relType);
 	annotationContainer.add(newTLink);
 	return newTLink;
     }
 
     public TLink newTLink(TLinkReferable from, TLinkReferable to, String relType) {
-	String newId = idManager.getNextTLinkId();
+	String newId = idManager.getNextId(Annotations.TLINK);
 	TLink newTLink = new TLink(newId, from, to, relType);
 	annotationContainer.add(newTLink);
 	return newTLink;
     }
 
     public CLink newCLink(String id, Predicate from, Predicate to) {
-	idManager.updateCLinkCounter(id);
+	idManager.updateCounter(Annotations.CLINK, id);
 	CLink newCLink = new CLink(id, from, to);
 	annotationContainer.add(newCLink);
 	return newCLink;
     }
 
     public CLink newCLink(Predicate from, Predicate to) {
-	String newId = idManager.getNextCLinkId();
+	String newId = idManager.getNextId(Annotations.CLINK);
 	CLink newCLink = new CLink(newId, from, to);
 	annotationContainer.add(newCLink);
 	return newCLink;
@@ -642,12 +692,14 @@ public Entity newEntity(List<Span<Term>> references) {
 	 * @param term the Term of the coreference.
 	 * @return a new factuality.
 	 */
+    /*
 	public LinkedEntity newLinkedEntity(Span<WF> span) {
-		String newId = idManager.getNextLinkedEntityId();
+		String newId = idManager.getNextId(Annotations.LINKED_ENTITY);
 		LinkedEntity linkedEntity = new LinkedEntity(newId, span);
 		annotationContainer.add(linkedEntity);
 		return linkedEntity;
 	}
+    */
 
 	/** Creates a new property. It receives it's ID as an argument. The property is added to the document.
      * @param id the ID of the property.
@@ -656,24 +708,24 @@ public Entity newEntity(List<Span<Term>> references) {
      * @return a new coreference.
      */
     public Feature newProperty(String id, String lemma, List<Span<Term>> references) {
-	idManager.updatePropertyCounter(id);
+	idManager.updateCounter(Annotations.PROPERTY, id);
 	Feature newProperty = new Feature(id, lemma, references);
 	annotationContainer.add(newProperty);
 	return newProperty;
     }
-
+    
     /** Creates a new property. It assigns an appropriate ID to it. The property is added to the document.
      * @param lemma the lemma of the property.
      * @param references different mentions (list of targets) to the same property.
      * @return a new coreference.
      */
     public Feature newProperty(String lemma, List<Span<Term>> references) {
-	String newId = idManager.getNextPropertyId();
+	String newId = idManager.getNextId(Annotations.PROPERTY);
 	Feature newProperty = new Feature(newId, lemma, references);
 	annotationContainer.add(newProperty);
 	return newProperty;
     }
-
+    
     /** Creates a new category. It receives it's ID as an argument. The category is added to the document.
      * @param id the ID of the category.
      * @param lemma the lemma of the category.
@@ -681,29 +733,29 @@ public Entity newEntity(List<Span<Term>> references) {
      * @return a new coreference.
      */
     public Feature newCategory(String id, String lemma, List<Span<Term>> references) {
-	idManager.updateCategoryCounter(id);
+	idManager.updateCounter(Annotations.CATEGORY, id);
 	Feature newCategory = new Feature(id, lemma, references);
 	annotationContainer.add(newCategory);
 	return newCategory;
     }
-
+    
     /** Creates a new category. It assigns an appropriate ID to it. The category is added to the document.
      * @param lemma the lemma of the category.
      * @param references different mentions (list of targets) to the same category.
      * @return a new coreference.
      */
     public Feature newCategory(String lemma, List<Span<Term>> references) {
-	String newId = idManager.getNextCategoryId();
+	String newId = idManager.getNextId(Annotations.CATEGORY);
 	Feature newCategory = new Feature(newId, lemma, references);
 	annotationContainer.add(newCategory);
 	return newCategory;
     }
-
+    
     /** Creates a new opinion object. It assigns an appropriate ID to it. The opinion is added to the document.
      * @return a new opinion.
      */
     public Opinion newOpinion() {
-	String newId = idManager.getNextOpinionId();
+	String newId = idManager.getNextId(Annotations.OPINION);
 	Opinion newOpinion = new Opinion(newId);
 	annotationContainer.add(newOpinion);
 	return newOpinion;
@@ -713,7 +765,7 @@ public Entity newEntity(List<Span<Term>> references) {
      * @return a new opinion.
      */
     public Opinion newOpinion(String id) {
-        idManager.updateOpinionCounter(id);
+        idManager.updateCounter(Annotations.OPINION, id);
 	Opinion newOpinion = new Opinion(id);
 	annotationContainer.add(newOpinion);
 	return newOpinion;
@@ -725,12 +777,12 @@ public Entity newEntity(List<Span<Term>> references) {
      * @return a new relation
      */
     public Relation newRelation(Relational from, Relational to) {
-	String newId = idManager.getNextRelationId();
+	String newId = idManager.getNextId(Annotations.RELATION);
 	Relation newRelation = new Relation(newId, from, to);
 	annotationContainer.add(newRelation);
 	return newRelation;
     }
-
+    
     /** Creates a new relation between entities and/or sentiment features. It receives its ID as an argument. The relation is added to the document.
      * @param id the ID of the relation
      * @param from source of the relation
@@ -738,19 +790,19 @@ public Entity newEntity(List<Span<Term>> references) {
      * @return a new relation
      */
     public Relation newRelation(String id, Relational from, Relational to) {
-	idManager.updateRelationCounter(id);
+	idManager.updateCounter(Annotations.RELATION, id);
 	Relation newRelation = new Relation(id, from, to);
 	annotationContainer.add(newRelation);
 	return newRelation;
     }
-
+    
     /** Creates a new srl predicate. It receives its ID as an argument. The predicate is added to the document.
      * @param id the ID of the predicate
      * @param span span containing the targets of the predicate
      * @return a new predicate
      */
-	public Predicate newPredicate(String id, Span<Term> span) {
-	idManager.updatePredicateCounter(id);
+    public Predicate newPredicate(String id, Span<Term> span) {
+	    idManager.updateCounter(Annotations.PREDICATE, id);
 	Predicate newPredicate = new Predicate(id, span);
 	annotationContainer.add(newPredicate);
 	return newPredicate;
@@ -761,7 +813,7 @@ public Entity newEntity(List<Span<Term>> references) {
      * @return a new predicate
      */
     public Predicate newPredicate(Span<Term> span) {
-	String newId = idManager.getNextPredicateId();
+	String newId = idManager.getNextId(Annotations.PREDICATE);
 	Predicate newPredicate = new Predicate(newId, span);
 	annotationContainer.add(newPredicate);
 	return newPredicate;
@@ -775,7 +827,7 @@ public Entity newEntity(List<Span<Term>> references) {
      * @return a new role.
      */
     public Predicate.Role newRole(String id, Predicate predicate, String semRole, Span<Term> span) {
-	idManager.updateRoleCounter(id);
+	idManager.updateCounter(Annotations.ROLE, id);
 	Predicate.Role newRole = new Predicate.Role(id, semRole, span);
 	return newRole;
     }
@@ -787,7 +839,7 @@ public Entity newEntity(List<Span<Term>> references) {
      * @return a new role.
      */
     public Predicate.Role newRole(Predicate predicate, String semRole, Span<Term> span) {
-	String newId = idManager.getNextRoleId();
+	String newId = idManager.getNextId(Annotations.ROLE);
 	Predicate.Role newRole = new Predicate.Role(newId, semRole, span);
 	return newRole;
     }
@@ -817,14 +869,14 @@ public Entity newEntity(List<Span<Term>> references) {
 
     public NonTerminal newNonTerminal(String id, String label) {
 	NonTerminal tn = new NonTerminal(id, label);
-	String newEdgeId = idManager.getNextEdgeId();
+	String newEdgeId = idManager.getNextId(Annotations.EDGE);
 	tn.setEdgeId(newEdgeId);
 	return tn;
     }
 
     public NonTerminal newNonTerminal(String label) {
-	String newId = idManager.getNextNonterminalId();
-	String newEdgeId = idManager.getNextEdgeId();
+	String newId = idManager.getNextId(Annotations.NON_TERMINAL);
+	String newEdgeId = idManager.getNextId(Annotations.EDGE);
 	NonTerminal newNonterminal = new NonTerminal(newId, label);
 	newNonterminal.setEdgeId(newEdgeId);
 	return newNonterminal;
@@ -832,14 +884,14 @@ public Entity newEntity(List<Span<Term>> references) {
 
     public Terminal newTerminal(String id, Span<Term> span) {
 	Terminal tn = new Terminal(id, span);
-	String newEdgeId = idManager.getNextEdgeId();
+	String newEdgeId = idManager.getNextId(Annotations.EDGE);
 	tn.setEdgeId(newEdgeId);
 	return tn;
     }
 
     public Terminal newTerminal(Span<Term> span) {
-	String newId = idManager.getNextTerminalId();
-	String newEdgeId = idManager.getNextEdgeId();
+	String newId = idManager.getNextId(Annotations.TERMINAL);
+	String newEdgeId = idManager.getNextId(Annotations.EDGE);
 	Terminal tn = new Terminal(newId, span);
 	tn.setEdgeId(newEdgeId);
 	return tn;
@@ -1458,19 +1510,21 @@ public Entity newEntity(List<Span<Term>> references) {
 
     public String insertTimex3(Timex3 timex3)
     {
-	String newId = idManager.getNextTimex3Id();
+	String newId = idManager.getNextId(Annotations.TIMEX3);
 	timex3.setId(newId);
 	annotationContainer.add(timex3);
 	return newId;
     }
 
+    /*
     public String insertProperty(Feature property)
     {
-	String newId = idManager.getNextPropertyId();
+	String newId = idManager.getNextId(Annotations.PROPERTY);
 	property.setId(newId);
 	annotationContainer.add(property);
 	return newId;
     }
+    */
 
     public Opinion createFromOpinion(Opinion origOpinion, HashMap<String, Term> termIndex)
     {
@@ -1755,6 +1809,7 @@ public Entity newEntity(List<Span<Term>> references) {
     }
 
     /** Deprecated */
+    /*
     public Feature createProperty(String id, String lemma, List<List<Term>> references) {
 	List<Span<Term>> spanReferences = new ArrayList<Span<Term>>();
 	for (List<Term> list : references) {
@@ -1762,8 +1817,10 @@ public Entity newEntity(List<Span<Term>> references) {
 	}
 	return this.newProperty(id, lemma, spanReferences);
     }
+    */
 
     /** Deprecated */
+    /*
     public Feature createProperty(String lemma, List<List<Term>> references) {
 	List<Span<Term>> spanReferences = new ArrayList<Span<Term>>();
 	for (List<Term> list : references) {
@@ -1771,8 +1828,10 @@ public Entity newEntity(List<Span<Term>> references) {
 	}
 	return this.newProperty(lemma, spanReferences);
     }
+    */
 
     /** Deprecated */
+    /*
     public Feature createCategory(String id, String lemma, List<List<Term>> references) {
 	List<Span<Term>> spanReferences = new ArrayList<Span<Term>>();
 	for (List<Term> list : references) {
@@ -1780,15 +1839,18 @@ public Entity newEntity(List<Span<Term>> references) {
 	}
 	return this.newCategory(id, lemma, spanReferences);
     }
+    */
 
     /** Deprecated */
-    public Feature createCategory(String lemma, List<List<Term>> references) {
+    /*
+      public Feature createCategory(String lemma, List<List<Term>> references) {
 	List<Span<Term>> spanReferences = new ArrayList<Span<Term>>();
 	for (List<Term> list : references) {
 	    spanReferences.add(this.list2Span(list));
 	}
 	return this.newCategory(lemma, spanReferences);
     }
+    */
 
     /** Deprecated */
     public Opinion createOpinion() {
@@ -1801,14 +1863,18 @@ public Entity newEntity(List<Span<Term>> references) {
     }
 
     /** Deprecated */
+    /*
     public Relation createRelation(Relational from, Relational to) {
 	return this.newRelation(from, to);
     }
+    */
 
     /** Deprecated */
+    /*
     public Relation createRelation(String id, Relational from, Relational to) {
 	return this.newRelation(id, from, to);
     }
+    */
 
     /** Deprecated */
     public ExternalRef createExternalRef(String resource, String reference) {
@@ -1832,12 +1898,12 @@ public Entity newEntity(List<Span<Term>> references) {
 	return new Target(term, isHead);
     }
 
-    public void removeLayer(Layer layer) {
+    public void removeLayer(Layers layer) {
 	this.annotationContainer.removeLayer(layer);
     }
 
     /** Converts a List into a Span */
-    static <T extends IReferable> Span<T> list2Span(List<T> list) {
+    static <T extends IdentifiableAnnotation> Span<T> list2Span(List<T> list) {
 	Span<T> span = new Span<T>();
 	for (T elem : list) {
 	    span.addTarget(elem);
@@ -1846,7 +1912,7 @@ public Entity newEntity(List<Span<Term>> references) {
     }
 
     /** Converts a List into a Span */
-    static <T extends IReferable> Span<T> list2Span(List<T> list, T head) {
+    static <T extends IdentifiableAnnotation> Span<T> list2Span(List<T> list, T head) {
 	Span<T> span = new Span<T>();
 	for (T elem : list) {
 	    if (head == elem) {

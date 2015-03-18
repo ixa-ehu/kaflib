@@ -3,14 +3,10 @@ package ixa.kaflib;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.io.Serializable;
 
 
 /** The coreference layer creates clusters of term spans (which we call mentions) which share the same referent. For instance, “London” and “the capital city of England” are two mentions referring to the same entity. It is said that those mentions corefer. */
-public class Timex3 implements TLinkReferable, Serializable {
-
-    /** Timex3's ID (required) */
-    private String timex3id;
+public class Timex3 extends IdentifiableAnnotation implements TLinkReferable {
 
     /** Timex3's type (required)*/
     private String type;
@@ -44,8 +40,8 @@ public class Timex3 implements TLinkReferable, Serializable {
     /** Mentions to the same entity (at least one required) */
     //private List<Span<WF>> mentions;
 
-    Timex3(String timex3id, String type){
-	this.timex3id = timex3id;
+    Timex3(String id, String type){
+        super(id);
 	this.type = type;
 	//this.mentions = new ArrayList<Span<WF>>();
     }
@@ -91,14 +87,6 @@ public class Timex3 implements TLinkReferable, Serializable {
 	}
     }
     */
-
-    public String getId() {
-	return timex3id;
-    }
-
-    void setId(String id) {
-	this.timex3id = id;
-    }
 
     public String getType() {
 	return type;
