@@ -45,5 +45,5 @@ Contact information
 Zuhaitz Beloki
 IXA Group
 University of the Basque Country (UPV/EHU)
-zuhaitz.beloki@ehu.es
+zuhaitz.beloki@ehu.eus
 ````
