@@ -1,13 +1,15 @@
 package ixa.kaflib;
 
+import ixa.kaflib.KAFDocument.AnnotationType;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.HashMap;
 import java.io.Serializable;
 
 
 /** Class for representing features. There are two types of features: properties and categories. */
-public class Feature implements Relational, Serializable {
+public class Feature extends IdentifiableAnnotation implements Relational, Serializable {
 
     /* Feature's ID (required) */
     private String id;
@@ -20,6 +22,7 @@ public class Feature implements Relational, Serializable {
     private List<ExternalRef> externalReferences;
 
     Feature(String id, String lemma, List<Span<Term>> references) {
+	super(id);
 	if (references.size() < 1) {
 	    throw new IllegalStateException("Features must contain at least one reference span");
 	}
@@ -33,6 +36,7 @@ public class Feature implements Relational, Serializable {
     }
 
     Feature(Feature feature, HashMap<String, Term> terms) {
+	super(feature.id);
 	this.id = feature.id;
 	this.lemma = feature.lemma;
 	/* Copy references */
@@ -136,6 +140,16 @@ public class Feature implements Relational, Serializable {
 
     public String getStr() {
 	return getSpanStr(this.getSpans().get(0));
+    }
+    
+    Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
+	Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
+	List<Annotation> terms = new ArrayList<Annotation>();
+	for (Span<Term> span : this.getSpans()) {
+	    terms.addAll((List<Annotation>)(List<?>) span.getTargets());
+	}
+	referenced.put(AnnotationType.TERM, terms);
+	return referenced;
     }
 
 

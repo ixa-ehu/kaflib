@@ -1,8 +1,10 @@
 package ixa.kaflib;
 
+import ixa.kaflib.KAFDocument.AnnotationType;
 import java.util.List;
 import java.util.ArrayList;
-
+import java.util.HashMap;
+import java.util.Map;
 
 public class Predicate extends IdentifiableAnnotation implements TLinkReferable {
 
@@ -41,9 +43,17 @@ public class Predicate extends IdentifiableAnnotation implements TLinkReferable 
 	public void addTerm(Term term) {
 	    this.span.addTarget(term);
 	}
-	
+
 	public void addTerm(Term term, boolean isHead) {
 	    this.span.addTarget(term, isHead);
+	}
+
+	Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
+	    Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
+	    List<Annotation> terms = new ArrayList<Annotation>();
+	    terms.addAll((List<Annotation>) (List<?>) this.span.getTargets());
+	    referenced.put(AnnotationType.TERM, terms);
+	    return referenced;
 	}
 
 	public String getStr() {
@@ -77,7 +87,7 @@ public class Predicate extends IdentifiableAnnotation implements TLinkReferable 
     private List<ExternalRef> externalReferences;
 
     Predicate(String id, Span<Term> span) {
-        super(id);
+	super(id);
 	this.span = span;
 	this.roles = new ArrayList<Role>();
 	this.confidence = -1.0f;
@@ -123,9 +133,17 @@ public class Predicate extends IdentifiableAnnotation implements TLinkReferable 
     public void addTerm(Term term) {
 	this.span.addTarget(term);
     }
-	
+
     public void addTerm(Term term, boolean isHead) {
 	this.span.addTarget(term, isHead);
+    }
+
+    Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
+	Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
+	List<Annotation> terms = new ArrayList<Annotation>();
+	terms.addAll((List<Annotation>) (List<?>) this.span.getTargets());
+	referenced.put(AnnotationType.TERM, terms);
+	return referenced;
     }
 
     public String getStr() {
@@ -138,7 +156,8 @@ public class Predicate extends IdentifiableAnnotation implements TLinkReferable 
 	for (Role role : this.roles) {
 	    if (!role.span.isEmpty()) {
 		Term roleTarget = role.getSpan().getFirstTarget();
-		str += " " + role.getSemRole() + "[" + roleTarget.getId() + " " + roleTarget.getStr() + "]";
+		str += " " + role.getSemRole() + "[" + roleTarget.getId() + " "
+			+ roleTarget.getStr() + "]";
 	    }
 	}
 	return str;

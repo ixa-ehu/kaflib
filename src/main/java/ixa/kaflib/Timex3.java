@@ -1,7 +1,9 @@
 package ixa.kaflib;
 
+import ixa.kaflib.KAFDocument.AnnotationType;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.HashMap;
 
 
@@ -250,50 +252,13 @@ public class Timex3 extends IdentifiableAnnotation implements TLinkReferable {
 	}
 	return str;
     }
-
-    /** Returns the term targets of the first span. When targets of other spans are needed getReferences() method should be used. */
-    /*
-    public List<WF> getWFs() {
-	if (this.mentions.size()>0){
-	    return this.mentions.get(0).getTargets();
-	}
-	else{
-	    return null;
-	}
-    }
-    */
-
-    /** Adds a term to the first span. */
-    /*
-    public void addWF(WF wf) {
-	this.mentions.get(0).addTarget(wf);
-    }
-    */
-
-    /** Adds a term to the first span. */
-    /*
-    public void addWF(WF wf, boolean isHead) {
-	this.mentions.get(0).addTarget(wf, isHead);
-    }
     
-    public List<Span<WF>> getSpans() {
-	return this.mentions;
+    Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
+	Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
+	List<Annotation> wfs = new ArrayList<Annotation>();
+	wfs.addAll((List<Annotation>)(List<?>) span.getTargets());
+	referenced.put(AnnotationType.WF, wfs);
+	return referenced;
     }
-
-    public void addSpan(Span<WF> span) {
-	this.mentions.add(span);
-    }
-
-    public String getSpanStr(Span<WF> span) {
-	String str = "";
-	for (WF wf : span.getTargets()) {
-	    if (!str.isEmpty()) {
-		str += " ";
-	    }
-	    str += wf.getForm();
-	}
-	return str;
-    }
-    */
 
 }

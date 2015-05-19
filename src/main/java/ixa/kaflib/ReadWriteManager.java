@@ -10,6 +10,9 @@ import org.jdom2.output.LineSeparator;
 import org.jdom2.input.SAXBuilder;
 import org.jdom2.JDOMException;
 import org.jdom2.xpath.XPathExpression;
+
+import ixa.kaflib.KAFDocument.AnnotationType;
+
 import java.util.List;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -1156,7 +1159,7 @@ class ReadWriteManager {
 	    root.addContent(rawElem);
 	}
 
-	List<WF> text = annotationContainer.getText();
+	List<WF> text = (List<WF>)(List<?>)annotationContainer.get(AnnotationType.WF);
 	if (text.size() > 0) {
 	    Element textElem = new Element("text");
 	    for (WF wf : text) {
@@ -1184,7 +1187,7 @@ class ReadWriteManager {
 	    root.addContent(textElem);
 	}
 
-	List<Term> terms = annotationContainer.getTerms();
+	List<Term> terms = (List<Term>)(List<?>)annotationContainer.get(AnnotationType.TERM);
 	if (terms.size() > 0) {
 	    Element termsElem = new Element("terms");
 	    for (Term term : terms) {
@@ -1193,9 +1196,9 @@ class ReadWriteManager {
 	    root.addContent(termsElem);
 	}
 
-	List<String> markSources = annotationContainer.getMarkSources();
+	List<String> markSources = annotationContainer.getGroupIDs(AnnotationType.MARK);
 	for (String source : markSources) {
-	    List<Mark> marks = annotationContainer.getMarks(source);
+	    List<Mark> marks = (List<Mark>)(List<?>)annotationContainer.get(AnnotationType.MARK, source);
 	    if (marks.size() > 0) {
 		Element marksElem = new Element("markables");
 		marksElem.setAttribute("source", source);
@@ -1241,7 +1244,7 @@ class ReadWriteManager {
 	    }
 	}
 
-	List<Dep> deps = annotationContainer.getDeps();
+	List<Dep> deps = (List<Dep>)(List<?>)annotationContainer.get(AnnotationType.DEP);
 	if (deps.size() > 0) {
 	    Element depsElem = new Element("deps");
 	    for (Dep dep : deps) {
@@ -1259,7 +1262,7 @@ class ReadWriteManager {
 	    root.addContent(depsElem);
 	}
 
-	List<Chunk> chunks = annotationContainer.getChunks();
+	List<Chunk> chunks = (List<Chunk>)(List<?>)annotationContainer.get(AnnotationType.CHUNK);
 	if (chunks.size() > 0) {
 	    Element chunksElem = new Element("chunks");
 	    for (Chunk chunk : chunks) {
@@ -1286,7 +1289,7 @@ class ReadWriteManager {
 	    root.addContent(chunksElem);
 	}
 
-	List<Entity> entities = annotationContainer.getEntities();
+	List<Entity> entities = (List<Entity>)(List<?>)annotationContainer.get(AnnotationType.ENTITY);
 	if (entities.size() > 0) {
 	    Element entitiesElem = new Element("entities");
 	    for (Entity entity : entities) {
@@ -1321,7 +1324,7 @@ class ReadWriteManager {
 	    root.addContent(entitiesElem);
 	}
 
-	List<Coref> corefs = annotationContainer.getCorefs();
+	List<Coref> corefs = (List<Coref>)(List<?>)annotationContainer.get(AnnotationType.COREF);
 	if (corefs.size() > 0) {
 	    Element corefsElem = new Element("coreferences");
 	    for (Coref coref : corefs) {
@@ -1354,7 +1357,7 @@ class ReadWriteManager {
 	    root.addContent(corefsElem);
 	}
 
-	List<Timex3> timeExs = annotationContainer.getTimeExs();
+	List<Timex3> timeExs = (List<Timex3>)(List<?>)annotationContainer.get(AnnotationType.TIMEX3);
 	if (timeExs.size() > 0){
 	    Element timeExsElem = new Element("timeExpressions");
 	    for (Timex3 timex3 : timeExs) {
@@ -1431,7 +1434,7 @@ class ReadWriteManager {
 	    root.addContent(timeExsElem);
 	}
 
-	List<Factuality> factualities = annotationContainer.getFactualities();
+	List<Factuality> factualities = (List<Factuality>)(List<?>)annotationContainer.get(AnnotationType.FACTUALITY);
 	if (factualities.size() > 0) {
 		Element factsElement = new Element("factualitylayer");
 		for (Factuality f : factualities) {
@@ -1453,7 +1456,7 @@ class ReadWriteManager {
 		root.addContent(factsElement);
 	}
 
-	List<LinkedEntity> linkedEntities = annotationContainer.getLinkedEntities();
+	List<LinkedEntity> linkedEntities = (List<LinkedEntity>)(List<?>)annotationContainer.get(AnnotationType.LINKED_ENTITY);
 	if (linkedEntities.size() > 0) {
 		Element linkedEntityElement = new Element("linkedEntities");
 		for (LinkedEntity e : linkedEntities) {
@@ -1479,7 +1482,7 @@ class ReadWriteManager {
 	}
 
 	Element featuresElem = new Element("features");
-	List<Feature> properties = annotationContainer.getProperties();
+	List<Feature> properties = (List<Feature>)(List<?>)annotationContainer.get(AnnotationType.PROPERTY);
 	if (properties.size() > 0) {
 	    Element propertiesElem = new Element("properties");
 	    for (Feature property : properties) {
@@ -1507,7 +1510,7 @@ class ReadWriteManager {
 	    }
 	    featuresElem.addContent(propertiesElem);
 	}
-	List<Feature> categories = annotationContainer.getCategories();
+	List<Feature> categories = (List<Feature>)(List<?>)annotationContainer.get(AnnotationType.CATEGORY);
 	if (categories.size() > 0) {
 	    Element categoriesElem = new Element("categories");
 	    for (Feature category : categories) {
@@ -1539,7 +1542,7 @@ class ReadWriteManager {
 	    root.addContent(featuresElem);
 	}
 
-	List<Opinion> opinions = annotationContainer.getOpinions();
+	List<Opinion> opinions = (List<Opinion>)(List<?>)annotationContainer.get(AnnotationType.OPINION);
 	if (opinions.size() > 0) {
 	    Element opinionsElem = new Element("opinions");
 	    for (Opinion opinion : opinions) {
@@ -1632,7 +1635,7 @@ class ReadWriteManager {
 	    root.addContent(opinionsElem);
 	}
 
-	List<Relation> relations = annotationContainer.getRelations();
+	List<Relation> relations = (List<Relation>)(List<?>)annotationContainer.get(AnnotationType.RELATION);
 	if (relations.size() > 0) {
 	    Element relationsElem = new Element("relations");
 	    for (Relation relation : relations) {
@@ -1650,7 +1653,7 @@ class ReadWriteManager {
 	    root.addContent(relationsElem);
 	}
 
-	List<Predicate> predicates = annotationContainer.getPredicates();
+	List<Predicate> predicates = (List<Predicate>)(List<?>)annotationContainer.get(AnnotationType.PREDICATE);
 	if (predicates.size() > 0) {
 	    Element predicatesElem = new Element("srl");
 	    for (Predicate predicate : predicates) {
@@ -1715,11 +1718,11 @@ class ReadWriteManager {
 	    root.addContent(predicatesElem);
 	}
 
-        List<String> treeTypes = annotationContainer.getConstituentTypes();
+        List<String> treeTypes = annotationContainer.getGroupIDs(AnnotationType.TREE);
 	if (treeTypes.size() > 0) {
 	    Element constituentsElem = new Element("constituency");	
 	    for (String type : treeTypes) {
-		List<Tree> trees = annotationContainer.getConstituents(type);
+		List<Tree> trees = (List<Tree>)(List<?>)annotationContainer.get(AnnotationType.TREE, type);
 		for (Tree tree : trees) {
 		    Element treeElem = new Element("tree");
 		    if (!tree.getType().equals("notype")) {
@@ -1791,7 +1794,7 @@ class ReadWriteManager {
 	    root.addContent(constituentsElem); 
 	}
 
-	List<TLink> tLinks = annotationContainer.getTLinks();
+	List<TLink> tLinks = (List<TLink>)(List<?>)annotationContainer.get(AnnotationType.TLINK);
 	if (tLinks.size() > 0) {
 	    Element tLinksElem = new Element("temporalRelations");
 	    for (TLink tLink : tLinks) {
@@ -1810,7 +1813,7 @@ class ReadWriteManager {
 	    root.addContent(tLinksElem);
 	}
 
-	List<CLink> cLinks = annotationContainer.getCLinks();
+	List<CLink> cLinks = (List<CLink>)(List<?>)annotationContainer.get(AnnotationType.CLINK);
 	if (cLinks.size() > 0) {
 	    Element cLinksElem = new Element("causalRelations");
 	    for (CLink cLink : cLinks) {

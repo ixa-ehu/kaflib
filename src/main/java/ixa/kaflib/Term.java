@@ -1,12 +1,14 @@
 package ixa.kaflib;
 
+import ixa.kaflib.KAFDocument.AnnotationType;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.HashMap;
 
 
 /** Class for representing terms. Terms refer to previous word forms (and groups multi-words) and attach lemma, part of speech, synset and name entity information. */
-public class Term extends IdentifiableAnnotation {
+public class Term extends IdentifiableAnnotation implements SentenceLevelAnnotation {
 
     /** Type of the term (optional). Currently, 2 values are possible: open and close. */
     private String type;
@@ -214,6 +216,10 @@ public class Term extends IdentifiableAnnotation {
 
 	public void setSentimentProductFeature(String val) {
 	    sentimentProductFeature = val;
+	}
+	
+	Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
+	    return new HashMap<AnnotationType, List<Annotation>>();
 	}
     }
 
@@ -445,6 +451,10 @@ public class Term extends IdentifiableAnnotation {
 	}
 	*/
     }
+    
+    public Integer getPara() {
+	return this.getSpan().getTargets().get(0).getPara();
+    }
 
     public List<ExternalRef> getExternalRefs() {
 	return externalReferences;
@@ -468,6 +478,12 @@ public class Term extends IdentifiableAnnotation {
 
     public Term getCompound() {
 	return this.compound;
+    }
+    
+    Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
+	Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
+	referenced.put(AnnotationType.WF, (List<Annotation>)(List<?>) this.getSpan().getTargets());
+	return referenced;
     }
     
 }

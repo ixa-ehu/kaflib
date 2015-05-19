@@ -1,7 +1,9 @@
 package ixa.kaflib;
 
+import ixa.kaflib.KAFDocument.AnnotationType;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.HashMap;
 
 
@@ -112,6 +114,16 @@ public class Coref extends IdentifiableAnnotation {
 	    str += term.getStr();
 	}
 	return str;
+    }
+    
+    Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
+	Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
+	List<Annotation> terms = new ArrayList<Annotation>();
+	for (Span<Term> span : this.getSpans()) {
+	    terms.addAll((List<Annotation>)(List<?>) span.getTargets());
+	}
+	referenced.put(AnnotationType.TERM, terms);
+	return referenced;
     }
 
     /** Deprecated */

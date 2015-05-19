@@ -1,8 +1,11 @@
 package ixa.kaflib;
 
+import ixa.kaflib.KAFDocument.AnnotationType;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -46,6 +49,14 @@ public class Factuality extends Annotation {
 
     public Double getConfidence() {
 	return this.confidence;
+    }
+    
+    Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
+	Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
+	List<Annotation> wfs = new ArrayList<Annotation>();
+	wfs.add(this.getWF());
+	referenced.put(AnnotationType.WF, wfs);
+	return referenced;
     }
     
     

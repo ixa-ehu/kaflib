@@ -1,6 +1,9 @@
 package ixa.kaflib;
 
+import ixa.kaflib.KAFDocument.AnnotationType;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
 import java.util.HashMap;
 
 
@@ -76,5 +79,14 @@ public class Dep extends Annotation {
 
     public String getStr() {
 	return rfunc + "(" + this.getFrom().getStr() + ", " + this.getTo().getStr() + ")";
+    }
+    
+    Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
+	Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
+	List<Annotation> terms = new ArrayList<Annotation>();
+	terms.add(this.getFrom());
+	terms.add(this.getTo());
+	referenced.put(AnnotationType.TERM, terms);
+	return referenced;
     }
 }

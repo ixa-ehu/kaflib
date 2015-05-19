@@ -1,8 +1,11 @@
 package ixa.kaflib;
 
+import ixa.kaflib.KAFDocument.AnnotationType;
+
 import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 
 /** A named entity is a term (or a multiword) that clearly identifies one item. The optional Named Entity layer is used to reference terms that are named entities. */
@@ -130,6 +133,16 @@ public class Entity extends IdentifiableAnnotation implements Relational {
 
     public String getStr() {
 	return getSpanStr(this.getSpans().get(0));
+    }
+    
+    Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
+	Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
+	List<Annotation> terms = new ArrayList<Annotation>();
+	for (Span<Term> span : this.getSpans()) {
+	    terms.addAll((List<Annotation>)(List<?>) span.getTargets());
+	}
+	referenced.put(AnnotationType.TERM, terms);
+	return referenced;
     }
 
     /** Deprecated */

@@ -1,11 +1,16 @@
 package ixa.kaflib;
 
+import ixa.kaflib.KAFDocument.AnnotationType;
+
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.HashMap;
 
 
-public class Mark extends IdentifiableAnnotation {
+public class Mark extends IdentifiableAnnotation implements MultiLayerAnnotation {
+
+    private String source;
 
     private String type;
 
@@ -33,15 +38,20 @@ public class Mark extends IdentifiableAnnotation {
     private List<ExternalRef> externalReferences;
 
 
-    Mark(String id, Span<WF> span) {
+    Mark(String id, String source, Span<WF> span) {
 	/*
 	if (span.size() < 1) {
 	    throw new IllegalStateException("A Mark must have at least one WF");
 	}
 	*/
 	super(id);
+	this.source = source;
 	this.span = span;
 	this.externalReferences = new ArrayList<ExternalRef>();
+    }
+
+    String getSource() {
+	return this.source;
     }
 
     public boolean hasType() {
@@ -133,5 +143,15 @@ public class Mark extends IdentifiableAnnotation {
 
     public void addExternalRefs(List<ExternalRef> externalRefs) {
 	externalReferences.addAll(externalRefs);
+    }
+    
+    Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
+	Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
+	referenced.put(AnnotationType.WF, (List<Annotation>)(List<?>) this.getSpan().getTargets());
+	return referenced;
+    }
+    
+    public String getGroupID() {
+	return this.getSource();
     }
 }

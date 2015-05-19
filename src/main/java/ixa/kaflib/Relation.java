@@ -1,12 +1,14 @@
 package ixa.kaflib;
 
+import ixa.kaflib.KAFDocument.AnnotationType;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.HashMap;
 import java.io.Serializable;
 
 /** Class for representing relations between entities and/or features. */
-public class Relation implements Serializable {
+public class Relation extends IdentifiableAnnotation implements Serializable {
 
     /* Relation's ID (required) */
     private String id;
@@ -21,6 +23,7 @@ public class Relation implements Serializable {
     private float confidence;
 
     Relation (String id, Relational from, Relational to) {
+	super(id);
 	this.id = id;
 	this.from = from;
 	this.to = to;
@@ -28,7 +31,8 @@ public class Relation implements Serializable {
     }
 
     Relation(Relation relation, HashMap<String, Relational> relational) {
-	this.id = id;
+	super(relation.getId());
+	this.id = relation.getId();
 	if (relation.from != null) {
 	    this.from = relational.get(relation.from.getId());
 	    if (this.from == null) {
@@ -92,5 +96,22 @@ public class Relation implements Serializable {
 	    str += " [" + this.getConfidence() + "]";
 	}
 	return str;
+    }
+    
+    Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
+	Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
+	List<Annotation> entities = new ArrayList<Annotation>();
+	List<Annotation> properties = new ArrayList<Annotation>();
+	List<Annotation> categories = new ArrayList<Annotation>();
+	if (this.from instanceof Entity) entities.add((Annotation)this.from);
+	else if (((Feature)this.from).isAProperty()) properties.add((Annotation)this.from);
+	else categories.add((Annotation)this.from);
+	if (this.to instanceof Entity) entities.add((Annotation)this.to);
+	else if (((Feature)this.to).isAProperty()) properties.add((Annotation)this.to);
+	else categories.add((Annotation)this.to);
+	referenced.put(AnnotationType.ENTITY, (List<Annotation>)(List<?>) entities);
+	referenced.put(AnnotationType.PROPERTY, (List<Annotation>)(List<?>) properties);
+	referenced.put(AnnotationType.CATEGORY, (List<Annotation>)(List<?>) categories);
+	return referenced;
     }
 }

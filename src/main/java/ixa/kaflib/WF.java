@@ -1,8 +1,13 @@
 package ixa.kaflib;
 
+import ixa.kaflib.KAFDocument.AnnotationType;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+
 
 /** Class for representing word forms. These are the result of the tokenization process. */
-public class WF extends IdentifiableAnnotation {
+public class WF extends IdentifiableAnnotation implements SentenceLevelAnnotation {
 
     private AnnotationContainer annotationContainer;
 
@@ -26,6 +31,9 @@ public class WF extends IdentifiableAnnotation {
 
     /** The word form text (required) */
     private String form;
+    
+    private static final String ID_PREFIX = "w";
+    
 
     WF(AnnotationContainer annotationContainer, String id, String form, int sent) {
 	super(id);
@@ -49,8 +57,12 @@ public class WF extends IdentifiableAnnotation {
 	this.xpath = wf.xpath;
 	this.form = wf.form;
     }
+    
+    String getIdPrefix() {
+	return ID_PREFIX;
+    }
 
-    public int getSent() {
+    public Integer getSent() {
 	return sent;
     }
 
@@ -70,13 +82,13 @@ public class WF extends IdentifiableAnnotation {
 	return para != -1;
     }
 
-    public int getPara() {
+    public Integer getPara() {
 	return para;
     }
 
     public void setPara(int para) {
 	this.para = para;
-	this.annotationContainer.indexSentByPara(this.sent, para);
+	//this.annotationContainer.indexSentByPara(this.sent, para);
     }
 
     public boolean hasPage() {
@@ -133,6 +145,10 @@ public class WF extends IdentifiableAnnotation {
 
     public void setForm(String form) {
 	this.form = form;
+    }
+    
+    Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
+	return new HashMap<AnnotationType, List<Annotation>>();
     }
 
     @Override

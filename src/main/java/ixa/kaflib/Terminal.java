@@ -1,7 +1,11 @@
 package ixa.kaflib;
 
+import ixa.kaflib.KAFDocument.AnnotationType;
+
+import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
 
 public class Terminal extends TreeNode {
 
@@ -48,6 +52,12 @@ public class Terminal extends TreeNode {
 
     public List<TreeNode> getChildren() {
 	return null;
+    }
+    
+    Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
+	Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
+	referenced.put(AnnotationType.TERM, (List<Annotation>)(List<?>) this.getSpan().getTargets());
+	return referenced;
     }
 
 }

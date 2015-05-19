@@ -1,8 +1,10 @@
 package ixa.kaflib;
 
+import ixa.kaflib.KAFDocument.AnnotationType;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 
 /** Chunks are noun, verb or prepositional phrases, spanning terms. */
@@ -111,6 +113,12 @@ public class Chunk extends IdentifiableAnnotation {
 	    str += term.getStr();
 	}
 	return str;
+    }
+    
+    Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
+	Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
+	referenced.put(AnnotationType.TERM, (List<Annotation>)(List<?>) this.getSpan().getTargets());
+	return referenced;
     }
 
     /** Deprecated */

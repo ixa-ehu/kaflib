@@ -1,9 +1,10 @@
 package ixa.kaflib;
 
+import ixa.kaflib.KAFDocument.AnnotationType;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.HashMap;
-
 
 /** Class for representing opinions. */
 public class Opinion extends IdentifiableAnnotation {
@@ -24,17 +25,17 @@ public class Opinion extends IdentifiableAnnotation {
 	    for (Term term : targets) {
 		Term copiedTerm = terms.get(term.getId());
 		if (copiedTerm == null) {
-		    throw new IllegalStateException("Term not found when copying opinion_holder");
+		    throw new IllegalStateException(
+			    "Term not found when copying opinion_holder");
 		}
 		copiedTargets.add(copiedTerm);
 	    }
 	    if (span.hasHead()) {
 		Term copiedHead = terms.get(span.getHead().getId());
 		this.span = new Span<Term>(copiedTargets, copiedHead);
-	    }
-	    else {
+	    } else {
 		this.span = new Span<Term>(copiedTargets);
-	    }	    
+	    }
 	}
 
 	public boolean hasType() {
@@ -68,6 +69,13 @@ public class Opinion extends IdentifiableAnnotation {
 	public void setSpan(Span<Term> span) {
 	    this.span = span;
 	}
+
+	Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
+	    Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
+	    referenced.put(AnnotationType.TERM,
+		    (List<Annotation>) (List<?>) this.getSpan().getTargets());
+	    return referenced;
+	}
     }
 
     public static class OpinionTarget extends Annotation {
@@ -85,15 +93,15 @@ public class Opinion extends IdentifiableAnnotation {
 	    for (Term term : targets) {
 		Term copiedTerm = terms.get(term.getId());
 		if (copiedTerm == null) {
-		    throw new IllegalStateException("Term not found when copying opinion_target");
+		    throw new IllegalStateException(
+			    "Term not found when copying opinion_target");
 		}
 		copiedTargets.add(copiedTerm);
 	    }
 	    if (span.hasHead()) {
 		Term copiedHead = terms.get(span.getHead().getId());
 		this.span = new Span<Term>(copiedTargets, copiedHead);
-	    }
-	    else {
+	    } else {
 		this.span = new Span<Term>(copiedTargets);
 	    }
 	}
@@ -117,10 +125,17 @@ public class Opinion extends IdentifiableAnnotation {
 	public void setSpan(Span<Term> span) {
 	    this.span = span;
 	}
+
+	Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
+	    Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
+	    referenced.put(AnnotationType.TERM,
+		    (List<Annotation>) (List<?>) this.getSpan().getTargets());
+	    return referenced;
+	}
     }
 
     public static class OpinionExpression extends Annotation {
-	
+
 	/* Polarity (optional) */
 	private String polarity;
 
@@ -132,7 +147,7 @@ public class Opinion extends IdentifiableAnnotation {
 
 	/* Sentiment semantic type (optional) */
 	private String sentimentSemanticType;
-	
+
 	/* Sentiment product feature (optional) */
 	private String sentimentProductFeature;
 
@@ -155,15 +170,15 @@ public class Opinion extends IdentifiableAnnotation {
 	    for (Term term : targets) {
 		Term copiedTerm = terms.get(term.getId());
 		if (copiedTerm == null) {
-		    throw new IllegalStateException("Term not found when copying opinion_expression");
+		    throw new IllegalStateException(
+			    "Term not found when copying opinion_expression");
 		}
 		copiedTargets.add(copiedTerm);
 	    }
 	    if (span.hasHead()) {
 		Term copiedHead = terms.get(span.getHead().getId());
 		this.span = new Span<Term>(copiedTargets, copiedHead);
-	    }
-	    else {
+	    } else {
 		this.span = new Span<Term>(copiedTargets);
 	    }
 	}
@@ -247,19 +262,24 @@ public class Opinion extends IdentifiableAnnotation {
 	public void setSpan(Span<Term> span) {
 	    this.span = span;
 	}
+
+	Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
+	    Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
+	    referenced.put(AnnotationType.TERM, (List<Annotation>) (List<?>) this.getSpan().getTargets());
+	    return referenced;
+	}
     }
 
     private OpinionHolder opinionHolder;
     private OpinionTarget opinionTarget;
     private OpinionExpression opinionExpression;
 
-
     Opinion(String id) {
 	super(id);
     }
 
     Opinion(Opinion opinion, HashMap<String, Term> terms) {
-        super(opinion.getId());
+	super(opinion.getId());
 	if (opinion.opinionHolder != null) {
 	    this.opinionHolder = new OpinionHolder(opinion.opinionHolder, terms);
 	}
@@ -267,7 +287,8 @@ public class Opinion extends IdentifiableAnnotation {
 	    this.opinionTarget = new OpinionTarget(opinion.opinionTarget, terms);
 	}
 	if (opinion.opinionExpression != null) {
-	    this.opinionExpression = new OpinionExpression(opinion.opinionExpression, terms);
+	    this.opinionExpression = new OpinionExpression(
+		    opinion.opinionExpression, terms);
 	}
     }
 
@@ -325,4 +346,13 @@ public class Opinion extends IdentifiableAnnotation {
 	return getSpanStr(this.getOpinionExpression().getSpan());
     }
 
+    Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
+	Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
+	List<Term> referencedTerms = new ArrayList<Term>();
+	referencedTerms.addAll(this.opinionExpression.span.getTargets());
+	referencedTerms.addAll(this.opinionHolder.span.getTargets());
+	referencedTerms.addAll(this.opinionTarget.span.getTargets());
+	referenced.put(AnnotationType.TERM, (List<Annotation>) (List<?>) referencedTerms);
+	return referenced;
+    }
 }
