@@ -1,6 +1,8 @@
 package ixa.kaflib;
 
-import ixa.kaflib.KAFDocument.AnnotationType;
+import ixa.kaflib.KAFDocument.Layer;
+import ixa.kaflib.KAFDocument.Utils;
+
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
@@ -70,11 +72,20 @@ public class Opinion extends IdentifiableAnnotation {
 	    this.span = span;
 	}
 
-	Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
-	    Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
-	    referenced.put(AnnotationType.TERM,
+	Map<Layer, List<Annotation>> getReferencedAnnotations() {
+	    Map<Layer, List<Annotation>> referenced = new HashMap<Layer, List<Annotation>>();
+	    referenced.put(Layer.TERMS,
 		    (List<Annotation>) (List<?>) this.getSpan().getTargets());
 	    return referenced;
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+	    if (this == o) return true;
+	    if (!(o instanceof OpinionHolder)) return false;
+	    OpinionHolder ann = (OpinionHolder) o;
+	    return Utils.areEquals(this.type, ann.type) &&
+		    Utils.areEquals(this.span, ann.span);
 	}
     }
 
@@ -126,11 +137,19 @@ public class Opinion extends IdentifiableAnnotation {
 	    this.span = span;
 	}
 
-	Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
-	    Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
-	    referenced.put(AnnotationType.TERM,
+	Map<Layer, List<Annotation>> getReferencedAnnotations() {
+	    Map<Layer, List<Annotation>> referenced = new HashMap<Layer, List<Annotation>>();
+	    referenced.put(Layer.TERMS,
 		    (List<Annotation>) (List<?>) this.getSpan().getTargets());
 	    return referenced;
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+	    if (this == o) return true;
+	    if (!(o instanceof OpinionTarget)) return false;
+	    OpinionTarget ann = (OpinionTarget) o;
+	    return Utils.areEquals(this.span, ann.span);
 	}
     }
 
@@ -263,10 +282,23 @@ public class Opinion extends IdentifiableAnnotation {
 	    this.span = span;
 	}
 
-	Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
-	    Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
-	    referenced.put(AnnotationType.TERM, (List<Annotation>) (List<?>) this.getSpan().getTargets());
+	Map<Layer, List<Annotation>> getReferencedAnnotations() {
+	    Map<Layer, List<Annotation>> referenced = new HashMap<Layer, List<Annotation>>();
+	    referenced.put(Layer.TERMS, (List<Annotation>) (List<?>) this.getSpan().getTargets());
 	    return referenced;
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+	    if (this == o) return true;
+	    if (!(o instanceof OpinionExpression)) return false;
+	    OpinionExpression ann = (OpinionExpression) o;
+	    return Utils.areEquals(this.polarity, ann.polarity) &&
+		    Utils.areEquals(this.strength, ann.strength) &&
+		    Utils.areEquals(this.subjectivity, ann.subjectivity) &&
+		    Utils.areEquals(this.sentimentSemanticType, ann.sentimentSemanticType) &&
+		    Utils.areEquals(this.sentimentProductFeature, ann.sentimentProductFeature) &&
+		    Utils.areEquals(this.span, ann.span);
 	}
     }
 
@@ -346,13 +378,23 @@ public class Opinion extends IdentifiableAnnotation {
 	return getSpanStr(this.getOpinionExpression().getSpan());
     }
 
-    Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
-	Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
+    Map<Layer, List<Annotation>> getReferencedAnnotations() {
+	Map<Layer, List<Annotation>> referenced = new HashMap<Layer, List<Annotation>>();
 	List<Term> referencedTerms = new ArrayList<Term>();
 	referencedTerms.addAll(this.opinionExpression.span.getTargets());
 	referencedTerms.addAll(this.opinionHolder.span.getTargets());
 	referencedTerms.addAll(this.opinionTarget.span.getTargets());
-	referenced.put(AnnotationType.TERM, (List<Annotation>) (List<?>) referencedTerms);
+	referenced.put(Layer.TERMS, (List<Annotation>) (List<?>) referencedTerms);
 	return referenced;
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+	if (this == o) return true;
+	if (!(o instanceof Opinion)) return false;
+	Opinion ann = (Opinion) o;
+	return Utils.areEquals(this.opinionHolder, ann.opinionHolder) &&
+		Utils.areEquals(this.opinionTarget, ann.opinionTarget) &&
+		Utils.areEquals(this.opinionExpression, ann.opinionExpression);
     }
 }

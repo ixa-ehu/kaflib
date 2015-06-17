@@ -1,6 +1,7 @@
 package ixa.kaflib;
 
-import ixa.kaflib.KAFDocument.AnnotationType;
+import ixa.kaflib.KAFDocument.Layer;
+import ixa.kaflib.KAFDocument.Utils;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -9,7 +10,7 @@ import java.util.Map;
 
 
 /** A named entity is a term (or a multiword) that clearly identifies one item. The optional Named Entity layer is used to reference terms that are named entities. */
-public class Entity extends IdentifiableAnnotation implements Relational {
+public class Entity extends IdentifiableAnnotation implements Relational, SentenceLevelAnnotation {
 
     /** Type of the named entity (optional). Currently, 8 values are possible: 
      * - Person
@@ -135,14 +136,22 @@ public class Entity extends IdentifiableAnnotation implements Relational {
 	return getSpanStr(this.getSpans().get(0));
     }
     
-    Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
-	Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
+    Map<Layer, List<Annotation>> getReferencedAnnotations() {
+	Map<Layer, List<Annotation>> referenced = new HashMap<Layer, List<Annotation>>();
 	List<Annotation> terms = new ArrayList<Annotation>();
 	for (Span<Term> span : this.getSpans()) {
 	    terms.addAll((List<Annotation>)(List<?>) span.getTargets());
 	}
-	referenced.put(AnnotationType.TERM, terms);
+	referenced.put(Layer.TERMS, terms);
 	return referenced;
+    }
+    
+    public Integer getSent() {
+	return this.getSpans().get(0).getFirstTarget().getSent();
+    }
+    
+    public Integer getPara() {
+	return this.getSpans().get(0).getFirstTarget().getPara();
     }
 
     /** Deprecated */
@@ -157,5 +166,16 @@ public class Entity extends IdentifiableAnnotation implements Relational {
     /** Deprecated */
     public void addReference(List<Term> span) {
 	this.references.add(KAFDocument.<Term>list2Span(span));
+    }    
+    
+    @Override
+    public boolean equals(Object o) {
+	if (this == o) return true;
+	if (!(o instanceof Entity)) return false;
+	Entity ann = (Entity) o;
+	return Utils.areEquals(this.type, ann.type) &&
+		Utils.areEquals(this.references, ann.references) &&
+		Utils.areEquals(this.externalReferences, ann.externalReferences);
     }
+
 }

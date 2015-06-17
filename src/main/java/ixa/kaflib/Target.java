@@ -1,5 +1,7 @@
 package ixa.kaflib;
 
+import ixa.kaflib.KAFDocument.Utils;
+
 import java.io.Serializable;
 
 
@@ -33,4 +35,14 @@ public class Target implements Serializable {
     public void setHead(boolean head) {
 	this.head = head;
     }
+    
+    @Override
+    public boolean equals(Object o) {
+	if (this == o) return true;
+	if (!(o instanceof Target)) return false;
+	Target ann = (Target) o;
+	return Utils.areEquals(this.term, ann.term) &&
+		Utils.areEquals(this.head, ann.head);
+    }
+
 }

@@ -1,6 +1,8 @@
 package ixa.kaflib;
 
-import ixa.kaflib.KAFDocument.AnnotationType;
+import ixa.kaflib.KAFDocument.Layer;
+import ixa.kaflib.KAFDocument.Utils;
+
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
@@ -10,9 +12,6 @@ import java.io.Serializable;
 
 /** Class for representing features. There are two types of features: properties and categories. */
 public class Feature extends IdentifiableAnnotation implements Relational, Serializable {
-
-    /* Feature's ID (required) */
-    private String id;
 
     /* Lemma (required) */
     private String lemma;
@@ -142,13 +141,13 @@ public class Feature extends IdentifiableAnnotation implements Relational, Seria
 	return getSpanStr(this.getSpans().get(0));
     }
     
-    Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
-	Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
+    Map<Layer, List<Annotation>> getReferencedAnnotations() {
+	Map<Layer, List<Annotation>> referenced = new HashMap<Layer, List<Annotation>>();
 	List<Annotation> terms = new ArrayList<Annotation>();
 	for (Span<Term> span : this.getSpans()) {
 	    terms.addAll((List<Annotation>)(List<?>) span.getTargets());
 	}
-	referenced.put(AnnotationType.TERM, terms);
+	referenced.put(Layer.TERMS, terms);
 	return referenced;
     }
 
@@ -165,5 +164,15 @@ public class Feature extends IdentifiableAnnotation implements Relational, Seria
     /** Deprecated */
     public void addReference(List<Term> span) {
 	this.references.add(KAFDocument.<Term>list2Span(span));
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+	if (this == o) return true;
+	if (!(o instanceof Feature)) return false;
+	Feature ann = (Feature) o;
+	return Utils.areEquals(this.lemma, ann.lemma) &&
+		Utils.areEquals(this.references, ann.references) &&
+		Utils.areEquals(this.externalReferences, ann.externalReferences);
     }
 }

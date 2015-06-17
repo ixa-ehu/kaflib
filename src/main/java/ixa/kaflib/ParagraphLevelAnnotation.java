@@ -1,6 +1,6 @@
 package ixa.kaflib;
 
-public interface ParagraphLevelAnnotation extends SentenceLevelAnnotation {
+public interface ParagraphLevelAnnotation {
 
     public Integer getPara();
     

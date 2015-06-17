@@ -1,6 +1,7 @@
 package ixa.kaflib;
 
-import ixa.kaflib.KAFDocument.AnnotationType;
+import ixa.kaflib.KAFDocument.Layer;
+import ixa.kaflib.KAFDocument.Utils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,14 +12,14 @@ import java.util.Map;
 /**
  * Factuality layer
  */
-public class Factuality extends Annotation {
+public class Factuality extends Annotation implements SentenceLevelAnnotation {
 
     private WF word;
     private String prediction;
     private Double confidence;
     //ArrayList<FactualityPart> factualityParts = new ArrayList<FactualityPart>();
 
-    public Factuality(WF word, String prediction) {
+    Factuality(WF word, String prediction) {
 	this.word = word;
 	this.prediction = prediction;
     }
@@ -51,15 +52,34 @@ public class Factuality extends Annotation {
 	return this.confidence;
     }
     
-    Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
-	Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
+    Map<Layer, List<Annotation>> getReferencedAnnotations() {
+	Map<Layer, List<Annotation>> referenced = new HashMap<Layer, List<Annotation>>();
 	List<Annotation> wfs = new ArrayList<Annotation>();
 	wfs.add(this.getWF());
-	referenced.put(AnnotationType.WF, wfs);
+	referenced.put(Layer.TEXT, wfs);
 	return referenced;
     }
     
+    @Override
+    public boolean equals(Object o) {
+	if (this == o) return true;
+	if (!(o instanceof Factuality)) return false;
+	Factuality ann = (Factuality) o;
+	return Utils.areEquals(this.word, ann.word) &&
+		Utils.areEquals(this.prediction, ann.prediction) &&
+		Utils.areEquals(this.confidence, ann.confidence);
+    }
     
+    @Override
+    public Integer getSent() {
+	return this.word.getSent();
+    }
+    
+    @Override
+    public Integer getPara() {
+	return this.word.getPara();
+    }
+
     /*
     public ArrayList<FactualityPart> getFactualityParts() {
 	return factualityParts;

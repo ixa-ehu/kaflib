@@ -1,6 +1,8 @@
 package ixa.kaflib;
 
-import ixa.kaflib.KAFDocument.AnnotationType;
+import ixa.kaflib.KAFDocument.Layer;
+import ixa.kaflib.KAFDocument.Utils;
+
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
@@ -116,13 +118,13 @@ public class Coref extends IdentifiableAnnotation {
 	return str;
     }
     
-    Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
-	Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
+    Map<Layer, List<Annotation>> getReferencedAnnotations() {
+	Map<Layer, List<Annotation>> referenced = new HashMap<Layer, List<Annotation>>();
 	List<Annotation> terms = new ArrayList<Annotation>();
 	for (Span<Term> span : this.getSpans()) {
 	    terms.addAll((List<Annotation>)(List<?>) span.getTargets());
 	}
-	referenced.put(AnnotationType.TERM, terms);
+	referenced.put(Layer.TERMS, terms);
 	return referenced;
     }
 
@@ -138,5 +140,15 @@ public class Coref extends IdentifiableAnnotation {
     /** Deprecated */
     public void addReference(List<Target> span) {
 	this.mentions.add(KAFDocument.targetList2Span(span));
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+	if (this == o) return true;
+	if (!(o instanceof Coref)) return false;
+	Coref ann = (Coref) o;
+	return Utils.areEquals(this.type, ann.type) &&
+		Utils.areEquals(this.mentions, ann.mentions) &&
+		Utils.areEquals(this.externalReferences, ann.externalReferences);
     }
 }

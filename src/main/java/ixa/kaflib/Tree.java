@@ -1,6 +1,7 @@
 package ixa.kaflib;
 
-import ixa.kaflib.KAFDocument.AnnotationType;
+import ixa.kaflib.KAFDocument.Layer;
+import ixa.kaflib.KAFDocument.Utils;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -9,7 +10,7 @@ import java.util.Map;
 import java.util.Stack;
 
 /**  */
-public class Tree extends Annotation implements MultiLayerAnnotation {
+public class Tree extends Annotation implements MultiLayerAnnotation, SentenceLevelAnnotation {
 
     private static final String HEAD_MARK = "=H";
 
@@ -40,9 +41,9 @@ public class Tree extends Annotation implements MultiLayerAnnotation {
 	this.root = root;
     }
     
-    Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
-	Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
-	referenced.put(AnnotationType.TERM, this.root.getReferencedAnnotations().get(AnnotationType.TERM));
+    Map<Layer, List<Annotation>> getReferencedAnnotations() {
+	Map<Layer, List<Annotation>> referenced = new HashMap<Layer, List<Annotation>>();
+	referenced.put(Layer.TERMS, this.root.getReferencedAnnotations().get(Layer.TERMS));
 	return referenced;
     }
 
@@ -282,5 +283,22 @@ public class Tree extends Annotation implements MultiLayerAnnotation {
     
     public String getGroupID() {
 	return this.getType();
+    }
+    
+    public Integer getSent() {
+	return this.root.getSent();
+    }
+    
+    public Integer getPara() {
+	return this.root.getPara();
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+	if (this == o) return true;
+	if (!(o instanceof Tree)) return false;
+	Tree ann = (Tree) o;
+	return Utils.areEquals(this.type, ann.type) &&
+		Utils.areEquals(this.root,  ann.root);
     }
 }

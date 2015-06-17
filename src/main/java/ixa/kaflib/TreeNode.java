@@ -1,5 +1,7 @@
 package ixa.kaflib;
 
+import ixa.kaflib.KAFDocument.Utils;
+
 import java.util.List;
 
 
@@ -48,4 +50,17 @@ public abstract class TreeNode extends IdentifiableAnnotation {
 
     public abstract List<TreeNode> getChildren();
 
+    public abstract Integer getSent();
+    
+    public abstract Integer getPara();
+    
+    @Override
+    public boolean equals(Object o) {
+	if (this == o) return true;
+	if (!(o instanceof TreeNode)) return false;
+	TreeNode ann = (TreeNode) o;
+	return Utils.areEquals(this.edgeId, ann.edgeId) &&
+		Utils.areEquals(this.head, ann.head) &&
+		Utils.areEquals(this.isTerminal, ann.isTerminal);
+    }
 }

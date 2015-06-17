@@ -1,6 +1,8 @@
 package ixa.kaflib;
 
-import ixa.kaflib.KAFDocument.AnnotationType;
+import ixa.kaflib.KAFDocument.Layer;
+import ixa.kaflib.KAFDocument.Utils;
+
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
@@ -8,7 +10,7 @@ import java.util.HashMap;
 
 
 /** Dependencies represent dependency relations among terms. */
-public class Dep extends Annotation {
+public class Dep extends Annotation implements SentenceLevelAnnotation {
 
     /** Source term of the dependency (required) */
     private Term from;
@@ -81,12 +83,34 @@ public class Dep extends Annotation {
 	return rfunc + "(" + this.getFrom().getStr() + ", " + this.getTo().getStr() + ")";
     }
     
-    Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
-	Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
+    Map<Layer, List<Annotation>> getReferencedAnnotations() {
+	Map<Layer, List<Annotation>> referenced = new HashMap<Layer, List<Annotation>>();
 	List<Annotation> terms = new ArrayList<Annotation>();
 	terms.add(this.getFrom());
 	terms.add(this.getTo());
-	referenced.put(AnnotationType.TERM, terms);
+	referenced.put(Layer.TERMS, terms);
 	return referenced;
     }
+    
+    @Override
+    public boolean equals(Object o) {
+	if (this == o) return true;
+	if (!(o instanceof Dep)) return false;
+	Dep ann = (Dep) o;
+	return Utils.areEquals(this.from, ann.from) &&
+		Utils.areEquals(this.to, ann.to) &&
+		Utils.areEquals(this.rfunc, ann.rfunc) &&
+		Utils.areEquals(this.depcase, ann.depcase);
+    }
+    
+    @Override
+    public Integer getSent() {
+	return this.from.getSent();
+    }
+    
+    @Override
+    public Integer getPara() {
+	return this.from.getPara();
+    }
+
 }

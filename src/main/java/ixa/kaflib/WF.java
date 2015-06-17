@@ -1,6 +1,8 @@
 package ixa.kaflib;
 
-import ixa.kaflib.KAFDocument.AnnotationType;
+import ixa.kaflib.KAFDocument.Layer;
+import ixa.kaflib.KAFDocument.Utils;
+
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
@@ -67,7 +69,12 @@ public class WF extends IdentifiableAnnotation implements SentenceLevelAnnotatio
     }
 
     public void setSent(int sent) {
+	Integer oldSent = this.sent;
+	Integer oldPara = this.para;
 	this.sent = sent;
+	if (oldSent > 0) {
+	    annotationContainer.reindexAnnotationParaSent(this, KAFDocument.Layer.TEXT, oldSent, oldPara);
+	}
 	/*
 	annotationContainer.indexWFBySent(this, sent);
 	// If there's a term associated with this WF, index it as well
@@ -87,7 +94,10 @@ public class WF extends IdentifiableAnnotation implements SentenceLevelAnnotatio
     }
 
     public void setPara(int para) {
+	Integer oldSent = this.sent;
+	Integer oldPara = this.para;
 	this.para = para;
+	annotationContainer.reindexAnnotationParaSent(this, KAFDocument.Layer.TEXT, oldSent, oldPara);
 	//this.annotationContainer.indexSentByPara(this.sent, para);
     }
 
@@ -147,13 +157,26 @@ public class WF extends IdentifiableAnnotation implements SentenceLevelAnnotatio
 	this.form = form;
     }
     
-    Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
-	return new HashMap<AnnotationType, List<Annotation>>();
+    Map<Layer, List<Annotation>> getReferencedAnnotations() {
+	return new HashMap<Layer, List<Annotation>>();
     }
 
     @Override
     public String toString() {
 	return this.getForm();
     }
-
+    
+    @Override
+    public boolean equals(Object o) {
+	if (this == o) return true;
+	if (!(o instanceof WF)) return false;
+	WF ann = (WF) o;
+	return Utils.areEquals(this.sent, ann.sent) &&
+		Utils.areEquals(this.para, ann.para) &&
+		Utils.areEquals(this.page, ann.page) &&
+		Utils.areEquals(this.offset, ann.offset) &&
+		Utils.areEquals(this.length, ann.length) &&
+		Utils.areEquals(this.xpath, ann.xpath) &&
+		Utils.areEquals(this.form, ann.form);
+    }
 }

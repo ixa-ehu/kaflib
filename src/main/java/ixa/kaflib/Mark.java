@@ -1,6 +1,7 @@
 package ixa.kaflib;
 
-import ixa.kaflib.KAFDocument.AnnotationType;
+import ixa.kaflib.KAFDocument.Layer;
+import ixa.kaflib.KAFDocument.Utils;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -8,7 +9,7 @@ import java.util.Map;
 import java.util.HashMap;
 
 
-public class Mark extends IdentifiableAnnotation implements MultiLayerAnnotation {
+public class Mark extends IdentifiableAnnotation implements MultiLayerAnnotation , SentenceLevelAnnotation {
 
     private String source;
 
@@ -145,13 +146,39 @@ public class Mark extends IdentifiableAnnotation implements MultiLayerAnnotation
 	externalReferences.addAll(externalRefs);
     }
     
-    Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
-	Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
-	referenced.put(AnnotationType.WF, (List<Annotation>)(List<?>) this.getSpan().getTargets());
+    Map<Layer, List<Annotation>> getReferencedAnnotations() {
+	Map<Layer, List<Annotation>> referenced = new HashMap<Layer, List<Annotation>>();
+	referenced.put(Layer.TEXT, (List<Annotation>)(List<?>) this.getSpan().getTargets());
 	return referenced;
     }
     
     public String getGroupID() {
 	return this.getSource();
     }
+    
+    @Override
+    public boolean equals(Object o) {
+	if (this == o) return true;
+	if (!(o instanceof Mark)) return false;
+	Mark ann = (Mark) o;
+	return Utils.areEquals(this.source, ann.source) &&
+		Utils.areEquals(this.type, ann.type) &&
+		Utils.areEquals(this.lemma, ann.lemma) &&
+		Utils.areEquals(this.pos, ann.pos) &&
+		Utils.areEquals(this.morphofeat, ann.morphofeat) &&
+		Utils.areEquals(this.markcase, ann.markcase) &&
+		Utils.areEquals(this.span, ann.span) &&
+		Utils.areEquals(this.externalReferences, ann.externalReferences);
+    }
+    
+    @Override
+    public Integer getSent() {
+	return this.span.getFirstTarget().getSent();
+    }
+    
+    @Override
+    public Integer getPara() {
+	return this.span.getFirstTarget().getPara();
+    }
+
 }

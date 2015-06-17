@@ -14,7 +14,7 @@ class IdManager implements Serializable {
     /* Prefix of each type of ids */
     private Map<AnnotationType, String> prefixes;
 
-    //private static final String WF_PREFIX = "w";
+    private static final String WF_PREFIX = "w";
     private static final String TERM_PREFIX = "t";
     private static final String MARK_PREFIX = "m";
     private static final String MW_PREFIX = "t.mw";
@@ -48,7 +48,7 @@ class IdManager implements Serializable {
 
     IdManager() {
 	this.prefixes = new HashMap<AnnotationType, String>();
-	//this.prefixes.put(Annotations.WF, WF_PREFIX);
+	this.prefixes.put(AnnotationType.WF, WF_PREFIX);
 	this.prefixes.put(AnnotationType.TERM, TERM_PREFIX);
 	this.prefixes.put(AnnotationType.COMPONENT, COMPONENT_PREFIX);
 	this.prefixes.put(AnnotationType.ENTITY, ENTITY_PREFIX);

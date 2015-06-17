@@ -1,5 +1,10 @@
 package ixa.kaflib;
 
+import ixa.kaflib.Opinion.OpinionExpression;
+import ixa.kaflib.Opinion.OpinionHolder;
+import ixa.kaflib.Opinion.OpinionTarget;
+import ixa.kaflib.Predicate.Role;
+
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -8,6 +13,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.io.File;
 import java.io.Reader;
@@ -26,8 +32,7 @@ import org.jdom2.Element;
 /** Respresents a KAF document. It's the main class of the library, as it keeps all elements of the document (word forms, terms, entities...) and manages all object creations. The document can be created by the user calling it's methods, or loading from an existing XML file.*/
 public class KAFDocument implements Serializable {
 
-    public enum Layers {
-	RAW,
+    public enum Layer {
 	TEXT,
 	TERMS,
 	ENTITIES,
@@ -44,7 +49,8 @@ public class KAFDocument implements Serializable {
 	MARKABLES,
 	PROPERTIES,
 	CATEGORIES,
-	RELATIONS;
+	RELATIONS,
+	LINKED_ENTITIES;
     }
 
     public enum AnnotationType {
@@ -76,10 +82,10 @@ public class KAFDocument implements Serializable {
 	CATEGORY,
 	LINKED_ENTITY,
 	RELATION,
-	/*
-	  MW,
-	*/
     }
+    
+    static Map<Layer, AnnotationType> layerAnnotationTypes;
+    static Map<AnnotationType, Class<?>> annotationTypeClasses;
 
     public class FileDesc implements Serializable {
 	public String author;
@@ -90,6 +96,19 @@ public class KAFDocument implements Serializable {
 	public String creationtime;
 
 	private FileDesc() {}
+	
+	@Override
+	public boolean equals(Object o) {
+	    if (this == o) return true;
+	    if (!(o instanceof FileDesc)) return false;
+	    FileDesc fd = (FileDesc) o;
+	    return Utils.areEquals(this.author, fd.author) &&
+		    Utils.areEquals(this.title, fd.title) &&
+		    Utils.areEquals(this.filename, fd.filename) &&
+		    Utils.areEquals(this.filetype, fd.filetype) &&
+		    Utils.areEquals(this.pages, fd.pages) &&
+		    Utils.areEquals(this.creationtime, fd.creationtime);
+	}
     }
 
     public class Public implements Serializable {
@@ -97,6 +116,15 @@ public class KAFDocument implements Serializable {
 	public String uri;
 
 	private Public() {
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+	    if (this == o) return true;
+	    if (!(o instanceof Public)) return false;
+	    Public pub = (Public) o;
+	    return Utils.areEquals(this.publicId, pub.publicId) &&
+		    Utils.areEquals(this.uri, pub.uri);
 	}
     }
 
@@ -213,6 +241,15 @@ public class KAFDocument implements Serializable {
 	    this.hostname = hostname;
 	}
 
+	@Override
+	public boolean equals(Object o) {
+	    if (this == o) return true;
+	    if (!(o instanceof LinguisticProcessor)) return false;
+	    LinguisticProcessor lp = (LinguisticProcessor) o;
+	    return Utils.areEquals(this.layer, lp.layer) &&
+		    Utils.areEquals(this.name, lp.name) &&
+		    Utils.areEquals(this.version, lp.version);
+	}
     }
 
     /** Language identifier */
@@ -241,6 +278,55 @@ public class KAFDocument implements Serializable {
 	lps = new LinkedHashMap<String, List<LinguisticProcessor>>();
 	idManager = new IdManager();
 	annotationContainer = new AnnotationContainer();
+	
+	layerAnnotationTypes = new HashMap<Layer, AnnotationType>();
+	layerAnnotationTypes.put(Layer.TEXT, AnnotationType.WF);
+	layerAnnotationTypes.put(Layer.TERMS, AnnotationType.TERM);
+	layerAnnotationTypes.put(Layer.ENTITIES, AnnotationType.ENTITY);
+	layerAnnotationTypes.put(Layer.CHUNKS, AnnotationType.CHUNK);
+	layerAnnotationTypes.put(Layer.DEPS, AnnotationType.DEP);
+	layerAnnotationTypes.put(Layer.CONSTITUENCY, AnnotationType.TREE);
+	layerAnnotationTypes.put(Layer.COREFERENCES, AnnotationType.COREF);
+	layerAnnotationTypes.put(Layer.OPINIONS, AnnotationType.OPINION);
+	layerAnnotationTypes.put(Layer.CAUSAL_RELATIONS, AnnotationType.CLINK);
+	layerAnnotationTypes.put(Layer.TEMPORAL_RELATIONS, AnnotationType.TLINK);
+	layerAnnotationTypes.put(Layer.SRL, AnnotationType.PREDICATE);
+	layerAnnotationTypes.put(Layer.TIME_EXPRESSIONS, AnnotationType.TIMEX3);
+	layerAnnotationTypes.put(Layer.FACTUALITY_LAYER, AnnotationType.FACTUALITY);
+	layerAnnotationTypes.put(Layer.MARKABLES, AnnotationType.MARK);
+	layerAnnotationTypes.put(Layer.PROPERTIES, AnnotationType.PROPERTY);
+	layerAnnotationTypes.put(Layer.CATEGORIES, AnnotationType.CATEGORY);
+	layerAnnotationTypes.put(Layer.RELATIONS, AnnotationType.RELATION);
+	layerAnnotationTypes.put(Layer.LINKED_ENTITIES, AnnotationType.LINKED_ENTITY);
+	
+	annotationTypeClasses = new HashMap<AnnotationType, Class<?>>();
+	annotationTypeClasses.put(AnnotationType.WF, WF.class);
+	annotationTypeClasses.put(AnnotationType.TERM, Term.class);
+	annotationTypeClasses.put(AnnotationType.COMPONENT, Term.class);
+	annotationTypeClasses.put(AnnotationType.MW, Term.class);
+	annotationTypeClasses.put(AnnotationType.ENTITY, Entity.class);
+	annotationTypeClasses.put(AnnotationType.CHUNK, Chunk.class);
+	annotationTypeClasses.put(AnnotationType.DEP, Dep.class);
+	annotationTypeClasses.put(AnnotationType.TREE, Tree.class);
+	annotationTypeClasses.put(AnnotationType.NON_TERMINAL, NonTerminal.class);
+	annotationTypeClasses.put(AnnotationType.TERMINAL, Terminal.class);
+	//annotationTypeClasses.put(AnnotationType.EDGE, .class);
+	annotationTypeClasses.put(AnnotationType.COREF, Coref.class);
+	annotationTypeClasses.put(AnnotationType.OPINION, Opinion.class);
+	annotationTypeClasses.put(AnnotationType.OPINION_HOLDER, OpinionHolder.class);
+	annotationTypeClasses.put(AnnotationType.OPINION_TARGET, OpinionTarget.class);
+	annotationTypeClasses.put(AnnotationType.OPINION_EXPRESSION, OpinionExpression.class);
+	annotationTypeClasses.put(AnnotationType.CLINK, CLink.class);
+	annotationTypeClasses.put(AnnotationType.TLINK, TLink.class);
+	annotationTypeClasses.put(AnnotationType.PREDICATE, Predicate.class);
+	annotationTypeClasses.put(AnnotationType.ROLE, Role.class);
+	annotationTypeClasses.put(AnnotationType.TIMEX3, Timex3.class);
+	annotationTypeClasses.put(AnnotationType.FACTUALITY, Factuality.class);
+	annotationTypeClasses.put(AnnotationType.MARK, Mark.class);
+	annotationTypeClasses.put(AnnotationType.PROPERTY, Feature.class);
+	annotationTypeClasses.put(AnnotationType.CATEGORY, Feature.class);
+	annotationTypeClasses.put(AnnotationType.LINKED_ENTITY, LinkedEntity.class);
+	annotationTypeClasses.put(AnnotationType.RELATION, Relation.class);
     }
 
     /** Creates a new KAFDocument and loads the contents of the file passed as argument
@@ -399,7 +485,7 @@ public class KAFDocument implements Serializable {
     public WF newWF(String id, String form, int sent) {
 	idManager.updateCounter(AnnotationType.WF, id);
 	WF newWF = new WF(this.annotationContainer, id, form, sent);
-	annotationContainer.add(newWF, AnnotationType.WF);
+	annotationContainer.add(newWF, Layer.TEXT);
 	return newWF;
     }
 
@@ -414,7 +500,7 @@ public class KAFDocument implements Serializable {
 	WF newWF = new WF(this.annotationContainer, newId, form, 0);
 	newWF.setOffset(offsetVal);
 	newWF.setLength(form.length());
-	annotationContainer.add(newWF, AnnotationType.WF);
+	annotationContainer.add(newWF, Layer.TEXT);
 	return newWF;
     }
 
@@ -427,7 +513,7 @@ public class KAFDocument implements Serializable {
 	WF newWF = new WF(this.annotationContainer, newId, form, sent);
 	newWF.setOffset(offset);
 	newWF.setLength(form.length());
-	annotationContainer.add(newWF, AnnotationType.WF);
+	annotationContainer.add(newWF, Layer.TEXT);
 	return newWF;
     }
 
@@ -554,7 +640,7 @@ public class KAFDocument implements Serializable {
     public Term newTerm(String id, Span<WF> span) {
 	idManager.updateCounter(AnnotationType.TERM, id);
 	Term newTerm = new Term(id, span, false);
-	annotationContainer.add(newTerm, AnnotationType.TERM);
+	annotationContainer.add(newTerm, Layer.TERMS);
 	return newTerm;
     }
 
@@ -562,7 +648,7 @@ public class KAFDocument implements Serializable {
 	idManager.updateCounter(AnnotationType.TERM, id);
 	Term newTerm = new Term(id, span, isComponent);
 	if (!isComponent) {
-	    annotationContainer.add(newTerm, AnnotationType.TERM);
+	    annotationContainer.add(newTerm, Layer.TERMS);
 	}
 	return newTerm;
     }
@@ -571,7 +657,7 @@ public class KAFDocument implements Serializable {
 	String newId = idManager.getNextId(AnnotationType.TERM);
 	Term newTerm = new Term(newId, span, isComponent);
 	if (!isComponent) {
-	    annotationContainer.add(newTerm, AnnotationType.TERM);
+	    annotationContainer.add(newTerm, Layer.TERMS);
 	}
 	return newTerm;
     }    
@@ -579,7 +665,7 @@ public class KAFDocument implements Serializable {
     public Term newTerm(String id, Span<WF> span, Integer position) {
 	idManager.updateCounter(AnnotationType.TERM, id);
 	Term newTerm = new Term(id, span, false);
-	annotationContainer.add(newTerm, AnnotationType.TERM, position);
+	annotationContainer.add(newTerm, Layer.TERMS, position);
 	return newTerm;
     }
 
@@ -593,7 +679,7 @@ public class KAFDocument implements Serializable {
     public Term newTerm(Span<WF> span) {
 	String newId = idManager.getNextId(AnnotationType.TERM);
 	Term newTerm = new Term(newId, span, false);
-	annotationContainer.add(newTerm, AnnotationType.TERM);
+	annotationContainer.add(newTerm, Layer.TERMS);
 	return newTerm;
     }
 
@@ -608,7 +694,7 @@ public class KAFDocument implements Serializable {
 	String newId = idManager.getNextId(AnnotationType.TERM);
 	Term newTerm = new Term(newId, span, false);
 	newTerm.setMorphofeat(morphofeat);
-	annotationContainer.add(newTerm, AnnotationType.TERM);
+	annotationContainer.add(newTerm, Layer.TERMS);
 	return newTerm;
     }
 
@@ -618,12 +704,12 @@ public class KAFDocument implements Serializable {
 	    span.addTargets(term.getSpan().getTargets()); 
 	}
 	String newId = idManager.getNextId(AnnotationType.MW);
-	Term compound = newTerm(newId, span, annotationContainer.termPosition(terms.get(0)));
+	Term compound = newTerm(newId, span, annotationContainer.getPosition(Layer.TERMS, terms.get(0)));
 	compound.setLemma(lemma);
 	for (Term term : terms) {
 	    compound.addComponent(term);
 	    term.setCompound(compound);
-	    this.annotationContainer.remove(term, AnnotationType.TERM);
+	    this.annotationContainer.remove(term, Layer.TERMS);
 	}
 	return compound;
     }
@@ -639,14 +725,14 @@ public class KAFDocument implements Serializable {
     public Mark newMark(String id, String source, Span<WF> span) {
 	idManager.updateCounter(AnnotationType.MARK, id);
 	Mark newMark = new Mark(id, source, span);
-	annotationContainer.add(newMark, AnnotationType.MARK);
+	annotationContainer.add(newMark, Layer.MARKABLES);
 	return newMark;
     }
 
     public Mark newMark(String source, Span<WF> span) {
 	String newId = idManager.getNextId(AnnotationType.MARK);
 	Mark newMark = new Mark(newId, source, span);
-	annotationContainer.add(newMark, AnnotationType.MARK);
+	annotationContainer.add(newMark, Layer.MARKABLES);
 	return newMark;
     }
 
@@ -658,7 +744,7 @@ public class KAFDocument implements Serializable {
      */
 public Dep newDep(Term from, Term to, String rfunc) {
     Dep newDep = new Dep(from, to, rfunc);
-    annotationContainer.add(newDep, AnnotationType.DEP);
+    annotationContainer.add(newDep, Layer.DEPS);
     return newDep;
 }
 
@@ -673,7 +759,7 @@ public Chunk newChunk(String id, String phrase, Span<Term> span) {
     idManager.updateCounter(AnnotationType.CHUNK, id);
     Chunk newChunk = new Chunk(id, span);
     newChunk.setPhrase(phrase);
-    annotationContainer.add(newChunk, AnnotationType.CHUNK);
+    annotationContainer.add(newChunk, Layer.CHUNKS);
     return newChunk;
 }
 
@@ -687,7 +773,7 @@ public Chunk newChunk(String phrase, Span<Term> span) {
     String newId = idManager.getNextId(AnnotationType.CHUNK);
     Chunk newChunk = new Chunk(newId, span);
     newChunk.setPhrase(phrase);
-    annotationContainer.add(newChunk, AnnotationType.CHUNK);
+    annotationContainer.add(newChunk, Layer.CHUNKS);
     return newChunk;
 }
 
@@ -700,7 +786,7 @@ public Chunk newChunk(String phrase, Span<Term> span) {
 public Entity newEntity(String id, List<Span<Term>> references) {
     idManager.updateCounter(AnnotationType.ENTITY, id);
 	Entity newEntity = new Entity(id, references);
-	annotationContainer.add(newEntity, AnnotationType.ENTITY);
+	annotationContainer.add(newEntity, Layer.ENTITIES);
 	return newEntity;
     }
 
@@ -712,7 +798,7 @@ public Entity newEntity(String id, List<Span<Term>> references) {
 public Entity newEntity(List<Span<Term>> references) {
 	String newId = idManager.getNextId(AnnotationType.ENTITY);
 	Entity newEntity = new Entity(newId, references);
-	annotationContainer.add(newEntity, AnnotationType.ENTITY);
+	annotationContainer.add(newEntity, Layer.ENTITIES);
 	return newEntity;
     }
 
@@ -724,7 +810,7 @@ public Entity newEntity(List<Span<Term>> references) {
     public Coref newCoref(String id, List<Span<Term>> mentions) {
 	idManager.updateCounter(AnnotationType.COREF, id);
 	Coref newCoref = new Coref(id, mentions);
-	annotationContainer.add(newCoref, AnnotationType.COREF);
+	annotationContainer.add(newCoref, Layer.COREFERENCES);
 	return newCoref;
     }
 
@@ -735,7 +821,7 @@ public Entity newEntity(List<Span<Term>> references) {
     public Coref newCoref(List<Span<Term>> mentions) {
 	String newId = idManager.getNextId(AnnotationType.COREF);
 	Coref newCoref = new Coref(newId, mentions);
-	annotationContainer.add(newCoref, AnnotationType.COREF);
+	annotationContainer.add(newCoref, Layer.COREFERENCES);
 	return newCoref;
     }
 
@@ -747,7 +833,7 @@ public Entity newEntity(List<Span<Term>> references) {
     public Timex3 newTimex3(String id, String type) {
 	idManager.updateCounter(AnnotationType.TIMEX3, id);
 	Timex3 newTimex3 = new Timex3(id, type);
-	annotationContainer.add(newTimex3, AnnotationType.TIMEX3);
+	annotationContainer.add(newTimex3, Layer.TIME_EXPRESSIONS);
 	return newTimex3;
     }
 
@@ -758,35 +844,35 @@ public Entity newEntity(List<Span<Term>> references) {
     public Timex3 newTimex3(String type) {
 	String newId = idManager.getNextId(AnnotationType.TIMEX3);
 	Timex3 newTimex3 = new Timex3(newId, type);
-	annotationContainer.add(newTimex3, AnnotationType.TIMEX3);
+	annotationContainer.add(newTimex3, Layer.TIME_EXPRESSIONS);
 	return newTimex3;
     }
 
     public TLink newTLink(String id, TLinkReferable from, TLinkReferable to, String relType) {
 	idManager.updateCounter(AnnotationType.TLINK, id);
 	TLink newTLink = new TLink(id, from, to, relType);
-	annotationContainer.add(newTLink, AnnotationType.TLINK);
+	annotationContainer.add(newTLink, Layer.TEMPORAL_RELATIONS);
 	return newTLink;
     }
 
     public TLink newTLink(TLinkReferable from, TLinkReferable to, String relType) {
 	String newId = idManager.getNextId(AnnotationType.TLINK);
 	TLink newTLink = new TLink(newId, from, to, relType);
-	annotationContainer.add(newTLink, AnnotationType.TLINK);
+	annotationContainer.add(newTLink, Layer.TEMPORAL_RELATIONS);
 	return newTLink;
     }
 
     public CLink newCLink(String id, Predicate from, Predicate to) {
 	idManager.updateCounter(AnnotationType.CLINK, id);
 	CLink newCLink = new CLink(id, from, to);
-	annotationContainer.add(newCLink, AnnotationType.CLINK);
+	annotationContainer.add(newCLink, Layer.CAUSAL_RELATIONS);
 	return newCLink;
     }
 
     public CLink newCLink(Predicate from, Predicate to) {
 	String newId = idManager.getNextId(AnnotationType.CLINK);
 	CLink newCLink = new CLink(newId, from, to);
-	annotationContainer.add(newCLink, AnnotationType.CLINK);
+	annotationContainer.add(newCLink, Layer.CAUSAL_RELATIONS);
 	return newCLink;
     }
 
@@ -796,7 +882,7 @@ public Entity newEntity(List<Span<Term>> references) {
 	 */
     public Factuality newFactuality(WF wf, String prediction) {
 	Factuality factuality = new Factuality(wf, prediction);
-	annotationContainer.add(factuality, AnnotationType.FACTUALITY);
+	annotationContainer.add(factuality, Layer.FACTUALITY_LAYER);
 	return factuality;
     }
 
@@ -822,7 +908,7 @@ public Entity newEntity(List<Span<Term>> references) {
     public Feature newProperty(String id, String lemma, List<Span<Term>> references) {
 	idManager.updateCounter(AnnotationType.PROPERTY, id);
 	Feature newProperty = new Feature(id, lemma, references);
-	annotationContainer.add(newProperty, AnnotationType.PROPERTY);
+	annotationContainer.add(newProperty, Layer.PROPERTIES);
 	return newProperty;
     }
     
@@ -834,7 +920,7 @@ public Entity newEntity(List<Span<Term>> references) {
     public Feature newProperty(String lemma, List<Span<Term>> references) {
 	String newId = idManager.getNextId(AnnotationType.PROPERTY);
 	Feature newProperty = new Feature(newId, lemma, references);
-	annotationContainer.add(newProperty, AnnotationType.PROPERTY);
+	annotationContainer.add(newProperty, Layer.PROPERTIES);
 	return newProperty;
     }
     
@@ -847,7 +933,7 @@ public Entity newEntity(List<Span<Term>> references) {
     public Feature newCategory(String id, String lemma, List<Span<Term>> references) {
 	idManager.updateCounter(AnnotationType.CATEGORY, id);
 	Feature newCategory = new Feature(id, lemma, references);
-	annotationContainer.add(newCategory, AnnotationType.CATEGORY);
+	annotationContainer.add(newCategory, Layer.CATEGORIES);
 	return newCategory;
     }
     
@@ -859,7 +945,7 @@ public Entity newEntity(List<Span<Term>> references) {
     public Feature newCategory(String lemma, List<Span<Term>> references) {
 	String newId = idManager.getNextId(AnnotationType.CATEGORY);
 	Feature newCategory = new Feature(newId, lemma, references);
-	annotationContainer.add(newCategory, AnnotationType.CATEGORY);
+	annotationContainer.add(newCategory, Layer.CATEGORIES);
 	return newCategory;
     }
     
@@ -869,7 +955,7 @@ public Entity newEntity(List<Span<Term>> references) {
     public Opinion newOpinion() {
 	String newId = idManager.getNextId(AnnotationType.OPINION);
 	Opinion newOpinion = new Opinion(newId);
-	annotationContainer.add(newOpinion, AnnotationType.OPINION);
+	annotationContainer.add(newOpinion, Layer.OPINIONS);
 	return newOpinion;
     }
 
@@ -879,7 +965,7 @@ public Entity newEntity(List<Span<Term>> references) {
     public Opinion newOpinion(String id) {
         idManager.updateCounter(AnnotationType.OPINION, id);
 	Opinion newOpinion = new Opinion(id);
-	annotationContainer.add(newOpinion, AnnotationType.OPINION);
+	annotationContainer.add(newOpinion, Layer.OPINIONS);
 	return newOpinion;
     }
 
@@ -891,7 +977,7 @@ public Entity newEntity(List<Span<Term>> references) {
     public Relation newRelation(Relational from, Relational to) {
 	String newId = idManager.getNextId(AnnotationType.RELATION);
 	Relation newRelation = new Relation(newId, from, to);
-	annotationContainer.add(newRelation, AnnotationType.RELATION);
+	annotationContainer.add(newRelation, Layer.RELATIONS);
 	return newRelation;
     }
     
@@ -904,7 +990,7 @@ public Entity newEntity(List<Span<Term>> references) {
     public Relation newRelation(String id, Relational from, Relational to) {
 	idManager.updateCounter(AnnotationType.RELATION, id);
 	Relation newRelation = new Relation(id, from, to);
-	annotationContainer.add(newRelation, AnnotationType.RELATION);
+	annotationContainer.add(newRelation, Layer.RELATIONS);
 	return newRelation;
     }
     
@@ -916,7 +1002,7 @@ public Entity newEntity(List<Span<Term>> references) {
     public Predicate newPredicate(String id, Span<Term> span) {
 	    idManager.updateCounter(AnnotationType.PREDICATE, id);
 	Predicate newPredicate = new Predicate(id, span);
-	annotationContainer.add(newPredicate, AnnotationType.PREDICATE);
+	annotationContainer.add(newPredicate, Layer.SRL);
 	return newPredicate;
     }
 
@@ -927,7 +1013,7 @@ public Entity newEntity(List<Span<Term>> references) {
     public Predicate newPredicate(Span<Term> span) {
 	String newId = idManager.getNextId(AnnotationType.PREDICATE);
 	Predicate newPredicate = new Predicate(newId, span);
-	annotationContainer.add(newPredicate, AnnotationType.PREDICATE);
+	annotationContainer.add(newPredicate, Layer.SRL);
 	return newPredicate;
     }
 
@@ -967,12 +1053,12 @@ public Entity newEntity(List<Span<Term>> references) {
 
     public Tree newConstituent(TreeNode root, String type) {
 	Tree tree = new Tree(root, type);
-	annotationContainer.add(tree, AnnotationType.TREE);
+	annotationContainer.add(tree, Layer.CONSTITUENCY);
 	return tree;
     }
 
     public Tree newConstituent(TreeNode root) {
-	return this.newConstituent(root, "notype");
+	return this.newConstituent(root, annotationContainer.DEFAULT_GROUP);
     }
 
     public void addConstituencyFromParentheses(String parseOut) throws Exception {
@@ -1041,15 +1127,23 @@ public Entity newEntity(List<Span<Term>> references) {
     public String getRawText() {
 	return annotationContainer.getRawText();
     }
+    
+    public List<Annotation> getLayer(Layer layer) {
+	return annotationContainer.get(layer);
+    }
+    
+    public List<Annotation> getLayer(Layer layer, String group) {
+	return annotationContainer.get(layer, group);
+    }
 
     /** Returns a list containing all WFs in the document */
     public List<WF> getWFs() {
-	return (List<WF>)(List<?>) annotationContainer.get(AnnotationType.WF);
+	return (List<WF>)(List<?>) annotationContainer.get(Layer.TEXT);
     }
 
     /** Returns a list with all sentences. Each sentence is a list of WFs. */
     public List<List<WF>> getSentences() {
-	return (List<List<WF>>)(List<?>) annotationContainer.getSentences(AnnotationType.WF);
+	return (List<List<WF>>)(List<?>) annotationContainer.getSentences(Layer.TEXT);
     }
 
     public Integer getFirstSentence() {
@@ -1077,7 +1171,7 @@ public Entity newEntity(List<Span<Term>> references) {
 
     /** Returns a list with all terms in the document. */
     public List<Term> getTerms() {
-	return (List<Term>)(List<?>) annotationContainer.get(AnnotationType.TERM);
+	return (List<Term>)(List<?>) annotationContainer.get(Layer.TERMS);
     }
 
     /** Retrieve the term at position index.
@@ -1099,85 +1193,102 @@ public Entity newEntity(List<Span<Term>> references) {
     */
 
     public List<Term> getSentenceTerms(int sent) {
-	return (List<Term>)(List<?>) annotationContainer.getSentAnnotations(sent, AnnotationType.TERM);
+	return (List<Term>)(List<?>) annotationContainer.getSentAnnotations(sent, Layer.TERMS);
     }
 
     public List<String> getMarkSources() {
-	return annotationContainer.getGroupIDs(AnnotationType.MARK);
+	return annotationContainer.getGroupIDs(Layer.MARKABLES);
     }
 
     public List<Mark> getMarks(String source) {
-	return (List<Mark>)(List<?>) annotationContainer.get(AnnotationType.MARK, source);
+	return (List<Mark>)(List<?>) annotationContainer.get(Layer.MARKABLES, source);
     }
 
     public List<Dep> getDeps() {
-	return (List<Dep>)(List<?>) annotationContainer.get(AnnotationType.DEP);
+	return (List<Dep>)(List<?>) annotationContainer.get(Layer.DEPS);
     }
 
     public List<Chunk> getChunks() {
-	return (List<Chunk>)(List<?>) annotationContainer.get(AnnotationType.CHUNK);
+	return (List<Chunk>)(List<?>) annotationContainer.get(Layer.CHUNKS);
     }
 
     /** Returns a list with all entities in the document */
     public List<Entity> getEntities() {
-	return (List<Entity>)(List<?>) annotationContainer.get(AnnotationType.ENTITY);
+	return (List<Entity>)(List<?>) annotationContainer.get(Layer.ENTITIES);
     }
 
     public List<Coref> getCorefs() {
-	return (List<Coref>)(List<?>) annotationContainer.get(AnnotationType.COREF);
+	return (List<Coref>)(List<?>) annotationContainer.get(Layer.COREFERENCES);
     }
 
     public List<Timex3> getTimeExs() {
-	return (List<Timex3>)(List<?>) annotationContainer.get(AnnotationType.TIMEX3);
+	return (List<Timex3>)(List<?>) annotationContainer.get(Layer.TIME_EXPRESSIONS);
     }
 
     public List<TLink> getTLinks() {
-	return (List<TLink>)(List<?>) annotationContainer.get(AnnotationType.TLINK);
+	return (List<TLink>)(List<?>) annotationContainer.get(Layer.TEMPORAL_RELATIONS);
     }
 
     public List<CLink> getCLinks() {
-	return (List<CLink>)(List<?>) annotationContainer.get(AnnotationType.CLINK);
+	return (List<CLink>)(List<?>) annotationContainer.get(Layer.CAUSAL_RELATIONS);
     }
 
     /** Returns a list with all relations in the document */
     public List<Feature> getProperties() {
-	return (List<Feature>)(List<?>) annotationContainer.get(AnnotationType.PROPERTY);
+	return (List<Feature>)(List<?>) annotationContainer.get(Layer.PROPERTIES);
     }
 
     /** Returns a list with all relations in the document */
     public List<Feature> getCategories() {
-	return (List<Feature>)(List<?>) annotationContainer.get(AnnotationType.CATEGORY);
+	return (List<Feature>)(List<?>) annotationContainer.get(Layer.CATEGORIES);
     }
 
     public List<Opinion> getOpinions() {
-	return (List<Opinion>)(List<?>) annotationContainer.get(AnnotationType.OPINION);
+	return (List<Opinion>)(List<?>) annotationContainer.get(Layer.OPINIONS);
     }
 
     /** Returns a list with all relations in the document */
     public List<Relation> getRelations() {
-	return (List<Relation>)(List<?>) annotationContainer.get(AnnotationType.RELATION);
+	return (List<Relation>)(List<?>) annotationContainer.get(Layer.RELATIONS);
     }
 
     public List<Tree> getConstituents(String type) {
-	return (List<Tree>)(List<?>) annotationContainer.get(AnnotationType.TREE, type);
+	return (List<Tree>)(List<?>) annotationContainer.get(Layer.CONSTITUENCY, type);
     }
 
     public List<Tree> getConstituents() {
-	return (List<Tree>)(List<?>) annotationContainer.get(AnnotationType.TREE, "notype");
+	return (List<Tree>)(List<?>) annotationContainer.get(Layer.CONSTITUENCY, annotationContainer.DEFAULT_GROUP);
     }
 
     public List<Predicate> getPredicates() {
-	return (List<Predicate>)(List<?>) annotationContainer.get(AnnotationType.PREDICATE);
+	return (List<Predicate>)(List<?>) annotationContainer.get(Layer.SRL);
     }
 
     public List<Factuality> getFactualities() {
-	return (List<Factuality>)(List<?>) annotationContainer.get(AnnotationType.FACTUALITY);
+	return (List<Factuality>)(List<?>) annotationContainer.get(Layer.FACTUALITY_LAYER);
     }
 
-    public List<Element> getUnknownLayers() {
+    public Set<Element> getUnknownLayers() {
 	return annotationContainer.getUnknownLayers();
     }
+    
+    public List<Annotation> getBySent(Layer layer, Integer sent) {
+	return this.annotationContainer.getSentAnnotations(sent, layer);
+    }
+    
+    public List<Annotation> getBySent(Layer layer, String group, Integer sent) {
+	return this.annotationContainer.getSentAnnotations(sent, layer, group);
+    }
+    
+    public List<Annotation> getByPara(Layer layer, Integer para) {
+	return this.annotationContainer.getParaAnnotations(para, layer);
+    }
+    
+    public List<Annotation> getByPara(Layer layer, String group, Integer para) {
+	return this.annotationContainer.getParaAnnotations(para, layer, group);
+    }
 
+    /*
     public List<WF> getWFsBySent(Integer sent) {
 	return (List<WF>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.WF);
     }
@@ -1256,6 +1367,7 @@ public Entity newEntity(List<Span<Term>> references) {
     }
     */
 
+    /*
     public List<Predicate> getPredicatesBySent(Integer sent) {
 	return (List<Predicate>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.PREDICATE);
     }
@@ -1263,6 +1375,7 @@ public Entity newEntity(List<Span<Term>> references) {
     public List<Predicate> getPredicatesByPara(Integer para) {
 	return (List<Predicate>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.PREDICATE);
     }
+    */
 
     /** Returns current timestamp. */
     public String createTimestamp() {
@@ -1404,9 +1517,20 @@ public Entity newEntity(List<Span<Term>> references) {
 	    for (Integer sentence : sentences) {
 		KAFDocument naf = new KAFDocument(this.getLang(), this.getVersion());
 		naf.setRawText(this.getRawText());
-		List<WF> wfs = this.getWFsBySent(sentence);
-		for (WF wf : wfs) {
-		    naf.createFromWF(wf);
+		for (Layer layer : Layer.values()) {
+		    if (this.isSentenceLevelAnnotationType(layer)) {
+			List<Annotation> annotations = new ArrayList<Annotation>();
+			if (this.isMultiLayerAnnotationType(layer)) {
+			    for (String groupId : annotationContainer.getGroupIDs(layer)) {
+				annotations.addAll(this.getBySent(layer, groupId, sentence));
+			    }
+			} else {
+			    annotations = this.getBySent(layer, sentence);
+			}
+			for (Annotation ann : annotations) {
+			    naf.addExistingAnnotation(ann, layer);
+			}
+		    }
 		}
 		sentNafs.add(naf);
 	    }
@@ -1416,104 +1540,109 @@ public Entity newEntity(List<Span<Term>> references) {
 
     public List<KAFDocument> splitInParagraphs()
     {
-	List<KAFDocument> nafList = new ArrayList<KAFDocument>();
+	List<KAFDocument> paraNafs = new ArrayList<KAFDocument>();
 	Integer numParagraphs = this.getNumParagraphs();
 	for (Integer paragraph = 1; paragraph <= numParagraphs; paragraph++) {
 	    KAFDocument naf = new KAFDocument(this.getLang(), this.getVersion());
-	    List<WF> wfs = this.getWFsByPara(paragraph);
-	    for (WF wf : wfs) {
-		naf.createFromWF(wf);
+	    naf.setRawText(this.getRawText());
+	    for (Layer layer : Layer.values()) {
+		if (isParagraphLevelAnnotationType(layer)) {
+		    List<Annotation> annotations = new ArrayList<Annotation>();
+		    if (isMultiLayerAnnotationType(layer)) {
+			for (String groupId : annotationContainer.getGroupIDs(layer)) {
+			    annotations.addAll(this.getByPara(layer, groupId, paragraph));
+			}
+		    } else {
+			annotations = this.getByPara(layer, paragraph);
+		    }
+		    for (Annotation ann : annotations) {
+			naf.addExistingAnnotation(ann, layer);
+		    }
+		}
 	    }
-	    nafList.add(naf);
+	    paraNafs.add(naf);
 	}
-	return nafList;
+	return paraNafs;
     }
-
-    /** Joins the document with another one. **/
-    public void join(KAFDocument doc) {
-	HashMap<String, WF> wfIndex = new HashMap<String, WF>(); // hash[old_id => new_WF_obj]
-	HashMap<String, Term> termIndex = new HashMap<String, Term>(); // hash[old_id => new_Term_obj]
-	//HashMap<String, Relational> copiedRelationals = new HashMap<String, Relational>();
-	// Linguistic processors
-	/*
-	Map<String, List<LinguisticProcessor>> lps = doc.getLinguisticProcessors();
-	for (Map.Entry<String, List<LinguisticProcessor>> entry : lps.entrySet()) {
-	    String layer = entry.getKey();
-	    List<LinguisticProcessor> lpList = entry.getValue();
-	    for (LinguisticProcessor lp : lpList) {
-		if (!this.linguisticProcessorExists(layer, lp.name, lp.version)) {
-		    // Here it uses a deprecated method
-		    this.addLinguisticProcessor(layer, lp.name, lp.timestamp, lp.version);
+    
+    public static KAFDocument join(List<KAFDocument> nafs)
+    {
+	KAFDocument firstNaf = nafs.get(0);
+	KAFDocument joinedNaf = new KAFDocument(firstNaf.getLang(), nafs.get(0).getVersion());
+	joinedNaf.setRawText(firstNaf.getRawText());
+	for (KAFDocument nafPart : nafs) {
+	    for (Layer layer : Layer.values()) {
+		List<Annotation> annotations = new ArrayList<Annotation>();
+		if (isMultiLayerAnnotationType(layer)) {
+		    for (String groupId : nafPart.annotationContainer.getGroupIDs(layer)) {
+			annotations.addAll(nafPart.getLayer(layer, groupId));
+		    }
+		} else {
+		    annotations = nafPart.getLayer(layer);
+		}
+		for (Annotation ann : annotations) {
+		    joinedNaf.addExistingAnnotation(ann, layer);
 		}
 	    }
 	}
-	*/
-	// WFs
-	for (WF wf : doc.getWFs()) {
-	    WF newWf = this.createFromWF(wf);
-	    wfIndex.put(wf.getId(), newWf);
-	}
-	// Terms
-	for (Term term : doc.getTerms()) {
-	    Term newTerm = this.createFromTerm(term, wfIndex);
-	    termIndex.put(term.getId(), newTerm);
-	}
-	// Deps
-	for (Dep dep : doc.getDeps()) {
-	    Dep newDep = this.createFromDep(dep, termIndex);
-	}
-	// Chunks
-	for (Chunk chunk : doc.getChunks()) {
-	    Chunk newChunk = this.createFromChunk(chunk, termIndex);
-	}
-	// Entities
-	for (Entity entity : doc.getEntities()) {
-	    Entity newEntity = this.createFromEntity(entity, termIndex);
-	}
-	// Constituents
-	for (Tree tree : doc.getConstituents()) {
-	    Tree newTree = this.createFromConstituent(tree, termIndex);
-	}
-	// Coreferences
-	for (Coref coref : doc.getCorefs()) {
-	    Coref newCoref = this.createFromCoref(coref, termIndex);
-	}
-	// Opinions
-	for (Opinion opinion : doc.getOpinions()) {
-	    Opinion newOpinion = this.createFromOpinion(opinion, termIndex);
-	}
-	// SRL
-	for (Predicate predicate : doc.getPredicates()) {
-	    Predicate newPredicate = this.createFromPredicate(predicate, termIndex);
-	}
-	// TimeExpressions
-	// for (Timex3 timex3 : doc.getTimeExs()) {
-	//     Timex3 timex3Copy = new Timex3(timex3, copiedWFs);
-	//     this.insertTimex3(timex3Copy);
-	// }
-	// Properties
-	/*
-	for (Feature property : doc.getProperties()) {
-	    Feature propertyCopy = new Feature(property, copiedTerms);
-	    this.insertProperty(propertyCopy);
-	    copiedRelationals.put(property.getId(), propertyCopy);
-	}
-	*/
-	// Categories
-	/*
-	for (Feature category : doc.getCategories()) {
-	    Feature categoryCopy = new Feature(category, copiedTerms);
-	    this.insertCategory(categoryCopy);
-	    copiedRelationals.put(category.getId(), categoryCopy);
-	}
-	*/
-	// Relations
-	/*
-	for (Relation relation : doc.getRelations()) {
-	    Relation newCopy = this.createFromRelation(relation, termIndex);
-	}
-	*/
+	return joinedNaf;
     }
+    
+    public Integer getParagraph()
+    {
+	List<WF> wfs = this.getWFs();
+	return (wfs.size() > 0) ? this.getWFs().get(0).getPara() : null;
+    }
+    
+    public Integer getSentence()
+    {
+	List<WF> wfs = this.getWFs();
+	return (wfs.size() > 0) ? this.getWFs().get(0).getSent() : null;
+    }
+
+//  Join...
+    
+    public void addExistingAnnotation(Annotation ann, Layer layer) {
+	if (isIdentifiableAnnotationType(layer)) {
+	    AnnotationType type = layerAnnotationTypes.get(layer);
+	    String newId = idManager.getNextId(type);
+	    ((IdentifiableAnnotation) ann).setId(newId);
+	}
+	annotationContainer.add(ann, layer);
+    }
+    
+    private static Boolean isMultiLayerAnnotationType(Layer layer) {
+	AnnotationType type = layerAnnotationTypes.get(layer);
+	if (type == null) return false;
+	Class<?> annotationClass = annotationTypeClasses.get(type);
+	if (annotationClass == null) return false;
+	return MultiLayerAnnotation.class.isAssignableFrom(annotationClass);
+    }
+    
+    private static Boolean isSentenceLevelAnnotationType(Layer layer) {
+	AnnotationType type = layerAnnotationTypes.get(layer);
+	if (type == null) return false;
+	Class<?> annotationClass = annotationTypeClasses.get(type);
+	if (annotationClass == null) return false;
+	return SentenceLevelAnnotation.class.isAssignableFrom(annotationClass);
+    }
+    
+    private static Boolean isParagraphLevelAnnotationType(Layer layer) {
+	AnnotationType type = layerAnnotationTypes.get(layer);
+	if (type == null) return false;
+	Class<?> annotationClass = annotationTypeClasses.get(type);
+	if (annotationClass == null) return false;
+	return ParagraphLevelAnnotation.class.isAssignableFrom(annotationClass);
+    }
+    
+    private static Boolean isIdentifiableAnnotationType(Layer layer) {
+	AnnotationType type = layerAnnotationTypes.get(layer);
+	if (type == null) return false;
+	Class<?> annotationClass = annotationTypeClasses.get(type);
+	if (annotationClass == null) return false;
+	return IdentifiableAnnotation.class.isAssignableFrom(annotationClass);
+    }
+    
 
     public WF createFromWF(WF origWf)
     {
@@ -1526,7 +1655,7 @@ public Entity newEntity(List<Span<Term>> references) {
 	return newWf;
     }
 
-    public Term createFromTerm(Term origTerm, HashMap<String, WF> wfIndex)
+    public Term createFromTerm(Term origTerm, Map<String, WF> wfIndex)
     {
 	Span<WF> newSpan = this.newWFSpan();
 	for (WF origWf : origTerm.getSpan().getTargets()) {
@@ -2037,7 +2166,7 @@ public Entity newEntity(List<Span<Term>> references) {
 	return new Target(term, isHead);
     }
 
-    public void removeLayer(Layers layer) {
+    public void removeLayer(Layer layer) {
 	this.annotationContainer.removeLayer(layer);
     }
 
@@ -2235,7 +2364,7 @@ public Entity newEntity(List<Span<Term>> references) {
 
     
     public List<Dep> getDepsByTerm(final Term term) {
-    return (List<Dep>)(List<?>) this.annotationContainer.getInverse(term, AnnotationType.DEP);
+    return (List<Dep>)(List<?>) this.annotationContainer.getInverse(term, Layer.DEPS);
     }
     
     public Term getTermsHead(Iterable<Term> descendents) {
@@ -2292,12 +2421,38 @@ public Entity newEntity(List<Span<Term>> references) {
     }
     
     public List<Entity> getEntitiesByTerm(Term term) {
-	return (List<Entity>)(List<?>) this.annotationContainer.getInverse(term, AnnotationType.ENTITY);
+	return (List<Entity>)(List<?>) this.annotationContainer.getInverse(term, Layer.ENTITIES);
     }
 
 
     public List<Predicate> getPredicatesByTerm(Term term) {
-	return (List<Predicate>)(List<?>) this.annotationContainer.getInverse(term, AnnotationType.PREDICATE);
+	return (List<Predicate>)(List<?>) this.annotationContainer.getInverse(term, Layer.SRL);
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+	if (this == o) return true;
+	if (!(o instanceof KAFDocument)) return false;
+	KAFDocument naf = (KAFDocument) o;
+	/* Language and version */
+	if (!this.getLang().equals(naf.getLang()) || !this.getVersion().equals(naf.getVersion())) return false;
+	/* NAF header */
+	if (!this.headerEquals(naf)) return false;
+	/* Layers and annotations */
+	return Utils.areEquals(this.annotationContainer, naf.annotationContainer);
+    }
+
+    private Boolean headerEquals(KAFDocument naf) {
+	return Utils.areEquals(this.fileDesc, naf.fileDesc) &&
+		Utils.areEquals(this._public, naf._public) &&
+		Utils.areEquals(this.lps, naf.lps);
+    }
+    
+    
+    static class Utils {
+	static boolean areEquals(Object a, Object b) {
+	    return (a == null) ? (b == null) : a.equals(b);
+	}
     }
 
 }

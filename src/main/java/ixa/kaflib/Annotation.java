@@ -1,13 +1,13 @@
 package ixa.kaflib;
 
-import ixa.kaflib.KAFDocument.AnnotationType;
+import ixa.kaflib.KAFDocument.Layer;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.List;
 
 
-abstract class Annotation implements Serializable {
+public abstract class Annotation implements Serializable {
     
-    abstract Map<AnnotationType, List<Annotation>> getReferencedAnnotations();
+    abstract Map<Layer, List<Annotation>> getReferencedAnnotations();
     
 }
