@@ -872,6 +872,34 @@ class ReadWriteManager {
 	    rootChildrenElems.remove(elem);
 	}
 	
+	elem = rootElem.getChild("topics");
+	if (elem != null) {
+	    List<Element> topicElems = elem.getChildren("topic");
+	    for (Element topicElem : topicElems) {
+		String value = topicElem.getText();
+		Topic topic = kaf.newTopic(value); 
+		String source = getOptAttribute("source", topicElem);
+		if (source != null){
+		    topic.setSource(source);
+		}
+		String method = getOptAttribute("method", topicElem);
+		if (method != null){
+		    topic.setMethod(method);
+		}
+		String confidenceStr = getOptAttribute("confidence", topicElem);
+		float confidence = -1.0f;
+		if (confidenceStr != null) {
+		    confidence = Float.parseFloat(confidenceStr);
+		    topic.setConfidence(confidence);
+		}
+		String URI = getOptAttribute("URI", topicElem);
+		if (URI != null){
+		    topic.setURI(URI);
+		}
+	    }
+	    rootChildrenElems.remove(elem);
+	}
+	
 	elem = rootElem.getChild("factualityLayer");
 	if (elem != null) {
 	    List<Element> factualityElems = elem.getChildren("factvalue");
@@ -890,6 +918,8 @@ class ReadWriteManager {
 	    }
 	    rootChildrenElems.remove(elem);
 	}
+	
+	
 	
 	for (Element unknownLayerElem : rootChildrenElems) { // These layers are not recognised by the library
 	    kaf.addUnknownLayer(unknownLayerElem);
@@ -1890,11 +1920,35 @@ class ReadWriteManager {
 	    root.addContent(cLinksElem);
 	}
 	
+	List<Topic> topics = (List<Topic>)(List<?>)annotationContainer.get(Layer.TOPICS);
+	if (topics.size() > 0) {
+	    Element topicsElem = new Element("topics");
+	    for (Topic topic : topics) {
+		Element topicElem = new Element("topic");
+		topicElem.setText(topic.getTopicValue());
+		if (topic.hasSource()) {
+		    topicElem.setAttribute("source", topic.getSource());
+		}
+		if (topic.hasMethod()) {
+		    topicElem.setAttribute("method", topic.getMethod());
+		}
+		if (topic.hasURI()) {
+		    topicElem.setAttribute("URI", topic.getURI());
+		}
+		if (topic.hasConfidence()) {
+		    topicElem.setAttribute("confidence", Double.toString(topic.getConfidence()));
+		}
+		topicsElem.addContent(topicElem);
+	    }
+	    root.addContent(topicsElem);
+	}
+	
 	Set<Element> unknownLayers = annotationContainer.getUnknownLayers();
 	for (Element layer : unknownLayers) {
 	    layer.detach();
 	    root.addContent(layer);
 	}
+	
 
 	return doc;
     }

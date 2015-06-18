@@ -50,7 +50,8 @@ public class KAFDocument implements Serializable {
 	PROPERTIES,
 	CATEGORIES,
 	RELATIONS,
-	LINKED_ENTITIES;
+	LINKED_ENTITIES,
+	TOPICS,
     }
 
     public enum AnnotationType {
@@ -82,6 +83,7 @@ public class KAFDocument implements Serializable {
 	CATEGORY,
 	LINKED_ENTITY,
 	RELATION,
+	TOPIC,
     }
     
     static Map<Layer, AnnotationType> layerAnnotationTypes;
@@ -298,6 +300,7 @@ public class KAFDocument implements Serializable {
 	layerAnnotationTypes.put(Layer.CATEGORIES, AnnotationType.CATEGORY);
 	layerAnnotationTypes.put(Layer.RELATIONS, AnnotationType.RELATION);
 	layerAnnotationTypes.put(Layer.LINKED_ENTITIES, AnnotationType.LINKED_ENTITY);
+	layerAnnotationTypes.put(Layer.TOPICS, AnnotationType.TOPIC);
 	
 	annotationTypeClasses = new HashMap<AnnotationType, Class<?>>();
 	annotationTypeClasses.put(AnnotationType.WF, WF.class);
@@ -327,6 +330,7 @@ public class KAFDocument implements Serializable {
 	annotationTypeClasses.put(AnnotationType.CATEGORY, Feature.class);
 	annotationTypeClasses.put(AnnotationType.LINKED_ENTITY, LinkedEntity.class);
 	annotationTypeClasses.put(AnnotationType.RELATION, Relation.class);
+	annotationTypeClasses.put(AnnotationType.TOPIC, Topic.class);
     }
 
     /** Creates a new KAFDocument and loads the contents of the file passed as argument
@@ -1099,6 +1103,12 @@ public Entity newEntity(List<Span<Term>> references) {
 	return tn;
     }
 
+    public Topic newTopic(String value) {
+	Topic newTopic = new Topic(value);
+	annotationContainer.add(newTopic, Layer.TOPICS);
+	return newTopic;
+    }
+    
     public static Span<WF> newWFSpan() {
 	return new Span<WF>();
     }
