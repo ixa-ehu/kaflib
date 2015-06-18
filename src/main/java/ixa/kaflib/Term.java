@@ -1,12 +1,16 @@
 package ixa.kaflib;
 
+import ixa.kaflib.KAFDocument.Layer;
+import ixa.kaflib.KAFDocument.Utils;
+
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.HashMap;
 
 
 /** Class for representing terms. Terms refer to previous word forms (and groups multi-words) and attach lemma, part of speech, synset and name entity information. */
-public class Term extends IdentifiableAnnotation {
+public class Term extends IdentifiableAnnotation implements SentenceLevelAnnotation {
 
     /** Type of the term (optional). Currently, 2 values are possible: open and close. */
     private String type;
@@ -50,6 +54,7 @@ public class Term extends IdentifiableAnnotation {
 
     private boolean isComponent;
     private Term compound; // Parent compound term of this component
+
 
     /** The term layer represents sentiment information which is context-independent and that can be found in a sentiment lexicon.
      * It is related to concepts expressed by words/ terms (e.g. beautiful) or multi-word expressions (e. g. out of order).
@@ -214,6 +219,25 @@ public class Term extends IdentifiableAnnotation {
 
 	public void setSentimentProductFeature(String val) {
 	    sentimentProductFeature = val;
+	}
+	
+	Map<Layer, List<Annotation>> getReferencedAnnotations() {
+	    return new HashMap<Layer, List<Annotation>>();
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+	    if (this == o) return true;
+	    if (!(o instanceof Sentiment)) return false;
+	    Sentiment ann = (Sentiment) o;
+	    return Utils.areEquals(this.resource, ann.resource) &&
+		    Utils.areEquals(this.polarity, ann.polarity) &&
+		    Utils.areEquals(this.strength, ann.strength) &&
+		    Utils.areEquals(this.subjectivity, ann.subjectivity) &&
+		    Utils.areEquals(this.sentimentSemanticType, ann.sentimentSemanticType) &&
+		    Utils.areEquals(this.sentimentModifier, ann.sentimentModifier) &&
+		    Utils.areEquals(this.sentimentMarker, ann.sentimentMarker) &&
+		    Utils.areEquals(this.sentimentProductFeature, ann.sentimentProductFeature);
 	}
     }
 
@@ -436,6 +460,12 @@ public class Term extends IdentifiableAnnotation {
     }
 
     public Integer getSent() {
+	Span<WF> wfs = this.getSpan();
+	List<WF> wfl = wfs.getTargets();
+	WF wf = wfl.get(0);
+	//
+	if (wf == null) System.out.println(wfl.size());
+	Integer sent = wf.getSent();
 	return this.getSpan().getTargets().get(0).getSent();
 	/*
 	if (!this.isComponent()) {
@@ -444,6 +474,10 @@ public class Term extends IdentifiableAnnotation {
 	    return this.getCompound().getSent();
 	}
 	*/
+    }
+    
+    public Integer getPara() {
+	return this.getSpan().getTargets().get(0).getPara();
     }
 
     public List<ExternalRef> getExternalRefs() {
@@ -470,4 +504,28 @@ public class Term extends IdentifiableAnnotation {
 	return this.compound;
     }
     
+    Map<Layer, List<Annotation>> getReferencedAnnotations() {
+	Map<Layer, List<Annotation>> referenced = new HashMap<Layer, List<Annotation>>();
+	referenced.put(Layer.TEXT, (List<Annotation>)(List<?>) this.getSpan().getTargets());
+	return referenced;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+	if (this == o) return true;
+	if (!(o instanceof Term)) return false;
+	Term ann = (Term) o;
+	return Utils.areEquals(this.type, ann.type) &&
+		Utils.areEquals(this.lemma, ann.lemma) &&
+		Utils.areEquals(this.pos, ann.pos) &&
+		Utils.areEquals(this.morphofeat, ann.morphofeat) &&
+		Utils.areEquals(this.termcase, ann.termcase) &&
+		Utils.areEquals(this.sentiment, ann.sentiment) &&
+		Utils.areEquals(this.components, ann.components) &&
+		Utils.areEquals(this.head, ann.head) &&
+		Utils.areEquals(this.span, ann.span) &&
+		Utils.areEquals(this.externalReferences, ann.externalReferences) &&
+		Utils.areEquals(this.isComponent, ann.isComponent) &&
+		Utils.areEquals(this.compound, ann.compound);
+    }
 }

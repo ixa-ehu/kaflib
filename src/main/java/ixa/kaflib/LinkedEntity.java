@@ -1,8 +1,12 @@
 package ixa.kaflib;
 
+import ixa.kaflib.KAFDocument.Layer;
+import ixa.kaflib.KAFDocument.Utils;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Linked Entity in the text.
@@ -88,6 +92,10 @@ public class LinkedEntity extends IdentifiableAnnotation {
 	public void setConfidence(double confidence) {
 		this.confidence = confidence;
 	}
+	
+	public Span<WF> getSpan() {
+	    return this.mentions;
+	}
 
 	public String getSpanStr() {
 		String str = "";
@@ -98,6 +106,12 @@ public class LinkedEntity extends IdentifiableAnnotation {
 			str += wf.getForm();
 		}
 		return str;
+	}
+	
+	Map<Layer, List<Annotation>> getReferencedAnnotations() {
+	    Map<Layer, List<Annotation>> referenced = new HashMap<Layer, List<Annotation>>();
+	    referenced.put(Layer.TEXT, (List<Annotation>)(List<?>) this.getSpan().getTargets());
+	    return referenced;
 	}
 
 
@@ -112,6 +126,17 @@ public class LinkedEntity extends IdentifiableAnnotation {
 //		else {
 //			return null;
 //		}
+	}
+	    
+	@Override
+	public boolean equals(Object o) {
+	    if (this == o) return true;
+	    if (!(o instanceof LinkedEntity)) return false;
+	    LinkedEntity ann = (LinkedEntity) o;
+	    return Utils.areEquals(this.resource, ann.resource) &&
+		    Utils.areEquals(this.reference, ann.reference) &&
+		    Utils.areEquals(this.confidence, ann.confidence) &&
+		    Utils.areEquals(this.mentions, ann.mentions);
 	}
 
 }

@@ -1,7 +1,9 @@
 package ixa.kaflib;
 
+import ixa.kaflib.KAFDocument.Utils;
 
-abstract class IdentifiableAnnotation
+
+public abstract class IdentifiableAnnotation
     extends Annotation
     implements Comparable<IdentifiableAnnotation> {
 
@@ -22,5 +24,13 @@ abstract class IdentifiableAnnotation
     @Override
     public int compareTo(IdentifiableAnnotation o) {
 	return this.getId().compareTo(o.getId());
+    }
+     
+    @Override
+    public boolean equals(Object o) {
+	if (this == o) return true;
+	if (!(o instanceof IdentifiableAnnotation)) return false;
+	IdentifiableAnnotation ann = (IdentifiableAnnotation) o;
+	return Utils.areEquals(this.id, ann.id);
     }
 }

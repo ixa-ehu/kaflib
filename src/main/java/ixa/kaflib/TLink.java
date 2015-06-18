@@ -1,5 +1,13 @@
 package ixa.kaflib;
 
+import ixa.kaflib.KAFDocument.Layer;
+import ixa.kaflib.KAFDocument.Utils;
+
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
+
 
 public class TLink extends IdentifiableAnnotation {
 
@@ -47,6 +55,29 @@ public class TLink extends IdentifiableAnnotation {
 
     public void setRelType(String relType) {
 	this.relType = relType;
+    }
+    
+    Map<Layer, List<Annotation>> getReferencedAnnotations() {
+	Map<Layer, List<Annotation>> referenced = new HashMap<Layer, List<Annotation>>();
+	List<Annotation> predicates = new ArrayList<Annotation>();
+	List<Annotation> timexes = new ArrayList<Annotation>();
+	if (this.from instanceof Predicate) predicates.add((Annotation)this.from);
+	else timexes.add((Annotation)this.from);
+	if (this.to instanceof Predicate) predicates.add((Annotation)this.to);
+	else timexes.add((Annotation)this.to);
+	referenced.put(Layer.SRL, predicates);
+	referenced.put(Layer.TIME_EXPRESSIONS, timexes);
+	return referenced;
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+	if (this == o) return true;
+	if (!(o instanceof TLink)) return false;
+	TLink ann = (TLink) o;
+	return Utils.areEquals(this.from, ann.from) &&
+		Utils.areEquals(this.to,  ann.to) &&
+		Utils.areEquals(this.relType, ann.relType);
     }
 }
 

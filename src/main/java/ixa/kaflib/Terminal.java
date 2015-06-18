@@ -1,9 +1,14 @@
 package ixa.kaflib;
 
+import ixa.kaflib.KAFDocument.Layer;
+import ixa.kaflib.KAFDocument.Utils;
+
+import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
 
-public class Terminal extends TreeNode {
+public class Terminal extends TreeNode implements SentenceLevelAnnotation {
 
     /** The term referenced by this terminal */
     private Span<Term> span;
@@ -49,5 +54,26 @@ public class Terminal extends TreeNode {
     public List<TreeNode> getChildren() {
 	return null;
     }
+    
+    Map<Layer, List<Annotation>> getReferencedAnnotations() {
+	Map<Layer, List<Annotation>> referenced = new HashMap<Layer, List<Annotation>>();
+	referenced.put(Layer.TERMS, (List<Annotation>)(List<?>) this.getSpan().getTargets());
+	return referenced;
+    }
+    
+    public Integer getSent() {
+	return this.getSpan().getFirstTarget().getSent();
+    }
+    
+    public Integer getPara() {
+	return this.getSpan().getFirstTarget().getPara();
+    }
 
+    @Override
+    public boolean equals(Object o) {
+	if (this == o) return true;
+	if (!(o instanceof Terminal)) return false;
+	Terminal ann = (Terminal) o;
+	return Utils.areEquals(this.span, ann.span);
+    }
 }

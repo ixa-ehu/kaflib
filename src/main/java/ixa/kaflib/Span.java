@@ -1,5 +1,7 @@
 package ixa.kaflib;
 
+import ixa.kaflib.KAFDocument.Utils;
+
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -89,6 +91,7 @@ public class Span<T extends IdentifiableAnnotation> implements Serializable {
 	return this.targets.size();
     }
 
+    /*
     @Override
 	public boolean equals(Object obj) {
 	if (!(obj instanceof Span)) return false;
@@ -99,6 +102,16 @@ public class Span<T extends IdentifiableAnnotation> implements Serializable {
 	    if (this.sortedTargets.get(i) != sp.sortedTargets.get(i)) return false;
 	}
 	return true;
+    }
+    */
+
+    @Override
+    public boolean equals(Object o) {
+	if (this == o) return true;
+	if (!(o instanceof Span)) return false;
+	Span ann = (Span) o;
+	return Utils.areEquals(this.sortedTargets, ann.sortedTargets) &&
+		Utils.areEquals(this.head, ann.head);
     }
 
     @Override

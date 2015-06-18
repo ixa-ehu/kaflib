@@ -1,5 +1,7 @@
 package ixa.kaflib;
 
+import ixa.kaflib.KAFDocument.Utils;
+
 import java.util.List;
 import java.util.ArrayList;
 import java.io.Serializable;
@@ -130,4 +132,20 @@ public class ExternalRef implements Serializable {
     public void setSentiment(Term.Sentiment sentiment) {
 	this.sentiment = sentiment;
     }
+    
+    @Override
+    public boolean equals(Object o) {
+	if (this == o) return true;
+	if (!(o instanceof ExternalRef)) return false;
+	ExternalRef ann = (ExternalRef) o;
+	return Utils.areEquals(this.resource, ann.resource) &&
+		Utils.areEquals(this.reference, ann.reference) &&
+		Utils.areEquals(this.confidence, ann.confidence) &&
+		Utils.areEquals(this.reftype, ann.reftype) &&
+		Utils.areEquals(this.status, ann.status) &&
+		Utils.areEquals(this.source, ann.source) &&
+		Utils.areEquals(this.externalRefs, ann.externalRefs) &&
+		Utils.areEquals(this.sentiment, ann.sentiment);
+    }
+
 }

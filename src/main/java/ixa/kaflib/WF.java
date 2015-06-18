@@ -1,8 +1,15 @@
 package ixa.kaflib;
 
+import ixa.kaflib.KAFDocument.Layer;
+import ixa.kaflib.KAFDocument.Utils;
+
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+
 
 /** Class for representing word forms. These are the result of the tokenization process. */
-public class WF extends IdentifiableAnnotation {
+public class WF extends IdentifiableAnnotation implements SentenceLevelAnnotation {
 
     private AnnotationContainer annotationContainer;
 
@@ -26,6 +33,9 @@ public class WF extends IdentifiableAnnotation {
 
     /** The word form text (required) */
     private String form;
+    
+    private static final String ID_PREFIX = "w";
+    
 
     WF(AnnotationContainer annotationContainer, String id, String form, int sent) {
 	super(id);
@@ -49,13 +59,22 @@ public class WF extends IdentifiableAnnotation {
 	this.xpath = wf.xpath;
 	this.form = wf.form;
     }
+    
+    String getIdPrefix() {
+	return ID_PREFIX;
+    }
 
-    public int getSent() {
+    public Integer getSent() {
 	return sent;
     }
 
     public void setSent(int sent) {
+	Integer oldSent = this.sent;
+	Integer oldPara = this.para;
 	this.sent = sent;
+	if (oldSent > 0) {
+	    annotationContainer.reindexAnnotationParaSent(this, KAFDocument.Layer.TEXT, oldSent, oldPara);
+	}
 	/*
 	annotationContainer.indexWFBySent(this, sent);
 	// If there's a term associated with this WF, index it as well
@@ -70,13 +89,16 @@ public class WF extends IdentifiableAnnotation {
 	return para != -1;
     }
 
-    public int getPara() {
+    public Integer getPara() {
 	return para;
     }
 
     public void setPara(int para) {
+	Integer oldSent = this.sent;
+	Integer oldPara = this.para;
 	this.para = para;
-	this.annotationContainer.indexSentByPara(this.sent, para);
+	annotationContainer.reindexAnnotationParaSent(this, KAFDocument.Layer.TEXT, oldSent, oldPara);
+	//this.annotationContainer.indexSentByPara(this.sent, para);
     }
 
     public boolean hasPage() {
@@ -134,10 +156,27 @@ public class WF extends IdentifiableAnnotation {
     public void setForm(String form) {
 	this.form = form;
     }
+    
+    Map<Layer, List<Annotation>> getReferencedAnnotations() {
+	return new HashMap<Layer, List<Annotation>>();
+    }
 
     @Override
     public String toString() {
 	return this.getForm();
     }
-
+    
+    @Override
+    public boolean equals(Object o) {
+	if (this == o) return true;
+	if (!(o instanceof WF)) return false;
+	WF ann = (WF) o;
+	return Utils.areEquals(this.sent, ann.sent) &&
+		Utils.areEquals(this.para, ann.para) &&
+		Utils.areEquals(this.page, ann.page) &&
+		Utils.areEquals(this.offset, ann.offset) &&
+		Utils.areEquals(this.length, ann.length) &&
+		Utils.areEquals(this.xpath, ann.xpath) &&
+		Utils.areEquals(this.form, ann.form);
+    }
 }

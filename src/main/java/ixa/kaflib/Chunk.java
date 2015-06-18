@@ -1,12 +1,16 @@
 package ixa.kaflib;
 
+import ixa.kaflib.KAFDocument.Layer;
+import ixa.kaflib.KAFDocument.Utils;
+
 import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 
 /** Chunks are noun, verb or prepositional phrases, spanning terms. */
-public class Chunk extends IdentifiableAnnotation {
+public class Chunk extends IdentifiableAnnotation implements SentenceLevelAnnotation {
 
     /** Type of the phrase (optional) */
     private String phrase;
@@ -112,10 +116,35 @@ public class Chunk extends IdentifiableAnnotation {
 	}
 	return str;
     }
+    
+    Map<Layer, List<Annotation>> getReferencedAnnotations() {
+	Map<Layer, List<Annotation>> referenced = new HashMap<Layer, List<Annotation>>();
+	referenced.put(Layer.TERMS, (List<Annotation>)(List<?>) this.getSpan().getTargets());
+	return referenced;
+    }
+    
+    @Override
+    public Integer getSent() {
+	return this.span.getFirstTarget().getSent();
+    }
+    
+    @Override
+    public Integer getPara() {
+	return this.span.getFirstTarget().getPara();
+    }
 
     /** Deprecated */
     public void setHead(Term term) {
         this.span.setHead(term);
     }
-		
+    
+    @Override
+    public boolean equals(Object o) {
+	if (this == o) return true;
+	if (!(o instanceof Chunk)) return false;
+	Chunk ann = (Chunk) o;
+	return Utils.areEquals(this.phrase, ann.phrase) &&
+		Utils.areEquals(this.chunkcase, ann.chunkcase) &&
+		Utils.areEquals(this.span, ann.span);
+    }	
 }

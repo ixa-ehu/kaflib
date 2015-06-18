@@ -15,3 +15,7 @@ octave-core
 *.project
 *.pydevproject
 *.settings
+/.classpath
+/.project
+/.settings
+/src/test/

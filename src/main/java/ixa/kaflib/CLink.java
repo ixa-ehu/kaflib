@@ -1,5 +1,13 @@
 package ixa.kaflib;
 
+import ixa.kaflib.KAFDocument.Layer;
+import ixa.kaflib.KAFDocument.Utils;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
+
 
 public class CLink extends IdentifiableAnnotation {
 
@@ -42,5 +50,24 @@ public class CLink extends IdentifiableAnnotation {
 
     public void setRelType(String relType) {
 	this.relType = relType;
+    }
+    
+    Map<Layer, List<Annotation>> getReferencedAnnotations() {
+	Map<Layer, List<Annotation>> referenced = new HashMap<Layer, List<Annotation>>();
+	List<Annotation> predicates = new ArrayList<Annotation>();
+	predicates.add(this.getFrom());
+	predicates.add(this.getTo());
+	referenced.put(Layer.SRL, predicates);
+	return referenced;
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+	if (this == o) return true;
+	if (!(o instanceof CLink)) return false;
+	CLink ann = (CLink) o;
+	return Utils.areEquals(this.from, ann.from) &&
+		Utils.areEquals(this.to, ann.to) &&
+		Utils.areEquals(this.relType, ann.relType);
     }
 }

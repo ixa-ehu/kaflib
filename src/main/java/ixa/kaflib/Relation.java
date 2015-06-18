@@ -1,15 +1,16 @@
 package ixa.kaflib;
 
+import ixa.kaflib.KAFDocument.Layer;
+import ixa.kaflib.KAFDocument.Utils;
+
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.HashMap;
 import java.io.Serializable;
 
 /** Class for representing relations between entities and/or features. */
-public class Relation implements Serializable {
-
-    /* Relation's ID (required) */
-    private String id;
+public class Relation extends IdentifiableAnnotation implements Serializable {
 
     /* From (required) */
     private Relational from;
@@ -20,7 +21,8 @@ public class Relation implements Serializable {
     /* Confidence (optional) */
     private float confidence;
 
-    Relation (String id, Relational from, Relational to) {
+    Relation(String id, Relational from, Relational to) {
+	super(id);
 	this.id = id;
 	this.from = from;
 	this.to = to;
@@ -28,7 +30,8 @@ public class Relation implements Serializable {
     }
 
     Relation(Relation relation, HashMap<String, Relational> relational) {
-	this.id = id;
+	super(relation.getId());
+	this.id = relation.getId();
 	if (relation.from != null) {
 	    this.from = relational.get(relation.from.getId());
 	    if (this.from == null) {
@@ -92,5 +95,32 @@ public class Relation implements Serializable {
 	    str += " [" + this.getConfidence() + "]";
 	}
 	return str;
+    }
+    
+    Map<Layer, List<Annotation>> getReferencedAnnotations() {
+	Map<Layer, List<Annotation>> referenced = new HashMap<Layer, List<Annotation>>();
+	List<Annotation> entities = new ArrayList<Annotation>();
+	List<Annotation> properties = new ArrayList<Annotation>();
+	List<Annotation> categories = new ArrayList<Annotation>();
+	if (this.from instanceof Entity) entities.add((Annotation)this.from);
+	else if (((Feature)this.from).isAProperty()) properties.add((Annotation)this.from);
+	else categories.add((Annotation)this.from);
+	if (this.to instanceof Entity) entities.add((Annotation)this.to);
+	else if (((Feature)this.to).isAProperty()) properties.add((Annotation)this.to);
+	else categories.add((Annotation)this.to);
+	referenced.put(Layer.ENTITIES, (List<Annotation>)(List<?>) entities);
+	referenced.put(Layer.PROPERTIES, (List<Annotation>)(List<?>) properties);
+	referenced.put(Layer.CATEGORIES, (List<Annotation>)(List<?>) categories);
+	return referenced;
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+	if (this == o) return true;
+	if (!(o instanceof Relation)) return false;
+	Relation ann = (Relation) o;
+	return Utils.areEquals(this.from, ann.from) &&
+		Utils.areEquals(this.to,  ann.to) &&
+		Utils.areEquals(this.confidence, ann.confidence);
     }
 }

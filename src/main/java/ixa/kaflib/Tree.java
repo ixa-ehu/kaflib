@@ -1,12 +1,16 @@
 package ixa.kaflib;
 
+import ixa.kaflib.KAFDocument.Layer;
+import ixa.kaflib.KAFDocument.Utils;
+
 import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Stack;
 
 /**  */
-public class Tree extends Annotation {
+public class Tree extends Annotation implements MultiLayerAnnotation, SentenceLevelAnnotation {
 
     private static final String HEAD_MARK = "=H";
 
@@ -35,6 +39,12 @@ public class Tree extends Annotation {
 
     public void setRoot(TreeNode root) {
 	this.root = root;
+    }
+    
+    Map<Layer, List<Annotation>> getReferencedAnnotations() {
+	Map<Layer, List<Annotation>> referenced = new HashMap<Layer, List<Annotation>>();
+	referenced.put(Layer.TERMS, this.root.getReferencedAnnotations().get(Layer.TERMS));
+	return referenced;
     }
 
 
@@ -269,5 +279,26 @@ public class Tree extends Annotation {
 	    return tag;
 	}
 	return tag.substring(0, tag.length() - HEAD_MARK.length());
+    }
+    
+    public String getGroupID() {
+	return this.getType();
+    }
+    
+    public Integer getSent() {
+	return this.root.getSent();
+    }
+    
+    public Integer getPara() {
+	return this.root.getPara();
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+	if (this == o) return true;
+	if (!(o instanceof Tree)) return false;
+	Tree ann = (Tree) o;
+	return Utils.areEquals(this.type, ann.type) &&
+		Utils.areEquals(this.root,  ann.root);
     }
 }

@@ -3,15 +3,16 @@ package ixa.kaflib;
 import java.util.regex.*;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.io.Serializable;
-import ixa.kaflib.KAFDocument.Annotations;
+import ixa.kaflib.KAFDocument.AnnotationType;
 
 
 /** Manages ID creation. Each ID is created taking into account the annotations of the same type created so far, in a document context. This class keeps a counter for each type of annotation (terms, chunks...). */
 class IdManager implements Serializable {
 
     /* Prefix of each type of ids */
-    private Map<Annotations, String> prefixes;
+    private Map<AnnotationType, String> prefixes;
 
     private static final String WF_PREFIX = "w";
     private static final String TERM_PREFIX = "t";
@@ -35,54 +36,58 @@ class IdManager implements Serializable {
     private static final String NONTERMINAL_PREFIX = "nter";
     private static final String EDGE_PREFIX = "tre";
 
+    /* All the IDs in the document */
+    private HashSet<String> ids;
+
     /* Counters for each type of annotations */
-    private Map<Annotations, Integer> counters;
+    private Map<AnnotationType, Integer> counters;
 
     /* Inconsistent ID flags */
-    private Map<Annotations, Boolean> inconsistentId;
+    private Map<AnnotationType, Boolean> inconsistentId;
 
 
     IdManager() {
-	this.prefixes = new HashMap<Annotations, String>();
-	this.prefixes.put(Annotations.WF, WF_PREFIX);
-	this.prefixes.put(Annotations.TERM, TERM_PREFIX);
-	this.prefixes.put(Annotations.COMPONENT, COMPONENT_PREFIX);
-	this.prefixes.put(Annotations.ENTITY, ENTITY_PREFIX);
-	this.prefixes.put(Annotations.CHUNK, CHUNK_PREFIX);
-	this.prefixes.put(Annotations.NON_TERMINAL, NONTERMINAL_PREFIX);
-	this.prefixes.put(Annotations.TERMINAL, TERMINAL_PREFIX);
-	this.prefixes.put(Annotations.EDGE, EDGE_PREFIX);
-	this.prefixes.put(Annotations.COREF, COREF_PREFIX);
-	this.prefixes.put(Annotations.OPINION, OPINION_PREFIX);
-	this.prefixes.put(Annotations.CLINK, CLINK_PREFIX);
-	this.prefixes.put(Annotations.TLINK, TLINK_PREFIX);
-	this.prefixes.put(Annotations.PREDICATE, PREDICATE_PREFIX);
-	this.prefixes.put(Annotations.ROLE, ROLE_PREFIX);
-	this.prefixes.put(Annotations.TIMEX3, TIMEX3_PREFIX);
-	this.prefixes.put(Annotations.MARK, MARK_PREFIX);
-	this.prefixes.put(Annotations.LINKED_ENTITY, LINKED_ENTITY_PREFIX);
-	this.prefixes.put(Annotations.PROPERTY, PROPERTY_PREFIX);
-	this.prefixes.put(Annotations.CATEGORY, CATEGORY_PREFIX);
-	this.prefixes.put(Annotations.RELATION, RELATION_PREFIX);
+	this.prefixes = new HashMap<AnnotationType, String>();
+	this.prefixes.put(AnnotationType.WF, WF_PREFIX);
+	this.prefixes.put(AnnotationType.TERM, TERM_PREFIX);
+	this.prefixes.put(AnnotationType.COMPONENT, COMPONENT_PREFIX);
+	this.prefixes.put(AnnotationType.ENTITY, ENTITY_PREFIX);
+	this.prefixes.put(AnnotationType.CHUNK, CHUNK_PREFIX);
+	this.prefixes.put(AnnotationType.NON_TERMINAL, NONTERMINAL_PREFIX);
+	this.prefixes.put(AnnotationType.TERMINAL, TERMINAL_PREFIX);
+	this.prefixes.put(AnnotationType.EDGE, EDGE_PREFIX);
+	this.prefixes.put(AnnotationType.COREF, COREF_PREFIX);
+	this.prefixes.put(AnnotationType.OPINION, OPINION_PREFIX);
+	this.prefixes.put(AnnotationType.CLINK, CLINK_PREFIX);
+	this.prefixes.put(AnnotationType.TLINK, TLINK_PREFIX);
+	this.prefixes.put(AnnotationType.PREDICATE, PREDICATE_PREFIX);
+	this.prefixes.put(AnnotationType.ROLE, ROLE_PREFIX);
+	this.prefixes.put(AnnotationType.TIMEX3, TIMEX3_PREFIX);
+	this.prefixes.put(AnnotationType.MARK, MARK_PREFIX);
+	this.prefixes.put(AnnotationType.LINKED_ENTITY, LINKED_ENTITY_PREFIX);
+	this.prefixes.put(AnnotationType.PROPERTY, PROPERTY_PREFIX);
+	this.prefixes.put(AnnotationType.CATEGORY, CATEGORY_PREFIX);
+	this.prefixes.put(AnnotationType.RELATION, RELATION_PREFIX);
 	
-	this.counters = new HashMap<Annotations, Integer>();
-	for (Annotations ann : Annotations.values()) {
+	this.ids = new HashSet<String>();
+
+	this.counters = new HashMap<AnnotationType, Integer>();
+	for (AnnotationType ann : AnnotationType.values()) {
 	    this.counters.put(ann, 0);
 	}
 
-	this.inconsistentId = new HashMap<Annotations, Boolean>();
-	for (Annotations ann : Annotations.values()) {
+	this.inconsistentId = new HashMap<AnnotationType, Boolean>();
+	for (AnnotationType ann : AnnotationType.values()) {
 	    this.inconsistentId.put(ann, false);
 	}
     }
+    
+    Boolean idExists(String id) {
+	return this.ids.contains(id);
+    }
 
-    String getNextId(Annotations ann) {
-	if (this.inconsistentId.get(ann)) {
-	    throw new IllegalStateException("Inconsistent " + ann + "IDs. Can't create new " + ann + " IDs.");
-	}
-	Integer nextCount = this.counters.get(ann) + 1;
-	this.counters.put(ann, nextCount);
-	return this.prefixes.get(ann) + Integer.toString(nextCount);
+    private void insertId(String id) {
+	this.ids.add(id);
     }
 
     private int extractCounterFromId(String id) {
@@ -93,8 +98,20 @@ class IdManager implements Serializable {
 	}
 	return Integer.valueOf(matcher.group(0));
     }
+    
+    String getNextId(AnnotationType ann) {
+	if (this.inconsistentId.get(ann)) {
+	    throw new IllegalStateException("Inconsistent " + ann + "IDs. Can't create new " + ann + " IDs.");
+	}
+	Integer nextCount = this.counters.get(ann) + 1;
+	this.counters.put(ann, nextCount);
+	String id = this.prefixes.get(ann) + Integer.toString(nextCount);
+	this.insertId(id);
+	return id;
+    }
 
-    void updateCounter(Annotations ann, String id) {
+    void updateCounter(AnnotationType ann, String id) {
+	this.insertId(id);
 	try {
 	    Integer currentCounter = this.counters.get(ann);
 	    Integer newCounter = extractCounterFromId(id);

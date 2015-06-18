@@ -1,8 +1,12 @@
 package ixa.kaflib;
 
+import ixa.kaflib.KAFDocument.Layer;
+import ixa.kaflib.KAFDocument.Utils;
+
 import java.util.List;
 import java.util.ArrayList;
-
+import java.util.HashMap;
+import java.util.Map;
 
 public class Predicate extends IdentifiableAnnotation implements TLinkReferable {
 
@@ -41,9 +45,17 @@ public class Predicate extends IdentifiableAnnotation implements TLinkReferable 
 	public void addTerm(Term term) {
 	    this.span.addTarget(term);
 	}
-	
+
 	public void addTerm(Term term, boolean isHead) {
 	    this.span.addTarget(term, isHead);
+	}
+
+	Map<Layer, List<Annotation>> getReferencedAnnotations() {
+	    Map<Layer, List<Annotation>> referenced = new HashMap<Layer, List<Annotation>>();
+	    List<Annotation> terms = new ArrayList<Annotation>();
+	    terms.addAll((List<Annotation>) (List<?>) this.span.getTargets());
+	    referenced.put(Layer.TERMS, terms);
+	    return referenced;
 	}
 
 	public String getStr() {
@@ -68,6 +80,16 @@ public class Predicate extends IdentifiableAnnotation implements TLinkReferable 
 	public void addExternalRefs(List<ExternalRef> externalRefs) {
 	    externalReferences.addAll(externalRefs);
 	}
+	
+	@Override
+	public boolean equals(Object o) {
+	    if (this == o) return true;
+	    if (!(o instanceof Role)) return false;
+	    Role ann = (Role) o;
+	    return Utils.areEquals(this.semRole, ann.semRole) &&
+		    Utils.areEquals(this.span, ann.span)  &&
+		    Utils.areEquals(this.externalReferences, ann.externalReferences);
+	}
     }
 
     private String uri;
@@ -77,7 +99,7 @@ public class Predicate extends IdentifiableAnnotation implements TLinkReferable 
     private List<ExternalRef> externalReferences;
 
     Predicate(String id, Span<Term> span) {
-        super(id);
+	super(id);
 	this.span = span;
 	this.roles = new ArrayList<Role>();
 	this.confidence = -1.0f;
@@ -123,9 +145,17 @@ public class Predicate extends IdentifiableAnnotation implements TLinkReferable 
     public void addTerm(Term term) {
 	this.span.addTarget(term);
     }
-	
+
     public void addTerm(Term term, boolean isHead) {
 	this.span.addTarget(term, isHead);
+    }
+
+    Map<Layer, List<Annotation>> getReferencedAnnotations() {
+	Map<Layer, List<Annotation>> referenced = new HashMap<Layer, List<Annotation>>();
+	List<Annotation> terms = new ArrayList<Annotation>();
+	terms.addAll((List<Annotation>) (List<?>) this.span.getTargets());
+	referenced.put(Layer.TERMS, terms);
+	return referenced;
     }
 
     public String getStr() {
@@ -138,7 +168,8 @@ public class Predicate extends IdentifiableAnnotation implements TLinkReferable 
 	for (Role role : this.roles) {
 	    if (!role.span.isEmpty()) {
 		Term roleTarget = role.getSpan().getFirstTarget();
-		str += " " + role.getSemRole() + "[" + roleTarget.getId() + " " + roleTarget.getStr() + "]";
+		str += " " + role.getSemRole() + "[" + roleTarget.getId() + " "
+			+ roleTarget.getStr() + "]";
 	    }
 	}
 	return str;
@@ -173,5 +204,17 @@ public class Predicate extends IdentifiableAnnotation implements TLinkReferable 
 
     public void addRole(Role role) {
 	this.roles.add(role);
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+	if (this == o) return true;
+	if (!(o instanceof Predicate)) return false;
+	Predicate ann = (Predicate) o;
+	return Utils.areEquals(this.uri, ann.uri) &&
+		Utils.areEquals(this.confidence, ann.confidence) &&
+		Utils.areEquals(this.span, ann.span) &&
+		Utils.areEquals(this.roles, ann.roles) &&
+		Utils.areEquals(this.externalReferences, ann.externalReferences);
     }
 }

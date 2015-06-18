@@ -1,7 +1,11 @@
 package ixa.kaflib;
 
+import ixa.kaflib.KAFDocument.Layer;
+import ixa.kaflib.KAFDocument.Utils;
+
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.HashMap;
 
 
@@ -250,50 +254,32 @@ public class Timex3 extends IdentifiableAnnotation implements TLinkReferable {
 	}
 	return str;
     }
-
-    /** Returns the term targets of the first span. When targets of other spans are needed getReferences() method should be used. */
-    /*
-    public List<WF> getWFs() {
-	if (this.mentions.size()>0){
-	    return this.mentions.get(0).getTargets();
-	}
-	else{
-	    return null;
-	}
-    }
-    */
-
-    /** Adds a term to the first span. */
-    /*
-    public void addWF(WF wf) {
-	this.mentions.get(0).addTarget(wf);
-    }
-    */
-
-    /** Adds a term to the first span. */
-    /*
-    public void addWF(WF wf, boolean isHead) {
-	this.mentions.get(0).addTarget(wf, isHead);
-    }
     
-    public List<Span<WF>> getSpans() {
-	return this.mentions;
+    Map<Layer, List<Annotation>> getReferencedAnnotations() {
+	Map<Layer, List<Annotation>> referenced = new HashMap<Layer, List<Annotation>>();
+	List<Annotation> wfs = new ArrayList<Annotation>();
+	wfs.addAll((List<Annotation>)(List<?>) span.getTargets());
+	referenced.put(Layer.TEXT, wfs);
+	return referenced;
     }
 
-    public void addSpan(Span<WF> span) {
-	this.mentions.add(span);
+    @Override
+    public boolean equals(Object o) {
+	if (this == o) return true;
+	if (!(o instanceof Timex3)) return false;
+	Timex3 ann = (Timex3) o;
+	return Utils.areEquals(this.type, ann.type) &&
+		Utils.areEquals(this.beginPoint, ann.beginPoint) &&
+		Utils.areEquals(this.endPoint, ann.endPoint) &&
+		Utils.areEquals(this.quant, ann.quant) &&
+		Utils.areEquals(this.freq, ann.freq) &&
+		Utils.areEquals(this.functionInDocument, ann.functionInDocument) &&
+		Utils.areEquals(this.temporalFunction, ann.temporalFunction) &&
+		Utils.areEquals(this.value, ann.value) &&
+		Utils.areEquals(this.valueFromFunction, ann.valueFromFunction) &&
+		Utils.areEquals(this.mod, ann.mod) &&
+		Utils.areEquals(this.anchorTimeId, ann.anchorTimeId) &&
+		Utils.areEquals(this.comment, ann.comment) &&
+		Utils.areEquals(this.span, ann.span);
     }
-
-    public String getSpanStr(Span<WF> span) {
-	String str = "";
-	for (WF wf : span.getTargets()) {
-	    if (!str.isEmpty()) {
-		str += " ";
-	    }
-	    str += wf.getForm();
-	}
-	return str;
-    }
-    */
-
 }

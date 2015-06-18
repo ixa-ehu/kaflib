@@ -1,11 +1,17 @@
 package ixa.kaflib;
 
+import ixa.kaflib.KAFDocument.Layer;
+import ixa.kaflib.KAFDocument.Utils;
+
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.HashMap;
 
 
-public class Mark extends IdentifiableAnnotation {
+public class Mark extends IdentifiableAnnotation implements MultiLayerAnnotation , SentenceLevelAnnotation {
+
+    private String source;
 
     private String type;
 
@@ -33,15 +39,20 @@ public class Mark extends IdentifiableAnnotation {
     private List<ExternalRef> externalReferences;
 
 
-    Mark(String id, Span<WF> span) {
+    Mark(String id, String source, Span<WF> span) {
 	/*
 	if (span.size() < 1) {
 	    throw new IllegalStateException("A Mark must have at least one WF");
 	}
 	*/
 	super(id);
+	this.source = source;
 	this.span = span;
 	this.externalReferences = new ArrayList<ExternalRef>();
+    }
+
+    String getSource() {
+	return this.source;
     }
 
     public boolean hasType() {
@@ -134,4 +145,40 @@ public class Mark extends IdentifiableAnnotation {
     public void addExternalRefs(List<ExternalRef> externalRefs) {
 	externalReferences.addAll(externalRefs);
     }
+    
+    Map<Layer, List<Annotation>> getReferencedAnnotations() {
+	Map<Layer, List<Annotation>> referenced = new HashMap<Layer, List<Annotation>>();
+	referenced.put(Layer.TEXT, (List<Annotation>)(List<?>) this.getSpan().getTargets());
+	return referenced;
+    }
+    
+    public String getGroupID() {
+	return this.getSource();
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+	if (this == o) return true;
+	if (!(o instanceof Mark)) return false;
+	Mark ann = (Mark) o;
+	return Utils.areEquals(this.source, ann.source) &&
+		Utils.areEquals(this.type, ann.type) &&
+		Utils.areEquals(this.lemma, ann.lemma) &&
+		Utils.areEquals(this.pos, ann.pos) &&
+		Utils.areEquals(this.morphofeat, ann.morphofeat) &&
+		Utils.areEquals(this.markcase, ann.markcase) &&
+		Utils.areEquals(this.span, ann.span) &&
+		Utils.areEquals(this.externalReferences, ann.externalReferences);
+    }
+    
+    @Override
+    public Integer getSent() {
+	return this.span.getFirstTarget().getSent();
+    }
+    
+    @Override
+    public Integer getPara() {
+	return this.span.getFirstTarget().getPara();
+    }
+
 }
