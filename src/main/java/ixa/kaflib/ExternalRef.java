@@ -40,6 +40,10 @@ public class ExternalRef implements Serializable {
     public void setResource(String val) {
 	resource = val;
     }
+    
+    public boolean hasReference() {
+	return this.reference != null;
+    }
 
     public String getReference() {
 	return reference;

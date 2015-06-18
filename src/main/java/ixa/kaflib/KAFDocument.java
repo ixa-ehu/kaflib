@@ -852,6 +852,10 @@ public Entity newEntity(List<Span<Term>> references) {
     public ExternalRef newExternalRef(String resource, String reference) {
 	return new ExternalRef(resource, reference);
     }
+    
+    public ExternalRef newExternalRef(String resource) {
+	return new ExternalRef(resource, null);
+    }
 
     public Tree newConstituent(TreeNode root, String type) {
 	Tree tree = new Tree(root, type);
