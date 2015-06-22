@@ -145,8 +145,13 @@ public class Tree extends Annotation implements MultiLayerAnnotation, SentenceLe
 		    else if (termForm.equals("}")) { 
 			termForm = new String("-RCB-");
 		    }
+		    else if (termForm.equals("[")) {
+		    termForm = new String("-LSB-");
+		    }
+		    else if (termForm.equals("]")) {
+		    termForm = new String("-RSB-");
+		    }
 
-		    
 		    if (termForm.equals(tokens[i]) || termForm.contains(tokens[i])) {
 			mapping.put(i, terms.get(nextTerm));			
 			nextTerm++;
