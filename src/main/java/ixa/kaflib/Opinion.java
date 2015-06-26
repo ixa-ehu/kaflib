@@ -381,9 +381,11 @@ public class Opinion extends IdentifiableAnnotation {
     Map<Layer, List<Annotation>> getReferencedAnnotations() {
 	Map<Layer, List<Annotation>> referenced = new HashMap<Layer, List<Annotation>>();
 	List<Term> referencedTerms = new ArrayList<Term>();
-	referencedTerms.addAll(this.opinionExpression.span.getTargets());
-	referencedTerms.addAll(this.opinionHolder.span.getTargets());
-	referencedTerms.addAll(this.opinionTarget.span.getTargets());
+	
+	if ((this.opinionExpression != null) && (this.opinionExpression.getSpan() != null))
+	    referencedTerms.addAll(this.opinionExpression.getSpan().getTargets());
+	if ((this.opinionHolder != null) && (this.opinionHolder.getSpan() != null)) referencedTerms.addAll(this.opinionHolder.getSpan().getTargets());
+	if ((this.opinionTarget != null) && (this.opinionTarget.getSpan() != null)) referencedTerms.addAll(this.opinionTarget.getSpan().getTargets());
 	referenced.put(Layer.TERMS, (List<Annotation>) (List<?>) referencedTerms);
 	return referenced;
     }

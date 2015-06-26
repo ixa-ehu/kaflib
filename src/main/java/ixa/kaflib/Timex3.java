@@ -258,7 +258,9 @@ public class Timex3 extends IdentifiableAnnotation implements TLinkReferable {
     Map<Layer, List<Annotation>> getReferencedAnnotations() {
 	Map<Layer, List<Annotation>> referenced = new HashMap<Layer, List<Annotation>>();
 	List<Annotation> wfs = new ArrayList<Annotation>();
-	wfs.addAll((List<Annotation>)(List<?>) span.getTargets());
+	if (this.span != null) {
+	    wfs.addAll((List<Annotation>)(List<?>) this.span.getTargets());
+	}
 	referenced.put(Layer.TEXT, wfs);
 	return referenced;
     }
