@@ -892,7 +892,7 @@ class ReadWriteManager {
 		    confidence = Float.parseFloat(confidenceStr);
 		    topic.setConfidence(confidence);
 		}
-		String URI = getOptAttribute("URI", topicElem);
+		String URI = getOptAttribute("uri", topicElem);
 		if (URI != null){
 		    topic.setURI(URI);
 		}
@@ -1933,7 +1933,7 @@ class ReadWriteManager {
 		    topicElem.setAttribute("method", topic.getMethod());
 		}
 		if (topic.hasURI()) {
-		    topicElem.setAttribute("URI", topic.getURI());
+		    topicElem.setAttribute("uri", topic.getURI());
 		}
 		if (topic.hasConfidence()) {
 		    topicElem.setAttribute("confidence", Double.toString(topic.getConfidence()));
