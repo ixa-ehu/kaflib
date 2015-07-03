@@ -45,6 +45,7 @@ public class KAFDocument implements Serializable {
 	TEMPORAL_RELATIONS,
 	SRL,
 	TIME_EXPRESSIONS,
+	FACTUALITIES,
 	FACTUALITY_LAYER,
 	MARKABLES,
 	PROPERTIES,
@@ -74,10 +75,12 @@ public class KAFDocument implements Serializable {
 	OPINION_EXPRESSION,
 	CLINK,
 	TLINK,
+	PREDICATE_ANCHOR,
 	PREDICATE,
 	ROLE,
 	TIMEX3,
 	FACTUALITY,
+	FACTVALUE,
 	MARK,
 	PROPERTY,
 	CATEGORY,
@@ -294,7 +297,8 @@ public class KAFDocument implements Serializable {
 	layerAnnotationTypes.put(Layer.TEMPORAL_RELATIONS, AnnotationType.TLINK);
 	layerAnnotationTypes.put(Layer.SRL, AnnotationType.PREDICATE);
 	layerAnnotationTypes.put(Layer.TIME_EXPRESSIONS, AnnotationType.TIMEX3);
-	layerAnnotationTypes.put(Layer.FACTUALITY_LAYER, AnnotationType.FACTUALITY);
+	layerAnnotationTypes.put(Layer.FACTUALITIES, AnnotationType.FACTUALITY);
+	layerAnnotationTypes.put(Layer.FACTUALITY_LAYER, AnnotationType.FACTVALUE);
 	layerAnnotationTypes.put(Layer.MARKABLES, AnnotationType.MARK);
 	layerAnnotationTypes.put(Layer.PROPERTIES, AnnotationType.PROPERTY);
 	layerAnnotationTypes.put(Layer.CATEGORIES, AnnotationType.CATEGORY);
@@ -325,6 +329,7 @@ public class KAFDocument implements Serializable {
 	annotationTypeClasses.put(AnnotationType.ROLE, Role.class);
 	annotationTypeClasses.put(AnnotationType.TIMEX3, Timex3.class);
 	annotationTypeClasses.put(AnnotationType.FACTUALITY, Factuality.class);
+	annotationTypeClasses.put(AnnotationType.FACTVALUE, Factvalue.class);
 	annotationTypeClasses.put(AnnotationType.MARK, Mark.class);
 	annotationTypeClasses.put(AnnotationType.PROPERTY, Feature.class);
 	annotationTypeClasses.put(AnnotationType.CATEGORY, Feature.class);
@@ -725,18 +730,34 @@ public class KAFDocument implements Serializable {
 	Term.Sentiment newSentiment = new Term.Sentiment();
 	return newSentiment;
     }
+    
+    /*
+    public Mark newMark(String id, Span<WF> span) {
+	idManager.updateCounter(AnnotationType.MARK, id);
+	Mark newMark = new Mark(id, span);
+	annotationContainer.add(newMark, Layer.MARKABLES);
+	return newMark;
+    }
+    */
+
+    public Mark newMark(Span<WF> span) {
+	String newId = idManager.getNextId(AnnotationType.MARK);
+	Mark newMark = new Mark(newId, span);
+	annotationContainer.add(newMark, Layer.MARKABLES);
+	return newMark;
+    }
 
     public Mark newMark(String id, String source, Span<WF> span) {
 	idManager.updateCounter(AnnotationType.MARK, id);
-	Mark newMark = new Mark(id, source, span);
+	Mark newMark = new Mark(id, span);
+	newMark.setSource(source);
 	annotationContainer.add(newMark, Layer.MARKABLES);
 	return newMark;
     }
 
     public Mark newMark(String source, Span<WF> span) {
-	String newId = idManager.getNextId(AnnotationType.MARK);
-	Mark newMark = new Mark(newId, source, span);
-	annotationContainer.add(newMark, Layer.MARKABLES);
+	Mark newMark = this.newMark(span);
+	newMark.setSource(source);
 	return newMark;
     }
 
@@ -865,7 +886,21 @@ public Entity newEntity(List<Span<Term>> references) {
 	annotationContainer.add(newTLink, Layer.TEMPORAL_RELATIONS);
 	return newTLink;
     }
-
+    
+    public PredicateAnchor newPredicateAnchor(String anchorTime, String beginPoint, String endPoint, Span<Predicate> span) {
+	String newId = idManager.getNextId(AnnotationType.PREDICATE_ANCHOR);
+	PredicateAnchor newPredicateAnchor = new PredicateAnchor(newId, anchorTime, beginPoint, endPoint, span);
+	annotationContainer.add(newPredicateAnchor, Layer.TEMPORAL_RELATIONS);
+	return newPredicateAnchor;
+    }
+    
+    public PredicateAnchor newPredicateAnchor(String id, String anchorTime, String beginPoint, String endPoint, Span<Predicate> span) {
+	idManager.updateCounter(AnnotationType.PREDICATE_ANCHOR, id);
+	PredicateAnchor newPredicateAnchor = new PredicateAnchor(id, anchorTime, beginPoint, endPoint, span);
+	annotationContainer.add(newPredicateAnchor, Layer.TEMPORAL_RELATIONS);
+	return newPredicateAnchor;
+    }
+    
     public CLink newCLink(String id, Predicate from, Predicate to) {
 	idManager.updateCounter(AnnotationType.CLINK, id);
 	CLink newCLink = new CLink(id, from, to);
@@ -879,13 +914,31 @@ public Entity newEntity(List<Span<Term>> references) {
 	annotationContainer.add(newCLink, Layer.CAUSAL_RELATIONS);
 	return newCLink;
     }
+    
+    public Factuality newFactuality(String id, Span<Term> span) {
+	idManager.updateCounter(AnnotationType.FACTUALITY, id);
+	Factuality newFactuality= new Factuality(id, span);
+	annotationContainer.add(newFactuality, Layer.FACTUALITIES);
+	return newFactuality;
+    }
 
+    public Factuality newFactuality(Span<Term> span) {
+	String newId = idManager.getNextId(AnnotationType.FACTUALITY);
+	Factuality newFactuality= new Factuality(newId, span);
+	annotationContainer.add(newFactuality, Layer.FACTUALITIES);
+	return newFactuality;
+    }
+    
+    public Factuality.FactVal newFactVal(String value, String resource) {
+	return new Factuality.FactVal(value, resource);
+    }
+    
 	/** Creates a factualitylayer object and add it to the document
 	 * @param term the Term of the coreference.
 	 * @return a new factuality.
 	 */
-    public Factuality newFactuality(WF wf, String prediction) {
-	Factuality factuality = new Factuality(wf, prediction);
+    public Factvalue newFactvalue(WF wf, String prediction) {
+	Factvalue factuality = new Factvalue(wf, prediction);
 	annotationContainer.add(factuality, Layer.FACTUALITY_LAYER);
 	return factuality;
     }
@@ -1125,6 +1178,14 @@ public Entity newEntity(List<Span<Term>> references) {
 	return new Span<Term>();
     }
 
+    public static <T extends IdentifiableAnnotation> Span<T> newSpan() {
+	return new Span<T>();
+    }
+
+    public static <T extends IdentifiableAnnotation> Span<T> newSpan(List<T> targets) {
+	return new Span<T>(targets);
+    }
+    
     public static Span<Term> newTermSpan(List<Term> targets) {
 	return new Span<Term>(targets);
     }
@@ -1279,9 +1340,13 @@ public Entity newEntity(List<Span<Term>> references) {
     }
 
     public List<Factuality> getFactualities() {
-	return (List<Factuality>)(List<?>) annotationContainer.get(Layer.FACTUALITY_LAYER);
+	return (List<Factuality>)(List<?>) annotationContainer.get(Layer.FACTUALITIES);
     }
 
+    public List<Factvalue> getFactValues() {
+	return (List<Factvalue>)(List<?>) annotationContainer.get(Layer.FACTUALITY_LAYER);
+    }
+    
     public Set<Element> getUnknownLayers() {
 	return annotationContainer.getUnknownLayers();
     }

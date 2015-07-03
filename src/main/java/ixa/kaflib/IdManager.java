@@ -24,6 +24,7 @@ class IdManager implements Serializable {
     private static final String COREF_PREFIX = "co";
     private static final String TIMEX3_PREFIX = "tx";
     private static final String TLINK_PREFIX = "tlink";
+    private static final String PREDICATE_ANCHOR_PREFIX = "pa";
     private static final String CLINK_PREFIX = "clink";
     private static final String LINKED_ENTITY_PREFIX = "le";
     private static final String PROPERTY_PREFIX = "p";
@@ -35,6 +36,7 @@ class IdManager implements Serializable {
     private static final String TERMINAL_PREFIX = "ter";
     private static final String NONTERMINAL_PREFIX = "nter";
     private static final String EDGE_PREFIX = "tre";
+    private static final String FACTUALITY_PREFIX = "f";
 
     /* All the IDs in the document */
     private HashSet<String> ids;
@@ -60,6 +62,7 @@ class IdManager implements Serializable {
 	this.prefixes.put(AnnotationType.OPINION, OPINION_PREFIX);
 	this.prefixes.put(AnnotationType.CLINK, CLINK_PREFIX);
 	this.prefixes.put(AnnotationType.TLINK, TLINK_PREFIX);
+	this.prefixes.put(AnnotationType.PREDICATE_ANCHOR, PREDICATE_ANCHOR_PREFIX);
 	this.prefixes.put(AnnotationType.PREDICATE, PREDICATE_PREFIX);
 	this.prefixes.put(AnnotationType.ROLE, ROLE_PREFIX);
 	this.prefixes.put(AnnotationType.TIMEX3, TIMEX3_PREFIX);
@@ -68,6 +71,7 @@ class IdManager implements Serializable {
 	this.prefixes.put(AnnotationType.PROPERTY, PROPERTY_PREFIX);
 	this.prefixes.put(AnnotationType.CATEGORY, CATEGORY_PREFIX);
 	this.prefixes.put(AnnotationType.RELATION, RELATION_PREFIX);
+	this.prefixes.put(AnnotationType.FACTUALITY, FACTUALITY_PREFIX);
 	
 	this.ids = new HashSet<String>();
 

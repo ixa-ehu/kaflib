@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.HashMap;
 
 
-public class Mark extends IdentifiableAnnotation implements MultiLayerAnnotation , SentenceLevelAnnotation {
+public class Mark extends IdentifiableAnnotation implements SentenceLevelAnnotation {
 
     private String source;
 
@@ -35,26 +35,35 @@ public class Mark extends IdentifiableAnnotation implements MultiLayerAnnotation
     private String markcase;
 
     private Span<WF> span;
+    
+    private Term.Sentiment sentiment;
 
     private List<ExternalRef> externalReferences;
 
 
-    Mark(String id, String source, Span<WF> span) {
+    Mark(String id, Span<WF> span) {
 	/*
 	if (span.size() < 1) {
 	    throw new IllegalStateException("A Mark must have at least one WF");
 	}
 	*/
 	super(id);
-	this.source = source;
 	this.span = span;
 	this.externalReferences = new ArrayList<ExternalRef>();
     }
 
-    String getSource() {
+    public boolean hasSource() {
+	return this.source != null;
+    }
+    
+    public String getSource() {
 	return this.source;
     }
 
+    public void setSource(String source) {
+	this.source = source;
+    }
+    
     public boolean hasType() {
 	return type != null;
     }
@@ -133,6 +142,18 @@ public class Mark extends IdentifiableAnnotation implements MultiLayerAnnotation
     public void setSpan(Span<WF> span) {
 	this.span = span;
     }
+    
+    public boolean hasSentiment() {
+	return this.sentiment != null;
+    }
+    
+    public Term.Sentiment getSentiment() {
+	return this.sentiment;
+    }
+    
+    public void setSentiment(Term.Sentiment sentiment) {
+	this.sentiment = sentiment;
+    }
 
     public List<ExternalRef> getExternalRefs() {
 	return externalReferences;
@@ -151,11 +172,7 @@ public class Mark extends IdentifiableAnnotation implements MultiLayerAnnotation
 	referenced.put(Layer.TEXT, (List<Annotation>)(List<?>) this.getSpan().getTargets());
 	return referenced;
     }
-    
-    public String getGroupID() {
-	return this.getSource();
-    }
-    
+
     @Override
     public boolean equals(Object o) {
 	if (this == o) return true;

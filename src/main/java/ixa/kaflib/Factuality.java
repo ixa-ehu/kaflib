@@ -1,158 +1,124 @@
 package ixa.kaflib;
 
 import ixa.kaflib.KAFDocument.Layer;
-import ixa.kaflib.KAFDocument.Utils;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 
-/**
- * Factuality layer
- */
-public class Factuality extends Annotation implements SentenceLevelAnnotation {
-
-    private WF word;
-    private String prediction;
-    private Double confidence;
-    //ArrayList<FactualityPart> factualityParts = new ArrayList<FactualityPart>();
-
-    Factuality(WF word, String prediction) {
-	this.word = word;
-	this.prediction = prediction;
+public class Factuality extends IdentifiableAnnotation implements SentenceLevelAnnotation {
+    
+    private Span<Term> span;
+    private List<FactVal> factVals;
+    
+    Factuality(String id, Span<Term> span) {
+	super(id);
+	this.span = span;
+	this.factVals = new ArrayList<FactVal>();
     }
-
+    
     public String getId() {
-	return this.word.getId();
-    } 
-
-    public WF getWF() {
-	return word;
-    }
-
-    public String getPrediction() {
-	return this.prediction;
-    }
-
-    public void setPrediction(String prediction) {
-	this.prediction = prediction;
-    }
-
-    public boolean hasConfidence() {
-	return this.confidence != null;
-    }
-
-    public void setConfidence(Double confidence) {
-	this.confidence = confidence;
-    }
-
-    public Double getConfidence() {
-	return this.confidence;
+	return this.id;
     }
     
-    Map<Layer, List<Annotation>> getReferencedAnnotations() {
-	Map<Layer, List<Annotation>> referenced = new HashMap<Layer, List<Annotation>>();
-	List<Annotation> wfs = new ArrayList<Annotation>();
-	wfs.add(this.getWF());
-	referenced.put(Layer.TEXT, wfs);
-	return referenced;
+    public Span<Term> getSpan() {
+	return this.span;
     }
     
-    @Override
-    public boolean equals(Object o) {
-	if (this == o) return true;
-	if (!(o instanceof Factuality)) return false;
-	Factuality ann = (Factuality) o;
-	return Utils.areEquals(this.word, ann.word) &&
-		Utils.areEquals(this.prediction, ann.prediction) &&
-		Utils.areEquals(this.confidence, ann.confidence);
+    public List<FactVal> getFactVals() {
+	return this.factVals;
     }
     
-    @Override
-    public Integer getSent() {
-	return this.word.getSent();
+    public void addFactVal(FactVal factVal) {
+	this.factVals.add(factVal);
     }
     
     @Override
     public Integer getPara() {
-	return this.word.getPara();
-    }
-
-    /*
-    public ArrayList<FactualityPart> getFactualityParts() {
-	return factualityParts;
-    }
-
-    public void addFactualityPart(FactualityPart part) {
-	this.factualityParts.add(part);
-    }
-
-    public void addFactualityPart(String prediction, double confidence) {
-	this.addFactualityPart(new FactualityPart(prediction, confidence));
+	return this.span.getFirstTarget().getPara();
     }
     
-    public List<WF> getWFs() {
-	return word.getWFs();
-    }
-
-    public FactualityPart getMaxPart() {
-	FactualityPart ret = null;
-	double base = 0;
-
-	for (FactualityPart p : factualityParts) {
-	    if (p.getConfidence() > base) {
-		ret = p;
-		base = p.getConfidence();
-	    }
-	}
-
-	return ret;
+    @Override
+    public Integer getSent() {
+	return this.span.getFirstTarget().getSent();
     }
     
-    private class FactualityPart {
-
-	String prediction;
-	Double confidence;
-
-	FactualityPart(String prediction) {
-	    this.prediction = prediction;
+    @Override
+    Map<Layer, List<Annotation>> getReferencedAnnotations() {
+	Map<Layer, List<Annotation>> references = new HashMap<Layer, List<Annotation>>();
+	references.put(Layer.TERMS, (List<Annotation>)(List<?>)this.span.getTargets());
+	return references;
+    }
+    
+    public String getSpanStr(Span<Term> span) {
+   	String str = "";
+   	for (Term term : span.getTargets()) {
+   	    if (!str.isEmpty()) {
+   		str += " ";
+   	    }
+   	    str += term.getStr();
+   	}
+   	return str;
+       }
+    
+    
+    public static class FactVal extends Annotation {
+	
+	private String value;
+	private String resource;
+	private String source;
+	private Float confidence;
+	
+	FactVal(String value, String resource) {
+	    this.value = value;
+	    this.resource = resource;
 	}
-
-	FactualityPart(String prediction, double confidence) {
-	    this.prediction = prediction;
-	    this.confidence = confidence;
+	
+	public String getValue() {
+	    return this.value;
 	}
-
-	String getPrediction() {
-	    return prediction;
+	
+	public void setValue(String value) {
+	    this.value = value;
 	}
-
-	void setPrediction(String prediction) {
-	    this.prediction = prediction;
+	
+	public String getResource() {
+	    return this.resource;
 	}
-
-	boolean hasConfidence() {
+	
+	public void setResource(String resource) {
+	    this.resource = resource;
+	}
+	
+	public boolean hasSource() {
+	    return this.source != null;
+	}
+	
+	public String getSource() {
+	    return this.source;
+	}
+	
+	public void setSource(String source) {
+	    this.source = source;
+	}
+	
+	public boolean hasConfidence() {
 	    return this.confidence != null;
 	}
-
-	double getConfidence() {
-	    return confidence;
+	
+	public Float getConfidence() {
+	    return this.confidence;
 	}
-
-	void setConfidence(Double confidence) {
+	
+	public void setConfidence(Float confidence) {
 	    this.confidence = confidence;
 	}
-
+	
 	@Override
-	public String toString() {
-	    return "FactualityPart{" +
-		"prediction='" + prediction + '\'' +
-		", confidence=" + confidence +
-		'}';
+	Map<Layer, List<Annotation>> getReferencedAnnotations() {
+	    return new HashMap<Layer, List<Annotation>>();
 	}
     }
-    */
-
 }

@@ -19,3 +19,5 @@ octave-core
 /.project
 /.settings
 /src/test/
+/release.sh
+/generate_javadoc.sh

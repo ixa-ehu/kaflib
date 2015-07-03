@@ -219,77 +219,114 @@ class ReadWriteManager {
 	    }
 	    rootChildrenElems.remove(elem);
 	}
-	
-	elem = rootElem.getChild("markables");
+
+	elem = rootElem.getChild("entities");
 	if (elem != null) {
-	    String source = getAttribute("source", elem);
-	    List<Element> markElems = elem.getChildren();
-	    for (Element markElem : markElems) {
-		String sid = getAttribute("id", markElem);
-		Element spanElem = markElem.getChild("span");
-		if (spanElem == null) {
-		    throw new IllegalStateException("Every mark must contain a span element");
+	    List<Element> entityElems = elem.getChildren();
+	    for (Element entityElem : entityElems) {
+		String entId = getAttribute("id", entityElem);
+		List<Element> referencesElem = entityElem.getChildren("references");
+		if (referencesElem.size() < 1) {
+		    throw new IllegalStateException("Every entity must contain a 'references' element");
 		}
-		List<Element> marksWfElems = spanElem.getChildren("target");
-		Span<WF> span = kaf.newWFSpan();
-		for (Element marksWfElem : marksWfElems) {
-		    String wfId = getAttribute("id", marksWfElem);
-		    boolean isHead = isHead(marksWfElem);
-		    WF wf = wfIndex.get(wfId);
-		    if (wf == null) {
-			throw new KAFNotValidException("WF " + wfId + " not found when loading mark " + sid);
+		List<Element> spanElems = referencesElem.get(0).getChildren();
+		if (spanElems.size() < 1) {
+		    throw new IllegalStateException("Every entity must contain a 'span' element inside 'references'");
+		}
+		List<Span<Term>> references = new ArrayList<Span<Term>>();
+		for (Element spanElem : spanElems) {
+		    Span<Term> span = kaf.newTermSpan();
+		    List<Element> targetElems = spanElem.getChildren();
+		    if (targetElems.size() < 1) {
+			throw new IllegalStateException("Every span in an entity must contain at least one target inside");  
 		    }
-		    span.addTarget(wf, isHead);
+		    for (Element targetElem : targetElems) {
+			String targetTermId = getAttribute("id", targetElem);
+			Term targetTerm = termIndex.get(targetTermId);
+			if (targetTerm == null) {
+			    throw new KAFNotValidException("Term " + targetTermId + " not found when loading entity " + entId);
+			}
+			boolean isHead = isHead(targetElem);
+			span.addTarget(targetTerm, isHead);
+		    }
+		    references.add(span);
 		}
-		Mark newMark = kaf.newMark(sid, source, span);
-		String type = getOptAttribute("type", markElem);
-		if (type != null) {
-		    newMark.setType(type);
+		Entity newEntity = kaf.newEntity(entId, references);
+		String entType = getOptAttribute("type", entityElem);
+		if (entType != null) {
+		    newEntity.setType(entType);
 		}
-		String lemma = getOptAttribute("lemma", markElem);
-		if (lemma != null) {
-		    newMark.setLemma(lemma);
-		}
-		String pos = getOptAttribute("pos", markElem);
-		if (pos != null) {
-		    newMark.setPos(pos);
-		}
-		String tMorphofeat = getOptAttribute("morphofeat", markElem);
-		if (tMorphofeat != null) {
-		    newMark.setMorphofeat(tMorphofeat);
-		}
-		String markcase = getOptAttribute("case", markElem);
-		if (markcase != null) {
-		    newMark.setCase(markcase);
-		}
-		List<Element> externalReferencesElems = markElem.getChildren("externalReferences");
+		List<Element> externalReferencesElems = entityElem.getChildren("externalReferences");
 		if (externalReferencesElems.size() > 0) {
 		    List<ExternalRef> externalRefs = getExternalReferences(externalReferencesElems.get(0), kaf);
-		    newMark.addExternalRefs(externalRefs);
+		    newEntity.addExternalRefs(externalRefs);
 		}
+		relationalIndex.put(newEntity.getId(), newEntity);
 	    }
 	    rootChildrenElems.remove(elem);
 	}
 	
-	elem = rootElem.getChild("deps");
+	elem = rootElem.getChild("constituency");
 	if (elem != null) {
-	    List<Element> depElems = elem.getChildren();
-	    for (Element depElem : depElems) {
-		String fromId = getAttribute("from", depElem);
-		String toId = getAttribute("to", depElem);
-		Term from = termIndex.get(fromId);
-		if (from == null) {
-		    throw new KAFNotValidException("Term " + fromId + " not found when loading Dep (" + fromId + ", " + toId + ")");
+	    List<Element> treeElems = elem.getChildren("tree");
+	    for (Element treeElem : treeElems) {
+		String type = getOptAttribute("type", treeElem);
+		HashMap<String, TreeNode> treeNodes = new HashMap<String, TreeNode>();
+		HashMap<String, Boolean> rootNodes = new HashMap<String, Boolean>();
+		// Terminals
+		List<Element> terminalElems = treeElem.getChildren("t");
+		for (Element terminalElem : terminalElems) {
+		    String id = getAttribute("id", terminalElem);
+		    Element spanElem = terminalElem.getChild("span");
+		    if (spanElem == null) {
+			throw new KAFNotValidException("Constituent non terminal nodes need a span");
+		    }
+		    Span<Term> span = loadTermSpan(spanElem, termIndex, id);
+		    treeNodes.put(id, kaf.newTerminal(id, span));
+		    rootNodes.put(id, true);
 		}
-		Term to = termIndex.get(toId);
-		if (to == null) {
-		    throw new KAFNotValidException("Term " + toId + " not found when loading Dep (" + fromId + ", " + toId + ")");
+		// NonTerminals
+		List<Element> nonTerminalElems = treeElem.getChildren("nt");
+		for (Element nonTerminalElem : nonTerminalElems) {
+		    String id = getAttribute("id", nonTerminalElem);
+		    String label = getAttribute("label", nonTerminalElem);
+		    treeNodes.put(id, kaf.newNonTerminal(id, label));
+		    rootNodes.put(id, true);
 		}
-		String rfunc = getAttribute("rfunc", depElem);
-		Dep newDep = kaf.newDep(from, to, rfunc);
-		String depcase = getOptAttribute("case", depElem);
-		if (depcase != null) {
-		    newDep.setCase(depcase);
+		// Edges
+		List<Element> edgeElems = treeElem.getChildren("edge");
+		for (Element edgeElem : edgeElems) {
+		    String fromId = getAttribute("from", edgeElem);
+		    String toId = getAttribute("to", edgeElem);
+		    String edgeId = getOptAttribute("id", edgeElem);
+		    String head = getOptAttribute("head", edgeElem);
+		    boolean isHead = (head != null && head.equals("yes")) ? true : false;
+		    TreeNode parentNode = treeNodes.get(toId);
+		    TreeNode childNode = treeNodes.get(fromId);
+		    if ((parentNode == null) || (childNode == null)) {
+			throw new KAFNotValidException("There is a problem with the edge(" + fromId + ", " + toId + "). One of its targets doesn't exist.");
+		    }
+		    try {
+			((NonTerminal) parentNode).addChild(childNode);
+		    } catch(Exception e) {}
+		    rootNodes.put(fromId, false);
+		    if (edgeId != null) {
+			childNode.setEdgeId(edgeId);
+		    }
+		    if (isHead) {
+			((NonTerminal) childNode).setHead(isHead);
+		    }
+		}
+		// Constituent objects
+		for (Map.Entry<String, Boolean> areRoot : rootNodes.entrySet()) {
+		    if (areRoot.getValue()) {
+			TreeNode rootNode = treeNodes.get(areRoot.getKey());
+			if (type == null) {
+			    kaf.newConstituent(rootNode);
+			} else {
+			    kaf.newConstituent(rootNode, type);
+			}
+		    }
 		}
 	    }
 	    rootChildrenElems.remove(elem);
@@ -337,52 +374,6 @@ class ReadWriteManager {
 	    rootChildrenElems.remove(elem);
 	}
 	
-	elem = rootElem.getChild("entities");
-	if (elem != null) {
-	    List<Element> entityElems = elem.getChildren();
-	    for (Element entityElem : entityElems) {
-		String entId = getAttribute("id", entityElem);
-		List<Element> referencesElem = entityElem.getChildren("references");
-		if (referencesElem.size() < 1) {
-		    throw new IllegalStateException("Every entity must contain a 'references' element");
-		}
-		List<Element> spanElems = referencesElem.get(0).getChildren();
-		if (spanElems.size() < 1) {
-		    throw new IllegalStateException("Every entity must contain a 'span' element inside 'references'");
-		}
-		List<Span<Term>> references = new ArrayList<Span<Term>>();
-		for (Element spanElem : spanElems) {
-		    Span<Term> span = kaf.newTermSpan();
-		    List<Element> targetElems = spanElem.getChildren();
-		    if (targetElems.size() < 1) {
-			throw new IllegalStateException("Every span in an entity must contain at least one target inside");  
-		    }
-		    for (Element targetElem : targetElems) {
-			String targetTermId = getAttribute("id", targetElem);
-			Term targetTerm = termIndex.get(targetTermId);
-			if (targetTerm == null) {
-			    throw new KAFNotValidException("Term " + targetTermId + " not found when loading entity " + entId);
-			}
-			boolean isHead = isHead(targetElem);
-			span.addTarget(targetTerm, isHead);
-		    }
-		    references.add(span);
-		}
-		Entity newEntity = kaf.newEntity(entId, references);
-		String entType = getOptAttribute("type", entityElem);
-		if (entType != null) {
-		    newEntity.setType(entType);
-		}
-		List<Element> externalReferencesElems = entityElem.getChildren("externalReferences");
-		if (externalReferencesElems.size() > 0) {
-		    List<ExternalRef> externalRefs = getExternalReferences(externalReferencesElems.get(0), kaf);
-		    newEntity.addExternalRefs(externalRefs);
-		}
-		relationalIndex.put(newEntity.getId(), newEntity);
-	    }
-	    rootChildrenElems.remove(elem);
-	}
-	
 	elem = rootElem.getChild("coreferences");
 	if (elem != null) {
 	    List<Element> corefElems = elem.getChildren();
@@ -419,203 +410,6 @@ class ReadWriteManager {
 		if (externalReferencesElems.size() > 0) {
 		    List<ExternalRef> externalRefs = getExternalReferences(externalReferencesElems.get(0), kaf);
 		    newCoref.addExternalRefs(externalRefs);
-		}
-	    }
-	    rootChildrenElems.remove(elem);
-	}
-	
-	elem = rootElem.getChild("timeExpressions");
-	if (elem != null) {
-	    List<Element> timex3Elems = elem.getChildren();
-	    for (Element timex3Elem : timex3Elems) {
-		String timex3Id = getAttribute("id", timex3Elem);
-		String timex3Type = getAttribute("type", timex3Elem);
-		Timex3 timex3 = kaf.newTimex3(timex3Id, timex3Type);
-		String timex3BeginPointId = getOptAttribute("beginPoint", timex3Elem);
-		if (timex3BeginPointId != null) {
-		    Term beginPoint = termIndex.get(timex3BeginPointId);
-		    timex3.setBeginPoint(beginPoint);
-		}
-		String timex3EndPointId = getOptAttribute("endPoint", timex3Elem);
-		if (timex3EndPointId != null) {
-		    Term endPoint = termIndex.get(timex3EndPointId);
-		    timex3.setEndPoint(endPoint);
-		}
-		String timex3Quant = getOptAttribute("quant", timex3Elem);
-		if (timex3Quant != null) {
-		    timex3.setQuant(timex3Quant);
-		}
-		String timex3Freq = getOptAttribute("freq", timex3Elem);
-		if (timex3Freq != null) {
-		    timex3.setFreq(timex3Freq);
-		}
-		String timex3FuncInDoc = getOptAttribute("functionInDocument", timex3Elem);
-		if (timex3FuncInDoc != null) {
-		    timex3.setFunctionInDocument(timex3FuncInDoc);
-		}
-		String timex3TempFunc = getOptAttribute("temporalFunction", timex3Elem);
-		if (timex3TempFunc != null) {
-		    Boolean tempFunc = timex3TempFunc.equals("true");
-		    timex3.setTemporalFunction(tempFunc);
-		}
-		String timex3Value = getOptAttribute("value", timex3Elem);
-		if (timex3Value != null) {
-		    timex3.setValue(timex3Value);
-		}
-		String timex3ValueFromFunction = getOptAttribute("valueFromFunction", timex3Elem);
-		if (timex3ValueFromFunction != null) {
-		    timex3.setValueFromFunction(timex3ValueFromFunction);
-		}
-		String timex3Mod = getOptAttribute("mod", timex3Elem);
-		if (timex3Mod != null) {
-		    timex3.setMod(timex3Mod);
-		}
-		String timex3AnchorTimeId = getOptAttribute("anchorTimeId", timex3Elem);
-		if (timex3AnchorTimeId != null) {
-		    timex3.setAnchorTimeId(timex3AnchorTimeId);
-		}
-		String timex3Comment = getOptAttribute("comment", timex3Elem);
-		if (timex3Comment != null) {
-		    timex3.setComment(timex3Comment);
-		}
-		Element spanElem = timex3Elem.getChild("span");
-		if (spanElem != null) {
-		    Span<WF> timex3Span = kaf.newWFSpan();
-		    for (Element targetElem : spanElem.getChildren("target")) {
-			String targetId = getAttribute("id", targetElem);
-			WF wf = wfIndex.get(targetId);
-			if (wf == null) {
-			    throw new KAFNotValidException("Word form " + targetId + " not found when loading timex3 " + timex3Id);
-			}
-			boolean isHead = isHead(targetElem);
-			timex3Span.addTarget(wf, isHead);
-		    }
-		    timex3.setSpan(timex3Span);
-		}
-		timexIndex.put(timex3.getId(), timex3);
-	    }
-	    rootChildrenElems.remove(elem);
-	}
-	
-	elem = rootElem.getChild("temporalRelations");
-	if (elem != null) {
-	    List<Element> tLinkElems = elem.getChildren("tlink");
-	    for (Element tLinkElem : tLinkElems) {
-		String tlid = getAttribute("id", tLinkElem);
-		String fromId = getAttribute("from", tLinkElem);
-		String toId = getAttribute("to", tLinkElem);
-		String fromType = getAttribute("fromType", tLinkElem);
-		String toType = getAttribute("toType", tLinkElem);
-		String relType = getAttribute("relType", tLinkElem);
-		TLinkReferable from = fromType.equals("event")
-			? predicateIndex.get(fromId) : timexIndex.get(fromId);
-			TLinkReferable to = toType.equals("event")
-				? predicateIndex.get(toId) : timexIndex.get(toId);
-				TLink tLink = kaf.newTLink(tlid, from, to, relType);
-	    }
-	    rootChildrenElems.remove(elem);
-	}
-	
-	elem = rootElem.getChild("causalRelations");
-	if (elem != null) {
-	    List<Element> clinkElems = elem.getChildren("clink");
-	    for (Element clinkElem : clinkElems) {
-		String clid = getAttribute("id", clinkElem);
-		String fromId = getAttribute("from", clinkElem);
-		String toId = getAttribute("to", clinkElem);
-		String relType = getOptAttribute("relType", clinkElem);
-		Predicate from = predicateIndex.get(fromId);
-		Predicate to = predicateIndex.get(toId);
-		CLink clink = kaf.newCLink(clid, from, to);
-		if (relType != null) {
-		    clink.setRelType(relType);
-		}
-	    }
-	    rootChildrenElems.remove(elem);
-	}
-	
-	elem = rootElem.getChild("features");
-	if (elem != null) {
-	    Element propertiesElem = elem.getChild("properties");
-	    Element categoriesElem = elem.getChild("categories");
-	    if (propertiesElem != null) {
-		List<Element> propertyElems = propertiesElem.getChildren("property");
-		for (Element propertyElem : propertyElems) {
-		    String pid = getAttribute("id", propertyElem);
-		    String lemma = getAttribute("lemma", propertyElem);
-		    Element referencesElem = propertyElem.getChild("references");
-		    if (referencesElem == null) {
-			throw new IllegalStateException("Every property must contain a 'references' element");
-		    }
-		    List<Element> spanElems = referencesElem.getChildren("span");
-		    if (spanElems.size() < 1) {
-			throw new IllegalStateException("Every property must contain a 'span' element inside 'references'");
-		    }
-		    List<Span<Term>> references = new ArrayList<Span<Term>>();
-		    for (Element spanElem : spanElems) {
-			Span<Term> span = kaf.newTermSpan();
-			List<Element> targetElems = spanElem.getChildren();
-			if (targetElems.size() < 1) {
-			    throw new IllegalStateException("Every span in a property must contain at least one target inside");  
-			}
-			for (Element targetElem : targetElems) {
-			    String targetTermId = getAttribute("id", targetElem);
-			    Term targetTerm = termIndex.get(targetTermId);
-			    if (targetTerm == null) {
-				throw new KAFNotValidException("Term " + targetTermId + " not found when loading property " + pid);
-			    }
-			    boolean isHead = isHead(targetElem);
-			    span.addTarget(targetTerm, isHead);
-			}
-			references.add(span);
-		    }
-		    Feature newProperty = kaf.newProperty(pid, lemma, references);
-		    List<Element> externalReferencesElems = propertyElem.getChildren("externalReferences");
-		    if (externalReferencesElems.size() > 0) {
-			List<ExternalRef> externalRefs = getExternalReferences(externalReferencesElems.get(0), kaf);
-			newProperty.addExternalRefs(externalRefs);
-		    }
-		    relationalIndex.put(newProperty.getId(), newProperty);
-		}
-	    }
-	    if (categoriesElem != null) {
-		List<Element> categoryElems = categoriesElem.getChildren("category");
-		for (Element categoryElem : categoryElems) {
-		    String cid = getAttribute("id", categoryElem);
-		    String lemma = getAttribute("lemma", categoryElem);
-		    Element referencesElem = categoryElem.getChild("references");
-		    if (referencesElem == null) {
-			throw new IllegalStateException("Every category must contain a 'references' element");
-		    }
-		    List<Element> spanElems = referencesElem.getChildren("span");
-		    if (spanElems.size() < 1) {
-			throw new IllegalStateException("Every category must contain a 'span' element inside 'references'");
-		    }
-		    List<Span<Term>> references = new ArrayList<Span<Term>>();
-		    for (Element spanElem : spanElems) {
-			Span<Term> span = kaf.newTermSpan();
-			List<Element> targetElems = spanElem.getChildren();
-			if (targetElems.size() < 1) {
-			    throw new IllegalStateException("Every span in a property must contain at least one target inside");  
-			}
-			for (Element targetElem : targetElems) {
-			    String targetTermId = getAttribute("id", targetElem);
-			    Term targetTerm = termIndex.get(targetTermId);
-			    if (targetTerm == null) {
-				throw new KAFNotValidException("Term " + targetTermId + " not found when loading category " + cid);
-			    }
-			    boolean isHead = isHead(targetElem);
-			    span.addTarget(targetTerm, isHead);
-			}
-			references.add(span);
-		    }
-		    Feature newCategory = kaf.newCategory(cid, lemma, references);
-		    List<Element> externalReferencesElems = categoryElem.getChildren("externalReferences");
-		    if (externalReferencesElems.size() > 0) {
-			List<ExternalRef> externalRefs = getExternalReferences(externalReferencesElems.get(0), kaf);
-			newCategory.addExternalRefs(externalRefs);
-		    }
-		    relationalIndex.put(newCategory.getId(), newCategory);
 		}
 	    }
 	    rootChildrenElems.remove(elem);
@@ -709,28 +503,25 @@ class ReadWriteManager {
 	    rootChildrenElems.remove(elem);
 	}
 	
-	elem = rootElem.getChild("relations");
-	if (elem != null) {	    List<Element> relationElems = elem.getChildren("relation");
-	    for (Element relationElem : relationElems) {
-		String id = getAttribute("id", relationElem);
-		String fromId = getAttribute("from", relationElem);
-		String toId = getAttribute("to", relationElem);
-		String confidenceStr = getOptAttribute("confidence", relationElem);
-		float confidence = -1.0f;
-		if (confidenceStr != null) {
-		    confidence = Float.parseFloat(confidenceStr);
-		}
-		Relational from = relationalIndex.get(fromId);
+	elem = rootElem.getChild("deps");
+	if (elem != null) {
+	    List<Element> depElems = elem.getChildren();
+	    for (Element depElem : depElems) {
+		String fromId = getAttribute("from", depElem);
+		String toId = getAttribute("to", depElem);
+		Term from = termIndex.get(fromId);
 		if (from == null) {
-		    throw new KAFNotValidException("Entity/feature object " + fromId + " not found when loading relation " + id);
+		    throw new KAFNotValidException("Term " + fromId + " not found when loading Dep (" + fromId + ", " + toId + ")");
 		}
-		Relational to = relationalIndex.get(toId);
+		Term to = termIndex.get(toId);
 		if (to == null) {
-		    throw new KAFNotValidException("Entity/feature object " + toId + " not found when loading relation " + id);
+		    throw new KAFNotValidException("Term " + toId + " not found when loading Dep (" + fromId + ", " + toId + ")");
 		}
-		Relation newRelation = kaf.newRelation(id, from, to);
-		if (confidence >= 0) {
-		    newRelation.setConfidence(confidence);
+		String rfunc = getAttribute("rfunc", depElem);
+		Dep newDep = kaf.newDep(from, to, rfunc);
+		String depcase = getOptAttribute("case", depElem);
+		if (depcase != null) {
+		    newDep.setCase(depcase);
 		}
 	    }
 	    rootChildrenElems.remove(elem);
@@ -806,67 +597,286 @@ class ReadWriteManager {
 	    rootChildrenElems.remove(elem);
 	}
 	
-	elem = rootElem.getChild("constituency");
+	elem = rootElem.getChild("timeExpressions");
 	if (elem != null) {
-	    List<Element> treeElems = elem.getChildren("tree");
-	    for (Element treeElem : treeElems) {
-		String type = getOptAttribute("type", treeElem);
-		HashMap<String, TreeNode> treeNodes = new HashMap<String, TreeNode>();
-		HashMap<String, Boolean> rootNodes = new HashMap<String, Boolean>();
-		// Terminals
-		List<Element> terminalElems = treeElem.getChildren("t");
-		for (Element terminalElem : terminalElems) {
-		    String id = getAttribute("id", terminalElem);
-		    Element spanElem = terminalElem.getChild("span");
-		    if (spanElem == null) {
-			throw new KAFNotValidException("Constituent non terminal nodes need a span");
-		    }
-		    Span<Term> span = loadTermSpan(spanElem, termIndex, id);
-		    treeNodes.put(id, kaf.newTerminal(id, span));
-		    rootNodes.put(id, true);
+	    List<Element> timex3Elems = elem.getChildren();
+	    for (Element timex3Elem : timex3Elems) {
+		String timex3Id = getAttribute("id", timex3Elem);
+		String timex3Type = getAttribute("type", timex3Elem);
+		Timex3 timex3 = kaf.newTimex3(timex3Id, timex3Type);
+		String timex3BeginPointId = getOptAttribute("beginPoint", timex3Elem);
+		if (timex3BeginPointId != null) {
+		    Term beginPoint = termIndex.get(timex3BeginPointId);
+		    timex3.setBeginPoint(beginPoint);
 		}
-		// NonTerminals
-		List<Element> nonTerminalElems = treeElem.getChildren("nt");
-		for (Element nonTerminalElem : nonTerminalElems) {
-		    String id = getAttribute("id", nonTerminalElem);
-		    String label = getAttribute("label", nonTerminalElem);
-		    treeNodes.put(id, kaf.newNonTerminal(id, label));
-		    rootNodes.put(id, true);
+		String timex3EndPointId = getOptAttribute("endPoint", timex3Elem);
+		if (timex3EndPointId != null) {
+		    Term endPoint = termIndex.get(timex3EndPointId);
+		    timex3.setEndPoint(endPoint);
 		}
-		// Edges
-		List<Element> edgeElems = treeElem.getChildren("edge");
-		for (Element edgeElem : edgeElems) {
-		    String fromId = getAttribute("from", edgeElem);
-		    String toId = getAttribute("to", edgeElem);
-		    String edgeId = getOptAttribute("id", edgeElem);
-		    String head = getOptAttribute("head", edgeElem);
-		    boolean isHead = (head != null && head.equals("yes")) ? true : false;
-		    TreeNode parentNode = treeNodes.get(toId);
-		    TreeNode childNode = treeNodes.get(fromId);
-		    if ((parentNode == null) || (childNode == null)) {
-			throw new KAFNotValidException("There is a problem with the edge(" + fromId + ", " + toId + "). One of its targets doesn't exist.");
-		    }
-		    try {
-			((NonTerminal) parentNode).addChild(childNode);
-		    } catch(Exception e) {}
-		    rootNodes.put(fromId, false);
-		    if (edgeId != null) {
-			childNode.setEdgeId(edgeId);
-		    }
-		    if (isHead) {
-			((NonTerminal) childNode).setHead(isHead);
-		    }
+		String timex3Quant = getOptAttribute("quant", timex3Elem);
+		if (timex3Quant != null) {
+		    timex3.setQuant(timex3Quant);
 		}
-		// Constituent objects
-		for (Map.Entry<String, Boolean> areRoot : rootNodes.entrySet()) {
-		    if (areRoot.getValue()) {
-			TreeNode rootNode = treeNodes.get(areRoot.getKey());
-			if (type == null) {
-			    kaf.newConstituent(rootNode);
-			} else {
-			    kaf.newConstituent(rootNode, type);
+		String timex3Freq = getOptAttribute("freq", timex3Elem);
+		if (timex3Freq != null) {
+		    timex3.setFreq(timex3Freq);
+		}
+		String timex3FuncInDoc = getOptAttribute("functionInDocument", timex3Elem);
+		if (timex3FuncInDoc != null) {
+		    timex3.setFunctionInDocument(timex3FuncInDoc);
+		}
+		String timex3TempFunc = getOptAttribute("temporalFunction", timex3Elem);
+		if (timex3TempFunc != null) {
+		    Boolean tempFunc = timex3TempFunc.equals("true");
+		    timex3.setTemporalFunction(tempFunc);
+		}
+		String timex3Value = getOptAttribute("value", timex3Elem);
+		if (timex3Value != null) {
+		    timex3.setValue(timex3Value);
+		}
+		String timex3ValueFromFunction = getOptAttribute("valueFromFunction", timex3Elem);
+		if (timex3ValueFromFunction != null) {
+		    timex3.setValueFromFunction(timex3ValueFromFunction);
+		}
+		String timex3Mod = getOptAttribute("mod", timex3Elem);
+		if (timex3Mod != null) {
+		    timex3.setMod(timex3Mod);
+		}
+		String timex3AnchorTimeId = getOptAttribute("anchorTimeId", timex3Elem);
+		if (timex3AnchorTimeId != null) {
+		    timex3.setAnchorTimeId(timex3AnchorTimeId);
+		}
+		String timex3Comment = getOptAttribute("comment", timex3Elem);
+		if (timex3Comment != null) {
+		    timex3.setComment(timex3Comment);
+		}
+		Element spanElem = timex3Elem.getChild("span");
+		if (spanElem != null) {
+		    Span<WF> timex3Span = kaf.newWFSpan();
+		    for (Element targetElem : spanElem.getChildren("target")) {
+			String targetId = getAttribute("id", targetElem);
+			WF wf = wfIndex.get(targetId);
+			if (wf == null) {
+			    throw new KAFNotValidException("Word form " + targetId + " not found when loading timex3 " + timex3Id);
 			}
+			boolean isHead = isHead(targetElem);
+			timex3Span.addTarget(wf, isHead);
 		    }
+		    timex3.setSpan(timex3Span);
+		}
+		timexIndex.put(timex3.getId(), timex3);
+	    }
+	    rootChildrenElems.remove(elem);
+	}
+	
+	elem = rootElem.getChild("temporalRelations");
+	if (elem != null) {
+	    List<Element> tLinkElems = elem.getChildren("tlink");
+	    for (Element tLinkElem : tLinkElems) {
+		String tlid = getAttribute("id", tLinkElem);
+		String fromId = getAttribute("from", tLinkElem);
+		String toId = getAttribute("to", tLinkElem);
+		String fromType = getAttribute("fromType", tLinkElem);
+		String toType = getAttribute("toType", tLinkElem);
+		String relType = getAttribute("relType", tLinkElem);
+		TLinkReferable from = fromType.equals("event")
+			? predicateIndex.get(fromId) : timexIndex.get(fromId);
+		TLinkReferable to = toType.equals("event")
+			? predicateIndex.get(toId) : timexIndex.get(toId);
+		TLink tLink = kaf.newTLink(tlid, from, to, relType);
+	    }
+
+	    List<Element> predAnchorElems = elem.getChildren("predicateAnchor");
+	    for (Element predAnchorElem : predAnchorElems) {
+		String id = getAttribute("id", predAnchorElem);
+		String anchorTime = getAttribute("anchorTime", predAnchorElem);
+		String beginPoint= getAttribute("beginPoint", predAnchorElem);
+		String endPoint= getAttribute("endPoint", predAnchorElem);
+		Element spanElem = predAnchorElem.getChild("span");
+		Span<Predicate> predAnchorSpan = KAFDocument.newSpan();
+		if (spanElem != null) {
+		    for (Element targetElem : spanElem.getChildren("target")) {
+			String targetId = getAttribute("id", targetElem);
+			Predicate predicate = predicateIndex.get(targetId);
+			if (predicate == null) {
+			    throw new KAFNotValidException("Predicate " + targetId + " not found when loading PredicateAnchor " + id);
+			}
+			boolean isHead = isHead(targetElem);
+			predAnchorSpan.addTarget(predicate, isHead);
+		    }
+		}
+		kaf.newPredicateAnchor(id, anchorTime, beginPoint, endPoint, predAnchorSpan);
+	    }
+	    
+	    rootChildrenElems.remove(elem);
+	}
+	
+	elem = rootElem.getChild("causalRelations");
+	if (elem != null) {
+	    List<Element> clinkElems = elem.getChildren("clink");
+	    for (Element clinkElem : clinkElems) {
+		String clid = getAttribute("id", clinkElem);
+		String fromId = getAttribute("from", clinkElem);
+		String toId = getAttribute("to", clinkElem);
+		String relType = getOptAttribute("relType", clinkElem);
+		Predicate from = predicateIndex.get(fromId);
+		Predicate to = predicateIndex.get(toId);
+		CLink clink = kaf.newCLink(clid, from, to);
+		if (relType != null) {
+		    clink.setRelType(relType);
+		}
+	    }
+	    rootChildrenElems.remove(elem);
+	}
+
+	elem = rootElem.getChild("factualities");
+	if (elem != null) {
+	    List<Element> factualityElems = elem.getChildren("factuality");
+	    for (Element factualityElem : factualityElems) {
+		String id = getAttribute("id", factualityElem);
+		Element spanElem = factualityElem.getChild("span");
+		if (spanElem == null) {
+		    throw new IllegalStateException("Every factuality must contain a 'span' element");
+		}
+		Span<Term> span = loadTermSpan(spanElem, termIndex, id);
+		Factuality newFactuality = kaf.newFactuality(id, span);
+		List<Element> factValElems = factualityElem.getChildren("factVal");
+		for (Element factValElem : factValElems) {
+		    newFactuality.addFactVal(DOMToFactVal(factValElem, kaf));
+		}
+	    }
+	    rootChildrenElems.remove(elem);
+	}
+	
+	elem = rootElem.getChild("factualityLayer");
+	if (elem != null) {
+	    List<Element> factualityElems = elem.getChildren("factvalue");
+	    for (Element factualityElem : factualityElems) {
+		String id = getAttribute("id", factualityElem);
+		String prediction = getAttribute("prediction", factualityElem);
+		String confidenceStr = getAttribute("confidence", factualityElem);
+		Double confidence = null;
+		if (confidenceStr != null) {
+		    confidence = Double.parseDouble(confidenceStr);
+		}
+		Factvalue factuality = kaf.newFactvalue(wfIndex.get(id), prediction);
+		if (confidence != null) {
+		    factuality.setConfidence(confidence);
+		}
+	    }
+	    rootChildrenElems.remove(elem);
+	}
+	
+	elem = rootElem.getChild("features");
+	if (elem != null) {
+	    Element propertiesElem = elem.getChild("properties");
+	    Element categoriesElem = elem.getChild("categories");
+	    if (propertiesElem != null) {
+		List<Element> propertyElems = propertiesElem.getChildren("property");
+		for (Element propertyElem : propertyElems) {
+		    String pid = getAttribute("id", propertyElem);
+		    String lemma = getAttribute("lemma", propertyElem);
+		    Element referencesElem = propertyElem.getChild("references");
+		    if (referencesElem == null) {
+			throw new IllegalStateException("Every property must contain a 'references' element");
+		    }
+		    List<Element> spanElems = referencesElem.getChildren("span");
+		    if (spanElems.size() < 1) {
+			throw new IllegalStateException("Every property must contain a 'span' element inside 'references'");
+		    }
+		    List<Span<Term>> references = new ArrayList<Span<Term>>();
+		    for (Element spanElem : spanElems) {
+			Span<Term> span = kaf.newTermSpan();
+			List<Element> targetElems = spanElem.getChildren();
+			if (targetElems.size() < 1) {
+			    throw new IllegalStateException("Every span in a property must contain at least one target inside");  
+			}
+			for (Element targetElem : targetElems) {
+			    String targetTermId = getAttribute("id", targetElem);
+			    Term targetTerm = termIndex.get(targetTermId);
+			    if (targetTerm == null) {
+				throw new KAFNotValidException("Term " + targetTermId + " not found when loading property " + pid);
+			    }
+			    boolean isHead = isHead(targetElem);
+			    span.addTarget(targetTerm, isHead);
+			}
+			references.add(span);
+		    }
+		    Feature newProperty = kaf.newProperty(pid, lemma, references);
+		    List<Element> externalReferencesElems = propertyElem.getChildren("externalReferences");
+		    if (externalReferencesElems.size() > 0) {
+			List<ExternalRef> externalRefs = getExternalReferences(externalReferencesElems.get(0), kaf);
+			newProperty.addExternalRefs(externalRefs);
+		    }
+		    relationalIndex.put(newProperty.getId(), newProperty);
+		}
+	    }
+	    if (categoriesElem != null) {
+		List<Element> categoryElems = categoriesElem.getChildren("category");
+		for (Element categoryElem : categoryElems) {
+		    String cid = getAttribute("id", categoryElem);
+		    String lemma = getAttribute("lemma", categoryElem);
+		    Element referencesElem = categoryElem.getChild("references");
+		    if (referencesElem == null) {
+			throw new IllegalStateException("Every category must contain a 'references' element");
+		    }
+		    List<Element> spanElems = referencesElem.getChildren("span");
+		    if (spanElems.size() < 1) {
+			throw new IllegalStateException("Every category must contain a 'span' element inside 'references'");
+		    }
+		    List<Span<Term>> references = new ArrayList<Span<Term>>();
+		    for (Element spanElem : spanElems) {
+			Span<Term> span = kaf.newTermSpan();
+			List<Element> targetElems = spanElem.getChildren();
+			if (targetElems.size() < 1) {
+			    throw new IllegalStateException("Every span in a property must contain at least one target inside");  
+			}
+			for (Element targetElem : targetElems) {
+			    String targetTermId = getAttribute("id", targetElem);
+			    Term targetTerm = termIndex.get(targetTermId);
+			    if (targetTerm == null) {
+				throw new KAFNotValidException("Term " + targetTermId + " not found when loading category " + cid);
+			    }
+			    boolean isHead = isHead(targetElem);
+			    span.addTarget(targetTerm, isHead);
+			}
+			references.add(span);
+		    }
+		    Feature newCategory = kaf.newCategory(cid, lemma, references);
+		    List<Element> externalReferencesElems = categoryElem.getChildren("externalReferences");
+		    if (externalReferencesElems.size() > 0) {
+			List<ExternalRef> externalRefs = getExternalReferences(externalReferencesElems.get(0), kaf);
+			newCategory.addExternalRefs(externalRefs);
+		    }
+		    relationalIndex.put(newCategory.getId(), newCategory);
+		}
+	    }
+	    rootChildrenElems.remove(elem);
+	}
+	
+	elem = rootElem.getChild("relations");
+	if (elem != null) {	    List<Element> relationElems = elem.getChildren("relation");
+	    for (Element relationElem : relationElems) {
+		String id = getAttribute("id", relationElem);
+		String fromId = getAttribute("from", relationElem);
+		String toId = getAttribute("to", relationElem);
+		String confidenceStr = getOptAttribute("confidence", relationElem);
+		float confidence = -1.0f;
+		if (confidenceStr != null) {
+		    confidence = Float.parseFloat(confidenceStr);
+		}
+		Relational from = relationalIndex.get(fromId);
+		if (from == null) {
+		    throw new KAFNotValidException("Entity/feature object " + fromId + " not found when loading relation " + id);
+		}
+		Relational to = relationalIndex.get(toId);
+		if (to == null) {
+		    throw new KAFNotValidException("Entity/feature object " + toId + " not found when loading relation " + id);
+		}
+		Relation newRelation = kaf.newRelation(id, from, to);
+		if (confidence >= 0) {
+		    newRelation.setConfidence(confidence);
 		}
 	    }
 	    rootChildrenElems.remove(elem);
@@ -900,26 +910,64 @@ class ReadWriteManager {
 	    rootChildrenElems.remove(elem);
 	}
 	
-	elem = rootElem.getChild("factualityLayer");
+	elem = rootElem.getChild("markables");
 	if (elem != null) {
-	    List<Element> factualityElems = elem.getChildren("factvalue");
-	    for (Element factualityElem : factualityElems) {
-		String id = getAttribute("id", factualityElem);
-		String prediction = getAttribute("prediction", factualityElem);
-		String confidenceStr = getAttribute("confidence", factualityElem);
-		Double confidence = null;
-		if (confidenceStr != null) {
-		    confidence = Double.parseDouble(confidenceStr);
+	    List<Element> markElems = elem.getChildren();
+	    for (Element markElem : markElems) {
+		String sid = getAttribute("id", markElem);
+
+		Element spanElem = markElem.getChild("span");
+		if (spanElem == null) {
+		    throw new IllegalStateException("Every mark must contain a span element");
 		}
-		Factuality factuality = kaf.newFactuality(wfIndex.get(id), prediction);
-		if (confidence != null) {
-		    factuality.setConfidence(confidence);
+		List<Element> marksWfElems = spanElem.getChildren("target");
+		Span<WF> span = kaf.newWFSpan();
+		for (Element marksWfElem : marksWfElems) {
+		    String wfId = getAttribute("id", marksWfElem);
+		    boolean isHead = isHead(marksWfElem);
+		    WF wf = wfIndex.get(wfId);
+		    if (wf == null) {
+			throw new KAFNotValidException("WF " + wfId + " not found when loading mark " + sid);
+		    }
+		    span.addTarget(wf, isHead);
+		}
+		Mark newMark = kaf.newMark(sid, span);
+		Element sentimentElem = markElem.getChild("sentiment");
+		if (sentimentElem != null) {
+		    newMark.setSentiment(DOMToSentiment(sentimentElem, kaf));
+		}
+		String source = getOptAttribute("source", markElem);
+		if (source != null) {
+		    newMark.setSource(source);
+		}
+		String type = getOptAttribute("type", markElem);
+		if (type != null) {
+		    newMark.setType(type);
+		}
+		String lemma = getOptAttribute("lemma", markElem);
+		if (lemma != null) {
+		    newMark.setLemma(lemma);
+		}
+		String pos = getOptAttribute("pos", markElem);
+		if (pos != null) {
+		    newMark.setPos(pos);
+		}
+		String tMorphofeat = getOptAttribute("morphofeat", markElem);
+		if (tMorphofeat != null) {
+		    newMark.setMorphofeat(tMorphofeat);
+		}
+		String markcase = getOptAttribute("case", markElem);
+		if (markcase != null) {
+		    newMark.setCase(markcase);
+		}
+		List<Element> externalReferencesElems = markElem.getChildren("externalReferences");
+		if (externalReferencesElems.size() > 0) {
+		    List<ExternalRef> externalRefs = getExternalReferences(externalReferencesElems.get(0), kaf);
+		    newMark.addExternalRefs(externalRefs);
 		}
 	    }
 	    rootChildrenElems.remove(elem);
 	}
-	
-	
 	
 	for (Element unknownLayerElem : rootChildrenElems) { // These layers are not recognised by the library
 	    kaf.addUnknownLayer(unknownLayerElem);
@@ -1027,6 +1075,21 @@ class ReadWriteManager {
 	    newSentiment.setSentimentProductFeature(sentSentimentProductFeature);
 	}
         return newSentiment;
+    }
+    
+    private static Factuality.FactVal DOMToFactVal(Element factValElem, KAFDocument kaf) {
+	String value = getAttribute("value", factValElem);
+	String resource = getAttribute("resource", factValElem);
+	Factuality.FactVal newFactVal = kaf.newFactVal(value, resource);
+	String source = getOptAttribute("source", factValElem);
+	if (source != null) {
+	    newFactVal.setSource(source);
+	}
+	String confidence = getOptAttribute("confidence", factValElem);
+	if (confidence != null) {
+	    newFactVal.setConfidence(Float.valueOf(confidence));
+	}
+	return newFactVal;
     }
 
 
@@ -1280,52 +1343,54 @@ class ReadWriteManager {
 	    root.addContent(termsElem);
 	}
 
-	List<String> markSources = annotationContainer.getGroupIDs(Layer.MARKABLES);
-	for (String source : markSources) {
-	    List<Mark> marks = (List<Mark>)(List<?>)annotationContainer.get(Layer.MARKABLES, source);
-	    if (marks.size() > 0) {
-		Element marksElem = new Element("markables");
-		marksElem.setAttribute("source", source);
-		for (Mark mark : marks) {
-		    Comment markComment = new Comment(mark.getStr());
-		    marksElem.addContent(markComment);
-		    Element markElem = new Element("mark");
-		    markElem.setAttribute("id", mark.getId());
-		    if (mark.hasType()) {
-			markElem.setAttribute("type", mark.getType());
-		    }
-		    if (mark.hasLemma()) {
-			markElem.setAttribute("lemma", mark.getLemma());
-		    }
-		    if (mark.hasPos()) {
-			markElem.setAttribute("pos", mark.getPos());
-		    }
-		    if (mark.hasMorphofeat()) {
-			markElem.setAttribute("morphofeat", mark.getMorphofeat());
-		    }
-		    if (mark.hasCase()) {
-			markElem.setAttribute("case", mark.getCase());
-		    }
-		    Element spanElem = new Element("span");
-		    Span<WF> span = mark.getSpan();
-		    for (WF target : span.getTargets()) {
-			Element targetElem = new Element("target");
-			targetElem.setAttribute("id", target.getId());
-			if (target == span.getHead()) {
-			    targetElem.setAttribute("head", "yes");
-			}
-			spanElem.addContent(targetElem);
-		    }
-		    markElem.addContent(spanElem);
-		    List<ExternalRef> externalReferences = mark.getExternalRefs();
-		    if (externalReferences.size() > 0) {
-			Element externalReferencesElem = externalReferencesToDOM(externalReferences);
-			markElem.addContent(externalReferencesElem);
-		    }
-		    marksElem.addContent(markElem);
+	List<Mark> marks = (List<Mark>)(List<?>)annotationContainer.get(Layer.MARKABLES);
+	if (marks.size() > 0) {
+	    Element marksElem = new Element("markables");
+	    for (Mark mark : marks) {
+		Comment markComment = new Comment(mark.getStr());
+		marksElem.addContent(markComment);
+		Element markElem = new Element("mark");
+		markElem.setAttribute("id", mark.getId());
+		if (mark.hasSource()) {
+		    markElem.setAttribute("source", mark.getSource());
 		}
-		root.addContent(marksElem);
+		if (mark.hasType()) {
+		    markElem.setAttribute("type", mark.getType());
+		}
+		if (mark.hasLemma()) {
+		    markElem.setAttribute("lemma", mark.getLemma());
+		}
+		if (mark.hasPos()) {
+		    markElem.setAttribute("pos", mark.getPos());
+		}
+		if (mark.hasMorphofeat()) {
+		    markElem.setAttribute("morphofeat", mark.getMorphofeat());
+		}
+		if (mark.hasCase()) {
+		    markElem.setAttribute("case", mark.getCase());
+		}
+		if (mark.hasSentiment()) {
+		    markElem.addContent(sentimentToDOM(mark.getSentiment()));
+		}
+		Element spanElem = new Element("span");
+		Span<WF> span = mark.getSpan();
+		for (WF target : span.getTargets()) {
+		    Element targetElem = new Element("target");
+		    targetElem.setAttribute("id", target.getId());
+		    if (target == span.getHead()) {
+			targetElem.setAttribute("head", "yes");
+		    }
+		    spanElem.addContent(targetElem);
+		}
+		markElem.addContent(spanElem);
+		List<ExternalRef> externalReferences = mark.getExternalRefs();
+		if (externalReferences.size() > 0) {
+		    Element externalReferencesElem = externalReferencesToDOM(externalReferences);
+		    markElem.addContent(externalReferencesElem);
+		}
+		marksElem.addContent(markElem);
 	    }
+	    root.addContent(marksElem);
 	}
 
 	List<Dep> deps = (List<Dep>)(List<?>)annotationContainer.get(Layer.DEPS);
@@ -1517,11 +1582,38 @@ class ReadWriteManager {
 	    }
 	    root.addContent(timeExsElem);
 	}
-
-	List<Factuality> factualities = (List<Factuality>)(List<?>)annotationContainer.get(Layer.FACTUALITY_LAYER);
+	
+	List<Factuality> factualities = (List<Factuality>)(List<?>)annotationContainer.get(Layer.FACTUALITIES);
 	if (factualities.size() > 0) {
-		Element factsElement = new Element("factualitylayer");
+		Element factsElement = new Element("factualities");
 		for (Factuality f : factualities) {
+			Element factElem = new Element("factuality");
+			factElem.setAttribute("id", f.getId());
+			Span<Term> span = f.getSpan();
+			Comment spanComment = new Comment(f.getSpanStr(span));
+			factElem.addContent(spanComment);
+			Element spanElem = new Element("span");
+			for (Term term : span.getTargets()) {
+			    Element targetElem = new Element("target");
+			    targetElem.setAttribute("id", term.getId());
+			    if (term == span.getHead()) {
+				targetElem.setAttribute("head", "yes");
+			    }
+			    spanElem.addContent(targetElem);
+			}
+			factElem.addContent(spanElem);
+			for (Factuality.FactVal factVal : f.getFactVals()) {
+			    factElem.addContent(factValToDOM(factVal));			    
+			}
+			factsElement.addContent(factElem);
+		}
+		root.addContent(factsElement);
+	}
+
+	List<Factvalue> factValues = (List<Factvalue>)(List<?>)annotationContainer.get(Layer.FACTUALITY_LAYER);
+	if (factValues.size() > 0) {
+		Element factsElement = new Element("factualitylayer");
+		for (Factvalue f : factValues) {
 			Element fact = new Element("factvalue");
 			fact.setAttribute("id", f.getId());
 			fact.setAttribute("prediction", f.getPrediction());
@@ -1878,23 +1970,45 @@ class ReadWriteManager {
 	    root.addContent(constituentsElem); 
 	}
 
-	List<TLink> tLinks = (List<TLink>)(List<?>)annotationContainer.get(Layer.TEMPORAL_RELATIONS);
-	if (tLinks.size() > 0) {
-	    Element tLinksElem = new Element("temporalRelations");
-	    for (TLink tLink : tLinks) {
-		Comment tLinkComment = new Comment
-		    (tLink.getRelType() + "(" + tLink.getFrom().getId() + ", " + tLink.getTo().getId() + ")");
-		tLinksElem.addContent(tLinkComment);
-		Element tLinkElem = new Element("tlink");
-		tLinkElem.setAttribute("id", tLink.getId());
-		tLinkElem.setAttribute("from", tLink.getFrom().getId());
-		tLinkElem.setAttribute("to", tLink.getTo().getId());
-		tLinkElem.setAttribute("fromType", tLink.getFromType());
-		tLinkElem.setAttribute("toType", tLink.getToType());
-		tLinkElem.setAttribute("relType", tLink.getRelType());
-		tLinksElem.addContent(tLinkElem);
+	List<Annotation> tempRels = (List<Annotation>)(List<?>)annotationContainer.get(Layer.TEMPORAL_RELATIONS);
+	if (tempRels.size() > 0) {
+	    Element tempRelsElem = new Element("temporalRelations");
+	    for (Annotation tempRel : tempRels) {
+		if (tempRel instanceof TLink) {
+		    TLink tLink = (TLink)tempRel;
+		    Comment tLinkComment = new Comment
+			    (tLink.getRelType() + "(" + tLink.getFrom().getId() + ", " + tLink.getTo().getId() + ")");
+		    tempRelsElem.addContent(tLinkComment);
+		    Element tLinkElem = new Element("tlink");
+		    tLinkElem.setAttribute("id", tLink.getId());
+		    tLinkElem.setAttribute("from", tLink.getFrom().getId());
+		    tLinkElem.setAttribute("to", tLink.getTo().getId());
+		    tLinkElem.setAttribute("fromType", tLink.getFromType());
+		    tLinkElem.setAttribute("toType", tLink.getToType());
+		    tLinkElem.setAttribute("relType", tLink.getRelType());
+		    tempRelsElem.addContent(tLinkElem);
+		} else if (tempRel instanceof PredicateAnchor) {
+		    PredicateAnchor predAnchor = (PredicateAnchor)tempRel;
+		    Element predAnchorElem = new Element("predicateAnchor");
+		    predAnchorElem.setAttribute("id", predAnchor.getId());
+		    predAnchorElem.setAttribute("anchorTime", predAnchor.getAnchorTime());
+		    predAnchorElem.setAttribute("beginPoint", predAnchor.getBeginPoint());
+		    predAnchorElem.setAttribute("endPoint", predAnchor.getEndPoint());
+		    Element spanElem = new Element("span");
+		    Span<Predicate> span = predAnchor.getSpan();
+		    for (Predicate target : span.getTargets()) {
+			Element targetElem = new Element("target");
+			targetElem.setAttribute("id", target.getId());
+			if (target == span.getHead()) {
+			    targetElem.setAttribute("head", "yes");
+			}
+			spanElem.addContent(targetElem);
+		    }
+		    predAnchorElem.addContent(spanElem);
+		    tempRelsElem.addContent(predAnchorElem);
+		}
 	    }
-	    root.addContent(tLinksElem);
+	    root.addContent(tempRelsElem);
 	}
 
 	List<CLink> cLinks = (List<CLink>)(List<?>)annotationContainer.get(Layer.CAUSAL_RELATIONS);
@@ -2093,6 +2207,19 @@ class ReadWriteManager {
 	    sentimentElem.setAttribute("sentiment_product_feature", sentiment.getSentimentProductFeature());
 	}
 	return sentimentElem;
+    }
+    
+    private static Element factValToDOM(Factuality.FactVal factVal) {
+	Element factValElem = new Element("factVal");
+	factValElem.setAttribute("value", factVal.getValue());
+	factValElem.setAttribute("resource", factVal.getResource());
+	if (factVal.hasSource()) {
+	    factValElem.setAttribute("source", factVal.getSource());
+	}
+	if (factVal.hasConfidence()) {
+	    factValElem.setAttribute("confidence", factVal.getConfidence().toString());
+	}
+	return factValElem;
     }
 
     private static int cmpId(String id1, String id2) {
