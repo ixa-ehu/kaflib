@@ -15,18 +15,18 @@ public class WF extends IdentifiableAnnotation implements SentenceLevelAnnotatio
 
     /** Sentence id (required) */
     private int sent;
+    
+    /** The offset (in characters) of the original word form (required) */
+    private int offset;
 
+    /** The length (in characters) of the word form (required) */
+    private int length;
+    
     /** Paragraph id (optional) */
     private int para;
 
     /** Page id (optional) */
     private int page;
-
-    /** The offset (in characters) of the original word form (optional) */
-    private int offset;
-
-    /** The length (in characters) of the word form (optional) */
-    private int length;
 
     /** In case of source xml files, the xpath expression identifying the original word form (optional) */
     private String xpath;
@@ -37,15 +37,15 @@ public class WF extends IdentifiableAnnotation implements SentenceLevelAnnotatio
     private static final String ID_PREFIX = "w";
     
 
-    WF(AnnotationContainer annotationContainer, String id, String form, int sent) {
+    WF(AnnotationContainer annotationContainer, String id, int offset, int length, String form, int sent) {
 	super(id);
 	this.annotationContainer = annotationContainer;
+	this.offset = offset;
+	this.length = length;
 	this.form = form;
         this.setSent(sent);
 	this.para = -1;
 	this.page = -1;
-	this.offset = -1;
-	this.length = -1;
     }
 
     WF(WF wf, AnnotationContainer annotationContainer) {
@@ -62,6 +62,22 @@ public class WF extends IdentifiableAnnotation implements SentenceLevelAnnotatio
     
     String getIdPrefix() {
 	return ID_PREFIX;
+    }
+    
+    public int getOffset() {
+	return offset;
+    }
+
+    public void setOffset(int offset) {
+	this.offset = offset;
+    }
+
+    public int getLength() {
+	return length;
+    }
+
+    public void setLength(int length) {
+	this.length = length;
     }
 
     public Integer getSent() {
@@ -115,26 +131,6 @@ public class WF extends IdentifiableAnnotation implements SentenceLevelAnnotatio
 
     public boolean hasOffset() {
 	return offset != -1;
-    }
-
-    public int getOffset() {
-	return offset;
-    }
-
-    public void setOffset(int offset) {
-	this.offset = offset;
-    }
-
-    public boolean hasLength() {
-	return length != -1;
-    }
-
-    public int getLength() {
-	return length;
-    }
-
-    public void setLength(int length) {
-	this.length = length;
     }
 
     public boolean hasXpath() {

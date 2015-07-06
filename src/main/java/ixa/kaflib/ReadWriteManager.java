@@ -183,9 +183,11 @@ class ReadWriteManager {
 	    List<Element> wfElems = elem.getChildren();
 	    for (Element wfElem : wfElems) {
 		String wid = getAttribute("id", wfElem);
+		String wOffset = getAttribute("offset", wfElem);
+		String wLength = getAttribute("length", wfElem);
 		String wForm = wfElem.getText();
 		String wSent = getAttribute("sent", wfElem);
-		WF newWf = kaf.newWF(wid, wForm, Integer.valueOf(wSent));
+		WF newWf = kaf.newWF(wid, Integer.valueOf(wOffset), Integer.valueOf(wLength), wForm, Integer.valueOf(wSent));
 		String wPara = getOptAttribute("para", wfElem);
 		if (wPara != null) {
 		    newWf.setPara(Integer.valueOf(wPara));
@@ -193,14 +195,6 @@ class ReadWriteManager {
 		String wPage = getOptAttribute("page", wfElem);
 		if (wPage != null) {
 		    newWf.setPage(Integer.valueOf(wPage));
-		}
-		String wOffset = getOptAttribute("offset", wfElem);
-		if (wOffset != null) {
-		    newWf.setOffset(Integer.valueOf(wOffset));
-		}
-		String wLength = getOptAttribute("length", wfElem);
-		if (wLength != null) {
-		    newWf.setLength(Integer.valueOf(wLength));
 		}
 		String wXpath = getOptAttribute("xpath", wfElem);
 		if (wXpath != null) {
@@ -691,8 +685,16 @@ class ReadWriteManager {
 	    for (Element predAnchorElem : predAnchorElems) {
 		String id = getAttribute("id", predAnchorElem);
 		String anchorTime = getAttribute("anchorTime", predAnchorElem);
-		String beginPoint= getAttribute("beginPoint", predAnchorElem);
-		String endPoint= getAttribute("endPoint", predAnchorElem);
+		String beginPointId = getAttribute("beginPoint", predAnchorElem);
+		Timex3 beginPoint = timexIndex.get(beginPointId);
+		if (beginPoint == null) {
+		    throw new IllegalStateException("Invalid timex ID (" + beginPointId + ") in predicateAnchor " + id);
+		}
+		String endPointId = getAttribute("endPoint", predAnchorElem);
+		Timex3 endPoint = timexIndex.get(endPointId);
+		if (endPoint == null) {
+		    throw new IllegalStateException("Invalid timex ID (" + endPointId + ") in predicateAnchor " + id);
+		}
 		Element spanElem = predAnchorElem.getChild("span");
 		Span<Predicate> predAnchorSpan = KAFDocument.newSpan();
 		if (spanElem != null) {
@@ -1312,18 +1314,14 @@ class ReadWriteManager {
 	    for (WF wf : text) {
 		Element wfElem = new Element("wf");
 		wfElem.setAttribute("id", wf.getId());
+		wfElem.setAttribute("offset", Integer.toString(wf.getOffset()));
+		wfElem.setAttribute("length", Integer.toString(wf.getLength()));
 		wfElem.setAttribute("sent", Integer.toString(wf.getSent()));
 		if (wf.hasPara()) {
 		    wfElem.setAttribute("para", Integer.toString(wf.getPara()));
 		}
 		if (wf.hasPage()) {
 		    wfElem.setAttribute("page", Integer.toString(wf.getPage()));
-		}
-		if (wf.hasOffset()) {
-		    wfElem.setAttribute("offset", Integer.toString(wf.getOffset()));
-		}
-		if (wf.hasLength()) {
-		    wfElem.setAttribute("length", Integer.toString(wf.getLength()));
 		}
 		if (wf.hasXpath()) {
 		    wfElem.setAttribute("xpath", wf.getXpath());
@@ -1992,8 +1990,8 @@ class ReadWriteManager {
 		    Element predAnchorElem = new Element("predicateAnchor");
 		    predAnchorElem.setAttribute("id", predAnchor.getId());
 		    predAnchorElem.setAttribute("anchorTime", predAnchor.getAnchorTime());
-		    predAnchorElem.setAttribute("beginPoint", predAnchor.getBeginPoint());
-		    predAnchorElem.setAttribute("endPoint", predAnchor.getEndPoint());
+		    predAnchorElem.setAttribute("beginPoint", predAnchor.getBeginPoint().getId());
+		    predAnchorElem.setAttribute("endPoint", predAnchor.getEndPoint().getId());
 		    Element spanElem = new Element("span");
 		    Span<Predicate> span = predAnchor.getSpan();
 		    for (Predicate target : span.getTargets()) {

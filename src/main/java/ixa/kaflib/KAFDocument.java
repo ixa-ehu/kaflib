@@ -486,44 +486,26 @@ public class KAFDocument implements Serializable {
 	annotationContainer.setRawText(rawText);
     }
 
-    /** Creates a WF object to load an existing word form. It receives the ID as an argument. The WF is added to the document object.
-     * @param id word form's ID.
-     * @param form text of the word form itself.
-     * @return a new word form.
-     */
-    public WF newWF(String id, String form, int sent) {
+    public WF newWF(String id, int offset, int length, String form, int sent) {
 	idManager.updateCounter(AnnotationType.WF, id);
-	WF newWF = new WF(this.annotationContainer, id, form, sent);
+	WF newWF = new WF(this.annotationContainer, id, offset, length, form, sent);
 	annotationContainer.add(newWF, Layer.TEXT);
 	return newWF;
     }
+    
+    public WF newWF(String id, int offset, String form, int sent) {
+	return this.newWF(id, offset, form.length(), form, sent);
+    }
 
-    /** Creates a new WF object. It assigns an appropriate ID to it and it also assigns offset and length
-     * attributes. The WF is added to the document object.
-     * @param form text of the word form itself.
-     * @return a new word form.
-     */
-    public WF newWF(String form, int offset) {
+    public WF newWF(int offset, Integer length, String form, int sent) {
 	String newId = idManager.getNextId(AnnotationType.WF);
-	int offsetVal = offset;
-	WF newWF = new WF(this.annotationContainer, newId, form, 0);
-	newWF.setOffset(offsetVal);
-	newWF.setLength(form.length());
+	WF newWF = new WF(this.annotationContainer, newId, offset, length, form, sent);
 	annotationContainer.add(newWF, Layer.TEXT);
 	return newWF;
     }
-
-    /** Creates a new WF object. It assigns an appropriate ID to it.  The WF is added to the document object.
-     * @param form text of the word form itself.
-     * @return a new word form.
-     */
-    public WF newWF(String form, int offset, int sent) {
-	String newId = idManager.getNextId(AnnotationType.WF);
-	WF newWF = new WF(this.annotationContainer, newId, form, sent);
-	newWF.setOffset(offset);
-	newWF.setLength(form.length());
-	annotationContainer.add(newWF, Layer.TEXT);
-	return newWF;
+    
+    public WF newWF(int offset, String form, int sent) {
+	return this.newWF(offset, form.length(), form, sent);
     }
 
 
@@ -887,14 +869,14 @@ public Entity newEntity(List<Span<Term>> references) {
 	return newTLink;
     }
     
-    public PredicateAnchor newPredicateAnchor(String anchorTime, String beginPoint, String endPoint, Span<Predicate> span) {
+    public PredicateAnchor newPredicateAnchor(String anchorTime, Timex3 beginPoint, Timex3 endPoint, Span<Predicate> span) {
 	String newId = idManager.getNextId(AnnotationType.PREDICATE_ANCHOR);
 	PredicateAnchor newPredicateAnchor = new PredicateAnchor(newId, anchorTime, beginPoint, endPoint, span);
 	annotationContainer.add(newPredicateAnchor, Layer.TEMPORAL_RELATIONS);
 	return newPredicateAnchor;
     }
     
-    public PredicateAnchor newPredicateAnchor(String id, String anchorTime, String beginPoint, String endPoint, Span<Predicate> span) {
+    public PredicateAnchor newPredicateAnchor(String id, String anchorTime, Timex3 beginPoint, Timex3 endPoint, Span<Predicate> span) {
 	idManager.updateCounter(AnnotationType.PREDICATE_ANCHOR, id);
 	PredicateAnchor newPredicateAnchor = new PredicateAnchor(id, anchorTime, beginPoint, endPoint, span);
 	annotationContainer.add(newPredicateAnchor, Layer.TEMPORAL_RELATIONS);
@@ -1725,11 +1707,9 @@ public Entity newEntity(List<Span<Term>> references) {
 
     public WF createFromWF(WF origWf)
     {
-	WF newWf = this.newWF(origWf.getForm(), origWf.getOffset());
-	newWf.setSent(origWf.getSent());
+	WF newWf = this.newWF(origWf.getOffset(), origWf.getLength(), origWf.getForm(), origWf.getSent());
 	if (origWf.hasPara()) newWf.setPara(origWf.getPara());
 	if (origWf.hasPage()) newWf.setPage(origWf.getPage());
-	if (origWf.hasOffset()) newWf.setLength(origWf.getLength());
 	if (origWf.hasXpath()) newWf.setXpath(origWf.getXpath());
 	return newWf;
     }
@@ -1992,31 +1972,6 @@ public Entity newEntity(List<Span<Term>> references) {
 	lp.setTimestamp(timestamp);
 	lp.setVersion(version);
 	return lp;
-    }
-
-    /** Deprecated */
-    public WF newWF(String id, String form) {
-        return this.newWF(id, form, 0);
-    }
-
-    /** Deprecated */
-    public WF newWF(String form) {
-        return this.newWF(form, 0);
-    }
-
-    /** Deprecated */
-    public WF createWF(String id, String form) {
-	return this.newWF(id, form, 0);
-    }
-
-    /** Deprecated */
-    public WF createWF(String form) {
-	return this.newWF(form, 0);
-    }
-
-    /** Deprecated */
-    public WF createWF(String form, int offset) {
-	return this.newWF(form, offset);
     }
 
     /** Deprecated */

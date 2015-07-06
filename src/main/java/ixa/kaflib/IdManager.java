@@ -24,7 +24,7 @@ class IdManager implements Serializable {
     private static final String COREF_PREFIX = "co";
     private static final String TIMEX3_PREFIX = "tx";
     private static final String TLINK_PREFIX = "tlink";
-    private static final String PREDICATE_ANCHOR_PREFIX = "pa";
+    private static final String PREDICATE_ANCHOR_PREFIX = "an";
     private static final String CLINK_PREFIX = "clink";
     private static final String LINKED_ENTITY_PREFIX = "le";
     private static final String PROPERTY_PREFIX = "p";
