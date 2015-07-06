@@ -4,6 +4,7 @@ import ixa.kaflib.Opinion.OpinionExpression;
 import ixa.kaflib.Opinion.OpinionHolder;
 import ixa.kaflib.Opinion.OpinionTarget;
 import ixa.kaflib.Predicate.Role;
+import ixa.kaflib.Statement.StatementTarget;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -53,6 +54,7 @@ public class KAFDocument implements Serializable {
 	RELATIONS,
 	LINKED_ENTITIES,
 	TOPICS,
+	ATTRIBUTION,
     }
 
     public enum AnnotationType {
@@ -87,6 +89,10 @@ public class KAFDocument implements Serializable {
 	LINKED_ENTITY,
 	RELATION,
 	TOPIC,
+	STATEMENT,
+	STATEMENT_TARGET,
+	STATEMENT_SOURCE,
+	STATEMENT_CUE,
     }
     
     static Map<Layer, AnnotationType> layerAnnotationTypes;
@@ -305,6 +311,7 @@ public class KAFDocument implements Serializable {
 	layerAnnotationTypes.put(Layer.RELATIONS, AnnotationType.RELATION);
 	layerAnnotationTypes.put(Layer.LINKED_ENTITIES, AnnotationType.LINKED_ENTITY);
 	layerAnnotationTypes.put(Layer.TOPICS, AnnotationType.TOPIC);
+	layerAnnotationTypes.put(Layer.ATTRIBUTION, AnnotationType.STATEMENT);
 	
 	annotationTypeClasses = new HashMap<AnnotationType, Class<?>>();
 	annotationTypeClasses.put(AnnotationType.WF, WF.class);
@@ -336,6 +343,7 @@ public class KAFDocument implements Serializable {
 	annotationTypeClasses.put(AnnotationType.LINKED_ENTITY, LinkedEntity.class);
 	annotationTypeClasses.put(AnnotationType.RELATION, Relation.class);
 	annotationTypeClasses.put(AnnotationType.TOPIC, Topic.class);
+	annotationTypeClasses.put(AnnotationType.STATEMENT, Statement.class);
     }
 
     /** Creates a new KAFDocument and loads the contents of the file passed as argument
@@ -1142,6 +1150,32 @@ public Entity newEntity(List<Span<Term>> references) {
 	Topic newTopic = new Topic(value);
 	annotationContainer.add(newTopic, Layer.TOPICS);
 	return newTopic;
+    }
+    
+    public Statement newStatement(Statement.StatementTarget target) {
+	String newId = idManager.getNextId(AnnotationType.STATEMENT);
+	Statement newStatement = new Statement(newId, target);
+	annotationContainer.add(newStatement, Layer.ATTRIBUTION);
+	return newStatement;
+    }
+    
+    public Statement newStatement(String id, Statement.StatementTarget target) {
+        idManager.updateCounter(AnnotationType.STATEMENT, id);
+	Statement newStatement = new Statement(id, target);
+	annotationContainer.add(newStatement, Layer.ATTRIBUTION);
+	return newStatement;
+    }
+    
+    public Statement.StatementTarget newStatementTarget(Span<Term> span) {
+	return new Statement.StatementTarget(span);
+    }
+    
+    public Statement.StatementSource newStatementSource(Span<Term> span) {
+	return new Statement.StatementSource(span);
+    }
+    
+    public Statement.StatementCue newStatementCue(Span<Term> span) {
+	return new Statement.StatementCue(span);
     }
     
     public static Span<WF> newWFSpan() {

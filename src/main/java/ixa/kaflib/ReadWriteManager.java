@@ -971,6 +971,55 @@ class ReadWriteManager {
 	    rootChildrenElems.remove(elem);
 	}
 	
+	elem = rootElem.getChild("attribution");
+	if (elem != null) {
+	    List<Element> statementElems = elem.getChildren("statement");
+	    for (Element statementElem : statementElems) {
+		String statementId = getAttribute("id", statementElem);
+		Element stTargetElem = statementElem.getChild("statement_target");
+		if (stTargetElem == null) {
+		    throw new KAFNotValidException("Statement " + statementId + " does not contain the compulsory StatementTarget element.");
+		}
+		Span<Term> span = kaf.newTermSpan();
+		Statement.StatementTarget target = kaf.newStatementTarget(span);
+		Element spanElem = stTargetElem.getChild("span");
+		if (spanElem != null) {
+		    List<Element> targetElems = spanElem.getChildren("target");
+		    for (Element targetElem : targetElems) {
+			String refId = getOptAttribute("id", targetElem);
+			boolean isHead = isHead(targetElem);
+			Term targetTerm = termIndex.get(refId);
+			if (targetTerm == null) {
+			    throw new KAFNotValidException("Term " + refId + " not found when loading statement " + statementId);
+			}
+			span.addTarget(targetTerm, isHead);
+		    }
+		}
+		Statement statement = kaf.newStatement(statementId, target);
+			
+		Element stSourceElem = statementElem.getChild("statement_source");
+		if (stSourceElem != null) {
+		    Element sourceSpanElem = stSourceElem.getChild("span");
+		    if (sourceSpanElem == null) {
+			throw new KAFNotValidException("StatementSource elements need to contain the span element");
+		    }
+		    Span<Term> sourceSpan = loadTermSpan(sourceSpanElem, termIndex, statementId);
+		    statement.setSource(kaf.newStatementSource(sourceSpan));
+		}
+		Element cueElem = statementElem.getChild("statement_cue");
+		if (cueElem != null) {
+		    Element cueSpanElem = cueElem.getChild("span");
+		    if (cueSpanElem == null) {
+			throw new KAFNotValidException("StatementCue elements need to contain the span element");
+		    }
+		    Span<Term> cueSpan = loadTermSpan(cueSpanElem, termIndex, statementId);
+		    statement.setCue(kaf.newStatementCue(cueSpan));
+		}
+	    }
+	    rootChildrenElems.remove(elem);
+	}
+	
+	
 	for (Element unknownLayerElem : rootChildrenElems) { // These layers are not recognised by the library
 	    kaf.addUnknownLayer(unknownLayerElem);
 	}
@@ -2055,6 +2104,27 @@ class ReadWriteManager {
 	    root.addContent(topicsElem);
 	}
 	
+	List<Statement> statements = (List<Statement>)(List<?>)annotationContainer.get(Layer.ATTRIBUTION);
+	if (statements.size() > 0) {
+	    Element attributionElem = new Element("attribution");
+	    for (Statement statement : statements) {
+		Element statementElem = new Element("statement");
+		statementElem.setAttribute("id", statement.getId());
+		Statement.StatementTarget stTarget = statement.getTarget();
+		statementElem.addContent(spanToDOM(stTarget.getSpan()));
+		if (statement.hasSource()) {
+		    Statement.StatementSource stSource = statement.getSource();
+		    statementElem.addContent(spanToDOM(stSource.getSpan()));
+		}
+		if (statement.hasCue()) {
+		    Statement.StatementCue stCue= statement.getCue();
+		    statementElem.addContent(spanToDOM(stCue.getSpan()));
+		}
+	    }
+	    root.addContent(attributionElem);
+	}
+	
+	
 	Set<Element> unknownLayers = annotationContainer.getUnknownLayers();
 	for (Element layer : unknownLayers) {
 	    layer.detach();
@@ -2063,6 +2133,19 @@ class ReadWriteManager {
 	
 
 	return doc;
+    }
+    
+    private static <T extends IdentifiableAnnotation> Element spanToDOM(Span<T> span) {
+	Element spanElem = new Element("span");
+	for ( T target : span.getTargets()) {
+	    Element targetElem = new Element("target");
+	    targetElem.setAttribute("id", target.getId());
+	    if (target == span.getHead()) {
+		targetElem.setAttribute("head", "yes");
+	    }
+	    spanElem.addContent(targetElem);
+	}
+	return spanElem;
     }
 
     private static void termToDOM(Term term, boolean isComponent, Element termsElem) {

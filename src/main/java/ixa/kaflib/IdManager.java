@@ -37,6 +37,7 @@ class IdManager implements Serializable {
     private static final String NONTERMINAL_PREFIX = "nter";
     private static final String EDGE_PREFIX = "tre";
     private static final String FACTUALITY_PREFIX = "f";
+    private static final String STATEMENT = "a";
 
     /* All the IDs in the document */
     private HashSet<String> ids;
