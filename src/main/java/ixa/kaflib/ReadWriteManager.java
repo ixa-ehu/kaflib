@@ -2111,15 +2111,22 @@ class ReadWriteManager {
 		Element statementElem = new Element("statement");
 		statementElem.setAttribute("id", statement.getId());
 		Statement.StatementTarget stTarget = statement.getTarget();
-		statementElem.addContent(spanToDOM(stTarget.getSpan()));
+		Element stTargetElem = new Element("statement_target");
+		statementElem.addContent(stTargetElem);
+		stTargetElem.addContent(spanToDOM(stTarget.getSpan()));
 		if (statement.hasSource()) {
 		    Statement.StatementSource stSource = statement.getSource();
-		    statementElem.addContent(spanToDOM(stSource.getSpan()));
+		    Element stSourceElem = new Element("statement_source");
+		    statementElem.addContent(stSourceElem);
+		    stSourceElem.addContent(spanToDOM(stSource.getSpan()));
 		}
 		if (statement.hasCue()) {
 		    Statement.StatementCue stCue= statement.getCue();
-		    statementElem.addContent(spanToDOM(stCue.getSpan()));
+		    Element stCueElem = new Element("statement_cue");
+		    statementElem.addContent(stCueElem);
+		    stCueElem.addContent(spanToDOM(stCue.getSpan()));
 		}
+		attributionElem.addContent(statementElem);
 	    }
 	    root.addContent(attributionElem);
 	}

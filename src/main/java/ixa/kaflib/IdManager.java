@@ -37,7 +37,7 @@ class IdManager implements Serializable {
     private static final String NONTERMINAL_PREFIX = "nter";
     private static final String EDGE_PREFIX = "tre";
     private static final String FACTUALITY_PREFIX = "f";
-    private static final String STATEMENT = "a";
+    private static final String STATEMENT_PREFIX = "a";
 
     /* All the IDs in the document */
     private HashSet<String> ids;
@@ -73,6 +73,7 @@ class IdManager implements Serializable {
 	this.prefixes.put(AnnotationType.CATEGORY, CATEGORY_PREFIX);
 	this.prefixes.put(AnnotationType.RELATION, RELATION_PREFIX);
 	this.prefixes.put(AnnotationType.FACTUALITY, FACTUALITY_PREFIX);
+	this.prefixes.put(AnnotationType.STATEMENT, STATEMENT_PREFIX);
 	
 	this.ids = new HashSet<String>();
 
