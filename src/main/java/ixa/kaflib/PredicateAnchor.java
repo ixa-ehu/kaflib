@@ -8,13 +8,13 @@ import java.util.Map;
 
 public class PredicateAnchor extends IdentifiableAnnotation {
     
-    private String anchorTime;
+    private Timex3 anchorTime;
     private Timex3 beginPoint;
     private Timex3 endPoint;
     private Span<Predicate> span;
 
     
-    public PredicateAnchor(String id, String anchorTime, Timex3 beginPoint, Timex3 endPoint, Span<Predicate> span) {
+    public PredicateAnchor(String id, Timex3 anchorTime, Timex3 beginPoint, Timex3 endPoint, Span<Predicate> span) {
 	super(id);
 	this.anchorTime = anchorTime;
 	this.beginPoint = beginPoint;
@@ -22,11 +22,11 @@ public class PredicateAnchor extends IdentifiableAnnotation {
 	this.span = span;
     }
     
-    public String getAnchorTime() {
+    public Timex3 getAnchorTime() {
 	return this.anchorTime;
     }
     
-    public void setAnchorTime(String anchorTime) {
+    public void setAnchorTime(Timex3 anchorTime) {
 	this.anchorTime = anchorTime;
     }
     

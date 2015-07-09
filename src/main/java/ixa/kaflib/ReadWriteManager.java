@@ -684,7 +684,11 @@ class ReadWriteManager {
 	    List<Element> predAnchorElems = elem.getChildren("predicateAnchor");
 	    for (Element predAnchorElem : predAnchorElems) {
 		String id = getAttribute("id", predAnchorElem);
-		String anchorTime = getAttribute("anchorTime", predAnchorElem);
+		String anchorTimeId = getAttribute("anchorTime", predAnchorElem);
+		Timex3 anchorTime = timexIndex.get(anchorTimeId);
+		if (anchorTime == null) {
+		    throw new IllegalStateException("Invalid timex ID (" + anchorTimeId + ") in predicateAnchor " + id);
+		}
 		String beginPointId = getAttribute("beginPoint", predAnchorElem);
 		Timex3 beginPoint = timexIndex.get(beginPointId);
 		if (beginPoint == null) {
@@ -2038,7 +2042,7 @@ class ReadWriteManager {
 		    PredicateAnchor predAnchor = (PredicateAnchor)tempRel;
 		    Element predAnchorElem = new Element("predicateAnchor");
 		    predAnchorElem.setAttribute("id", predAnchor.getId());
-		    predAnchorElem.setAttribute("anchorTime", predAnchor.getAnchorTime());
+		    predAnchorElem.setAttribute("anchorTime", predAnchor.getAnchorTime().getId());
 		    predAnchorElem.setAttribute("beginPoint", predAnchor.getBeginPoint().getId());
 		    predAnchorElem.setAttribute("endPoint", predAnchor.getEndPoint().getId());
 		    Element spanElem = new Element("span");

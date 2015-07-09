@@ -877,14 +877,14 @@ public Entity newEntity(List<Span<Term>> references) {
 	return newTLink;
     }
     
-    public PredicateAnchor newPredicateAnchor(String anchorTime, Timex3 beginPoint, Timex3 endPoint, Span<Predicate> span) {
+    public PredicateAnchor newPredicateAnchor(Timex3 anchorTime, Timex3 beginPoint, Timex3 endPoint, Span<Predicate> span) {
 	String newId = idManager.getNextId(AnnotationType.PREDICATE_ANCHOR);
 	PredicateAnchor newPredicateAnchor = new PredicateAnchor(newId, anchorTime, beginPoint, endPoint, span);
 	annotationContainer.add(newPredicateAnchor, Layer.TEMPORAL_RELATIONS);
 	return newPredicateAnchor;
     }
     
-    public PredicateAnchor newPredicateAnchor(String id, String anchorTime, Timex3 beginPoint, Timex3 endPoint, Span<Predicate> span) {
+    public PredicateAnchor newPredicateAnchor(String id, Timex3 anchorTime, Timex3 beginPoint, Timex3 endPoint, Span<Predicate> span) {
 	idManager.updateCounter(AnnotationType.PREDICATE_ANCHOR, id);
 	PredicateAnchor newPredicateAnchor = new PredicateAnchor(id, anchorTime, beginPoint, endPoint, span);
 	annotationContainer.add(newPredicateAnchor, Layer.TEMPORAL_RELATIONS);
