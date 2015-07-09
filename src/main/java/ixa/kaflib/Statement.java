@@ -1,6 +1,8 @@
 package ixa.kaflib;
 
 import ixa.kaflib.KAFDocument.Layer;
+import ixa.kaflib.KAFDocument.Utils;
+
 import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
@@ -70,6 +72,16 @@ public class Statement extends IdentifiableAnnotation {
 	return refs;
     }
     
+    @Override
+    public boolean equals(Object o) {
+	if (this == o) return true;
+	if (!(o instanceof Statement)) return false;
+	Statement ann = (Statement) o;
+	return Utils.areEquals(this.target, ann.target) &&
+		Utils.areEquals(this.source, ann.source) && 
+		Utils.areEquals(this.cue, ann.cue);
+    }
+    
     
     public static class StatementTarget extends Annotation {
 	private Span<Term> span;
@@ -93,6 +105,14 @@ public class Statement extends IdentifiableAnnotation {
 		terms.add(t);
 	    }
 	    return refs;
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+	    if (this == o) return true;
+	    if (!(o instanceof StatementTarget)) return false;
+	    StatementTarget ann = (StatementTarget) o;
+	    return Utils.areEquals(this.span, ann.span);
 	}
     }
     
@@ -119,6 +139,14 @@ public class Statement extends IdentifiableAnnotation {
 	    }
 	    return refs;
 	}
+	
+	@Override
+	public boolean equals(Object o) {
+	    if (this == o) return true;
+	    if (!(o instanceof StatementSource)) return false;
+	    StatementSource ann = (StatementSource) o;
+	    return Utils.areEquals(this.span, ann.span);
+	}
     }
     
     public static class StatementCue extends Annotation {
@@ -143,6 +171,14 @@ public class Statement extends IdentifiableAnnotation {
 		terms.add(t);
 	    }
 	    return refs;
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+	    if (this == o) return true;
+	    if (!(o instanceof StatementCue)) return false;
+	    StatementCue ann = (StatementCue) o;
+	    return Utils.areEquals(this.span, ann.span);
 	}
     }
 }

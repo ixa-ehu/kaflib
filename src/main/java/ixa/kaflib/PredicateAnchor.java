@@ -1,6 +1,7 @@
 package ixa.kaflib;
 
 import ixa.kaflib.KAFDocument.Layer;
+import ixa.kaflib.KAFDocument.Utils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -61,6 +62,17 @@ public class PredicateAnchor extends IdentifiableAnnotation {
 	    refs.put(Layer.SRL, (List<Annotation>)(List<?>)this.span.getTargets());
 	}
 	return refs;
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+	if (this == o) return true;
+	if (!(o instanceof PredicateAnchor)) return false;
+	PredicateAnchor ann = (PredicateAnchor) o;
+	return Utils.areEquals(this.anchorTime, ann.anchorTime) &&
+		Utils.areEquals(this.beginPoint, ann.beginPoint) &&
+		Utils.areEquals(this.endPoint, ann.endPoint) &&
+		Utils.areEquals(this.span, ann.span);
     }
 
 }

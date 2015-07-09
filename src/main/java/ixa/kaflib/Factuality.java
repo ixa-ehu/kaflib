@@ -1,6 +1,7 @@
 package ixa.kaflib;
 
 import ixa.kaflib.KAFDocument.Layer;
+import ixa.kaflib.KAFDocument.Utils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -50,6 +51,15 @@ public class Factuality extends IdentifiableAnnotation implements SentenceLevelA
 	Map<Layer, List<Annotation>> references = new HashMap<Layer, List<Annotation>>();
 	references.put(Layer.TERMS, (List<Annotation>)(List<?>)this.span.getTargets());
 	return references;
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+	if (this == o) return true;
+	if (!(o instanceof Factuality)) return false;
+	Factuality ann = (Factuality) o;
+	return Utils.areEquals(this.span, ann.span) &&
+		Utils.areEquals(this.factVals, ann.factVals);
     }
     
     public String getSpanStr(Span<Term> span) {
@@ -119,6 +129,17 @@ public class Factuality extends IdentifiableAnnotation implements SentenceLevelA
 	@Override
 	Map<Layer, List<Annotation>> getReferencedAnnotations() {
 	    return new HashMap<Layer, List<Annotation>>();
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+	    if (this == o) return true;
+	    if (!(o instanceof FactVal)) return false;
+	    FactVal ann = (FactVal) o;
+	    return Utils.areEquals(this.value, ann.value) &&
+		   Utils.areEquals(this.resource, ann.resource) &&
+		   Utils.areEquals(this.source, ann.source) &&
+		   Utils.areEquals(this.confidence, ann.confidence);
 	}
     }
 }

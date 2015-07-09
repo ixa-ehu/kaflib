@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.List;
 
 import ixa.kaflib.KAFDocument.Layer;
+import ixa.kaflib.KAFDocument.Utils;
+import ixa.kaflib.Statement.StatementSource;
 
 
 public class Topic extends Annotation {
@@ -78,6 +80,18 @@ public class Topic extends Annotation {
 
     public Map<Layer, List<Annotation>> getReferencedAnnotations() {
 	return new HashMap<Layer, List<Annotation>>();
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+	if (this == o) return true;
+	if (!(o instanceof Topic)) return false;
+	Topic ann = (Topic) o;
+	return Utils.areEquals(this.source, ann.source) &&
+		Utils.areEquals(this.method, ann.method) &&
+		Utils.areEquals(this.confidence, ann.confidence) &&
+		Utils.areEquals(this.URI, ann.URI) &&
+		Utils.areEquals(this.value, ann.value);
     }
 
 }
