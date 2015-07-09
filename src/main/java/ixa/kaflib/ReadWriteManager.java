@@ -250,6 +250,10 @@ class ReadWriteManager {
 		if (entType != null) {
 		    newEntity.setType(entType);
 		}
+		String entSource= getOptAttribute("source", entityElem);
+		if (entSource != null) {
+		    newEntity.setSource(entSource);
+		}
 		List<Element> externalReferencesElems = entityElem.getChildren("externalReferences");
 		if (externalReferencesElems.size() > 0) {
 		    List<ExternalRef> externalRefs = getExternalReferences(externalReferencesElems.get(0), kaf);
@@ -1497,6 +1501,9 @@ class ReadWriteManager {
 		entityElem.setAttribute("id", entity.getId());
 		if (entity.hasType()) {
 		    entityElem.setAttribute("type", entity.getType());
+		}
+		if (entity.hasSource()) {
+		    entityElem.setAttribute("source", entity.getSource());
 		}
 		Element referencesElem = new Element("references");
 		for (Span<Term> span : entity.getSpans()) {

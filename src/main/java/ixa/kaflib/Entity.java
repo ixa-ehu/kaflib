@@ -23,6 +23,8 @@ public class Entity extends IdentifiableAnnotation implements Relational, Senten
      * - Misc
      */ 
     private String type;
+    
+    private String source;
 
     /** Reference to different occurrences of the same named entity in the document (at least one required) */
     private List<Span<Term>> references;
@@ -84,6 +86,18 @@ public class Entity extends IdentifiableAnnotation implements Relational, Senten
 
     public void setType(String type) {
 	this.type = type;
+    }
+
+    public boolean hasSource() {
+	return source != null;
+    }
+
+    public String getSource() {
+	return source;
+    }
+
+    public void setSource(String source) {
+	this.source = source;
     }
 
     /** Returns the term targets of the first span. When targets of other spans are needed getReferences() method should be used. */ 
@@ -174,6 +188,7 @@ public class Entity extends IdentifiableAnnotation implements Relational, Senten
 	if (!(o instanceof Entity)) return false;
 	Entity ann = (Entity) o;
 	return Utils.areEquals(this.type, ann.type) &&
+		Utils.areEquals(this.source, ann.source) &&
 		Utils.areEquals(this.references, ann.references) &&
 		Utils.areEquals(this.externalReferences, ann.externalReferences);
     }
