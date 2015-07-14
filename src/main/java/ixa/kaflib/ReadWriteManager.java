@@ -604,12 +604,12 @@ class ReadWriteManager {
 		Timex3 timex3 = kaf.newTimex3(timex3Id, timex3Type);
 		String timex3BeginPointId = getOptAttribute("beginPoint", timex3Elem);
 		if (timex3BeginPointId != null) {
-		    Term beginPoint = termIndex.get(timex3BeginPointId);
+		    Timex3 beginPoint = timexIndex.get(timex3BeginPointId);
 		    timex3.setBeginPoint(beginPoint);
 		}
 		String timex3EndPointId = getOptAttribute("endPoint", timex3Elem);
 		if (timex3EndPointId != null) {
-		    Term endPoint = termIndex.get(timex3EndPointId);
+		    Timex3 endPoint = timexIndex.get(timex3EndPointId);
 		    timex3.setEndPoint(endPoint);
 		}
 		String timex3Quant = getOptAttribute("quant", timex3Elem);

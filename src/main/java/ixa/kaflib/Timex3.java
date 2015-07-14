@@ -15,9 +15,9 @@ public class Timex3 extends IdentifiableAnnotation implements TLinkReferable {
     /** Timex3's type (required)*/
     private String type;
 
-    private Term beginPoint;
+    private Timex3 beginPoint;
     
-    private Term endPoint;
+    private Timex3 endPoint;
 
     private String quant;
 
@@ -104,11 +104,11 @@ public class Timex3 extends IdentifiableAnnotation implements TLinkReferable {
 	return this.beginPoint != null;
     }
 
-    public Term getBeginPoint() {
+    public Timex3 getBeginPoint() {
 	return this.beginPoint;
     }
 
-    public void setBeginPoint(Term beginPoint) {
+    public void setBeginPoint(Timex3 beginPoint) {
 	this.beginPoint = beginPoint;
     }
 
@@ -116,11 +116,11 @@ public class Timex3 extends IdentifiableAnnotation implements TLinkReferable {
 	return this.endPoint != null;
     }
 
-    public Term getEndPoint() {
+    public Timex3 getEndPoint() {
 	return this.endPoint;
     }
 
-    public void setEndPoint(Term endPoint) {
+    public void setEndPoint(Timex3 endPoint) {
 	this.endPoint = endPoint;
     }
 
