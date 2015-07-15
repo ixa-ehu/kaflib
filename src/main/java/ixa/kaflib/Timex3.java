@@ -231,6 +231,16 @@ public class Timex3 extends IdentifiableAnnotation implements TLinkReferable {
     public void setComment(String comment) {
 	this.comment = comment;
     }
+    
+    /*
+    public Integer getSent() {
+	return this.span.getFirstTarget().getSent();
+    }
+    
+    public Integer getPara() {
+	return this.span.getFirstTarget().getPara();
+    }
+    */
 
     public boolean hasSpan() {
 	return this.span != null;

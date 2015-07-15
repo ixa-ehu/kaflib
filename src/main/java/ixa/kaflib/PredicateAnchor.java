@@ -2,12 +2,13 @@ package ixa.kaflib;
 
 import ixa.kaflib.KAFDocument.Layer;
 import ixa.kaflib.KAFDocument.Utils;
+import ixa.kaflib.Term.Sentiment;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class PredicateAnchor extends IdentifiableAnnotation {
+public class PredicateAnchor extends IdentifiableAnnotation implements SentenceLevelAnnotation {
     
     private Timex3 anchorTime;
     private Timex3 beginPoint;
@@ -53,6 +54,14 @@ public class PredicateAnchor extends IdentifiableAnnotation {
     
     public void setSpan(Span<Predicate> span) {
 	this.span = span;
+    }
+    
+    public Integer getSent() {
+	return this.span.getFirstTarget().getSent();
+    }
+    
+    public Integer getPara() {
+	return this.span.getFirstTarget().getPara();
     }
     
     @Override

@@ -71,7 +71,7 @@ public class KAFDocument implements Serializable {
 	TERMINAL,
 	EDGE,
 	COREF,
-	OPINION,
+	OPINION, 		/* DOC_LVL */
 	OPINION_HOLDER,
 	OPINION_TARGET,
 	OPINION_EXPRESSION,
@@ -1383,17 +1383,42 @@ public Entity newEntity(List<Span<Term>> references) {
 	return this.annotationContainer.getParaAnnotations(para, layer, group);
     }
 
+    
+    public List<Tree> getConstituentsBySent(String treeType, Integer sent) {
+	return (List<Tree>)(List<?>) this.annotationContainer.getSentAnnotations(sent, Layer.CONSTITUENCY, treeType);
+    }
+
+    public List<Tree> getConstituentsBySent(Integer sent) {
+        return getConstituentsBySent("notype", sent);
+    }
+
+    public List<Tree> getConstituentsByPara(String treeType, Integer para) {
+	return (List<Tree>)(List<?>) this.annotationContainer.getParaAnnotations(para, Layer.CONSTITUENCY, treeType);
+    }
+
+    public List<Tree> getConstituentsByPara(Integer para) {
+	return this.getConstituentsByPara("notype", para);
+    }
+    
+    public List<Predicate> getPredicatesBySent(Integer sent) {
+	return (List<Predicate>)(List<?>) this.annotationContainer.getSentAnnotations(sent, Layer.SRL);
+    }
+
+    public List<Predicate> getPredicatesByPara(Integer para) {
+	return (List<Predicate>)(List<?>) this.annotationContainer.getParaAnnotations(para, Layer.SRL);
+    }
+    
     /*
     public List<WF> getWFsBySent(Integer sent) {
-	return (List<WF>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.WF);
+	return (List<WF>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.TEXT);
     }
 
     public List<WF> getWFsByPara(Integer para) {
-	return (List<WF>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.WF);
+	return (List<WF>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.TEXT);
     }
 
     public List<Term> getTermsBySent(Integer sent) {
-	return (List<Term>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.TERM);
+	return (List<Term>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.);
     }
 
     public List<Term> getTermsByPara(Integer para) {
@@ -1416,22 +1441,6 @@ public Entity newEntity(List<Span<Term>> references) {
 	return (List<Dep>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.DEP);
     }
 
-    public List<Tree> getConstituentsBySent(String treeType, Integer sent) {
-	return (List<Tree>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.TREE, treeType);
-    }
-
-    public List<Tree> getConstituentsBySent(Integer sent) {
-        return getConstituentsBySent("notype", sent);
-    }
-
-    public List<Tree> getConstituentsByPara(String treeType, Integer para) {
-	return (List<Tree>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.TREE, treeType);
-    }
-
-    public List<Tree> getConstituentsByPara(Integer para) {
-	return this.getConstituentsByPara("notype", para);
-    }
-
     public List<Chunk> getChunksBySent(Integer sent) {
 	return (List<Chunk>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.CHUNK);
     }
@@ -1439,6 +1448,7 @@ public Entity newEntity(List<Span<Term>> references) {
     public List<Chunk> getChunksByPara(Integer para) {
 	return (List<Chunk>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.CHUNK);
     }
+*/
 
     /*
     public List<Coref> getCorefsBySent(Integer sent) {
@@ -1463,13 +1473,7 @@ public Entity newEntity(List<Span<Term>> references) {
     */
 
     /*
-    public List<Predicate> getPredicatesBySent(Integer sent) {
-	return (List<Predicate>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.PREDICATE);
-    }
 
-    public List<Predicate> getPredicatesByPara(Integer para) {
-	return (List<Predicate>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.PREDICATE);
-    }
     */
 
     /** Returns current timestamp. */

@@ -14,7 +14,7 @@ public class Topic extends Annotation {
     private String source;
     private String method;
     private Float confidence;
-    private String URI; 
+    private String URI;
     private String value;
     
 

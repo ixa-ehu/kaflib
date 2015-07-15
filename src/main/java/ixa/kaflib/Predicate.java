@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Predicate extends IdentifiableAnnotation implements TLinkReferable {
+public class Predicate extends IdentifiableAnnotation implements SentenceLevelAnnotation, TLinkReferable {
 
     public static class Role extends IdentifiableAnnotation {
 	private String semRole;
@@ -148,6 +148,14 @@ public class Predicate extends IdentifiableAnnotation implements TLinkReferable 
 
     public void addTerm(Term term, boolean isHead) {
 	this.span.addTarget(term, isHead);
+    }
+    
+    public Integer getSent() {
+	return this.span.getFirstTarget().getSent();
+    }  
+    
+    public Integer getPara() {
+	return this.span.getFirstTarget().getPara();
     }
 
     Map<Layer, List<Annotation>> getReferencedAnnotations() {
