@@ -16,12 +16,13 @@ public class PredicateAnchor extends IdentifiableAnnotation implements SentenceL
     private Span<Predicate> span;
 
     
-    public PredicateAnchor(String id, Timex3 anchorTime, Timex3 beginPoint, Timex3 endPoint, Span<Predicate> span) {
+    public PredicateAnchor(String id, Span<Predicate> span) {
 	super(id);
-	this.anchorTime = anchorTime;
-	this.beginPoint = beginPoint;
-	this.endPoint = endPoint;
 	this.span = span;
+    }
+    
+    public boolean hasAnchorTime() {
+	return this.anchorTime != null;
     }
     
     public Timex3 getAnchorTime() {
@@ -32,12 +33,20 @@ public class PredicateAnchor extends IdentifiableAnnotation implements SentenceL
 	this.anchorTime = anchorTime;
     }
     
+    public boolean hasBeginPoint() {
+	return this.beginPoint != null;
+    }
+    
     public Timex3 getBeginPoint() {
 	return this.beginPoint;
     }
     
     public void setBeginPoint(Timex3 beginPoint) {
 	this.beginPoint = beginPoint;
+    }
+    
+    public boolean hasEndPoint() {
+	return this.endPoint != null;
     }
     
     public Timex3 getEndPoint() {

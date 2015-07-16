@@ -877,18 +877,34 @@ public Entity newEntity(List<Span<Term>> references) {
 	return newTLink;
     }
     
-    public PredicateAnchor newPredicateAnchor(Timex3 anchorTime, Timex3 beginPoint, Timex3 endPoint, Span<Predicate> span) {
+    public PredicateAnchor newPredicateAnchor(Span<Predicate> span) {
 	String newId = idManager.getNextId(AnnotationType.PREDICATE_ANCHOR);
-	PredicateAnchor newPredicateAnchor = new PredicateAnchor(newId, anchorTime, beginPoint, endPoint, span);
+	PredicateAnchor newPredicateAnchor = new PredicateAnchor(newId, span);
 	annotationContainer.add(newPredicateAnchor, Layer.TEMPORAL_RELATIONS);
 	return newPredicateAnchor;
     }
     
-    public PredicateAnchor newPredicateAnchor(String id, Timex3 anchorTime, Timex3 beginPoint, Timex3 endPoint, Span<Predicate> span) {
+    public PredicateAnchor newPredicateAnchor(String id, Span<Predicate> span) {
 	idManager.updateCounter(AnnotationType.PREDICATE_ANCHOR, id);
-	PredicateAnchor newPredicateAnchor = new PredicateAnchor(id, anchorTime, beginPoint, endPoint, span);
+	PredicateAnchor newPredicateAnchor = new PredicateAnchor(id, span);
 	annotationContainer.add(newPredicateAnchor, Layer.TEMPORAL_RELATIONS);
 	return newPredicateAnchor;
+    }
+    
+    public PredicateAnchor newPredicateAnchor(Timex3 anchorTime, Timex3 beginPoint, Timex3 endPoint, Span<Predicate> span) {
+	PredicateAnchor newPa = this.newPredicateAnchor(span);
+	newPa.setAnchorTime(anchorTime);
+	newPa.setBeginPoint(beginPoint);
+	newPa.setEndPoint(endPoint);
+	return newPa;
+    }
+    
+    public PredicateAnchor newPredicateAnchor(String id, Timex3 anchorTime, Timex3 beginPoint, Timex3 endPoint, Span<Predicate> span) {
+	PredicateAnchor newPa = this.newPredicateAnchor(id, span);
+	newPa.setAnchorTime(anchorTime);
+	newPa.setBeginPoint(beginPoint);
+	newPa.setEndPoint(endPoint);
+	return newPa;
     }
     
     public CLink newCLink(String id, Predicate from, Predicate to) {

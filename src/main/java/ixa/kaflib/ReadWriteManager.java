@@ -688,21 +688,6 @@ class ReadWriteManager {
 	    List<Element> predAnchorElems = elem.getChildren("predicateAnchor");
 	    for (Element predAnchorElem : predAnchorElems) {
 		String id = getAttribute("id", predAnchorElem);
-		String anchorTimeId = getAttribute("anchorTime", predAnchorElem);
-		Timex3 anchorTime = timexIndex.get(anchorTimeId);
-		if (anchorTime == null) {
-		    throw new IllegalStateException("Invalid timex ID (" + anchorTimeId + ") in predicateAnchor " + id);
-		}
-		String beginPointId = getAttribute("beginPoint", predAnchorElem);
-		Timex3 beginPoint = timexIndex.get(beginPointId);
-		if (beginPoint == null) {
-		    throw new IllegalStateException("Invalid timex ID (" + beginPointId + ") in predicateAnchor " + id);
-		}
-		String endPointId = getAttribute("endPoint", predAnchorElem);
-		Timex3 endPoint = timexIndex.get(endPointId);
-		if (endPoint == null) {
-		    throw new IllegalStateException("Invalid timex ID (" + endPointId + ") in predicateAnchor " + id);
-		}
 		Element spanElem = predAnchorElem.getChild("span");
 		Span<Predicate> predAnchorSpan = KAFDocument.newSpan();
 		if (spanElem != null) {
@@ -716,7 +701,31 @@ class ReadWriteManager {
 			predAnchorSpan.addTarget(predicate, isHead);
 		    }
 		}
-		kaf.newPredicateAnchor(id, anchorTime, beginPoint, endPoint, predAnchorSpan);
+		PredicateAnchor newPa = kaf.newPredicateAnchor(id, predAnchorSpan);
+		String anchorTimeId = getOptAttribute("anchorTime", predAnchorElem);
+		if (anchorTimeId != null) {
+		    Timex3 anchorTime = timexIndex.get(anchorTimeId);
+		    if (anchorTime == null) {
+			throw new IllegalStateException("Invalid timex ID (" + anchorTimeId + ") in predicateAnchor " + id);
+		    }
+		    newPa.setAnchorTime(anchorTime);
+		}
+		String beginPointId = getOptAttribute("beginPoint", predAnchorElem);
+		if (beginPointId != null) {
+		    Timex3 beginPoint = timexIndex.get(beginPointId);
+		    if (beginPoint == null) {
+			throw new IllegalStateException("Invalid timex ID (" + beginPointId + ") in predicateAnchor " + id);
+		    }
+		    newPa.setBeginPoint(beginPoint);
+		}
+		String endPointId = getOptAttribute("endPoint", predAnchorElem);
+		if (endPointId != null) {
+		    Timex3 endPoint = timexIndex.get(endPointId);
+		    if (endPoint == null) {
+			throw new IllegalStateException("Invalid timex ID (" + endPointId + ") in predicateAnchor " + id);
+		    }
+		    newPa.setEndPoint(endPoint);
+		}
 	    }
 	    
 	    rootChildrenElems.remove(elem);
@@ -2049,9 +2058,9 @@ class ReadWriteManager {
 		    PredicateAnchor predAnchor = (PredicateAnchor)tempRel;
 		    Element predAnchorElem = new Element("predicateAnchor");
 		    predAnchorElem.setAttribute("id", predAnchor.getId());
-		    predAnchorElem.setAttribute("anchorTime", predAnchor.getAnchorTime().getId());
-		    predAnchorElem.setAttribute("beginPoint", predAnchor.getBeginPoint().getId());
-		    predAnchorElem.setAttribute("endPoint", predAnchor.getEndPoint().getId());
+		    if (predAnchor.hasAnchorTime()) predAnchorElem.setAttribute("anchorTime", predAnchor.getAnchorTime().getId());
+		    if (predAnchor.hasBeginPoint()) predAnchorElem.setAttribute("beginPoint", predAnchor.getBeginPoint().getId());
+		    if (predAnchor.hasEndPoint()) predAnchorElem.setAttribute("endPoint", predAnchor.getEndPoint().getId());
 		    Element spanElem = new Element("span");
 		    Span<Predicate> span = predAnchor.getSpan();
 		    for (Predicate target : span.getTargets()) {
