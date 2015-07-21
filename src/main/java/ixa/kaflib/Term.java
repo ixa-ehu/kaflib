@@ -1,6 +1,6 @@
 package ixa.kaflib;
 
-import ixa.kaflib.KAFDocument.Layer;
+import ixa.kaflib.KAFDocument.AnnotationType;
 import ixa.kaflib.KAFDocument.Utils;
 
 import java.util.List;
@@ -221,8 +221,8 @@ public class Term extends IdentifiableAnnotation implements SentenceLevelAnnotat
 	    sentimentProductFeature = val;
 	}
 	
-	Map<Layer, List<Annotation>> getReferencedAnnotations() {
-	    return new HashMap<Layer, List<Annotation>>();
+	Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
+	    return new HashMap<AnnotationType, List<Annotation>>();
 	}
 	
 	@Override
@@ -504,9 +504,9 @@ public class Term extends IdentifiableAnnotation implements SentenceLevelAnnotat
 	return this.compound;
     }
     
-    Map<Layer, List<Annotation>> getReferencedAnnotations() {
-	Map<Layer, List<Annotation>> referenced = new HashMap<Layer, List<Annotation>>();
-	referenced.put(Layer.TEXT, (List<Annotation>)(List<?>) this.getSpan().getTargets());
+    Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
+	Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
+	referenced.put(AnnotationType.WF, (List<Annotation>)(List<?>) this.getSpan().getTargets());
 	return referenced;
     }
 

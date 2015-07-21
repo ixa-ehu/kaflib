@@ -1,6 +1,6 @@
 package ixa.kaflib;
 
-import ixa.kaflib.KAFDocument.Layer;
+import ixa.kaflib.KAFDocument.AnnotationType;
 import ixa.kaflib.KAFDocument.Utils;
 
 import java.util.HashMap;
@@ -47,9 +47,9 @@ public class Factuality extends IdentifiableAnnotation implements SentenceLevelA
     }
     
     @Override
-    Map<Layer, List<Annotation>> getReferencedAnnotations() {
-	Map<Layer, List<Annotation>> references = new HashMap<Layer, List<Annotation>>();
-	references.put(Layer.TERMS, (List<Annotation>)(List<?>)this.span.getTargets());
+    Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
+	Map<AnnotationType, List<Annotation>> references = new HashMap<AnnotationType, List<Annotation>>();
+	references.put(AnnotationType.TERM, (List<Annotation>)(List<?>)this.span.getTargets());
 	return references;
     }
     
@@ -127,8 +127,8 @@ public class Factuality extends IdentifiableAnnotation implements SentenceLevelA
 	}
 	
 	@Override
-	Map<Layer, List<Annotation>> getReferencedAnnotations() {
-	    return new HashMap<Layer, List<Annotation>>();
+	Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
+	    return new HashMap<AnnotationType, List<Annotation>>();
 	}
 	
 	@Override

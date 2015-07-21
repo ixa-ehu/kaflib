@@ -1,6 +1,6 @@
 package ixa.kaflib;
 
-import ixa.kaflib.KAFDocument.Layer;
+import ixa.kaflib.KAFDocument.AnnotationType;
 import ixa.kaflib.KAFDocument.Utils;
 
 import java.util.ArrayList;
@@ -52,11 +52,11 @@ public class Factvalue extends Annotation implements SentenceLevelAnnotation {
 	return this.confidence;
     }
     
-    Map<Layer, List<Annotation>> getReferencedAnnotations() {
-	Map<Layer, List<Annotation>> referenced = new HashMap<Layer, List<Annotation>>();
+    Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
+	Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
 	List<Annotation> wfs = new ArrayList<Annotation>();
 	wfs.add(this.getWF());
-	referenced.put(Layer.TEXT, wfs);
+	referenced.put(AnnotationType.WF, wfs);
 	return referenced;
     }
     

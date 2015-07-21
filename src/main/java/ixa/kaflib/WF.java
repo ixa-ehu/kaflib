@@ -1,6 +1,6 @@
 package ixa.kaflib;
 
-import ixa.kaflib.KAFDocument.Layer;
+import ixa.kaflib.KAFDocument.AnnotationType;
 import ixa.kaflib.KAFDocument.Utils;
 
 import java.util.List;
@@ -89,7 +89,7 @@ public class WF extends IdentifiableAnnotation implements SentenceLevelAnnotatio
 	Integer oldPara = this.para;
 	this.sent = sent;
 	if (oldSent > 0) {
-	    annotationContainer.reindexAnnotationParaSent(this, KAFDocument.Layer.TEXT, oldSent, oldPara);
+	    annotationContainer.reindexAnnotationParaSent(this, KAFDocument.AnnotationType.WF, oldSent, oldPara);
 	}
 	/*
 	annotationContainer.indexWFBySent(this, sent);
@@ -113,7 +113,7 @@ public class WF extends IdentifiableAnnotation implements SentenceLevelAnnotatio
 	Integer oldSent = this.sent;
 	Integer oldPara = this.para;
 	this.para = para;
-	annotationContainer.reindexAnnotationParaSent(this, KAFDocument.Layer.TEXT, oldSent, oldPara);
+	annotationContainer.reindexAnnotationParaSent(this, KAFDocument.AnnotationType.WF, oldSent, oldPara);
 	//this.annotationContainer.indexSentByPara(this.sent, para);
     }
 
@@ -153,8 +153,8 @@ public class WF extends IdentifiableAnnotation implements SentenceLevelAnnotatio
 	this.form = form;
     }
     
-    Map<Layer, List<Annotation>> getReferencedAnnotations() {
-	return new HashMap<Layer, List<Annotation>>();
+    Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
+	return new HashMap<AnnotationType, List<Annotation>>();
     }
 
     @Override

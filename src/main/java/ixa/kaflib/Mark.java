@@ -1,6 +1,6 @@
 package ixa.kaflib;
 
-import ixa.kaflib.KAFDocument.Layer;
+import ixa.kaflib.KAFDocument.AnnotationType;
 import ixa.kaflib.KAFDocument.Utils;
 
 import java.util.List;
@@ -167,9 +167,9 @@ public class Mark extends IdentifiableAnnotation implements SentenceLevelAnnotat
 	externalReferences.addAll(externalRefs);
     }
     
-    Map<Layer, List<Annotation>> getReferencedAnnotations() {
-	Map<Layer, List<Annotation>> referenced = new HashMap<Layer, List<Annotation>>();
-	referenced.put(Layer.TEXT, (List<Annotation>)(List<?>) this.getSpan().getTargets());
+    Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
+	Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
+	referenced.put(AnnotationType.WF, (List<Annotation>)(List<?>) this.getSpan().getTargets());
 	return referenced;
     }
 

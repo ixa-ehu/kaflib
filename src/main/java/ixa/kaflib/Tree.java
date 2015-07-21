@@ -1,6 +1,6 @@
 package ixa.kaflib;
 
-import ixa.kaflib.KAFDocument.Layer;
+import ixa.kaflib.KAFDocument.AnnotationType;
 import ixa.kaflib.KAFDocument.Utils;
 
 import java.util.List;
@@ -41,9 +41,9 @@ public class Tree extends Annotation implements MultiLayerAnnotation, SentenceLe
 	this.root = root;
     }
     
-    Map<Layer, List<Annotation>> getReferencedAnnotations() {
-	Map<Layer, List<Annotation>> referenced = new HashMap<Layer, List<Annotation>>();
-	referenced.put(Layer.TERMS, this.root.getReferencedAnnotations().get(Layer.TERMS));
+    Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
+	Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
+	referenced.put(AnnotationType.TERM, this.root.getReferencedAnnotations().get(AnnotationType.TERM));
 	return referenced;
     }
 

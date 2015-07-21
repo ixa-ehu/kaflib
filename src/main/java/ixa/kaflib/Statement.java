@@ -1,6 +1,6 @@
 package ixa.kaflib;
 
-import ixa.kaflib.KAFDocument.Layer;
+import ixa.kaflib.KAFDocument.AnnotationType;
 import ixa.kaflib.KAFDocument.Utils;
 
 import java.util.List;
@@ -52,8 +52,8 @@ public class Statement extends IdentifiableAnnotation {
 	this.cue = cue;
     }
     
-    public Map<Layer, List<Annotation>> getReferencedAnnotations() {
-	Map<Layer, List<Annotation>> refs = new HashMap<Layer, List<Annotation>>();
+    public Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
+	Map<AnnotationType, List<Annotation>> refs = new HashMap<AnnotationType, List<Annotation>>();
 	List<Annotation> terms = new ArrayList<Annotation>();
 	for (Term t : this.target.getSpan().getTargets()) {
 	    terms.add(t);
@@ -68,7 +68,7 @@ public class Statement extends IdentifiableAnnotation {
 		terms.add(t);
 	    }
 	}
-	refs.put(Layer.TERMS, terms);
+	refs.put(AnnotationType.TERM, terms);
 	return refs;
     }
     
@@ -98,12 +98,13 @@ public class Statement extends IdentifiableAnnotation {
 	    this.span = span;
 	}
 	
-	public Map<Layer, List<Annotation>> getReferencedAnnotations() {
-	    Map<Layer, List<Annotation>> refs = new HashMap<Layer, List<Annotation>>();
+	public Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
+	    Map<AnnotationType, List<Annotation>> refs = new HashMap<AnnotationType, List<Annotation>>();
 	    List<Annotation> terms = new ArrayList<Annotation>();
 	    for (Term t : this.getSpan().getTargets()) {
 		terms.add(t);
 	    }
+	    refs.put(AnnotationType.TERM, terms);
 	    return refs;
 	}
 	
@@ -131,12 +132,13 @@ public class Statement extends IdentifiableAnnotation {
 	    this.span = span;
 	}
 	
-	public Map<Layer, List<Annotation>> getReferencedAnnotations() {
-	    Map<Layer, List<Annotation>> refs = new HashMap<Layer, List<Annotation>>();
+	public Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
+	    Map<AnnotationType, List<Annotation>> refs = new HashMap<AnnotationType, List<Annotation>>();
 	    List<Annotation> terms = new ArrayList<Annotation>();
 	    for (Term t : this.getSpan().getTargets()) {
 		terms.add(t);
 	    }
+	    refs.put(AnnotationType.TERM, terms);
 	    return refs;
 	}
 	
@@ -164,12 +166,13 @@ public class Statement extends IdentifiableAnnotation {
 	    this.span = span;
 	}
 	
-	public Map<Layer, List<Annotation>> getReferencedAnnotations() {
-	    Map<Layer, List<Annotation>> refs = new HashMap<Layer, List<Annotation>>();
+	public Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
+	    Map<AnnotationType, List<Annotation>> refs = new HashMap<AnnotationType, List<Annotation>>();
 	    List<Annotation> terms = new ArrayList<Annotation>();
 	    for (Term t : this.getSpan().getTargets()) {
 		terms.add(t);
 	    }
+	    refs.put(AnnotationType.TERM, terms);
 	    return refs;
 	}
 	

@@ -1,6 +1,6 @@
 package ixa.kaflib;
 
-import ixa.kaflib.KAFDocument.Layer;
+import ixa.kaflib.KAFDocument.AnnotationType;
 import ixa.kaflib.KAFDocument.Utils;
 
 import java.util.HashMap;
@@ -52,12 +52,12 @@ public class CLink extends IdentifiableAnnotation {
 	this.relType = relType;
     }
     
-    Map<Layer, List<Annotation>> getReferencedAnnotations() {
-	Map<Layer, List<Annotation>> referenced = new HashMap<Layer, List<Annotation>>();
+    Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
+	Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
 	List<Annotation> predicates = new ArrayList<Annotation>();
 	predicates.add(this.getFrom());
 	predicates.add(this.getTo());
-	referenced.put(Layer.SRL, predicates);
+	referenced.put(AnnotationType.PREDICATE, predicates);
 	return referenced;
     }
     

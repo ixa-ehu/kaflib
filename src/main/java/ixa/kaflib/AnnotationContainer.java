@@ -24,12 +24,13 @@ class AnnotationContainer implements Serializable {
     /* Annotation layers */
     private String rawText;
     private Map<Layer, Map<String, List<Annotation>>> layers; /* (Layer => (Group => Annotations)) */
+    private Map<AnnotationType, Map<String, List<Annotation>>> annotations; /* (AnnotationType => (Group => Annotations)) */
     private Set<Element> unknownLayers;
     
     /* Indices */
-    private Map<Annotation, Map<Layer, List<Annotation>>> invRefIndex; /* (Annotation => (Layer => Annotations)) */
-    private Map<Layer, Map<String, Map<Integer, List<Annotation>>> > sentIndex; /* (Layer => (Group => (Sentence => Annotations))) */
-    private Map<Layer, Map<String, Map<Integer, List<Annotation>>> > paraIndex; /* (Layer => (Group => (Paragraph => Annotations))) */
+    private Map<Annotation, Map<AnnotationType, List<Annotation>>> invRefIndex; /* (Annotation => (AnnotationType => Annotations)) */
+    private Map<AnnotationType, Map<String, Map<Integer, List<Annotation>>> > sentIndex; /* (AnnotationType => (Group => (Sentence => Annotations))) */
+    private Map<AnnotationType, Map<String, Map<Integer, List<Annotation>>> > paraIndex; /* (AnnotationType => (Group => (Paragraph => Annotations))) */
     private Map<Integer, Set<Integer>> paraSentIndex; /* Para => List<Sent> */
     private Set<Integer> indexedSents; /* Used to keep count of which sentences have already been indexed by paragraphs
     					(to avoid repeating the same sentence in different paragraphs, due to tokenizer bugs */
@@ -41,10 +42,11 @@ class AnnotationContainer implements Serializable {
     AnnotationContainer() {
 	rawText = new String();
 	layers = new HashMap<Layer, Map<String, List<Annotation>>>();
+	annotations = new HashMap<AnnotationType, Map<String, List<Annotation>>>();
 	unknownLayers = new HashSet<Element>();
-	invRefIndex = new HashMap<Annotation, Map<Layer, List<Annotation>>>();
-	sentIndex = new HashMap<Layer, Map<String, Map<Integer, List<Annotation>>>>();
-	paraIndex = new HashMap<Layer, Map<String, Map<Integer, List<Annotation>>>>();
+	invRefIndex = new HashMap<Annotation, Map<AnnotationType, List<Annotation>>>();
+	sentIndex = new HashMap<AnnotationType, Map<String, Map<Integer, List<Annotation>>>>();
+	paraIndex = new HashMap<AnnotationType, Map<String, Map<Integer, List<Annotation>>>>();
 	paraSentIndex = new HashMap<Integer, Set<Integer>>();
 	indexedSents = new HashSet<Integer>();
     }
@@ -54,41 +56,41 @@ class AnnotationContainer implements Serializable {
     String getRawText() {
 	return rawText;
     }
-    
-    List<Annotation> get(Layer layer) {
-	List<Annotation> annotations = new ArrayList<Annotation>();
-	for (String group : this.getGroupIDs(layer)) {
-	    annotations.addAll(this.get(layer, group));
-	}
-	return annotations;
+
+    List<Annotation> getLayer(Layer layer) {
+	return Helper.get(layer, this.layers);
     }
     
-    List<Annotation> get(Layer layer, String group) {
-	Map<String, List<Annotation>> layerGroups = this.layers.get(layer);
-	if (layerGroups == null) return new ArrayList<Annotation>();
-	List<Annotation> annotations = layerGroups.get(group);
-	return (annotations == null) ? new ArrayList<Annotation>() : annotations;
+    List<Annotation> getAnnotations(AnnotationType type) {
+	return Helper.get(type, this.annotations);
+    }
+
+    List<Annotation> getLayer(Layer layer, String group) {
+	return Helper.get(layer, group, this.layers);
     }
     
+    List<Annotation> getAnnotations(AnnotationType type, String group) {
+	return Helper.get(type, group, this.annotations);
+    }
+
     List<Annotation> getInverse(Annotation ann) {
 	return Helper.getInvReferences(ann, this.invRefIndex);
     }
     
-    List<Annotation> getInverse(Annotation ann, Layer layer) {
-	return Helper.getInvReferences(ann, layer, this.invRefIndex);
+    List<Annotation> getInverse(Annotation ann, AnnotationType type) {
+	return Helper.getInvReferences(ann, type, this.invRefIndex);
     }
     
-    List<Annotation> getInverse(List<Annotation> anns, Layer layer) {
+    List<Annotation> getInverse(List<Annotation> anns, AnnotationType type) {
 	List<Annotation> result = new ArrayList<Annotation>();
 	for (Annotation ann : anns) {
-	    result.addAll(Helper.getInvReferences(ann, layer, this.invRefIndex));
+	    result.addAll(Helper.getInvReferences(ann, type, this.invRefIndex));
 	}
 	return result;
     }
     
-    List<String> getGroupIDs(Layer layer) {
-	Map<String, List<Annotation>> layerGroups = this.layers.get(layer);
-	return (layerGroups == null) ? new ArrayList<String>() : new ArrayList<String>(layerGroups.keySet());
+    List<String> getGroupIDs(AnnotationType type) {
+	return Helper.getGroupIDs(type, this.annotations);
     }
 
     /** Returns all unknown layers as a DOM Element list */
@@ -99,45 +101,45 @@ class AnnotationContainer implements Serializable {
     void setRawText(String str) {
 	rawText = str;
     }
-
-    void add(Annotation ann, Layer layer) {
-	this.add(ann, layer, null);
+    
+    void add(Annotation ann, Layer layer, AnnotationType type) {
+	this.add(ann, layer, type, null);
     }
     
-    void add(Annotation ann, Layer layer, Integer position) {
+    void add(Annotation ann, Layer layer, AnnotationType type, Integer position) {
 	Helper.addAnnotation(ann, layer, getGroupID(ann), position, this.layers);
+	Helper.addAnnotation(ann, type, getGroupID(ann), position, this.annotations);
 	/* Index */
-	this.indexAnnotation(ann, layer);
+	this.indexAnnotation(ann, type);
     }
 
-    
     /** Adds an unknown layer to the container in DOM format */
     void add(Element layer) {
 	this.unknownLayers.add(layer);
     }
     
-    private void indexAnnotation(Annotation ann, Layer layer) {
+    private void indexAnnotation(Annotation ann, AnnotationType type) {
 	/* Inverse references index*/
-	Map<Layer, List<Annotation>> invReferences = ann.getReferencedAnnotations();
-	Iterator<Map.Entry<Layer, List<Annotation>>> it = invReferences.entrySet().iterator();
+	Map<AnnotationType, List<Annotation>> invReferences = ann.getReferencedAnnotations();
+	Iterator<Map.Entry<AnnotationType, List<Annotation>>> it = invReferences.entrySet().iterator();
 	while (it.hasNext()) {
-	    Map.Entry<Layer, List<Annotation>> pair = it.next();
+	    Map.Entry<AnnotationType, List<Annotation>> pair = it.next();
 	    for (Annotation ref : pair.getValue()) {
-		Helper.addInvReference(ann, ref, layer, this.invRefIndex);
+		Helper.addInvReference(ann, ref, type, this.invRefIndex);
 	    }
 	}
 	/* Sentence and paragraph index */
-	this.indexAnnotationParaSent(ann, layer);
+	this.indexAnnotationParaSent(ann, type);
     }
     
-    private void indexAnnotationParaSent(Annotation ann, Layer layer) {
+    private void indexAnnotationParaSent(Annotation ann, AnnotationType type) {
 	String groupID = getGroupID(ann);
 	if (ann instanceof SentenceLevelAnnotation) {
 	    Integer sent = ((SentenceLevelAnnotation) ann).getSent();
 	    Integer para = ((ParagraphLevelAnnotation) ann).getPara();
-	    Helper.addToIndex(ann, layer, groupID, sent, this.sentIndex);
+	    Helper.addToIndex(ann, type, groupID, sent, this.sentIndex);
 	    if (para > 0) {
-		Helper.addToIndex(ann, layer, groupID, para, this.paraIndex);
+		Helper.addToIndex(ann, type, groupID, para, this.paraIndex);
 		if (!indexedSents.contains(sent)) {
 		    this.addSentToPara(sent, para);
 		    indexedSents.add(sent);
@@ -147,18 +149,18 @@ class AnnotationContainer implements Serializable {
 	else if (ann instanceof ParagraphLevelAnnotation) {
 	    Integer para = ((ParagraphLevelAnnotation) ann).getPara();
 	    if (para > 0) {
-		Helper.addToIndex(ann, layer, groupID, para, this.paraIndex);
+		Helper.addToIndex(ann, type, groupID, para, this.paraIndex);
 	    }
 	}
     }
     
-    void reindexAnnotationParaSent(Annotation ann, Layer layer, Integer oldSent, Integer oldPara) {
+    void reindexAnnotationParaSent(Annotation ann, AnnotationType type, Integer oldSent, Integer oldPara) {
 	String groupID = getGroupID(ann);
 	/* Remove index */
-	Helper.removeFromIndex(ann, layer, groupID, oldSent, this.sentIndex);
-	Helper.removeFromIndex(ann, layer, groupID, oldPara, this.paraIndex);
+	Helper.removeFromIndex(ann, type, groupID, oldSent, this.sentIndex);
+	Helper.removeFromIndex(ann, type, groupID, oldPara, this.paraIndex);
 	/* Re-index */
-	this.indexAnnotationParaSent(ann, layer);
+	this.indexAnnotationParaSent(ann, type);
 	/* Re-index related annotations */
 	/*
 	for (Layer relatedLayer : Layer.values()) {
@@ -170,24 +172,26 @@ class AnnotationContainer implements Serializable {
 	*/
     }
 
-    void remove(Annotation ann, Layer layer) {
-	Map<String, List<Annotation>> layerGroups = this.layers.get(layer);
-	if (layerGroups != null) {
-	    layerGroups.remove(ann);
-	}
+    void remove(Annotation ann, Layer layer, AnnotationType type) {
+	this.remove(ann, layer, type, DEFAULT_GROUP);
+    }
+
+    void remove(Annotation ann, Layer layer, AnnotationType type, String group) {
+	Helper.remove(ann, layer, this.layers);
+	Helper.remove(ann, type, this.annotations);
 	if (ann instanceof SentenceLevelAnnotation) {
 	    String groupID = getGroupID(ann);
 	    Integer sent = ((SentenceLevelAnnotation) ann).getSent();
-	    List<Annotation> sentAnnotations = this.getSentAnnotations(sent, layer, groupID);
+	    List<Annotation> sentAnnotations = this.getSentAnnotations(sent, type, groupID);
 	    sentAnnotations.remove(ann);
 	    if (ann instanceof ParagraphLevelAnnotation) {
 		Integer para = ((ParagraphLevelAnnotation) ann).getPara();
-		List<Annotation> paraAnnotations = this.getParaAnnotations(para, layer, groupID);
+		List<Annotation> paraAnnotations = this.getParaAnnotations(para, type, groupID);
 		paraAnnotations.remove(ann);
 	    }
 	}
     }
-
+    
     void removeLayer(Layer layerName) {
 	this.layers.remove(layerName);
     }
@@ -210,20 +214,20 @@ class AnnotationContainer implements Serializable {
 	return sentList;
     }
 
-    List<Annotation> getSentAnnotations(Integer sent, Layer layer) {
-	return this.getSentAnnotations(sent, layer, DEFAULT_GROUP);
+    List<Annotation> getSentAnnotations(Integer sent, AnnotationType type) {
+	return this.getSentAnnotations(sent, type, DEFAULT_GROUP);
     }
     
-    List<Annotation> getSentAnnotations(Integer sent, Layer layer, String groupID) {
-	return Helper.getIndexedAnnotations(layer, groupID, sent, this.sentIndex);
+    List<Annotation> getSentAnnotations(Integer sent, AnnotationType type, String groupID) {
+	return Helper.getIndexedAnnotations(type, groupID, sent, this.sentIndex);
     }
 
-    List<Annotation> getParaAnnotations(Integer para, Layer layer) {
-	return this.getParaAnnotations(para, layer, DEFAULT_GROUP);
+    List<Annotation> getParaAnnotations(Integer para, AnnotationType type) {
+	return this.getParaAnnotations(para, type, DEFAULT_GROUP);
     }
     
-    List<Annotation> getParaAnnotations(Integer para, Layer layer, String groupID) {
-	return Helper.getIndexedAnnotations(layer, groupID, para, this.paraIndex);
+    List<Annotation> getParaAnnotations(Integer para, AnnotationType type, String groupID) {
+	return Helper.getIndexedAnnotations(type, groupID, para, this.paraIndex);
     }
     
     Integer getNumSentences() {
@@ -231,34 +235,34 @@ class AnnotationContainer implements Serializable {
     }
     
     Integer getNumParagraphs() {
-	if (this.paraIndex.get(Layer.TEXT) == null) return 0;
-	return this.paraIndex.get(Layer.TEXT).get(DEFAULT_GROUP).size();
+	if (this.paraIndex.get(AnnotationType.WF) == null) return 0;
+	return this.paraIndex.get(AnnotationType.WF).get(DEFAULT_GROUP).size();
     }
     
     /** Returns all tokens classified into sentences */
-    List<List<Annotation>> getSentences(Layer layer) {
-	return this.getSentences(layer, DEFAULT_GROUP);
+    List<List<Annotation>> getSentences(AnnotationType type) {
+	return this.getSentences(type, DEFAULT_GROUP);
     }
     
     /** Return all annotations of type "type" classified into sentences */
-    List<List<Annotation>> getSentences(Layer layer, String groupID) {
+    List<List<Annotation>> getSentences(AnnotationType type, String groupID) {
 	List<List<Annotation>> sentences = new ArrayList<List<Annotation>>();
-	for (int sent : Helper.getIndexKeys(layer, groupID, this.sentIndex)) {
-	    sentences.add(this.getSentAnnotations(sent, layer));
+	for (int sent : Helper.getIndexKeys(type, groupID, this.sentIndex)) {
+	    sentences.add(this.getSentAnnotations(sent, type));
 	}
 	return sentences;
     }
     
     /** Returns all tokens classified into paragraphs */
-    List<List<Annotation>> getParagraphs(Layer layer) {
-	return this.getParagraphs(layer, DEFAULT_GROUP);
+    List<List<Annotation>> getParagraphs(AnnotationType type) {
+	return this.getParagraphs(type, DEFAULT_GROUP);
     }
     
     /** Return all annotations of type "type" classified into paragraphs */
-    List<List<Annotation>> getParagraphs(Layer layer, String groupID) {
+    List<List<Annotation>> getParagraphs(AnnotationType type, String groupID) {
 	List<List<Annotation>> paragraphs = new ArrayList<List<Annotation>>();
-	for (int para : Helper.getIndexKeys(layer, groupID, this.paraIndex)) {
-	    paragraphs.add(this.getParaAnnotations(para, layer));
+	for (int para : Helper.getIndexKeys(type, groupID, this.paraIndex)) {
+	    paragraphs.add(this.getParaAnnotations(para, type));
 	}
 	return paragraphs;
     }
@@ -291,19 +295,20 @@ class AnnotationContainer implements Serializable {
 		Utils.areEquals(this.unknownLayers, ac.unknownLayers);
     }
 
+    
     private static class Helper {
 	
-	static void addToIndex(Annotation ann, Layer layer, String groupID, Integer key, Map<Layer, Map<String, Map<Integer, List<Annotation>>>> index) {
+	static <T> void addToIndex(Annotation ann, T type, String groupID, Integer key, Map<T, Map<String, Map<Integer, List<Annotation>>>> index) {
 	    if (key != null) {
-		Map<String, Map<Integer, List<Annotation>> > layerIndex = index.get(layer);
-		if (layerIndex == null) {
-		    layerIndex = new HashMap<String, Map<Integer, List<Annotation>> >();
-		    index.put(layer, layerIndex);
+		Map<String, Map<Integer, List<Annotation>> > typeIndex = index.get(type);
+		if (typeIndex == null) {
+		    typeIndex = new HashMap<String, Map<Integer, List<Annotation>> >();
+		    index.put(type, typeIndex);
 		}
-		Map<Integer, List<Annotation>> groupIndex = layerIndex.get(groupID);
+		Map<Integer, List<Annotation>> groupIndex = typeIndex.get(groupID);
 		if (groupIndex == null) {
 		    groupIndex = new HashMap<Integer, List<Annotation>>();
-		    layerIndex.put(groupID, groupIndex);
+		    typeIndex.put(groupID, groupIndex);
 		}
 		List<Annotation> annotations = groupIndex.get(key);
 		if (annotations == null) {
@@ -314,11 +319,11 @@ class AnnotationContainer implements Serializable {
 	    }
 	}
 	
-	static void removeFromIndex(Annotation ann, Layer layer, String groupID, Integer key, Map<Layer, Map<String, Map<Integer, List<Annotation>>>> index) {
+	static <T> void removeFromIndex(Annotation ann, T type, String groupID, Integer key, Map<T, Map<String, Map<Integer, List<Annotation>>>> index) {
 	    if (key != null) {
-		Map<String, Map<Integer, List<Annotation>> > layerIndex = index.get(layer);
-		if (layerIndex != null) {
-		    Map<Integer, List<Annotation>> groupIndex = layerIndex.get(groupID);
+		Map<String, Map<Integer, List<Annotation>> > typeIndex = index.get(type);
+		if (typeIndex != null) {
+		    Map<Integer, List<Annotation>> groupIndex = typeIndex.get(groupID);
 		    if (groupIndex != null) {
 			List<Annotation> annotations = groupIndex.get(key);
 			if (annotations != null) {
@@ -329,16 +334,16 @@ class AnnotationContainer implements Serializable {
 	    }
 	}
 	
-	static void addAnnotation(Annotation ann, Layer layer, String groupID, Integer position, Map<Layer, Map<String, List<Annotation>>> layers) {
-	    Map<String, List<Annotation>> layerGroups = layers.get(layer);
-	    if (layerGroups == null) {
-		layerGroups = new HashMap<String, List<Annotation>>();
-		layers.put(layer, layerGroups);
+	static <T> void addAnnotation(Annotation ann, T type, String groupID, Integer position, Map<T, Map<String, List<Annotation>>> container) {
+	    Map<String, List<Annotation>> typeGroups = container.get(type);
+	    if (typeGroups == null) {
+		typeGroups = new HashMap<String, List<Annotation>>();
+		container.put(type, typeGroups);
 	    }
-	    List<Annotation> annotations = layerGroups.get(groupID);
+	    List<Annotation> annotations = typeGroups.get(groupID);
 	    if (annotations == null) {
 		annotations = new ArrayList<Annotation>();
-		layerGroups.put(groupID, annotations);
+		typeGroups.put(groupID, annotations);
 	    }
 	    if ((position == null) || (position > annotations.size())) {
 		annotations.add(ann);
@@ -347,19 +352,19 @@ class AnnotationContainer implements Serializable {
 	    }
 	}
 
-	static List<Annotation> getIndexedAnnotations(Layer layer, String groupID, Integer key, Map<Layer, Map<String, Map<Integer, List<Annotation>>>> index) {
-	    Map<String, Map<Integer, List<Annotation>> > layerIndex = index.get(layer);
-	    if (layerIndex == null) return new ArrayList<Annotation>();
-	    Map<Integer, List<Annotation>> groupIndex = layerIndex.get(groupID);
+	static <T> List<Annotation> getIndexedAnnotations(T type, String groupID, Integer key, Map<T, Map<String, Map<Integer, List<Annotation>>>> index) {
+	    Map<String, Map<Integer, List<Annotation>> > typeIndex = index.get(type);
+	    if (typeIndex == null) return new ArrayList<Annotation>();
+	    Map<Integer, List<Annotation>> groupIndex = typeIndex.get(groupID);
 	    if (groupIndex == null) return new ArrayList<Annotation>();
 	    List<Annotation> annotations = groupIndex.get(key);
 	    return (annotations == null) ? new ArrayList<Annotation>() : annotations;
 	}
 	
-	static List<Integer> getIndexKeys(Layer layer, String groupID, Map<Layer, Map<String, Map<Integer, List<Annotation>>>> index) {
-	    Map<String, Map<Integer, List<Annotation>>> layerIndex = index.get(layer);
-	    if (layerIndex != null) {
-		Map<Integer, List<Annotation>> groupIndex = layerIndex.get(groupID);
+	static <T> List<Integer> getIndexKeys(T type, String groupID, Map<T, Map<String, Map<Integer, List<Annotation>>>> index) {
+	    Map<String, Map<Integer, List<Annotation>>> typeIndex = index.get(type);
+	    if (typeIndex != null) {
+		Map<Integer, List<Annotation>> groupIndex = typeIndex.get(groupID);
 		if (groupIndex != null) {
 		    List<Integer> keys= new ArrayList<Integer>(groupIndex.keySet());
 		    Collections.sort(keys);
@@ -369,36 +374,67 @@ class AnnotationContainer implements Serializable {
 	    return new ArrayList<Integer>();
 	}
 	
-	static void addInvReference(Annotation src, Annotation ref, Layer layer, Map<Annotation, Map<Layer, List<Annotation>>> index) {
-	    Map<Layer, List<Annotation>> annIndex = index.get(ref);
+	static <T> void addInvReference(Annotation src, Annotation ref, T type, Map<Annotation, Map<T, List<Annotation>>> index) {
+	    Map<T, List<Annotation>> annIndex = index.get(ref);
 	    if (annIndex == null) {
-		annIndex = new HashMap<Layer, List<Annotation>>();
+		annIndex = new HashMap<T, List<Annotation>>();
 		index.put(ref, annIndex);
 	    }
-	    List<Annotation> refAnnotations = annIndex.get(layer);
+	    List<Annotation> refAnnotations = annIndex.get(type);
 	    if (refAnnotations == null) {
 		refAnnotations = new ArrayList<Annotation>();
-		annIndex.put(layer, refAnnotations);
+		annIndex.put(type, refAnnotations);
 	    }
 	    refAnnotations.add(src);
 	}
 	
-	static List<Annotation> getInvReferences(Annotation ann, Layer layer, Map<Annotation, Map<Layer, List<Annotation>>> index) {
-	    Map<Layer, List<Annotation>> annIndex = index.get(ann);
+	static <T> List<Annotation> getInvReferences(Annotation ann, T type, Map<Annotation, Map<T, List<Annotation>>> index) {
+	    Map<T, List<Annotation>> annIndex = index.get(ann);
 	    if (annIndex == null) return new ArrayList<Annotation>();
-	    List<Annotation> annotations = annIndex.get(layer);
+	    List<Annotation> annotations = annIndex.get(type);
 	    return (annotations == null) ? new ArrayList<Annotation>() : annotations;
 	}
 	
-	static List<Annotation> getInvReferences(Annotation ann, Map<Annotation, Map<Layer, List<Annotation>>> index) {
+	static <T> List<Annotation> getInvReferences(Annotation ann, Map<Annotation, Map<T, List<Annotation>>> index) {
 	    List<Annotation> annotations = new ArrayList<Annotation>();
-	    Map<Layer, List<Annotation>> annIndex = index.get(ann);
+	    Map<T, List<Annotation>> annIndex = index.get(ann);
 	    if (annIndex == null) return new ArrayList<Annotation>();
-	    for (Layer layer : annIndex.keySet()) {
-		annotations.addAll(annIndex.get(layer));
+	    for (T type: annIndex.keySet()) {
+		annotations.addAll(annIndex.get(type));
 	    }
 	    return annotations;
 	}
+
+	static <T> List<Annotation> get(T type, Map<T, Map<String, List<Annotation>>> container) {
+	    List<Annotation> annotations = new ArrayList<Annotation>();
+	    for (String group : Helper.getGroupIDs(type, container)) {
+		annotations.addAll(Helper.get(type, group, container));
+	    }
+	    return annotations;
+	}
+
+	static <T> List<Annotation> get(T type, String group, Map<T, Map<String, List<Annotation>>> container) {
+	    Map<String, List<Annotation>> groups = container.get(type);
+	    if (groups == null) return new ArrayList<Annotation>();
+	    List<Annotation> annotations = groups.get(group);
+	    return (annotations == null) ? new ArrayList<Annotation>() : annotations;
+	}
+
+	static <T> List<String> getGroupIDs(T type, Map<T, Map<String, List<Annotation>>> container) {
+	    Map<String, List<Annotation>> groups = container.get(type);
+	    return (groups == null) ? new ArrayList<String>() : new ArrayList<String>(groups.keySet());
+	}
+	
+	static <T> void remove(Annotation ann, T type, Map<T, Map<String, List<Annotation>>> container) {
+	    Helper.remove(ann, type, DEFAULT_GROUP, container);
+	}
+	
+	static <T> void remove(Annotation ann, T type, String group, Map<T, Map<String, List<Annotation>>> container) {
+	    Map<String, List<Annotation>> groups = container.get(type);
+	    if (groups == null) return;
+	    List<Annotation> annotations = groups.get(group);
+	    if (annotations != null) groups.remove(ann);
+	} 
     }
     
 }

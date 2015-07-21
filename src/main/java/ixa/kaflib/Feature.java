@@ -1,6 +1,6 @@
 package ixa.kaflib;
 
-import ixa.kaflib.KAFDocument.Layer;
+import ixa.kaflib.KAFDocument.AnnotationType;
 import ixa.kaflib.KAFDocument.Utils;
 
 import java.util.List;
@@ -141,13 +141,13 @@ public class Feature extends IdentifiableAnnotation implements Relational, Seria
 	return getSpanStr(this.getSpans().get(0));
     }
     
-    Map<Layer, List<Annotation>> getReferencedAnnotations() {
-	Map<Layer, List<Annotation>> referenced = new HashMap<Layer, List<Annotation>>();
+    Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
+	Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
 	List<Annotation> terms = new ArrayList<Annotation>();
 	for (Span<Term> span : this.getSpans()) {
 	    terms.addAll((List<Annotation>)(List<?>) span.getTargets());
 	}
-	referenced.put(Layer.TERMS, terms);
+	referenced.put(AnnotationType.TERM, terms);
 	return referenced;
     }
 

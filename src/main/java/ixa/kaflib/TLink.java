@@ -1,6 +1,6 @@
 package ixa.kaflib;
 
-import ixa.kaflib.KAFDocument.Layer;
+import ixa.kaflib.KAFDocument.AnnotationType;
 import ixa.kaflib.KAFDocument.Utils;
 
 import java.util.List;
@@ -57,16 +57,16 @@ public class TLink extends IdentifiableAnnotation {
 	this.relType = relType;
     }
     
-    Map<Layer, List<Annotation>> getReferencedAnnotations() {
-	Map<Layer, List<Annotation>> referenced = new HashMap<Layer, List<Annotation>>();
+    Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
+	Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
 	List<Annotation> predicates = new ArrayList<Annotation>();
 	List<Annotation> timexes = new ArrayList<Annotation>();
 	if (this.from instanceof Predicate) predicates.add((Annotation)this.from);
 	else timexes.add((Annotation)this.from);
 	if (this.to instanceof Predicate) predicates.add((Annotation)this.to);
 	else timexes.add((Annotation)this.to);
-	referenced.put(Layer.SRL, predicates);
-	referenced.put(Layer.TIME_EXPRESSIONS, timexes);
+	referenced.put(AnnotationType.PREDICATE, predicates);
+	referenced.put(AnnotationType.TIMEX3, timexes);
 	return referenced;
     }
     

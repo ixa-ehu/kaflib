@@ -1,6 +1,6 @@
 package ixa.kaflib;
 
-import ixa.kaflib.KAFDocument.Layer;
+import ixa.kaflib.KAFDocument.AnnotationType;
 import ixa.kaflib.KAFDocument.Utils;
 import ixa.kaflib.Term.Sentiment;
 
@@ -74,10 +74,10 @@ public class PredicateAnchor extends IdentifiableAnnotation implements SentenceL
     }
     
     @Override
-    Map<Layer, List<Annotation>> getReferencedAnnotations() {
-	Map<Layer, List<Annotation>> refs = new HashMap<KAFDocument.Layer, List<Annotation>>();
+    Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
+	Map<AnnotationType, List<Annotation>> refs = new HashMap<AnnotationType, List<Annotation>>();
 	if (this.span != null) {
-	    refs.put(Layer.SRL, (List<Annotation>)(List<?>)this.span.getTargets());
+	    refs.put(AnnotationType.PREDICATE, (List<Annotation>)(List<?>)this.span.getTargets());
 	}
 	return refs;
     }

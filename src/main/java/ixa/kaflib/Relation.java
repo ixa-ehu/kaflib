@@ -1,6 +1,6 @@
 package ixa.kaflib;
 
-import ixa.kaflib.KAFDocument.Layer;
+import ixa.kaflib.KAFDocument.AnnotationType;
 import ixa.kaflib.KAFDocument.Utils;
 
 import java.util.List;
@@ -97,8 +97,8 @@ public class Relation extends IdentifiableAnnotation implements Serializable {
 	return str;
     }
     
-    Map<Layer, List<Annotation>> getReferencedAnnotations() {
-	Map<Layer, List<Annotation>> referenced = new HashMap<Layer, List<Annotation>>();
+    Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
+	Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
 	List<Annotation> entities = new ArrayList<Annotation>();
 	List<Annotation> properties = new ArrayList<Annotation>();
 	List<Annotation> categories = new ArrayList<Annotation>();
@@ -108,9 +108,9 @@ public class Relation extends IdentifiableAnnotation implements Serializable {
 	if (this.to instanceof Entity) entities.add((Annotation)this.to);
 	else if (((Feature)this.to).isAProperty()) properties.add((Annotation)this.to);
 	else categories.add((Annotation)this.to);
-	referenced.put(Layer.ENTITIES, (List<Annotation>)(List<?>) entities);
-	referenced.put(Layer.PROPERTIES, (List<Annotation>)(List<?>) properties);
-	referenced.put(Layer.CATEGORIES, (List<Annotation>)(List<?>) categories);
+	referenced.put(AnnotationType.ENTITY, (List<Annotation>)(List<?>) entities);
+	referenced.put(AnnotationType.PROPERTY, (List<Annotation>)(List<?>) properties);
+	referenced.put(AnnotationType.CATEGORY, (List<Annotation>)(List<?>) categories);
 	return referenced;
     }
     

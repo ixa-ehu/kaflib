@@ -1,6 +1,6 @@
 package ixa.kaflib;
 
-import ixa.kaflib.KAFDocument.Layer;
+import ixa.kaflib.KAFDocument.AnnotationType;
 import ixa.kaflib.KAFDocument.Utils;
 
 import java.util.HashMap;
@@ -40,13 +40,13 @@ public class NonTerminal extends TreeNode implements SentenceLevelAnnotation {
 	return this.children;
     }
     
-    Map<Layer, List<Annotation>> getReferencedAnnotations() {
-	Map<Layer, List<Annotation>> referenced = new HashMap<Layer, List<Annotation>>();
+    Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
+	Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
 	List<Annotation> terms = new ArrayList<Annotation>();
 	for (TreeNode node : this.children) {
-	    terms.addAll(node.getReferencedAnnotations().get(Layer.TERMS));
+	    terms.addAll(node.getReferencedAnnotations().get(AnnotationType.TERM));
 	}
-	referenced.put(Layer.TERMS, terms);
+	referenced.put(AnnotationType.TERM, terms);
 	return referenced;
     }
     

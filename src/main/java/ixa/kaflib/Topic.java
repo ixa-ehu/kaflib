@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
 
-import ixa.kaflib.KAFDocument.Layer;
+import ixa.kaflib.KAFDocument.AnnotationType;
 import ixa.kaflib.KAFDocument.Utils;
 import ixa.kaflib.Statement.StatementSource;
 
@@ -78,8 +78,8 @@ public class Topic extends Annotation {
 	value = val;
     }
 
-    public Map<Layer, List<Annotation>> getReferencedAnnotations() {
-	return new HashMap<Layer, List<Annotation>>();
+    public Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
+	return new HashMap<AnnotationType, List<Annotation>>();
     }
     
     @Override
