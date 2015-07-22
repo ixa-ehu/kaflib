@@ -99,6 +99,9 @@ public class KAFDocument implements Serializable {
     static Map<AnnotationType, Layer> highLevelAnnotationType2Layer;
     static Map<AnnotationType, Class<?>> annotationTypeClasses;
     private static final long serialVersionUID = 42L; // Serializable...
+    
+    private Map<String, List<Term>> wfId2Terms; // Rodrirekin hitz egin hau kentzeko
+    
 
     public class FileDesc implements Serializable {
 	public String author;
@@ -375,6 +378,8 @@ public class KAFDocument implements Serializable {
 	annotationTypeClasses.put(AnnotationType.RELATION, Relation.class);
 	annotationTypeClasses.put(AnnotationType.TOPIC, Topic.class);
 	annotationTypeClasses.put(AnnotationType.STATEMENT, Statement.class);
+	
+	this.wfId2Terms = new HashMap<String, List<Term>>();
     }
 
     /** Creates a new KAFDocument and loads the contents of the file passed as argument
@@ -545,6 +550,18 @@ public class KAFDocument implements Serializable {
     public WF newWF(int offset, String form, int sent) {
 	return this.newWF(offset, form.length(), form, sent);
     }
+    
+    private void addToWfTermIndex(List<WF> wfs, Term term) {
+	for (WF wf : wfs) {
+	    String id = wf.getId();
+	    List<Term> terms = wfId2Terms.get(id);
+	    if (terms == null) {
+		terms = new ArrayList<Term>();
+		wfId2Terms.put(id, terms);
+	    }
+	    terms.add(term);
+	}
+    }
 
     /** Creates a Term object to load an existing term. It receives the ID as an argument. The Term is added to the document object.
      * @param id term's ID.
@@ -558,6 +575,7 @@ public class KAFDocument implements Serializable {
 	idManager.updateCounter(AnnotationType.TERM, id);
 	Term newTerm = new Term(id, span, false);
 	annotationContainer.add(newTerm, Layer.TERMS, AnnotationType.TERM);
+	addToWfTermIndex(newTerm.getSpan().getTargets(), newTerm); // Rodrirekin hitz egin hau kentzeko
 	return newTerm;
     }
 
@@ -567,6 +585,7 @@ public class KAFDocument implements Serializable {
 	if (!isComponent) {
 	    annotationContainer.add(newTerm, Layer.TERMS, AnnotationType.TERM);
 	}
+	addToWfTermIndex(newTerm.getSpan().getTargets(), newTerm); // Rodrirekin hitz egin hau kentzeko
 	return newTerm;
     }
 
@@ -576,6 +595,7 @@ public class KAFDocument implements Serializable {
 	if (!isComponent) {
 	    annotationContainer.add(newTerm, Layer.TERMS, AnnotationType.TERM);
 	}
+	addToWfTermIndex(newTerm.getSpan().getTargets(), newTerm); // Rodrirekin hitz egin hau kentzeko
 	return newTerm;
     }    
 
@@ -583,6 +603,7 @@ public class KAFDocument implements Serializable {
 	idManager.updateCounter(AnnotationType.TERM, id);
 	Term newTerm = new Term(id, span, false);
 	annotationContainer.add(newTerm, Layer.TERMS, AnnotationType.TERM, position);
+	addToWfTermIndex(newTerm.getSpan().getTargets(), newTerm); // Rodrirekin hitz egin hau kentzeko
 	return newTerm;
     }
 
@@ -597,6 +618,7 @@ public class KAFDocument implements Serializable {
 	String newId = idManager.getNextId(AnnotationType.TERM);
 	Term newTerm = new Term(newId, span, false);
 	annotationContainer.add(newTerm, Layer.TERMS, AnnotationType.TERM);
+	addToWfTermIndex(newTerm.getSpan().getTargets(), newTerm); // Rodrirekin hitz egin hau kentzeko
 	return newTerm;
     }
 
@@ -1471,8 +1493,27 @@ public Entity newEntity(List<Span<Term>> references) {
     public List<Statement> getStatementsByPara(Integer para) {
 	return (List<Statement>)(List<?>) this.annotationContainer.getSentAnnotations(para, AnnotationType.STATEMENT);
     }
+    
+    
+    // Hau kendu behar da
+    public List<Term> getTermsFromWFs(List<String> wfIds) {
+	List<Term> terms = new ArrayList<Term>();
+	for (String wfId : wfIds) {
+	    terms.addAll(this.wfId2Terms.get(wfId));
+	}
+	return terms;
+    }
 
-
+    public List<Dep> getDepsFromTerm(final Term term) {
+	final List<Dep> result = new ArrayList<Dep>();
+	for (final Dep dep : (List<Dep>)(List<?>)annotationContainer.getInverse(term, AnnotationType.DEP)) {
+	    if (dep.getFrom() == term) {
+		result.add(dep);
+	    }
+	}
+	return result;
+    }
+    
 
     public List<KAFDocument> splitInSentences()
     {
