@@ -1,7 +1,7 @@
 package ixa.kaflib;
 
-import ixa.kaflib.KAFDocument.AnnotationType;
-import ixa.kaflib.KAFDocument.Layer;
+import ixa.kaflib.NAFDefinition.AnnotationType;
+import ixa.kaflib.NAFDefinition.Layer;
 import ixa.kaflib.KAFDocument.Utils;
 
 import java.io.Serializable;

@@ -1,5 +1,7 @@
 package ixa.kaflib;
 
+import ixa.kaflib.NAFDefinition.Layer;
+import ixa.kaflib.NAFDefinition.AnnotationType;
 import ixa.kaflib.Opinion.OpinionExpression;
 import ixa.kaflib.Opinion.OpinionHolder;
 import ixa.kaflib.Opinion.OpinionTarget;
@@ -32,74 +34,8 @@ import org.jdom2.Element;
 @SuppressWarnings("unchecked")
 /** Respresents a KAF document. It's the main class of the library, as it keeps all elements of the document (word forms, terms, entities...) and manages all object creations. The document can be created by the user calling it's methods, or loading from an existing XML file.*/
 public class KAFDocument implements Serializable {
-
-    public enum Layer {
-	TEXT,
-	TERMS,
-	ENTITIES,
-	CHUNKS,
-	DEPS,
-	CONSTITUENCY,
-	COREFERENCES,
-	OPINIONS,
-	CAUSAL_RELATIONS,
-	TEMPORAL_RELATIONS,
-	SRL,
-	TIME_EXPRESSIONS,
-	FACTUALITIES,
-	FACTUALITY_LAYER,
-	MARKABLES,
-	PROPERTIES,
-	CATEGORIES,
-	RELATIONS,
-	LINKED_ENTITIES,
-	TOPICS,
-	ATTRIBUTION,
-    }
-
-    public enum AnnotationType {
-	WF,
-	TERM,
-	MW,
-	COMPONENT,
-	SENTIMENT,
-	ENTITY,
-	CHUNK,
-	DEP,
-	TREE,
-	NON_TERMINAL,
-	TERMINAL,
-	EDGE,
-	COREF,
-	OPINION, 		/* DOC_LVL */
-	OPINION_HOLDER,
-	OPINION_TARGET,
-	OPINION_EXPRESSION,
-	CLINK,
-	TLINK,
-	PREDICATE_ANCHOR,
-	PREDICATE,
-	ROLE,
-	TIMEX3,
-	FACTUALITY,
-	FACTVALUE,
-	MARK,
-	PROPERTY,
-	CATEGORY,
-	LINKED_ENTITY,
-	RELATION,
-	TOPIC,
-	STATEMENT,
-	STATEMENT_TARGET,
-	STATEMENT_SOURCE,
-	STATEMENT_CUE,
-    }
     
-    static List<AnnotationType> highLevelAnnotationTypes;
-    static Map<AnnotationType, Layer> highLevelAnnotationType2Layer;
-    static Map<AnnotationType, Class<?>> annotationTypeClasses;
     private static final long serialVersionUID = 42L; // Serializable...
-    
     private Map<String, List<Term>> wfId2Terms; // Rodrirekin hitz egin hau kentzeko
     
 
@@ -272,6 +208,7 @@ public class KAFDocument implements Serializable {
 	}
     }
 
+        
     /** Language identifier */
     private String lang;
 
@@ -291,6 +228,8 @@ public class KAFDocument implements Serializable {
     /** Keeps all the annotations of the document */
     private AnnotationContainer annotationContainer;
 
+    private static NAFDefinition nafDef = new NAFDefinition();
+    
     /** Creates an empty KAFDocument element */
     public KAFDocument(String lang, String version) {
 	this.lang = lang;
@@ -298,86 +237,6 @@ public class KAFDocument implements Serializable {
 	lps = new LinkedHashMap<String, List<LinguisticProcessor>>();
 	idManager = new IdManager();
 	annotationContainer = new AnnotationContainer();
-	
-	highLevelAnnotationTypes = Arrays.asList(
-		AnnotationType.WF,
-		AnnotationType.TERM,
-		AnnotationType.ENTITY,
-		AnnotationType.CHUNK,
-		AnnotationType.DEP,
-		AnnotationType.TREE,
-		AnnotationType.COREF,
-		AnnotationType.OPINION,
-		AnnotationType.CLINK,
-		AnnotationType.TLINK,
-		AnnotationType.PREDICATE_ANCHOR,
-		AnnotationType.PREDICATE,
-		AnnotationType.TIMEX3,
-		AnnotationType.FACTUALITY,
-		AnnotationType.FACTVALUE,
-		AnnotationType.MARK,
-		AnnotationType.PROPERTY,
-		AnnotationType.CATEGORY,
-		AnnotationType.LINKED_ENTITY,
-		AnnotationType.RELATION,
-		AnnotationType.TOPIC,
-		AnnotationType.STATEMENT);
-	
-	highLevelAnnotationType2Layer = new HashMap<AnnotationType, Layer>();
-	highLevelAnnotationType2Layer.put(AnnotationType.WF, Layer.TEXT);
-	highLevelAnnotationType2Layer.put(AnnotationType.TERM, Layer.TERMS);
-	highLevelAnnotationType2Layer.put(AnnotationType.ENTITY, Layer.ENTITIES);
-	highLevelAnnotationType2Layer.put(AnnotationType.CHUNK, Layer.CHUNKS);
-	highLevelAnnotationType2Layer.put(AnnotationType.DEP, Layer.DEPS);
-	highLevelAnnotationType2Layer.put(AnnotationType.TREE, Layer.CONSTITUENCY);
-	highLevelAnnotationType2Layer.put(AnnotationType.COREF, Layer.COREFERENCES);
-	highLevelAnnotationType2Layer.put(AnnotationType.OPINION, Layer.OPINIONS);
-	highLevelAnnotationType2Layer.put(AnnotationType.CLINK, Layer.CAUSAL_RELATIONS);
-	highLevelAnnotationType2Layer.put(AnnotationType.TLINK, Layer.TEMPORAL_RELATIONS);
-	highLevelAnnotationType2Layer.put(AnnotationType.PREDICATE_ANCHOR, Layer.TEMPORAL_RELATIONS);
-	highLevelAnnotationType2Layer.put(AnnotationType.PREDICATE, Layer.SRL);
-	highLevelAnnotationType2Layer.put(AnnotationType.TIMEX3, Layer.TIME_EXPRESSIONS);
-	highLevelAnnotationType2Layer.put(AnnotationType.FACTUALITY, Layer.FACTUALITIES);
-	highLevelAnnotationType2Layer.put(AnnotationType.FACTVALUE, Layer.FACTUALITY_LAYER);
-	highLevelAnnotationType2Layer.put(AnnotationType.MARK, Layer.MARKABLES);
-	highLevelAnnotationType2Layer.put(AnnotationType.PROPERTY, Layer.PROPERTIES);
-	highLevelAnnotationType2Layer.put(AnnotationType.CATEGORY, Layer.CATEGORIES);
-	highLevelAnnotationType2Layer.put(AnnotationType.LINKED_ENTITY, Layer.LINKED_ENTITIES);
-	highLevelAnnotationType2Layer.put(AnnotationType.RELATION, Layer.RELATIONS);
-	highLevelAnnotationType2Layer.put(AnnotationType.TOPIC, Layer.TOPICS);
-	highLevelAnnotationType2Layer.put(AnnotationType.STATEMENT, Layer.ATTRIBUTION);
-	
-	annotationTypeClasses = new HashMap<AnnotationType, Class<?>>();
-	annotationTypeClasses.put(AnnotationType.WF, WF.class);
-	annotationTypeClasses.put(AnnotationType.TERM, Term.class);
-	annotationTypeClasses.put(AnnotationType.COMPONENT, Term.class);
-	annotationTypeClasses.put(AnnotationType.MW, Term.class);
-	annotationTypeClasses.put(AnnotationType.ENTITY, Entity.class);
-	annotationTypeClasses.put(AnnotationType.CHUNK, Chunk.class);
-	annotationTypeClasses.put(AnnotationType.DEP, Dep.class);
-	annotationTypeClasses.put(AnnotationType.TREE, Tree.class);
-	annotationTypeClasses.put(AnnotationType.NON_TERMINAL, NonTerminal.class);
-	annotationTypeClasses.put(AnnotationType.TERMINAL, Terminal.class);
-	//annotationTypeClasses.put(AnnotationType.EDGE, .class);
-	annotationTypeClasses.put(AnnotationType.COREF, Coref.class);
-	annotationTypeClasses.put(AnnotationType.OPINION, Opinion.class);
-	annotationTypeClasses.put(AnnotationType.OPINION_HOLDER, OpinionHolder.class);
-	annotationTypeClasses.put(AnnotationType.OPINION_TARGET, OpinionTarget.class);
-	annotationTypeClasses.put(AnnotationType.OPINION_EXPRESSION, OpinionExpression.class);
-	annotationTypeClasses.put(AnnotationType.CLINK, CLink.class);
-	annotationTypeClasses.put(AnnotationType.TLINK, TLink.class);
-	annotationTypeClasses.put(AnnotationType.PREDICATE, Predicate.class);
-	annotationTypeClasses.put(AnnotationType.ROLE, Role.class);
-	annotationTypeClasses.put(AnnotationType.TIMEX3, Timex3.class);
-	annotationTypeClasses.put(AnnotationType.FACTUALITY, Factuality.class);
-	annotationTypeClasses.put(AnnotationType.FACTVALUE, Factvalue.class);
-	annotationTypeClasses.put(AnnotationType.MARK, Mark.class);
-	annotationTypeClasses.put(AnnotationType.PROPERTY, Feature.class);
-	annotationTypeClasses.put(AnnotationType.CATEGORY, Feature.class);
-	annotationTypeClasses.put(AnnotationType.LINKED_ENTITY, LinkedEntity.class);
-	annotationTypeClasses.put(AnnotationType.RELATION, Relation.class);
-	annotationTypeClasses.put(AnnotationType.TOPIC, Topic.class);
-	annotationTypeClasses.put(AnnotationType.STATEMENT, Statement.class);
 	
 	this.wfId2Terms = new HashMap<String, List<Term>>();
     }
@@ -403,6 +262,7 @@ public class KAFDocument implements Serializable {
 	kaf = ReadWriteManager.load(stream);
 	return kaf;
     }
+
 
     /** Sets the language of the processed document */
     public void setLang(String lang) {
@@ -1524,8 +1384,8 @@ public Entity newEntity(List<Span<Term>> references) {
 	    for (Integer sentence : sentences) {
 		KAFDocument naf = new KAFDocument(this.getLang(), this.getVersion());
 		naf.setRawText(this.getRawText());
-		for (AnnotationType type : highLevelAnnotationTypes) {
-		    Layer layer = highLevelAnnotationType2Layer.get(type);
+		for (AnnotationType type : nafDef.getHighLevelAnnotations()) {
+		    Layer layer = nafDef.getLayer(type);
 		    if (isSentenceLevelAnnotationType(type)) {
 			List<Annotation> annotations = new ArrayList<Annotation>();
 			if (isMultiLayerAnnotationType(type)) {
@@ -1553,8 +1413,8 @@ public Entity newEntity(List<Span<Term>> references) {
 	for (Integer paragraph = 1; paragraph <= numParagraphs; paragraph++) {
 	    KAFDocument naf = new KAFDocument(this.getLang(), this.getVersion());
 	    naf.setRawText(this.getRawText());
-	    for (AnnotationType type : highLevelAnnotationTypes) {
-		Layer layer = highLevelAnnotationType2Layer.get(type);
+	    for (AnnotationType type : nafDef.getHighLevelAnnotations()) {
+		Layer layer = nafDef.getLayer(type);
 		if (isParagraphLevelAnnotationType(type)) {
 		    List<Annotation> annotations = new ArrayList<Annotation>();
 		    if (isMultiLayerAnnotationType(type)) {
@@ -1580,8 +1440,8 @@ public Entity newEntity(List<Span<Term>> references) {
 	KAFDocument joinedNaf = new KAFDocument(firstNaf.getLang(), nafs.get(0).getVersion());
 	joinedNaf.setRawText(firstNaf.getRawText());
 	for (KAFDocument nafPart : nafs) {
-	    for (AnnotationType type : highLevelAnnotationTypes) {
-		Layer layer = highLevelAnnotationType2Layer.get(type);
+	    for (AnnotationType type : nafDef.getHighLevelAnnotations()) {
+		Layer layer = nafDef.getLayer(type);
 		List<Annotation> annotations = new ArrayList<Annotation>();
 		if (isMultiLayerAnnotationType(type)) {
 		    for (String groupId : nafPart.annotationContainer.getGroupIDs(type)) {
@@ -1619,25 +1479,25 @@ public Entity newEntity(List<Span<Term>> references) {
     }
     
     private static Boolean isMultiLayerAnnotationType(AnnotationType type) {
-	Class<?> annotationClass = annotationTypeClasses.get(type);
+	Class<?> annotationClass = nafDef.getAnnotationClass(type);
 	if (annotationClass == null) return false;
 	return MultiLayerAnnotation.class.isAssignableFrom(annotationClass);
     }
     
     private static Boolean isSentenceLevelAnnotationType(AnnotationType type) {
-	Class<?> annotationClass = annotationTypeClasses.get(type);
+	Class<?> annotationClass = nafDef.getAnnotationClass(type);
 	if (annotationClass == null) return false;
 	return SentenceLevelAnnotation.class.isAssignableFrom(annotationClass);
     }
     
     private static Boolean isParagraphLevelAnnotationType(AnnotationType type) {
-	Class<?> annotationClass = annotationTypeClasses.get(type);
+	Class<?> annotationClass = nafDef.getAnnotationClass(type);
 	if (annotationClass == null) return false;
 	return ParagraphLevelAnnotation.class.isAssignableFrom(annotationClass);
     }
     
     private static Boolean isIdentifiableAnnotationType(AnnotationType type) {
-	Class<?> annotationClass = annotationTypeClasses.get(type);
+	Class<?> annotationClass = nafDef.getAnnotationClass(type);
 	if (annotationClass == null) return false;
 	return IdentifiableAnnotation.class.isAssignableFrom(annotationClass);
     }

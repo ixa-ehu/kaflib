@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.io.Serializable;
-import ixa.kaflib.KAFDocument.AnnotationType;
+import ixa.kaflib.NAFDefinition.AnnotationType;
 
 
 /** Manages ID creation. Each ID is created taking into account the annotations of the same type created so far, in a document context. This class keeps a counter for each type of annotation (terms, chunks...). */

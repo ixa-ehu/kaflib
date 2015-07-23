@@ -1,6 +1,6 @@
 package ixa.kaflib;
 
-import ixa.kaflib.KAFDocument.AnnotationType;
+import ixa.kaflib.NAFDefinition.AnnotationType;
 
 import java.io.Serializable;
 import java.util.Map;

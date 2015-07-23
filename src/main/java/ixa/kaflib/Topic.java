@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
 
-import ixa.kaflib.KAFDocument.AnnotationType;
+import ixa.kaflib.NAFDefinition.AnnotationType;
 import ixa.kaflib.KAFDocument.Utils;
 import ixa.kaflib.Statement.StatementSource;
 

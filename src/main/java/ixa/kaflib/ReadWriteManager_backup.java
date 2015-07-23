@@ -36,7 +36,7 @@ import java.util.regex.*;
 //todo: read facts and linkedEntities
 
 /** Reads XML files in KAF format and loads the content in a KAFDocument object, and writes the content into XML files. */
-class ReadWriteManager {
+class ReadWriteManager_backup {
     
     /** Loads the content of a KAF file into the given KAFDocument object */
     static KAFDocument load(File file) throws IOException, JDOMException, KAFNotValidException {
