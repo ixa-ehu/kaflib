@@ -140,6 +140,22 @@ class ReadWriteManager {
 		if (title != null) {
 		    fd.title = title;
 		}
+		String publisher = getOptAttribute("publisher", fileDescElem);
+		if (publisher != null) {
+		    fd.publisher = publisher;
+		}
+		String section = getOptAttribute("section", fileDescElem);
+		if (section != null) {
+		    fd.section = section;
+		}
+		String location = getOptAttribute("location", fileDescElem);
+		if (location != null) {
+		    fd.location = location;
+		}
+		String magazine = getOptAttribute("magazine", fileDescElem);
+		if (magazine != null) {
+		    fd.magazine = magazine;
+		}
 		String filename = getOptAttribute("filename", fileDescElem);
 		if (filename != null) {
 		    fd.filename = filename;
@@ -1330,6 +1346,18 @@ class ReadWriteManager {
 	    }
 	    if (fd.title != null) {
 		fdElem.setAttribute("title", fd.title);
+	    }
+	    if (fd.publisher != null) {
+		fdElem.setAttribute("publisher", fd.publisher);
+	    }
+	    if (fd.section != null) {
+		fdElem.setAttribute("section", fd.section);
+	    }
+	    if (fd.location != null) {
+		fdElem.setAttribute("location", fd.location);
+	    }
+	    if (fd.magazine != null) {
+		fdElem.setAttribute("magazine", fd.magazine);
 	    }
 	    if (fd.filename != null) {
 		fdElem.setAttribute("filename", fd.filename);
