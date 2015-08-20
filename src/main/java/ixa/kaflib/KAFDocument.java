@@ -106,6 +106,10 @@ public class KAFDocument implements Serializable {
     public class FileDesc implements Serializable {
 	public String author;
 	public String title;
+	public String publisher;
+	public String section;
+	public String location;
+	public String magazine;
 	public String filename;
 	public String filetype;
 	public Integer pages;
@@ -122,6 +126,10 @@ public class KAFDocument implements Serializable {
 	    FileDesc fd = (FileDesc) o;
 	    return Utils.areEquals(this.author, fd.author) &&
 		    Utils.areEquals(this.title, fd.title) &&
+		    Utils.areEquals(this.publisher, fd.publisher) &&
+		    Utils.areEquals(this.section, fd.section) &&
+		    Utils.areEquals(this.location, fd.location) &&
+		    Utils.areEquals(this.magazine, fd.magazine) &&
 		    Utils.areEquals(this.filename, fd.filename) &&
 		    Utils.areEquals(this.filetype, fd.filetype) &&
 		    Utils.areEquals(this.pages, fd.pages) &&
