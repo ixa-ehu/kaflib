@@ -966,14 +966,11 @@ class ReadWriteManager {
 		    }
 		    span.addTarget(wf, isHead);
 		}
-		Mark newMark = kaf.newMark(sid, span);
+		String source = getOptAttribute("source", markElem);
+		Mark newMark = (source == null) ? kaf.newMark(sid, span) : kaf.newMark(sid, source, span); 
 		Element sentimentElem = markElem.getChild("sentiment");
 		if (sentimentElem != null) {
 		    newMark.setSentiment(DOMToSentiment(sentimentElem, kaf));
-		}
-		String source = getOptAttribute("source", markElem);
-		if (source != null) {
-		    newMark.setSource(source);
 		}
 		String type = getOptAttribute("type", markElem);
 		if (type != null) {

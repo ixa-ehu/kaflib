@@ -646,19 +646,23 @@ public class KAFDocument implements Serializable {
 	return newSentiment;
     }
     
-    /*
     public Mark newMark(String id, Span<WF> span) {
 	idManager.updateCounter(AnnotationType.MARK, id);
 	Mark newMark = new Mark(id, span);
-	annotationContainer.add(newMark, Layer.MARKABLES);
+	annotationContainer.add(newMark, Layer.MARKABLES, AnnotationType.MARK);
 	return newMark;
     }
-    */
 
     public Mark newMark(Span<WF> span) {
 	String newId = idManager.getNextId(AnnotationType.MARK);
 	Mark newMark = new Mark(newId, span);
 	annotationContainer.add(newMark, Layer.MARKABLES, AnnotationType.MARK);
+	return newMark;
+    }
+    
+    public Mark newMark(Span<WF> span, String source) {
+	Mark newMark = this.newMark(span);
+	newMark.setSource(source);
 	return newMark;
     }
 
@@ -667,12 +671,6 @@ public class KAFDocument implements Serializable {
 	Mark newMark = new Mark(id, span);
 	newMark.setSource(source);
 	annotationContainer.add(newMark, Layer.MARKABLES, AnnotationType.MARK);
-	return newMark;
-    }
-
-    public Mark newMark(String source, Span<WF> span) {
-	Mark newMark = this.newMark(span);
-	newMark.setSource(source);
 	return newMark;
     }
 

@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.HashMap;
 
 
-public class Mark extends IdentifiableAnnotation implements SentenceLevelAnnotation {
+public class Mark extends IdentifiableAnnotation implements SentenceLevelAnnotation, MultiLayerAnnotation {
 
     private String source;
 
@@ -196,6 +196,11 @@ public class Mark extends IdentifiableAnnotation implements SentenceLevelAnnotat
     @Override
     public Integer getPara() {
 	return this.span.getFirstTarget().getPara();
+    }
+
+    @Override
+    public String getGroupID() {
+	return this.getSource();
     }
 
 }
