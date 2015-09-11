@@ -69,6 +69,7 @@ public class Terminal extends TreeNode implements SentenceLevelAnnotation {
 	return this.getSpan().getFirstTarget().getPara();
     }
 
+    /*
     @Override
     public boolean equals(Object o) {
 	if (this == o) return true;
@@ -76,4 +77,5 @@ public class Terminal extends TreeNode implements SentenceLevelAnnotation {
 	Terminal ann = (Terminal) o;
 	return Utils.areEquals(this.span, ann.span);
     }
+    */
 }

@@ -58,6 +58,7 @@ public class NonTerminal extends TreeNode implements SentenceLevelAnnotation {
 	return this.children.get(0).getPara();
     }
     
+    /*
     @Override
     public boolean equals(Object o) {
 	if (this == o) return true;
@@ -66,4 +67,5 @@ public class NonTerminal extends TreeNode implements SentenceLevelAnnotation {
 	return Utils.areEquals(this.label, ann.label) &&
 		Utils.areEquals(this.children, ann.children);
     }
+    */
 }

@@ -166,6 +166,7 @@ public class Feature extends IdentifiableAnnotation implements Relational, Seria
 	this.references.add(KAFDocument.<Term>list2Span(span));
     }
     
+    /*
     @Override
     public boolean equals(Object o) {
 	if (this == o) return true;
@@ -175,4 +176,5 @@ public class Feature extends IdentifiableAnnotation implements Relational, Seria
 		Utils.areEquals(this.references, ann.references) &&
 		Utils.areEquals(this.externalReferences, ann.externalReferences);
     }
+    */
 }

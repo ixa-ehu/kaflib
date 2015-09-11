@@ -72,6 +72,7 @@ public class Statement extends IdentifiableAnnotation {
 	return refs;
     }
     
+    /*
     @Override
     public boolean equals(Object o) {
 	if (this == o) return true;
@@ -81,6 +82,7 @@ public class Statement extends IdentifiableAnnotation {
 		Utils.areEquals(this.source, ann.source) && 
 		Utils.areEquals(this.cue, ann.cue);
     }
+    */
     
     
     public static class StatementTarget extends Annotation {
@@ -108,6 +110,7 @@ public class Statement extends IdentifiableAnnotation {
 	    return refs;
 	}
 	
+	/*
 	@Override
 	public boolean equals(Object o) {
 	    if (this == o) return true;
@@ -115,6 +118,7 @@ public class Statement extends IdentifiableAnnotation {
 	    StatementTarget ann = (StatementTarget) o;
 	    return Utils.areEquals(this.span, ann.span);
 	}
+	*/
     }
     
     public static class StatementSource extends Annotation {
@@ -142,6 +146,7 @@ public class Statement extends IdentifiableAnnotation {
 	    return refs;
 	}
 	
+	/*
 	@Override
 	public boolean equals(Object o) {
 	    if (this == o) return true;
@@ -149,6 +154,7 @@ public class Statement extends IdentifiableAnnotation {
 	    StatementSource ann = (StatementSource) o;
 	    return Utils.areEquals(this.span, ann.span);
 	}
+	*/
     }
     
     public static class StatementCue extends Annotation {
@@ -176,6 +182,7 @@ public class Statement extends IdentifiableAnnotation {
 	    return refs;
 	}
 	
+	/*
 	@Override
 	public boolean equals(Object o) {
 	    if (this == o) return true;
@@ -183,5 +190,6 @@ public class Statement extends IdentifiableAnnotation {
 	    StatementCue ann = (StatementCue) o;
 	    return Utils.areEquals(this.span, ann.span);
 	}
+	*/
     }
 }

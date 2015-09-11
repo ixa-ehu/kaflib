@@ -92,6 +92,7 @@ public class Dep extends Annotation implements SentenceLevelAnnotation {
 	return referenced;
     }
     
+    /*
     @Override
     public boolean equals(Object o) {
 	if (this == o) return true;
@@ -102,6 +103,7 @@ public class Dep extends Annotation implements SentenceLevelAnnotation {
 		Utils.areEquals(this.rfunc, ann.rfunc) &&
 		Utils.areEquals(this.depcase, ann.depcase);
     }
+    */
     
     @Override
     public Integer getSent() {

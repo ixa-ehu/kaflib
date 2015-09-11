@@ -225,6 +225,7 @@ public class Term extends IdentifiableAnnotation implements SentenceLevelAnnotat
 	    return new HashMap<AnnotationType, List<Annotation>>();
 	}
 	
+	/*
 	@Override
 	public boolean equals(Object o) {
 	    if (this == o) return true;
@@ -239,6 +240,7 @@ public class Term extends IdentifiableAnnotation implements SentenceLevelAnnotat
 		    Utils.areEquals(this.sentimentMarker, ann.sentimentMarker) &&
 		    Utils.areEquals(this.sentimentProductFeature, ann.sentimentProductFeature);
 	}
+	*/
     }
 
     Term(String id, Span<WF> span, boolean isComponent) {
@@ -510,6 +512,7 @@ public class Term extends IdentifiableAnnotation implements SentenceLevelAnnotat
 	return referenced;
     }
 
+    /*
     @Override
     public boolean equals(Object o) {
 	if (this == o) return true;
@@ -528,4 +531,5 @@ public class Term extends IdentifiableAnnotation implements SentenceLevelAnnotat
 		Utils.areEquals(this.isComponent, ann.isComponent) &&
 		Utils.areEquals(this.compound, ann.compound);
     }
+    */
 }

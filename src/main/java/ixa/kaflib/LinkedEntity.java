@@ -128,6 +128,7 @@ public class LinkedEntity extends IdentifiableAnnotation {
 //		}
 	}
 	    
+	/*
 	@Override
 	public boolean equals(Object o) {
 	    if (this == o) return true;
@@ -138,5 +139,6 @@ public class LinkedEntity extends IdentifiableAnnotation {
 		    Utils.areEquals(this.confidence, ann.confidence) &&
 		    Utils.areEquals(this.mentions, ann.mentions);
 	}
+	*/
 
 }

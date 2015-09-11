@@ -133,6 +133,7 @@ public class ExternalRef implements Serializable {
 	this.sentiment = sentiment;
     }
     
+    /*
     @Override
     public boolean equals(Object o) {
 	if (this == o) return true;
@@ -147,5 +148,6 @@ public class ExternalRef implements Serializable {
 		Utils.areEquals(this.externalRefs, ann.externalRefs) &&
 		Utils.areEquals(this.sentiment, ann.sentiment);
     }
+    */
 
 }

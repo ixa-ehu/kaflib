@@ -36,6 +36,7 @@ public class Target implements Serializable {
 	this.head = head;
     }
     
+    /*
     @Override
     public boolean equals(Object o) {
 	if (this == o) return true;
@@ -44,5 +45,6 @@ public class Target implements Serializable {
 	return Utils.areEquals(this.term, ann.term) &&
 		Utils.areEquals(this.head, ann.head);
     }
+    */
 
 }

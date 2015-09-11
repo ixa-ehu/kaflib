@@ -93,19 +93,6 @@ public class Span<T extends IdentifiableAnnotation> implements Serializable {
 
     /*
     @Override
-	public boolean equals(Object obj) {
-	if (!(obj instanceof Span)) return false;
-        if (obj == this) return true;
-	Span sp = (Span) obj;
-	if (sp.size() != this.size()) return false;
-	for (Integer i = 0; i < this.size(); i++) {
-	    if (this.sortedTargets.get(i) != sp.sortedTargets.get(i)) return false;
-	}
-	return true;
-    }
-    */
-
-    @Override
     public boolean equals(Object o) {
 	if (this == o) return true;
 	if (!(o instanceof Span)) return false;
@@ -113,6 +100,7 @@ public class Span<T extends IdentifiableAnnotation> implements Serializable {
 	return Utils.areEquals(this.sortedTargets, ann.sortedTargets) &&
 		Utils.areEquals(this.head, ann.head);
     }
+    */
 
     @Override
 	public int hashCode() {

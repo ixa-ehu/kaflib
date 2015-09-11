@@ -182,6 +182,7 @@ public class Entity extends IdentifiableAnnotation implements Relational, Senten
 	this.references.add(KAFDocument.<Term>list2Span(span));
     }    
     
+    /*
     @Override
     public boolean equals(Object o) {
 	if (this == o) return true;
@@ -192,5 +193,6 @@ public class Entity extends IdentifiableAnnotation implements Relational, Senten
 		Utils.areEquals(this.references, ann.references) &&
 		Utils.areEquals(this.externalReferences, ann.externalReferences);
     }
+    */
 
 }

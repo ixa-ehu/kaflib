@@ -275,6 +275,7 @@ public class Timex3 extends IdentifiableAnnotation implements TLinkReferable {
 	return referenced;
     }
 
+    /*
     @Override
     public boolean equals(Object o) {
 	if (this == o) return true;
@@ -294,4 +295,5 @@ public class Timex3 extends IdentifiableAnnotation implements TLinkReferable {
 		Utils.areEquals(this.comment, ann.comment) &&
 		Utils.areEquals(this.span, ann.span);
     }
+    */
 }

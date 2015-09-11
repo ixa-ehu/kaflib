@@ -142,6 +142,7 @@ public class Coref extends IdentifiableAnnotation {
 	this.mentions.add(KAFDocument.targetList2Span(span));
     }
     
+    /*
     @Override
     public boolean equals(Object o) {
 	if (this == o) return true;
@@ -151,4 +152,5 @@ public class Coref extends IdentifiableAnnotation {
 		Utils.areEquals(this.mentions, ann.mentions) &&
 		Utils.areEquals(this.externalReferences, ann.externalReferences);
     }
+    */
 }

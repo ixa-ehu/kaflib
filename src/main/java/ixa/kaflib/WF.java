@@ -162,6 +162,7 @@ public class WF extends IdentifiableAnnotation implements SentenceLevelAnnotatio
 	return this.getForm();
     }
     
+    /*
     @Override
     public boolean equals(Object o) {
 	if (this == o) return true;
@@ -175,4 +176,6 @@ public class WF extends IdentifiableAnnotation implements SentenceLevelAnnotatio
 		Utils.areEquals(this.xpath, ann.xpath) &&
 		Utils.areEquals(this.form, ann.form);
     }
+    */
+
 }

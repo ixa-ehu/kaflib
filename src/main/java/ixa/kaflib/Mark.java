@@ -173,6 +173,7 @@ public class Mark extends IdentifiableAnnotation implements SentenceLevelAnnotat
 	return referenced;
     }
 
+    /*
     @Override
     public boolean equals(Object o) {
 	if (this == o) return true;
@@ -187,6 +188,7 @@ public class Mark extends IdentifiableAnnotation implements SentenceLevelAnnotat
 		Utils.areEquals(this.span, ann.span) &&
 		Utils.areEquals(this.externalReferences, ann.externalReferences);
     }
+    */
     
     @Override
     public Integer getSent() {

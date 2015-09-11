@@ -285,6 +285,7 @@ class AnnotationContainer implements Serializable {
 	paraSents.add(sent);
     }
     
+    /*
     @Override
     public boolean equals(Object o) {
 	if (this == o) return true;
@@ -294,6 +295,7 @@ class AnnotationContainer implements Serializable {
 		Utils.areEquals(this.rawText, ac.rawText) &&
 		Utils.areEquals(this.unknownLayers, ac.unknownLayers);
     }
+    */
 
     
     private static class Helper {

@@ -82,6 +82,7 @@ public class PredicateAnchor extends IdentifiableAnnotation implements SentenceL
 	return refs;
     }
     
+    /*
     @Override
     public boolean equals(Object o) {
 	if (this == o) return true;
@@ -92,5 +93,6 @@ public class PredicateAnchor extends IdentifiableAnnotation implements SentenceL
 		Utils.areEquals(this.endPoint, ann.endPoint) &&
 		Utils.areEquals(this.span, ann.span);
     }
+    */
 
 }

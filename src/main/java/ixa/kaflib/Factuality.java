@@ -53,6 +53,7 @@ public class Factuality extends IdentifiableAnnotation implements SentenceLevelA
 	return references;
     }
     
+    /*
     @Override
     public boolean equals(Object o) {
 	if (this == o) return true;
@@ -61,6 +62,7 @@ public class Factuality extends IdentifiableAnnotation implements SentenceLevelA
 	return Utils.areEquals(this.span, ann.span) &&
 		Utils.areEquals(this.factVals, ann.factVals);
     }
+    */
     
     public String getSpanStr(Span<Term> span) {
    	String str = "";
@@ -131,6 +133,7 @@ public class Factuality extends IdentifiableAnnotation implements SentenceLevelA
 	    return new HashMap<AnnotationType, List<Annotation>>();
 	}
 	
+	/*
 	@Override
 	public boolean equals(Object o) {
 	    if (this == o) return true;
@@ -141,5 +144,6 @@ public class Factuality extends IdentifiableAnnotation implements SentenceLevelA
 		   Utils.areEquals(this.source, ann.source) &&
 		   Utils.areEquals(this.confidence, ann.confidence);
 	}
+	*/
     }
 }

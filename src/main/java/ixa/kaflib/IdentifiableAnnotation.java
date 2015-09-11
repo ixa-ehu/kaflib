@@ -26,6 +26,7 @@ public abstract class IdentifiableAnnotation
 	return this.getId().compareTo(o.getId());
     }
      
+    /*
     @Override
     public boolean equals(Object o) {
 	if (this == o) return true;
@@ -33,4 +34,5 @@ public abstract class IdentifiableAnnotation
 	IdentifiableAnnotation ann = (IdentifiableAnnotation) o;
 	return Utils.areEquals(this.id, ann.id);
     }
+    */
 }

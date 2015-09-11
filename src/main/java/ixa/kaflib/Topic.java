@@ -82,6 +82,7 @@ public class Topic extends Annotation {
 	return new HashMap<AnnotationType, List<Annotation>>();
     }
     
+    /*
     @Override
     public boolean equals(Object o) {
 	if (this == o) return true;
@@ -93,5 +94,6 @@ public class Topic extends Annotation {
 		Utils.areEquals(this.URI, ann.URI) &&
 		Utils.areEquals(this.value, ann.value);
     }
+    */
 
 }

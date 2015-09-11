@@ -54,6 +54,7 @@ public abstract class TreeNode extends IdentifiableAnnotation {
     
     public abstract Integer getPara();
     
+    /*
     @Override
     public boolean equals(Object o) {
 	if (this == o) return true;
@@ -63,4 +64,5 @@ public abstract class TreeNode extends IdentifiableAnnotation {
 		Utils.areEquals(this.head, ann.head) &&
 		Utils.areEquals(this.isTerminal, ann.isTerminal);
     }
+    */
 }

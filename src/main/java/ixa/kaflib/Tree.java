@@ -298,6 +298,7 @@ public class Tree extends Annotation implements MultiLayerAnnotation, SentenceLe
 	return this.root.getPara();
     }
     
+    /*
     @Override
     public boolean equals(Object o) {
 	if (this == o) return true;
@@ -306,4 +307,5 @@ public class Tree extends Annotation implements MultiLayerAnnotation, SentenceLe
 	return Utils.areEquals(this.type, ann.type) &&
 		Utils.areEquals(this.root,  ann.root);
     }
+    */
 }

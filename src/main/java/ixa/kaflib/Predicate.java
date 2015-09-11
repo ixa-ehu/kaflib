@@ -81,6 +81,7 @@ public class Predicate extends IdentifiableAnnotation implements SentenceLevelAn
 	    externalReferences.addAll(externalRefs);
 	}
 	
+	/*
 	@Override
 	public boolean equals(Object o) {
 	    if (this == o) return true;
@@ -90,6 +91,7 @@ public class Predicate extends IdentifiableAnnotation implements SentenceLevelAn
 		    Utils.areEquals(this.span, ann.span)  &&
 		    Utils.areEquals(this.externalReferences, ann.externalReferences);
 	}
+	*/
     }
 
     private String uri;
@@ -214,6 +216,7 @@ public class Predicate extends IdentifiableAnnotation implements SentenceLevelAn
 	this.roles.add(role);
     }
     
+    /*
     @Override
     public boolean equals(Object o) {
 	if (this == o) return true;
@@ -225,4 +228,5 @@ public class Predicate extends IdentifiableAnnotation implements SentenceLevelAn
 		Utils.areEquals(this.roles, ann.roles) &&
 		Utils.areEquals(this.externalReferences, ann.externalReferences);
     }
+    */
 }

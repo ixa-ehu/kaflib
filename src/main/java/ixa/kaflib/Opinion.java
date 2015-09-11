@@ -79,6 +79,7 @@ public class Opinion extends IdentifiableAnnotation {
 	    return referenced;
 	}
 	
+	/*
 	@Override
 	public boolean equals(Object o) {
 	    if (this == o) return true;
@@ -87,6 +88,7 @@ public class Opinion extends IdentifiableAnnotation {
 	    return Utils.areEquals(this.type, ann.type) &&
 		    Utils.areEquals(this.span, ann.span);
 	}
+	*/
     }
 
     public static class OpinionTarget extends Annotation {
@@ -144,6 +146,7 @@ public class Opinion extends IdentifiableAnnotation {
 	    return referenced;
 	}
 	
+	/*
 	@Override
 	public boolean equals(Object o) {
 	    if (this == o) return true;
@@ -151,6 +154,7 @@ public class Opinion extends IdentifiableAnnotation {
 	    OpinionTarget ann = (OpinionTarget) o;
 	    return Utils.areEquals(this.span, ann.span);
 	}
+	*/
     }
 
     public static class OpinionExpression extends Annotation {
@@ -288,6 +292,7 @@ public class Opinion extends IdentifiableAnnotation {
 	    return referenced;
 	}
 	
+	/*
 	@Override
 	public boolean equals(Object o) {
 	    if (this == o) return true;
@@ -300,6 +305,7 @@ public class Opinion extends IdentifiableAnnotation {
 		    Utils.areEquals(this.sentimentProductFeature, ann.sentimentProductFeature) &&
 		    Utils.areEquals(this.span, ann.span);
 	}
+	*/
     }
 
     private OpinionHolder opinionHolder;
@@ -390,6 +396,7 @@ public class Opinion extends IdentifiableAnnotation {
 	return referenced;
     }
     
+    /*
     @Override
     public boolean equals(Object o) {
 	if (this == o) return true;
@@ -399,4 +406,5 @@ public class Opinion extends IdentifiableAnnotation {
 		Utils.areEquals(this.opinionTarget, ann.opinionTarget) &&
 		Utils.areEquals(this.opinionExpression, ann.opinionExpression);
     }
+    */
 }

@@ -114,6 +114,7 @@ public class Relation extends IdentifiableAnnotation implements Serializable {
 	return referenced;
     }
     
+    /*
     @Override
     public boolean equals(Object o) {
 	if (this == o) return true;
@@ -123,4 +124,5 @@ public class Relation extends IdentifiableAnnotation implements Serializable {
 		Utils.areEquals(this.to,  ann.to) &&
 		Utils.areEquals(this.confidence, ann.confidence);
     }
+    */
 }

@@ -70,6 +70,7 @@ public class TLink extends IdentifiableAnnotation {
 	return referenced;
     }
     
+    /*
     @Override
     public boolean equals(Object o) {
 	if (this == o) return true;
@@ -79,5 +80,6 @@ public class TLink extends IdentifiableAnnotation {
 		Utils.areEquals(this.to,  ann.to) &&
 		Utils.areEquals(this.relType, ann.relType);
     }
+    */
 }
 

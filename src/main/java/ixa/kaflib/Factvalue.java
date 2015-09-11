@@ -60,6 +60,7 @@ public class Factvalue extends Annotation implements SentenceLevelAnnotation {
 	return referenced;
     }
     
+    /*
     @Override
     public boolean equals(Object o) {
 	if (this == o) return true;
@@ -69,6 +70,7 @@ public class Factvalue extends Annotation implements SentenceLevelAnnotation {
 		Utils.areEquals(this.prediction, ann.prediction) &&
 		Utils.areEquals(this.confidence, ann.confidence);
     }
+    */
     
     @Override
     public Integer getSent() {

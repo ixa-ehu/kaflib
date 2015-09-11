@@ -138,6 +138,7 @@ public class Chunk extends IdentifiableAnnotation implements SentenceLevelAnnota
         this.span.setHead(term);
     }
     
+    /*
     @Override
     public boolean equals(Object o) {
 	if (this == o) return true;
@@ -146,5 +147,6 @@ public class Chunk extends IdentifiableAnnotation implements SentenceLevelAnnota
 	return Utils.areEquals(this.phrase, ann.phrase) &&
 		Utils.areEquals(this.chunkcase, ann.chunkcase) &&
 		Utils.areEquals(this.span, ann.span);
-    }	
+    }
+    */	
 }
