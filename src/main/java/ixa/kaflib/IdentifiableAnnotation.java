@@ -1,15 +1,17 @@
 package ixa.kaflib;
 
-import ixa.kaflib.KAFDocument.Utils;
-
 
 public abstract class IdentifiableAnnotation
     extends Annotation
     implements Comparable<IdentifiableAnnotation> {
 
     protected String id;
+    
+    private static final long serialVersionUID = 1L;
 
-    IdentifiableAnnotation(String id) {
+    
+    IdentifiableAnnotation(AnnotationContainer annotationContainer, String id) {
+	super(annotationContainer);
 	this.id = id;
     }
 

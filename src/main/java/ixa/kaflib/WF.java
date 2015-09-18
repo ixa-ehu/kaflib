@@ -1,7 +1,6 @@
 package ixa.kaflib;
 
 import ixa.kaflib.KAFDocument.AnnotationType;
-import ixa.kaflib.KAFDocument.Utils;
 
 import java.util.List;
 import java.util.Map;
@@ -11,22 +10,20 @@ import java.util.HashMap;
 /** Class for representing word forms. These are the result of the tokenization process. */
 public class WF extends IdentifiableAnnotation implements SentenceLevelAnnotation {
 
-    private AnnotationContainer annotationContainer;
-
     /** Sentence id (required) */
-    private int sent;
+    private Integer sent;
     
     /** The offset (in characters) of the original word form (required) */
-    private int offset;
+    private Integer offset;
 
     /** The length (in characters) of the word form (required) */
-    private int length;
+    private Integer length;
     
     /** Paragraph id (optional) */
-    private int para;
+    private Integer para;
 
     /** Page id (optional) */
-    private int page;
+    private Integer page;
 
     /** In case of source xml files, the xpath expression identifying the original word form (optional) */
     private String xpath;
@@ -34,49 +31,36 @@ public class WF extends IdentifiableAnnotation implements SentenceLevelAnnotatio
     /** The word form text (required) */
     private String form;
     
-    private static final String ID_PREFIX = "w";
-    
+    private static final long serialVersionUID = 1L;
 
-    WF(AnnotationContainer annotationContainer, String id, int offset, int length, String form, int sent) {
-	super(id);
+
+    WF(AnnotationContainer annotationContainer, String id, Integer offset, Integer length, String form, Integer sent) {
+	super(annotationContainer, id);
 	this.annotationContainer = annotationContainer;
 	this.offset = offset;
 	this.length = length;
 	this.form = form;
-        this.setSent(sent);
-	this.para = -1;
-	this.page = -1;
-    }
-
-    WF(WF wf, AnnotationContainer annotationContainer) {
-	super(wf.getId());
-	this.annotationContainer = annotationContainer;
-	this.sent = wf.sent;
-	this.para = wf.para;
-	this.page = wf.page;
-	this.offset = wf.offset;
-	this.length = wf.length;
-	this.xpath = wf.xpath;
-	this.form = wf.form;
+	this.sent = sent;
     }
     
-    String getIdPrefix() {
-	return ID_PREFIX;
+    @Deprecated
+    public boolean hasOffset() {
+	return offset != null;
     }
     
-    public int getOffset() {
+    public Integer getOffset() {
 	return offset;
     }
 
-    public void setOffset(int offset) {
+    public void setOffset(Integer offset) {
 	this.offset = offset;
     }
 
-    public int getLength() {
+    public Integer getLength() {
 	return length;
     }
 
-    public void setLength(int length) {
+    public void setLength(Integer length) {
 	this.length = length;
     }
 
@@ -84,53 +68,38 @@ public class WF extends IdentifiableAnnotation implements SentenceLevelAnnotatio
 	return sent;
     }
 
-    public void setSent(int sent) {
+    public void setSent(Integer sent) {
 	Integer oldSent = this.sent;
 	Integer oldPara = this.para;
 	this.sent = sent;
-	if (oldSent > 0) {
-	    annotationContainer.reindexAnnotationParaSent(this, KAFDocument.AnnotationType.WF, oldSent, oldPara);
-	}
-	/*
-	annotationContainer.indexWFBySent(this, sent);
-	// If there's a term associated with this WF, index it as well
-	Term term = annotationContainer.getTermByWF(this);
-	if (term != null) {
-	    annotationContainer.indexTermBySent(term, sent);
-	}
-	*/
+	annotationContainer.reindexAnnotationParaSent(this, KAFDocument.AnnotationType.WF, oldSent, oldPara);
     }
 
     public boolean hasPara() {
-	return para != -1;
+	return para != null;
     }
 
     public Integer getPara() {
 	return para;
     }
 
-    public void setPara(int para) {
+    public void setPara(Integer para) {
 	Integer oldSent = this.sent;
 	Integer oldPara = this.para;
 	this.para = para;
 	annotationContainer.reindexAnnotationParaSent(this, KAFDocument.AnnotationType.WF, oldSent, oldPara);
-	//this.annotationContainer.indexSentByPara(this.sent, para);
     }
 
     public boolean hasPage() {
-	return page != -1;
+	return page != null;
     }
 
-    public int getPage() {
+    public Integer getPage() {
 	return page;
     }
 
-    public void setPage(int page) {
+    public void setPage(Integer page) {
 	this.page = page;
-    }
-
-    public boolean hasOffset() {
-	return offset != -1;
     }
 
     public boolean hasXpath() {
@@ -153,6 +122,7 @@ public class WF extends IdentifiableAnnotation implements SentenceLevelAnnotatio
 	this.form = form;
     }
     
+    @Override
     Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
 	return new HashMap<AnnotationType, List<Annotation>>();
     }
@@ -161,14 +131,16 @@ public class WF extends IdentifiableAnnotation implements SentenceLevelAnnotatio
     public String toString() {
 	return this.getForm();
     }
-    
+
+
     /*
     @Override
     public boolean equals(Object o) {
 	if (this == o) return true;
 	if (!(o instanceof WF)) return false;
 	WF ann = (WF) o;
-	return Utils.areEquals(this.sent, ann.sent) &&
+	return Utils.areEquals(this.id, ann.id) &&
+		Utils.areEquals(this.sent, ann.sent) &&
 		Utils.areEquals(this.para, ann.para) &&
 		Utils.areEquals(this.page, ann.page) &&
 		Utils.areEquals(this.offset, ann.offset) &&

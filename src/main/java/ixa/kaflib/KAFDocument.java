@@ -1313,7 +1313,7 @@ public Entity newEntity(List<Span<Term>> references) {
     }
 
     public List<WF> getWFsByPara(Integer para) {
-	return (List<WF>)(List<?>) this.annotationContainer.getSentAnnotations(para, AnnotationType.WF);
+	return (List<WF>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.WF);
     }
 
     public List<Term> getTermsBySent(Integer sent) {
@@ -1321,7 +1321,7 @@ public Entity newEntity(List<Span<Term>> references) {
     }
 
     public List<Term> getTermsByPara(Integer para) {
-	return (List<Term>)(List<?>) this.annotationContainer.getSentAnnotations(para, AnnotationType.TERM);
+	return (List<Term>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.TERM);
     }
 
     public List<Entity> getEntitiesBySent(Integer sent) {
@@ -1329,7 +1329,7 @@ public Entity newEntity(List<Span<Term>> references) {
     }
 
     public List<Entity> getEntitiesByPara(Integer para) {
-	return (List<Entity>)(List<?>) this.annotationContainer.getSentAnnotations(para, AnnotationType.ENTITY);
+	return (List<Entity>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.ENTITY);
     }
 
     public List<Chunk> getChunksBySent(Integer sent) {
@@ -1337,7 +1337,7 @@ public Entity newEntity(List<Span<Term>> references) {
     }
 
     public List<Chunk> getChunksByPara(Integer para) {
-	return (List<Chunk>)(List<?>) this.annotationContainer.getSentAnnotations(para, AnnotationType.CHUNK);
+	return (List<Chunk>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.CHUNK);
     }
 
     public List<Dep> getDepsBySent(Integer sent) {
@@ -1345,7 +1345,7 @@ public Entity newEntity(List<Span<Term>> references) {
     }
 
     public List<Dep> getDepsByPara(Integer para) {
-	return (List<Dep>)(List<?>) this.annotationContainer.getSentAnnotations(para, AnnotationType.DEP);
+	return (List<Dep>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.DEP);
     }
     
     public List<Tree> getConstituentsBySent(Integer sent) {
@@ -1353,7 +1353,7 @@ public Entity newEntity(List<Span<Term>> references) {
     }
 
     public List<Tree> getConstituentsByPara(Integer para) {
-	return (List<Tree>)(List<?>) this.annotationContainer.getSentAnnotations(para, AnnotationType.TREE);
+	return (List<Tree>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.TREE);
     }
     
     public List<Tree> getConstituentsBySent(Integer sent, String treeType) {
@@ -1361,7 +1361,7 @@ public Entity newEntity(List<Span<Term>> references) {
     }
 
     public List<Tree> getConstituentsByPara(Integer para, String treeType) {
-	return (List<Tree>)(List<?>) this.annotationContainer.getSentAnnotations(para, AnnotationType.TREE);
+	return (List<Tree>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.TREE);
     }
 
     public List<Coref> getCorefsBySent(Integer sent) {
@@ -1369,7 +1369,7 @@ public Entity newEntity(List<Span<Term>> references) {
     }
 
     public List<Coref> getCorefsByPara(Integer para) {
-	return (List<Coref>)(List<?>) this.annotationContainer.getSentAnnotations(para, AnnotationType.COREF);
+	return (List<Coref>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.COREF);
     }
 
     public List<Opinion> getOpinionsBySent(Integer sent) {
@@ -1377,7 +1377,7 @@ public Entity newEntity(List<Span<Term>> references) {
     }
 
     public List<Opinion> getOpinionsByPara(Integer para) {
-	return (List<Opinion>)(List<?>) this.annotationContainer.getSentAnnotations(para, AnnotationType.OPINION);
+	return (List<Opinion>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.OPINION);
     }
 
     public List<CLink> getCLinksBySent(Integer sent) {
@@ -1385,7 +1385,7 @@ public Entity newEntity(List<Span<Term>> references) {
     }
 
     public List<CLink> getCLinksByPara(Integer para) {
-	return (List<CLink>)(List<?>) this.annotationContainer.getSentAnnotations(para, AnnotationType.CLINK);
+	return (List<CLink>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.CLINK);
     }
 
     public List<TLink> getTLinksBySent(Integer sent) {
@@ -1393,7 +1393,7 @@ public Entity newEntity(List<Span<Term>> references) {
     }
 
     public List<TLink> getTLinksByPara(Integer para) {
-	return (List<TLink>)(List<?>) this.annotationContainer.getSentAnnotations(para, AnnotationType.TLINK);
+	return (List<TLink>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.TLINK);
     }
 
     public List<PredicateAnchor> getPredicateAnchorsBySent(Integer sent) {
@@ -1401,7 +1401,7 @@ public Entity newEntity(List<Span<Term>> references) {
     }
 
     public List<PredicateAnchor> getPredicateAnchorsByPara(Integer para) {
-	return (List<PredicateAnchor>)(List<?>) this.annotationContainer.getSentAnnotations(para, AnnotationType.PREDICATE_ANCHOR);
+	return (List<PredicateAnchor>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.PREDICATE_ANCHOR);
     }
 
     public List<Predicate> getPredicatesBySent(Integer sent) {
@@ -1409,7 +1409,7 @@ public Entity newEntity(List<Span<Term>> references) {
     }
 
     public List<Predicate> getPredicatesByPara(Integer para) {
-	return (List<Predicate>)(List<?>) this.annotationContainer.getSentAnnotations(para, AnnotationType.PREDICATE);
+	return (List<Predicate>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.PREDICATE);
     }
 
     public List<Timex3> getTimeExsBySent(Integer sent) {
@@ -1417,7 +1417,7 @@ public Entity newEntity(List<Span<Term>> references) {
     }
 
     public List<Timex3> getTimeExsByPara(Integer para) {
-	return (List<Timex3>)(List<?>) this.annotationContainer.getSentAnnotations(para, AnnotationType.TIMEX3);
+	return (List<Timex3>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.TIMEX3);
     }
 
     public List<Factuality> getFactualitiesBySent(Integer sent) {
@@ -1425,7 +1425,7 @@ public Entity newEntity(List<Span<Term>> references) {
     }
 
     public List<Factuality> getFactualitiesByPara(Integer para) {
-	return (List<Factuality>)(List<?>) this.annotationContainer.getSentAnnotations(para, AnnotationType.FACTUALITY);
+	return (List<Factuality>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.FACTUALITY);
     }
 
     public List<Factvalue> getFactvaluesBySent(Integer sent) {
@@ -1433,7 +1433,7 @@ public Entity newEntity(List<Span<Term>> references) {
     }
 
     public List<Factvalue> getFactvaluesByPara(Integer para) {
-	return (List<Factvalue>)(List<?>) this.annotationContainer.getSentAnnotations(para, AnnotationType.FACTVALUE);
+	return (List<Factvalue>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.FACTVALUE);
     }
 
     public List<Mark> getMarksBySent(Integer sent) {
@@ -1441,7 +1441,7 @@ public Entity newEntity(List<Span<Term>> references) {
     }
 
     public List<Mark> getMarksByPara(Integer para) {
-	return (List<Mark>)(List<?>) this.annotationContainer.getSentAnnotations(para, AnnotationType.MARK);
+	return (List<Mark>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.MARK);
     }
 
     public List<Mark> getMarksBySent(Integer sent, String group) {
@@ -1449,7 +1449,7 @@ public Entity newEntity(List<Span<Term>> references) {
     }
 
     public List<Mark> getMarksByPara(Integer para, String group) {
-	return (List<Mark>)(List<?>) this.annotationContainer.getSentAnnotations(para, AnnotationType.MARK);
+	return (List<Mark>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.MARK);
     }
 
     public List<Feature> getPropertiesBySent(Integer sent) {
@@ -1457,7 +1457,7 @@ public Entity newEntity(List<Span<Term>> references) {
     }
 
     public List<Feature> getPropertiesByPara(Integer para) {
-	return (List<Feature>)(List<?>) this.annotationContainer.getSentAnnotations(para, AnnotationType.PROPERTY);
+	return (List<Feature>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.PROPERTY);
     }
 
     public List<Feature> getCategoriesBySent(Integer sent) {
@@ -1465,7 +1465,7 @@ public Entity newEntity(List<Span<Term>> references) {
     }
 
     public List<Feature> getCategoriesByPara(Integer para) {
-	return (List<Feature>)(List<?>) this.annotationContainer.getSentAnnotations(para, AnnotationType.CATEGORY);
+	return (List<Feature>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.CATEGORY);
     }
 
     public List<LinkedEntity> getLinkedEntitiesBySent(Integer sent) {
@@ -1473,7 +1473,7 @@ public Entity newEntity(List<Span<Term>> references) {
     }
 
     public List<LinkedEntity> getLinkedEntitiesByPara(Integer para) {
-	return (List<LinkedEntity>)(List<?>) this.annotationContainer.getSentAnnotations(para, AnnotationType.LINKED_ENTITY);
+	return (List<LinkedEntity>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.LINKED_ENTITY);
     }
 
     public List<Relation> getRelationsBySent(Integer sent) {
@@ -1481,7 +1481,7 @@ public Entity newEntity(List<Span<Term>> references) {
     }
 
     public List<Relation> getRelationsByPara(Integer para) {
-	return (List<Relation>)(List<?>) this.annotationContainer.getSentAnnotations(para, AnnotationType.RELATION);
+	return (List<Relation>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.RELATION);
     }
 
     public List<Topic> getTopicsBySent(Integer sent) {
@@ -1489,7 +1489,7 @@ public Entity newEntity(List<Span<Term>> references) {
     }
 
     public List<Topic> getTopicsByPara(Integer para) {
-	return (List<Topic>)(List<?>) this.annotationContainer.getSentAnnotations(para, AnnotationType.TOPIC);
+	return (List<Topic>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.TOPIC);
     }
     
     public List<Statement> getStatementsBySent(Integer sent) {
@@ -1497,7 +1497,7 @@ public Entity newEntity(List<Span<Term>> references) {
     }
 
     public List<Statement> getStatementsByPara(Integer para) {
-	return (List<Statement>)(List<?>) this.annotationContainer.getSentAnnotations(para, AnnotationType.STATEMENT);
+	return (List<Statement>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.STATEMENT);
     }
     
     

@@ -137,8 +137,10 @@ class AnnotationContainer implements Serializable {
 	if (ann instanceof SentenceLevelAnnotation) {
 	    Integer sent = ((SentenceLevelAnnotation) ann).getSent();
 	    Integer para = ((ParagraphLevelAnnotation) ann).getPara();
-	    Helper.addToIndex(ann, type, groupID, sent, this.sentIndex);
-	    if (para > 0) {
+	    if (sent != null) {
+		Helper.addToIndex(ann, type, groupID, sent, this.sentIndex);
+	    }
+	    if (para != null) {
 		Helper.addToIndex(ann, type, groupID, para, this.paraIndex);
 		if (!indexedSents.contains(sent)) {
 		    this.addSentToPara(sent, para);
@@ -148,7 +150,7 @@ class AnnotationContainer implements Serializable {
 	}
 	else if (ann instanceof ParagraphLevelAnnotation) {
 	    Integer para = ((ParagraphLevelAnnotation) ann).getPara();
-	    if (para > 0) {
+	    if (para != null) {
 		Helper.addToIndex(ann, type, groupID, para, this.paraIndex);
 	    }
 	}
@@ -157,8 +159,12 @@ class AnnotationContainer implements Serializable {
     void reindexAnnotationParaSent(Annotation ann, AnnotationType type, Integer oldSent, Integer oldPara) {
 	String groupID = getGroupID(ann);
 	/* Remove index */
-	Helper.removeFromIndex(ann, type, groupID, oldSent, this.sentIndex);
-	Helper.removeFromIndex(ann, type, groupID, oldPara, this.paraIndex);
+	if (oldSent != null) {
+	    Helper.removeFromIndex(ann, type, groupID, oldSent, this.sentIndex);
+	}
+	if (oldPara != null) {
+	    Helper.removeFromIndex(ann, type, groupID, oldPara, this.paraIndex);
+	}
 	/* Re-index */
 	this.indexAnnotationParaSent(ann, type);
 	/* Re-index related annotations */
