@@ -5,8 +5,6 @@ import java.util.Map;
 import java.util.List;
 
 import ixa.kaflib.KAFDocument.AnnotationType;
-import ixa.kaflib.KAFDocument.Utils;
-import ixa.kaflib.Statement.StatementSource;
 
 
 public class Topic extends Annotation {
@@ -17,8 +15,11 @@ public class Topic extends Annotation {
     private String URI;
     private String value;
     
+    private static final long serialVersionUID = 1L;
+    
 
-    Topic(String value) {
+    Topic(AnnotationContainer annotationContainer, String value) {
+	super(annotationContainer);
 	this.value = value;
     }
 

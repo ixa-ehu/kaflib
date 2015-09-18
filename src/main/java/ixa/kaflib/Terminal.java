@@ -1,20 +1,21 @@
 package ixa.kaflib;
 
 import ixa.kaflib.KAFDocument.AnnotationType;
-import ixa.kaflib.KAFDocument.Utils;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Map;
 
 public class Terminal extends TreeNode implements SentenceLevelAnnotation {
 
     /** The term referenced by this terminal */
     private Span<Term> span;
+    
+    private static final long serialVersionUID = 1L;
 
-    Terminal(String id, Span<Term> span) {
-	super(id, false, true);
+    
+    Terminal(AnnotationContainer annotationContainer, String id, Span<Term> span) {
+	super(annotationContainer, id, false, true);
 	this.span = span;
     }
 

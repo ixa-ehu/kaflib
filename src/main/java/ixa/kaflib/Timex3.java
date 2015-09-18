@@ -1,7 +1,6 @@
 package ixa.kaflib;
 
 import ixa.kaflib.KAFDocument.AnnotationType;
-import ixa.kaflib.KAFDocument.Utils;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -40,57 +39,14 @@ public class Timex3 extends IdentifiableAnnotation implements TLinkReferable {
     private String comment;
 
     private Span<WF> span;
+    
+    private static final long serialVersionUID = 1L;
 
-    /** Mentions to the same entity (at least one required) */
-    //private List<Span<WF>> mentions;
 
-    Timex3(String id, String type){
-        super(id);
+    Timex3(AnnotationContainer annotationContainer, String id, String type){
+        super(annotationContainer, id);
 	this.type = type;
-	//this.mentions = new ArrayList<Span<WF>>();
     }
-
-    /*
-    Timex3(String timex3id, List<Span<WF>> mentions) {
-	if (mentions.size() < 1) {
-	    throw new IllegalStateException("Timex3 must contain at least one reference span");
-	}
-	if (mentions.get(0).size() < 1) {
-	   throw new IllegalStateException("Timex3' reference's spans must contain at least one target");
-	}
-	this.timex3id = timex3id;
-	this.mentions = mentions;
-    }
-    */
-
-    /*
-    Timex3(Timex3 timex3, HashMap<String, WF> WFs) {
-	this.timex3id = timex3.timex3id;
-	this.type = timex3.type;
-
-	String id = timex3.getId();
-	this.mentions = new ArrayList<Span<WF>>();
-	for (Span<WF> span : timex3.getSpans()) {
-
-	    List<WF> targets = span.getTargets();
-	    List<WF> copiedTargets = new ArrayList<WF>();
-	    for (WF wf : targets) {
-		WF copiedWF = WFs.get(wf.getId());
-		if (copiedWF == null) {
-		    throw new IllegalStateException("Term not found when copying " + id);
-		}
-		copiedTargets.add(copiedWF);
-	    }
-	    if (span.hasHead()) {
-		WF copiedHead = WFs.get(span.getHead().getId());
-		this.mentions.add(new Span<WF>(copiedTargets, copiedHead));
-	    }
-	    else {
-		this.mentions.add(new Span<WF>(copiedTargets));
-	    }
-	}
-    }
-    */
 
     public String getType() {
 	return type;

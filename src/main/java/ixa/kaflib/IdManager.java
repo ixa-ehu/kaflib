@@ -17,7 +17,7 @@ class IdManager implements Serializable {
     private static final String WF_PREFIX = "w";
     private static final String TERM_PREFIX = "t";
     private static final String MARK_PREFIX = "m";
-    private static final String MW_PREFIX = "t.mw";
+    //private static final String MW_PREFIX = "t.mw";
     private static final String COMPONENT_PREFIX = ".";
     private static final String CHUNK_PREFIX = "c";
     private static final String ENTITY_PREFIX = "e";
@@ -47,6 +47,8 @@ class IdManager implements Serializable {
 
     /* Inconsistent ID flags */
     private Map<AnnotationType, Boolean> inconsistentId;
+    
+    private static final long serialVersionUID = 1L;
 
 
     IdManager() {

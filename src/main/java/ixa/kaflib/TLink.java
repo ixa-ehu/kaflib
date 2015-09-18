@@ -1,7 +1,6 @@
 package ixa.kaflib;
 
 import ixa.kaflib.KAFDocument.AnnotationType;
-import ixa.kaflib.KAFDocument.Utils;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -16,10 +15,12 @@ public class TLink extends IdentifiableAnnotation {
     private TLinkReferable to;
 
     private String relType;
+    
+    private static final long serialVersionUID = 1L;
 
     
-    TLink(String id, TLinkReferable from, TLinkReferable to, String relType) {
-        super(id);
+    TLink(AnnotationContainer annotationContainer, String id, TLinkReferable from, TLinkReferable to, String relType) {
+        super(annotationContainer, id);
 	this.from = from;
 	this.to = to;
 	this.relType = relType;

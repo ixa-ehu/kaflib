@@ -1,7 +1,5 @@
 package ixa.kaflib;
 
-import ixa.kaflib.KAFDocument.Utils;
-
 import java.util.List;
 
 
@@ -14,10 +12,12 @@ public abstract class TreeNode extends IdentifiableAnnotation {
     private boolean head;
 
     private boolean isTerminal;
+    
+    private static final long serialVersionUID = 1L;
 
 
-    public TreeNode(String id, boolean head, boolean isTerminal) {
-        super(id);
+    public TreeNode(AnnotationContainer annotationContainer, String id, boolean head, boolean isTerminal) {
+        super(annotationContainer, id);
 	this.head = head;
 	this.isTerminal = isTerminal;
     }

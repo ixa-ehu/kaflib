@@ -1,7 +1,6 @@
 package ixa.kaflib;
 
 import ixa.kaflib.KAFDocument.AnnotationType;
-import ixa.kaflib.KAFDocument.Utils;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -39,15 +38,12 @@ public class Mark extends IdentifiableAnnotation implements SentenceLevelAnnotat
     private Term.Sentiment sentiment;
 
     private List<ExternalRef> externalReferences;
+    
+    private static final long serialVersionUID = 1L;
 
 
-    Mark(String id, Span<WF> span) {
-	/*
-	if (span.size() < 1) {
-	    throw new IllegalStateException("A Mark must have at least one WF");
-	}
-	*/
-	super(id);
+    Mark(AnnotationContainer annotationContainer, String id, Span<WF> span) {
+	super(annotationContainer, id);
 	this.span = span;
 	this.externalReferences = new ArrayList<ExternalRef>();
     }
@@ -173,6 +169,21 @@ public class Mark extends IdentifiableAnnotation implements SentenceLevelAnnotat
 	return referenced;
     }
 
+    @Override
+    public Integer getSent() {
+	return this.span.getFirstTarget().getSent();
+    }
+    
+    @Override
+    public Integer getPara() {
+	return this.span.getFirstTarget().getPara();
+    }
+
+    @Override
+    public String getGroupID() {
+	return this.getSource();
+    }
+
     /*
     @Override
     public boolean equals(Object o) {
@@ -190,19 +201,4 @@ public class Mark extends IdentifiableAnnotation implements SentenceLevelAnnotat
     }
     */
     
-    @Override
-    public Integer getSent() {
-	return this.span.getFirstTarget().getSent();
-    }
-    
-    @Override
-    public Integer getPara() {
-	return this.span.getFirstTarget().getPara();
-    }
-
-    @Override
-    public String getGroupID() {
-	return this.getSource();
-    }
-
 }

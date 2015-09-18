@@ -1,14 +1,16 @@
 package ixa.kaflib;
 
-import ixa.kaflib.KAFDocument.Utils;
-
 import java.io.Serializable;
 
 
 public class Target implements Serializable {
+
     private Term term;
     private boolean head;
+    
+    private static final long serialVersionUID = 1L;
 
+    
     Target(Term term, boolean head) {
 	this.term = term;
 	this.head = head;

@@ -1,7 +1,6 @@
 package ixa.kaflib;
 
 import ixa.kaflib.KAFDocument.AnnotationType;
-import ixa.kaflib.KAFDocument.Utils;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -23,24 +22,15 @@ public class Dep extends Annotation implements SentenceLevelAnnotation {
 
     /** Declension case (optional) */
     private String depcase;
+    
+    private static final long serialVersionUID = 1L;
 
-    Dep(Term from, Term to, String rfunc) {
+    
+    Dep(AnnotationContainer annotationContainer, Term from, Term to, String rfunc) {
+	super(annotationContainer);
 	this.from = from;
 	this.to = to;
 	this.rfunc = rfunc;
-    }
-
-    Dep(Dep dep, HashMap<String, Term> terms) {
-	this.from = terms.get(dep.from.getId());
-	if (this.from == null) {
-	    throw new IllegalStateException("Couldn't find the term when loading dep (" + dep.getFrom().getId()+", "+dep.getTo().getId()+")");
-	}
-	this.to = terms.get(dep.to.getId());
-	if (this.to == null) {
-	    throw new IllegalStateException("Couldn't find the term when loading dep (" + dep.getFrom().getId()+", "+dep.getTo().getId()+")");
-	}
-	this.rfunc = dep.rfunc;
-	this.depcase = dep.depcase;
     }
 
     public Term getFrom() {
@@ -91,6 +81,16 @@ public class Dep extends Annotation implements SentenceLevelAnnotation {
 	referenced.put(AnnotationType.TERM, terms);
 	return referenced;
     }
+
+    @Override
+    public Integer getSent() {
+	return this.from.getSent();
+    }
+    
+    @Override
+    public Integer getPara() {
+	return this.from.getPara();
+    }
     
     /*
     @Override
@@ -104,15 +104,5 @@ public class Dep extends Annotation implements SentenceLevelAnnotation {
 		Utils.areEquals(this.depcase, ann.depcase);
     }
     */
-    
-    @Override
-    public Integer getSent() {
-	return this.from.getSent();
-    }
-    
-    @Override
-    public Integer getPara() {
-	return this.from.getPara();
-    }
 
 }

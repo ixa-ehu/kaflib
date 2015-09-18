@@ -1,7 +1,6 @@
 package ixa.kaflib;
 
 import ixa.kaflib.KAFDocument.AnnotationType;
-import ixa.kaflib.KAFDocument.Utils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -16,10 +15,12 @@ public class NonTerminal extends TreeNode implements SentenceLevelAnnotation {
 
     /** Nodes' children */
     private List<TreeNode> children;
+    
+    private static final long serialVersionUID = 1L;
 
 
-    NonTerminal(String id, String label) {
-	super(id, false, false);
+    NonTerminal(AnnotationContainer annotationContainer, String id, String label) {
+	super(annotationContainer, id, false, false);
 	this.label = label;
 	this.children = new ArrayList<TreeNode>();
     }

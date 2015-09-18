@@ -1,10 +1,8 @@
 package ixa.kaflib;
 
 import ixa.kaflib.KAFDocument.AnnotationType;
-import ixa.kaflib.KAFDocument.Utils;
 
 import java.util.List;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,37 +19,15 @@ public class Chunk extends IdentifiableAnnotation implements SentenceLevelAnnota
     /** Chunk's target terms (at least one required) */
     private Span<Term> span;
 
-    Chunk(String id, Span<Term> span) {
-	super(id);
+    private static final long serialVersionUID = 1L;
+
+    
+    Chunk(AnnotationContainer annotationContainer, String id, Span<Term> span) {
+	super(annotationContainer, id);
 	if (span.size() < 1) {
 	    throw new IllegalStateException("Chunks must contain at least one term target");
 	}
 	this.span = span;
-    }
-
-    Chunk(Chunk chunk, HashMap<String, Term> terms) {
-	super(chunk.getId());
-	this.phrase = chunk.phrase;
-	this.chunkcase = chunk.chunkcase;
-	/* Copy span */
-	String id = chunk.getId();
-	Span<Term> span = chunk.span;
-	List<Term> targets = span.getTargets();
-	List<Term> copiedTargets = new ArrayList<Term>();
-	for (Term term : targets) {
-	    Term copiedTerm = terms.get(term.getId());
-	    if (copiedTerm == null) {
-		throw new IllegalStateException("Term not found when copying " + id);
-	    }
-	    copiedTargets.add(copiedTerm);
-	}
-	if (span.hasHead()) {
-	    Term copiedHead = terms.get(span.getHead().getId());
-	    this.span = new Span<Term>(copiedTargets, copiedHead);
-	}
-	else {
-	    this.span = new Span<Term>(copiedTargets);
-	}
     }
 
     public boolean hasHead() {

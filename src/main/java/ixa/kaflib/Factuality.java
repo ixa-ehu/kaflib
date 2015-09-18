@@ -1,7 +1,6 @@
 package ixa.kaflib;
 
 import ixa.kaflib.KAFDocument.AnnotationType;
-import ixa.kaflib.KAFDocument.Utils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,12 +9,15 @@ import java.util.List;
 
 
 public class Factuality extends IdentifiableAnnotation implements SentenceLevelAnnotation {
-    
+
     private Span<Term> span;
     private List<FactVal> factVals;
     
-    Factuality(String id, Span<Term> span) {
-	super(id);
+    private static final long serialVersionUID = 1L;
+    
+    
+    Factuality(AnnotationContainer annotationContainer, String id, Span<Term> span) {
+	super(annotationContainer, id);
 	this.span = span;
 	this.factVals = new ArrayList<FactVal>();
     }
@@ -83,7 +85,11 @@ public class Factuality extends IdentifiableAnnotation implements SentenceLevelA
 	private String source;
 	private Float confidence;
 	
-	FactVal(String value, String resource) {
+	private static final long serialVersionUID = 1L;
+	
+	
+	FactVal(AnnotationContainer annotationContainer, String value, String resource) {
+	    super(annotationContainer);
 	    this.value = value;
 	    this.resource = resource;
 	}

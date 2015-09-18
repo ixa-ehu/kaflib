@@ -1,23 +1,23 @@
 package ixa.kaflib;
 
 import ixa.kaflib.KAFDocument.AnnotationType;
-import ixa.kaflib.KAFDocument.Utils;
-import ixa.kaflib.Term.Sentiment;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class PredicateAnchor extends IdentifiableAnnotation implements SentenceLevelAnnotation {
-    
+
     private Timex3 anchorTime;
     private Timex3 beginPoint;
     private Timex3 endPoint;
     private Span<Predicate> span;
+    
+    private static final long serialVersionUID = 1L;
 
     
-    public PredicateAnchor(String id, Span<Predicate> span) {
-	super(id);
+    public PredicateAnchor(AnnotationContainer annotationContainer, String id, Span<Predicate> span) {
+	super(annotationContainer, id);
 	this.span = span;
     }
     

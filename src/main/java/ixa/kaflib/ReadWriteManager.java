@@ -9,7 +9,6 @@ import org.jdom2.output.Format;
 import org.jdom2.output.LineSeparator;
 import org.jdom2.input.SAXBuilder;
 import org.jdom2.JDOMException;
-import org.jdom2.xpath.XPathExpression;
 
 import ixa.kaflib.KAFDocument.AnnotationType;
 import ixa.kaflib.KAFDocument.Layer;
@@ -18,7 +17,6 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Collections;
 import java.util.Comparator;
@@ -30,7 +28,6 @@ import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.regex.*;
 
 //todo: read facts and linkedEntities
@@ -42,7 +39,6 @@ class ReadWriteManager {
     static KAFDocument load(File file) throws IOException, JDOMException, KAFNotValidException {
 	SAXBuilder builder = new SAXBuilder();
 	Document document = (Document) builder.build(file);
-	Element rootElem = document.getRootElement();
 	return DOMToKAF(document);
     }
 
@@ -50,7 +46,6 @@ class ReadWriteManager {
     static KAFDocument load(Reader stream) throws IOException, JDOMException, KAFNotValidException {
 	SAXBuilder builder = new SAXBuilder();
 	Document document = (Document) builder.build(stream);
-	Element rootElem = document.getRootElement();
 	return DOMToKAF(document);
     }
 
@@ -61,6 +56,7 @@ class ReadWriteManager {
 	    Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), "UTF8"));
 	    out.write(kafToStr(kaf));
 	    out.flush();
+	    out.close();
 	} catch (Exception e) {
 	    System.out.println("Error writing to file");
 	}

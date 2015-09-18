@@ -55,6 +55,8 @@ public class Term extends IdentifiableAnnotation implements SentenceLevelAnnotat
     private boolean isComponent;
     private Term compound; // Parent compound term of this component
 
+    private static final long serialVersionUID = 1L;
+
 
     /** The term layer represents sentiment information which is context-independent and that can be found in a sentiment lexicon.
      * It is related to concepts expressed by words/ terms (e.g. beautiful) or multi-word expressions (e. g. out of order).
@@ -111,18 +113,11 @@ public class Term extends IdentifiableAnnotation implements SentenceLevelAnnotat
 	 */
 	private String sentimentProductFeature;
 
-	Sentiment() {
-	}
+	private static final long serialVersionUID = 1L;
 
-	Sentiment(Sentiment sentiment) {
-	    this.resource = sentiment.resource;
-	    this.polarity = sentiment.polarity;
-	    this.strength = sentiment.strength;
-	    this.subjectivity = sentiment.subjectivity;
-	    this.sentimentSemanticType = sentiment.sentimentSemanticType;
-	    this.sentimentModifier = sentiment.sentimentModifier;
-	    this.sentimentMarker = sentiment.sentimentMarker;
-	    this.sentimentProductFeature = sentiment.sentimentProductFeature;
+	
+	Sentiment(AnnotationContainer annotationContainer) {
+	    super(annotationContainer);
 	}
 
 	public boolean hasResource() {
@@ -243,66 +238,12 @@ public class Term extends IdentifiableAnnotation implements SentenceLevelAnnotat
 	*/
     }
 
-    Term(String id, Span<WF> span, boolean isComponent) {
-	/*
-	if (span.size() < 1) {
-	    throw new IllegalStateException("A Term must have at least one WF");
-	}
-	*/
-	super(id);
-	this.components = new ArrayList();
+    Term(AnnotationContainer annotationContainer, String id, Span<WF> span, boolean isComponent) {
+	super(annotationContainer, id);
+	this.components = new ArrayList<Term>();
 	this.span = span;
 	this.externalReferences = new ArrayList<ExternalRef>();
 	this.isComponent = isComponent;
-    }
-
-    /* Copy constructor */
-    Term(Term term, HashMap<String, WF> wfs) {
-	// Copy simple fields
-	super(term.getId());
-	this.type = term.type;
-	this.lemma = term.lemma;
-	this.pos = term.pos;
-	this.morphofeat = term.morphofeat;
-	this.termcase = term.termcase;
-	// Copy sentiment
-	if (term.hasSentiment()) {
-	    this.sentiment = new Sentiment(term.sentiment);
-	}
-	// Copy components and head
-	HashMap<String, Term> newComponents = 
-	    new HashMap<String, Term>();
-	this.components = new ArrayList<Term>();
-	for (Term component : term.components) {
-	    Term copyComponent = new Term(component, wfs);
-	    this.components.add(copyComponent);
-	    newComponents.put(component.getId(), copyComponent);
-	}
-	if (term.hasHead()) {
-	    this.head = newComponents.get(term.head.getId());
-	}
-	// Copy span
-	List<WF> targets = term.span.getTargets();
-	List<WF> copiedTargets = new ArrayList<WF>();
-	for (WF wf : targets) {
-	    WF copiedWf = wfs.get(wf.getId());
-	    if (copiedWf == null) {
-		throw new IllegalStateException("WF not found when copying Term " + term.getId());
-	    }
-	    copiedTargets.add(copiedWf);
-	}
-	if (term.span.hasHead()) {
-	    WF copiedHead = wfs.get(term.span.getHead().getId());
-	    this.span = new Span<WF>(copiedTargets, copiedHead);
-	}
-	else {
-	    this.span = new Span<WF>(copiedTargets);
-	}
-	// Copy external references
-	this.externalReferences = new ArrayList<ExternalRef>();
-	for (ExternalRef externalRef : term.getExternalRefs()) {
-	    this.externalReferences.add(new ExternalRef(externalRef));
-	}
     }
 
     public boolean hasType() {
@@ -405,7 +346,7 @@ public class Term extends IdentifiableAnnotation implements SentenceLevelAnnotat
      * @return a new sentiment.
      */
     public Sentiment createSentiment() {
-	Sentiment newSentiment = new Sentiment();
+	Sentiment newSentiment = new Sentiment(this.annotationContainer);
 	this.setSentiment(newSentiment);
 	return newSentiment;
     }

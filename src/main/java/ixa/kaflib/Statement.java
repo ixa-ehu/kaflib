@@ -1,7 +1,6 @@
 package ixa.kaflib;
 
 import ixa.kaflib.KAFDocument.AnnotationType;
-import ixa.kaflib.KAFDocument.Utils;
 
 import java.util.List;
 import java.util.Map;
@@ -9,14 +8,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Statement extends IdentifiableAnnotation {
-    
+
     private StatementTarget target;
     private StatementSource source;
     private StatementCue cue;
     
+    private static final long serialVersionUID = 1L;
     
-    public Statement(String id, StatementTarget target) {
-	super(id);
+    
+    public Statement(AnnotationContainer annotationContainer, String id, StatementTarget target) {
+	super(annotationContainer, id);
 	this.target = target;
     }
 
@@ -86,9 +87,14 @@ public class Statement extends IdentifiableAnnotation {
     
     
     public static class StatementTarget extends Annotation {
+
 	private Span<Term> span;
 	
-	public StatementTarget(Span<Term> span) {
+	private static final long serialVersionUID = 1L;
+	
+	
+	public StatementTarget(AnnotationContainer annotationContainer, Span<Term> span) {
+	    super(annotationContainer);
 	    this.span = span;
 	}
 	
@@ -122,9 +128,14 @@ public class Statement extends IdentifiableAnnotation {
     }
     
     public static class StatementSource extends Annotation {
+
 	private Span<Term> span;
 	
-	public StatementSource(Span<Term> span) {
+	private static final long serialVersionUID = 1L;
+	
+	
+	public StatementSource(AnnotationContainer annotationContainer, Span<Term> span) {
+	    super(annotationContainer);
 	    this.span = span;
 	}
 	
@@ -158,9 +169,14 @@ public class Statement extends IdentifiableAnnotation {
     }
     
     public static class StatementCue extends Annotation {
+
 	private Span<Term> span;
 	
-	public StatementCue(Span<Term> span) {
+	private static final long serialVersionUID = 1L;
+	
+	
+	public StatementCue(AnnotationContainer annotationContainer, Span<Term> span) {
+	    super(annotationContainer);
 	    this.span = span;
 	}
 	

@@ -1,7 +1,6 @@
 package ixa.kaflib;
 
 import ixa.kaflib.KAFDocument.AnnotationType;
-import ixa.kaflib.KAFDocument.Utils;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -20,31 +19,16 @@ public class Relation extends IdentifiableAnnotation implements Serializable {
 
     /* Confidence (optional) */
     private float confidence;
+    
+    private static final long serialVersionUID = 1L;
 
-    Relation(String id, Relational from, Relational to) {
-	super(id);
+    
+    Relation(AnnotationContainer annotationContainer, String id, Relational from, Relational to) {
+	super(annotationContainer, id);
 	this.id = id;
 	this.from = from;
 	this.to = to;
 	this.confidence = -1.0f;
-    }
-
-    Relation(Relation relation, HashMap<String, Relational> relational) {
-	super(relation.getId());
-	this.id = relation.getId();
-	if (relation.from != null) {
-	    this.from = relational.get(relation.from.getId());
-	    if (this.from == null) {
-		throw new IllegalStateException("Couldn't find relational " + relation.from.getId() + " when copying " + relation.getId());
-	    }
-	}
-	if (relation.to != null) {
-	    this.to = relational.get(relation.to.getId());
-	    if (this.to == null) {
-		throw new IllegalStateException("Couldn't find relational " + relation.to.getId() + " when copying " + relation.getId());
-	    }
-	}
-	this.confidence = relation.confidence;
     }
 
     public String getId() {

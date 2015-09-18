@@ -16,10 +16,12 @@ public class CLink extends IdentifiableAnnotation {
     private Predicate to;
 
     private String relType;
+    
+    private static final long serialVersionUID = 1L;
 
     
-    CLink(String id, Predicate from, Predicate to) {
-	super(id);
+    CLink(AnnotationContainer annotationContainer, String id, Predicate from, Predicate to) {
+	super(annotationContainer, id);
 	this.from = from;
 	this.to = to;
     }

@@ -1,7 +1,6 @@
 package ixa.kaflib;
 
 import ixa.kaflib.KAFDocument.AnnotationType;
-import ixa.kaflib.KAFDocument.Utils;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -9,10 +8,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 
-/**  */
+
 public class Tree extends Annotation implements MultiLayerAnnotation, SentenceLevelAnnotation {
 
     private static final String HEAD_MARK = "=H";
+    
+    private static final long serialVersionUID = 1L;
 
     /** Type */
     private String type;
@@ -20,7 +21,8 @@ public class Tree extends Annotation implements MultiLayerAnnotation, SentenceLe
     /** Tree's root node */
     private TreeNode root;
 
-    Tree(TreeNode root, String type) {
+    Tree(AnnotationContainer annotationContainer, TreeNode root, String type) {
+	super(annotationContainer);
 	this.root = root;
 	this.type = type;
     }
@@ -61,7 +63,6 @@ public class Tree extends Annotation implements MultiLayerAnnotation, SentenceLe
 	if (termMatching.size() == 0) {
 	    return;
 	}
-	List<Tree> trees = new ArrayList<Tree>();
 	int current = 0;
 	while (current < tokens.length) {
 	    int end = parMatching.get(current);
@@ -213,7 +214,7 @@ public class Tree extends Annotation implements MultiLayerAnnotation, SentenceLe
     }
 
     private static Terminal createTerminal(String token, Term term, KAFDocument kaf) {
-	Span<Term> span = kaf.newTermSpan();
+	Span<Term> span = KAFDocument.newTermSpan();
 	span.addTarget(term);
 	return kaf.newTerminal(span);
     }

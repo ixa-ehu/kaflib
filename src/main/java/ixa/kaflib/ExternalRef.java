@@ -1,13 +1,12 @@
 package ixa.kaflib;
 
-import ixa.kaflib.KAFDocument.Utils;
-
 import java.util.List;
 import java.util.ArrayList;
 import java.io.Serializable;
 
 
 public class ExternalRef implements Serializable {
+
     private String resource;
     private String reference;
     private Float confidence;
@@ -16,6 +15,8 @@ public class ExternalRef implements Serializable {
     private String source;
     private List<ExternalRef> externalRefs;
     private Term.Sentiment sentiment;
+    
+    private static final long serialVersionUID = 1L;
 
 
     ExternalRef(String resource, String reference) {
@@ -23,16 +24,6 @@ public class ExternalRef implements Serializable {
 	this.reference = reference;
 	this.confidence = -1.0f;
 	this.externalRefs = new ArrayList<ExternalRef>();
-    }
-
-    ExternalRef(ExternalRef externalReference) {
-	this.resource = externalReference.resource;
-	this.reference = externalReference.reference;
-	this.confidence = externalReference.confidence;
-	if (externalReference.externalRefs != null) {
-	    this.externalRefs = new ArrayList<ExternalRef>(externalReference.externalRefs);
-	}
-	this.sentiment = externalReference.sentiment;
     }
 
     public String getResource() {

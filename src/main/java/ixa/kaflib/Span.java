@@ -1,18 +1,17 @@
 package ixa.kaflib;
 
-import ixa.kaflib.KAFDocument.Utils;
-
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.io.Serializable;
 
-public class Span<T extends IdentifiableAnnotation> implements Serializable {
 
-    //private List<String> targets;
+public class Span<T extends IdentifiableAnnotation> implements Serializable {
     private List<T> targets;
     private List<T> sortedTargets;
     private T head;
+    
+    private static final long serialVersionUID = 1L;
 
 
     Span() {

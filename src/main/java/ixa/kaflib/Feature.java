@@ -1,7 +1,6 @@
 package ixa.kaflib;
 
 import ixa.kaflib.KAFDocument.AnnotationType;
-import ixa.kaflib.KAFDocument.Utils;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -19,9 +18,12 @@ public class Feature extends IdentifiableAnnotation implements Relational, Seria
     private List<Span<Term>> references;
 
     private List<ExternalRef> externalReferences;
+    
+    private static final long serialVersionUID = 1L;
 
-    Feature(String id, String lemma, List<Span<Term>> references) {
-	super(id);
+    
+    Feature(AnnotationContainer annotationContainer, String id, String lemma, List<Span<Term>> references) {
+	super(annotationContainer, id);
 	if (references.size() < 1) {
 	    throw new IllegalStateException("Features must contain at least one reference span");
 	}
@@ -32,39 +34,6 @@ public class Feature extends IdentifiableAnnotation implements Relational, Seria
 	this.lemma = lemma;
 	this.references = references;
 	this.externalReferences = new ArrayList<ExternalRef>();
-    }
-
-    Feature(Feature feature, HashMap<String, Term> terms) {
-	super(feature.id);
-	this.id = feature.id;
-	this.lemma = feature.lemma;
-	/* Copy references */
-	String id = feature.getId();
-	this.references = new ArrayList<Span<Term>>();
-	for (Span<Term> span : feature.getSpans()) {
-	    /* Copy span */
-	    List<Term> targets = span.getTargets();
-	    List<Term> copiedTargets = new ArrayList<Term>();
-	    for (Term term : targets) {
-		Term copiedTerm = terms.get(term.getId());
-		if (copiedTerm == null) {
-		    throw new IllegalStateException("Term not found when copying " + id);
-		}
-		copiedTargets.add(copiedTerm);
-	    }
-	    if (span.hasHead()) {
-		Term copiedHead = terms.get(span.getHead().getId());
-		this.references.add(new Span<Term>(copiedTargets, copiedHead));
-	    }
-	    else {
-		this.references.add(new Span<Term>(copiedTargets));
-	    }
-	}
-	/* Copy external references */
-	this.externalReferences = new ArrayList<ExternalRef>();
-	for (ExternalRef externalRef : feature.getExternalRefs()) {
-	    this.externalReferences.add(new ExternalRef(externalRef));
-	}
     }
 
     public boolean isAProperty() {
@@ -152,7 +121,7 @@ public class Feature extends IdentifiableAnnotation implements Relational, Seria
     }
 
 
-    /** Deprecated */
+    @Deprecated
     public List<List<Term>> getReferences() {
 	List<List<Term>> list = new ArrayList<List<Term>>();
 	for (Span<Term> span : this.references) {
@@ -161,7 +130,7 @@ public class Feature extends IdentifiableAnnotation implements Relational, Seria
 	return list;
     }
 
-    /** Deprecated */
+    @Deprecated
     public void addReference(List<Term> span) {
 	this.references.add(KAFDocument.<Term>list2Span(span));
     }

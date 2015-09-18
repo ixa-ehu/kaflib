@@ -1,7 +1,6 @@
 package ixa.kaflib;
 
 import ixa.kaflib.KAFDocument.AnnotationType;
-import ixa.kaflib.KAFDocument.Utils;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -20,10 +19,12 @@ public class Coref extends IdentifiableAnnotation {
 
     /** External references (optional) */
     private List<ExternalRef> externalReferences;
+    
+    private static final long serialVersionUID = 1L;
 
 
-    Coref(String id, List<Span<Term>> mentions) {
-	super(id);
+    Coref(AnnotationContainer annotationContainer, String id, List<Span<Term>> mentions) {
+	super(annotationContainer, id);
 	if (mentions.size() < 1) {
 	    throw new IllegalStateException("Coreferences must contain at least one reference span");
 	}
@@ -32,32 +33,6 @@ public class Coref extends IdentifiableAnnotation {
 	}
 	this.mentions = mentions;
 	this.externalReferences = new ArrayList<ExternalRef>();
-    }
-
-    Coref(Coref coref, HashMap<String, Term> terms) {
-	super(coref.getId());
-	/* Copy references */
-	String id = coref.getId();
-	this.mentions = new ArrayList<Span<Term>>();
-	for (Span<Term> span : coref.getSpans()) {
-	    /* Copy span */
-	    List<Term> targets = span.getTargets();
-	    List<Term> copiedTargets = new ArrayList<Term>();
-	    for (Term term : targets) {
-		Term copiedTerm = terms.get(term.getId());
-		if (copiedTerm == null) {
-		    throw new IllegalStateException("Term not found when copying " + id);
-		}
-		copiedTargets.add(copiedTerm);
-	    }
-	    if (span.hasHead()) {
-		Term copiedHead = terms.get(span.getHead().getId());
-		this.mentions.add(new Span<Term>(copiedTargets, copiedHead));
-	    }
-	    else {
-		this.mentions.add(new Span<Term>(copiedTargets));
-	    }
-	}
     }
 
     public boolean hasType() {

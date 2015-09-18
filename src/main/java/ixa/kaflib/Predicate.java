@@ -1,7 +1,6 @@
 package ixa.kaflib;
 
 import ixa.kaflib.KAFDocument.AnnotationType;
-import ixa.kaflib.KAFDocument.Utils;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -11,12 +10,15 @@ import java.util.Map;
 public class Predicate extends IdentifiableAnnotation implements SentenceLevelAnnotation, TLinkReferable {
 
     public static class Role extends IdentifiableAnnotation {
+
 	private String semRole;
 	private Span<Term> span;
 	private List<ExternalRef> externalReferences;
+	
+	private static final long serialVersionUID = 1L;
 
-	Role(String id, String semRole, Span span) {
-	    super(id);
+	Role(AnnotationContainer annotationContainer, String id, String semRole, Span<Term> span) {
+	    super(annotationContainer, id);
 	    this.semRole = semRole;
 	    this.span = span;
 	    this.externalReferences = new ArrayList<ExternalRef>();
@@ -99,9 +101,11 @@ public class Predicate extends IdentifiableAnnotation implements SentenceLevelAn
     private Span<Term> span;
     private List<Role> roles;
     private List<ExternalRef> externalReferences;
+	
+    private static final long serialVersionUID = 1L;
 
-    Predicate(String id, Span<Term> span) {
-	super(id);
+    Predicate(AnnotationContainer annotationContainer, String id, Span<Term> span) {
+	super(annotationContainer, id);
 	this.span = span;
 	this.roles = new ArrayList<Role>();
 	this.confidence = -1.0f;

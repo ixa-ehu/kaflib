@@ -1,7 +1,6 @@
 package ixa.kaflib;
 
 import ixa.kaflib.KAFDocument.AnnotationType;
-import ixa.kaflib.KAFDocument.Utils;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -31,9 +30,12 @@ public class Entity extends IdentifiableAnnotation implements Relational, Senten
 
     /** External references (optional) */
     private List<ExternalRef> externalReferences;
+    
+    private static final long serialVersionUID = 1L;
 
-    Entity(String id, List<Span<Term>> references) {
-	super(id);
+    
+    Entity(AnnotationContainer annotationContainer, String id, List<Span<Term>> references) {
+	super(annotationContainer, id);
 	if (references.size() < 1) {
 	    throw new IllegalStateException("Entities must contain at least one reference span");
 	}
@@ -42,38 +44,6 @@ public class Entity extends IdentifiableAnnotation implements Relational, Senten
 	}
 	this.references = references;
 	this.externalReferences = new ArrayList<ExternalRef>();
-    }
-
-    Entity(Entity entity, HashMap<String, Term> terms) {
-	super(entity.getId());
-	this.type = entity.type;
-	/* Copy references */
-	String id = entity.getId();
-	this.references = new ArrayList<Span<Term>>();
-	for (Span<Term> span : entity.getSpans()) {
-	    /* Copy span */
-	    List<Term> targets = span.getTargets();
-	    List<Term> copiedTargets = new ArrayList<Term>();
-	    for (Term term : targets) {
-		Term copiedTerm = terms.get(term.getId());
-		if (copiedTerm == null) {
-		    throw new IllegalStateException("Term not found when copying " + id);
-		}
-		copiedTargets.add(copiedTerm);
-	    }
-	    if (span.hasHead()) {
-		Term copiedHead = terms.get(span.getHead().getId());
-		this.references.add(new Span<Term>(copiedTargets, copiedHead));
-	    }
-	    else {
-		this.references.add(new Span<Term>(copiedTargets));
-	    }
-	}
-	/* Copy external references */
-	this.externalReferences = new ArrayList<ExternalRef>();
-	for (ExternalRef externalRef : entity.getExternalRefs()) {
-	    this.externalReferences.add(new ExternalRef(externalRef));
-	}
     }
 
     public boolean hasType() {
