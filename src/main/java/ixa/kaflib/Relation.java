@@ -98,6 +98,11 @@ public class Relation extends IdentifiableAnnotation implements Serializable {
 	return referenced;
     }
     
+    @Override
+    public Integer getOffset() {
+	return Math.min(this.getFrom().getOffset(), this.getTo().getOffset());
+    }
+    
     /*
     @Override
     public boolean equals(Object o) {

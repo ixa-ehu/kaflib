@@ -54,6 +54,7 @@ public class CLink extends IdentifiableAnnotation {
 	this.relType = relType;
     }
     
+    @Override
     Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
 	Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
 	List<Annotation> predicates = new ArrayList<Annotation>();
@@ -61,6 +62,11 @@ public class CLink extends IdentifiableAnnotation {
 	predicates.add(this.getTo());
 	referenced.put(AnnotationType.PREDICATE, predicates);
 	return referenced;
+    }
+    
+    @Override
+    public Integer getOffset() {
+	return Math.min(this.getFrom().getOffset(), this.getTo().getOffset());
     }
     
     /*

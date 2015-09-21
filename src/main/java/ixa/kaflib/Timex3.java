@@ -230,7 +230,12 @@ public class Timex3 extends IdentifiableAnnotation implements TLinkReferable {
 	referenced.put(AnnotationType.WF, wfs);
 	return referenced;
     }
-
+    
+    @Override
+    public Integer getOffset() {
+	return this.getSpan().getOffset();
+    }
+    
     /*
     @Override
     public boolean equals(Object o) {

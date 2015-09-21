@@ -1308,198 +1308,6 @@ public Entity newEntity(List<Span<Term>> references) {
 	return this.annotationContainer.getParaAnnotations(para, type, group);
     }
     
-    public List<WF> getWFsBySent(Integer sent) {
-	return (List<WF>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.WF);
-    }
-
-    public List<WF> getWFsByPara(Integer para) {
-	return (List<WF>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.WF);
-    }
-
-    public List<Term> getTermsBySent(Integer sent) {
-	return (List<Term>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.TERM);
-    }
-
-    public List<Term> getTermsByPara(Integer para) {
-	return (List<Term>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.TERM);
-    }
-
-    public List<Entity> getEntitiesBySent(Integer sent) {
-	return (List<Entity>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.ENTITY);
-    }
-
-    public List<Entity> getEntitiesByPara(Integer para) {
-	return (List<Entity>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.ENTITY);
-    }
-
-    public List<Chunk> getChunksBySent(Integer sent) {
-	return (List<Chunk>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.CHUNK);
-    }
-
-    public List<Chunk> getChunksByPara(Integer para) {
-	return (List<Chunk>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.CHUNK);
-    }
-
-    public List<Dep> getDepsBySent(Integer sent) {
-	return (List<Dep>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.DEP);
-    }
-
-    public List<Dep> getDepsByPara(Integer para) {
-	return (List<Dep>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.DEP);
-    }
-    
-    public List<Tree> getConstituentsBySent(Integer sent) {
-	return (List<Tree>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.TREE);
-    }
-
-    public List<Tree> getConstituentsByPara(Integer para) {
-	return (List<Tree>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.TREE);
-    }
-    
-    public List<Tree> getConstituentsBySent(Integer sent, String treeType) {
-	return (List<Tree>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.TREE);
-    }
-
-    public List<Tree> getConstituentsByPara(Integer para, String treeType) {
-	return (List<Tree>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.TREE);
-    }
-
-    public List<Coref> getCorefsBySent(Integer sent) {
-	return (List<Coref>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.COREF);
-    }
-
-    public List<Coref> getCorefsByPara(Integer para) {
-	return (List<Coref>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.COREF);
-    }
-
-    public List<Opinion> getOpinionsBySent(Integer sent) {
-	return (List<Opinion>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.OPINION);
-    }
-
-    public List<Opinion> getOpinionsByPara(Integer para) {
-	return (List<Opinion>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.OPINION);
-    }
-
-    public List<CLink> getCLinksBySent(Integer sent) {
-	return (List<CLink>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.CLINK);
-    }
-
-    public List<CLink> getCLinksByPara(Integer para) {
-	return (List<CLink>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.CLINK);
-    }
-
-    public List<TLink> getTLinksBySent(Integer sent) {
-	return (List<TLink>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.TLINK);
-    }
-
-    public List<TLink> getTLinksByPara(Integer para) {
-	return (List<TLink>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.TLINK);
-    }
-
-    public List<PredicateAnchor> getPredicateAnchorsBySent(Integer sent) {
-	return (List<PredicateAnchor>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.PREDICATE_ANCHOR);
-    }
-
-    public List<PredicateAnchor> getPredicateAnchorsByPara(Integer para) {
-	return (List<PredicateAnchor>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.PREDICATE_ANCHOR);
-    }
-
-    public List<Predicate> getPredicatesBySent(Integer sent) {
-	return (List<Predicate>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.PREDICATE);
-    }
-
-    public List<Predicate> getPredicatesByPara(Integer para) {
-	return (List<Predicate>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.PREDICATE);
-    }
-
-    public List<Timex3> getTimeExsBySent(Integer sent) {
-	return (List<Timex3>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.TIMEX3);
-    }
-
-    public List<Timex3> getTimeExsByPara(Integer para) {
-	return (List<Timex3>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.TIMEX3);
-    }
-
-    public List<Factuality> getFactualitiesBySent(Integer sent) {
-	return (List<Factuality>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.FACTUALITY);
-    }
-
-    public List<Factuality> getFactualitiesByPara(Integer para) {
-	return (List<Factuality>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.FACTUALITY);
-    }
-
-    public List<Factvalue> getFactvaluesBySent(Integer sent) {
-	return (List<Factvalue>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.FACTVALUE);
-    }
-
-    public List<Factvalue> getFactvaluesByPara(Integer para) {
-	return (List<Factvalue>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.FACTVALUE);
-    }
-
-    public List<Mark> getMarksBySent(Integer sent) {
-	return (List<Mark>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.MARK);
-    }
-
-    public List<Mark> getMarksByPara(Integer para) {
-	return (List<Mark>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.MARK);
-    }
-
-    public List<Mark> getMarksBySent(Integer sent, String group) {
-	return (List<Mark>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.MARK);
-    }
-
-    public List<Mark> getMarksByPara(Integer para, String group) {
-	return (List<Mark>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.MARK);
-    }
-
-    public List<Feature> getPropertiesBySent(Integer sent) {
-	return (List<Feature>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.PROPERTY);
-    }
-
-    public List<Feature> getPropertiesByPara(Integer para) {
-	return (List<Feature>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.PROPERTY);
-    }
-
-    public List<Feature> getCategoriesBySent(Integer sent) {
-	return (List<Feature>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.CATEGORY);
-    }
-
-    public List<Feature> getCategoriesByPara(Integer para) {
-	return (List<Feature>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.CATEGORY);
-    }
-
-    public List<LinkedEntity> getLinkedEntitiesBySent(Integer sent) {
-	return (List<LinkedEntity>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.LINKED_ENTITY);
-    }
-
-    public List<LinkedEntity> getLinkedEntitiesByPara(Integer para) {
-	return (List<LinkedEntity>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.LINKED_ENTITY);
-    }
-
-    public List<Relation> getRelationsBySent(Integer sent) {
-	return (List<Relation>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.RELATION);
-    }
-
-    public List<Relation> getRelationsByPara(Integer para) {
-	return (List<Relation>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.RELATION);
-    }
-
-    public List<Topic> getTopicsBySent(Integer sent) {
-	return (List<Topic>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.TOPIC);
-    }
-
-    public List<Topic> getTopicsByPara(Integer para) {
-	return (List<Topic>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.TOPIC);
-    }
-    
-    public List<Statement> getStatementsBySent(Integer sent) {
-	return (List<Statement>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.STATEMENT);
-    }
-
-    public List<Statement> getStatementsByPara(Integer para) {
-	return (List<Statement>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.STATEMENT);
-    }
-    
     
     // Hau kendu behar da
     public List<Term> getTermsFromWFs(List<String> wfIds) {
@@ -1835,6 +1643,247 @@ public Entity newEntity(List<Span<Term>> references) {
     public static Target createTarget(Term term, boolean isHead) {
 	return new Target(term, isHead);
     }
+    
+    @Deprecated
+    public List<WF> getWFsBySent(Integer sent) {
+	return (List<WF>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.WF);
+    }
+
+    @Deprecated
+    public List<WF> getWFsByPara(Integer para) {
+	return (List<WF>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.WF);
+    }
+
+    @Deprecated
+    public List<Term> getTermsBySent(Integer sent) {
+	return (List<Term>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.TERM);
+    }
+
+    @Deprecated
+    public List<Term> getTermsByPara(Integer para) {
+	return (List<Term>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.TERM);
+    }
+
+    @Deprecated
+    public List<Entity> getEntitiesBySent(Integer sent) {
+	return (List<Entity>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.ENTITY);
+    }
+
+    @Deprecated
+    public List<Entity> getEntitiesByPara(Integer para) {
+	return (List<Entity>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.ENTITY);
+    }
+
+    @Deprecated
+    public List<Chunk> getChunksBySent(Integer sent) {
+	return (List<Chunk>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.CHUNK);
+    }
+
+    @Deprecated
+    public List<Chunk> getChunksByPara(Integer para) {
+	return (List<Chunk>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.CHUNK);
+    }
+
+    @Deprecated
+    public List<Dep> getDepsBySent(Integer sent) {
+	return (List<Dep>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.DEP);
+    }
+
+    @Deprecated
+    public List<Dep> getDepsByPara(Integer para) {
+	return (List<Dep>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.DEP);
+    }
+
+    @Deprecated
+    public List<Tree> getConstituentsBySent(Integer sent) {
+	return (List<Tree>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.TREE);
+    }
+
+    @Deprecated
+    public List<Tree> getConstituentsByPara(Integer para) {
+	return (List<Tree>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.TREE);
+    }
+
+    @Deprecated
+    public List<Tree> getConstituentsBySent(Integer sent, String treeType) {
+	return (List<Tree>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.TREE);
+    }
+
+    @Deprecated
+    public List<Tree> getConstituentsByPara(Integer para, String treeType) {
+	return (List<Tree>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.TREE);
+    }
+
+    @Deprecated
+    public List<Coref> getCorefsBySent(Integer sent) {
+	return (List<Coref>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.COREF);
+    }
+
+    @Deprecated
+    public List<Coref> getCorefsByPara(Integer para) {
+	return (List<Coref>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.COREF);
+    }
+
+    @Deprecated
+    public List<Opinion> getOpinionsBySent(Integer sent) {
+	return (List<Opinion>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.OPINION);
+    }
+
+    @Deprecated
+    public List<Opinion> getOpinionsByPara(Integer para) {
+	return (List<Opinion>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.OPINION);
+    }
+
+    @Deprecated
+    public List<CLink> getCLinksBySent(Integer sent) {
+	return (List<CLink>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.CLINK);
+    }
+
+    @Deprecated
+    public List<CLink> getCLinksByPara(Integer para) {
+	return (List<CLink>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.CLINK);
+    }
+
+    @Deprecated
+    public List<TLink> getTLinksBySent(Integer sent) {
+	return (List<TLink>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.TLINK);
+    }
+
+    @Deprecated
+    public List<TLink> getTLinksByPara(Integer para) {
+	return (List<TLink>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.TLINK);
+    }
+
+    @Deprecated
+    public List<PredicateAnchor> getPredicateAnchorsBySent(Integer sent) {
+	return (List<PredicateAnchor>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.PREDICATE_ANCHOR);
+    }
+
+    @Deprecated
+    public List<PredicateAnchor> getPredicateAnchorsByPara(Integer para) {
+	return (List<PredicateAnchor>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.PREDICATE_ANCHOR);
+    }
+
+    @Deprecated
+    public List<Predicate> getPredicatesBySent(Integer sent) {
+	return (List<Predicate>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.PREDICATE);
+    }
+
+    @Deprecated
+    public List<Predicate> getPredicatesByPara(Integer para) {
+	return (List<Predicate>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.PREDICATE);
+    }
+
+    @Deprecated
+    public List<Timex3> getTimeExsBySent(Integer sent) {
+	return (List<Timex3>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.TIMEX3);
+    }
+
+    @Deprecated
+    public List<Timex3> getTimeExsByPara(Integer para) {
+	return (List<Timex3>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.TIMEX3);
+    }
+
+    @Deprecated
+    public List<Factuality> getFactualitiesBySent(Integer sent) {
+	return (List<Factuality>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.FACTUALITY);
+    }
+
+    @Deprecated
+    public List<Factuality> getFactualitiesByPara(Integer para) {
+	return (List<Factuality>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.FACTUALITY);
+    }
+
+    @Deprecated
+    public List<Factvalue> getFactvaluesBySent(Integer sent) {
+	return (List<Factvalue>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.FACTVALUE);
+    }
+
+    @Deprecated
+    public List<Factvalue> getFactvaluesByPara(Integer para) {
+	return (List<Factvalue>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.FACTVALUE);
+    }
+
+    @Deprecated
+    public List<Mark> getMarksBySent(Integer sent) {
+	return (List<Mark>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.MARK);
+    }
+
+    @Deprecated
+    public List<Mark> getMarksByPara(Integer para) {
+	return (List<Mark>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.MARK);
+    }
+
+    @Deprecated
+    public List<Mark> getMarksBySent(Integer sent, String group) {
+	return (List<Mark>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.MARK);
+    }
+
+    @Deprecated
+    public List<Mark> getMarksByPara(Integer para, String group) {
+	return (List<Mark>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.MARK);
+    }
+
+    @Deprecated
+    public List<Feature> getPropertiesBySent(Integer sent) {
+	return (List<Feature>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.PROPERTY);
+    }
+
+    @Deprecated
+    public List<Feature> getPropertiesByPara(Integer para) {
+	return (List<Feature>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.PROPERTY);
+    }
+
+    @Deprecated
+    public List<Feature> getCategoriesBySent(Integer sent) {
+	return (List<Feature>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.CATEGORY);
+    }
+
+    @Deprecated
+    public List<Feature> getCategoriesByPara(Integer para) {
+	return (List<Feature>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.CATEGORY);
+    }
+
+    @Deprecated
+    public List<LinkedEntity> getLinkedEntitiesBySent(Integer sent) {
+	return (List<LinkedEntity>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.LINKED_ENTITY);
+    }
+
+    @Deprecated
+    public List<LinkedEntity> getLinkedEntitiesByPara(Integer para) {
+	return (List<LinkedEntity>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.LINKED_ENTITY);
+    }
+
+    @Deprecated
+    public List<Relation> getRelationsBySent(Integer sent) {
+	return (List<Relation>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.RELATION);
+    }
+
+    @Deprecated
+    public List<Relation> getRelationsByPara(Integer para) {
+	return (List<Relation>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.RELATION);
+    }
+
+    @Deprecated
+    public List<Topic> getTopicsBySent(Integer sent) {
+	return (List<Topic>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.TOPIC);
+    }
+
+    @Deprecated
+    public List<Topic> getTopicsByPara(Integer para) {
+	return (List<Topic>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.TOPIC);
+    }
+
+    @Deprecated
+    public List<Statement> getStatementsBySent(Integer sent) {
+	return (List<Statement>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.STATEMENT);
+    }
+
+    @Deprecated
+    public List<Statement> getStatementsByPara(Integer para) {
+	return (List<Statement>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.STATEMENT);
+    }
+    
     
     public static Span<WF> newWFSpan() {
 	return new Span<WF>();

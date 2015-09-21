@@ -100,6 +100,10 @@ public class Span<T extends IdentifiableAnnotation> implements Serializable {
 		Utils.areEquals(this.head, ann.head);
     }
     */
+    
+    public Integer getOffset() {
+	return this.getFirstTarget().getOffset();
+    }
 
     @Override
 	public int hashCode() {

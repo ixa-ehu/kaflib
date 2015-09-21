@@ -60,6 +60,11 @@ public class Predicate extends IdentifiableAnnotation implements SentenceLevelAn
 	    return referenced;
 	}
 
+	@Override
+	public Integer getOffset() {
+	    return this.getSpan().getOffset();
+	}
+
 	public String getStr() {
 	    String str = "";
 	    for (Term term : this.span.getTargets()) {
@@ -171,7 +176,12 @@ public class Predicate extends IdentifiableAnnotation implements SentenceLevelAn
 	referenced.put(AnnotationType.TERM, terms);
 	return referenced;
     }
-
+    
+    @Override
+    public Integer getOffset() {
+	return this.getSpan().getOffset();
+    }
+    
     public String getStr() {
 	String str = "";
 	if (!this.span.isEmpty()) {

@@ -93,6 +93,7 @@ public class Coref extends IdentifiableAnnotation {
 	return str;
     }
     
+    @Override
     Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
 	Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
 	List<Annotation> terms = new ArrayList<Annotation>();
@@ -101,8 +102,14 @@ public class Coref extends IdentifiableAnnotation {
 	}
 	referenced.put(AnnotationType.TERM, terms);
 	return referenced;
+    }    
+    
+    @Override
+    public Integer getOffset() {
+	if (this.mentions.size() == 0) return null;
+	return this.mentions.get(0).getOffset();
     }
-
+    
     /** Deprecated */
     public List<List<Target>> getReferences() {
 	List<List<Target>> list = new ArrayList<List<Target>>();

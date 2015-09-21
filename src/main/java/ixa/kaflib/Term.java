@@ -216,8 +216,14 @@ public class Term extends IdentifiableAnnotation implements SentenceLevelAnnotat
 	    sentimentProductFeature = val;
 	}
 	
+	@Override
 	Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
 	    return new HashMap<AnnotationType, List<Annotation>>();
+	}
+	
+	@Override
+	public Integer getOffset() {
+	    return null;
 	}
 	
 	/*
@@ -447,10 +453,16 @@ public class Term extends IdentifiableAnnotation implements SentenceLevelAnnotat
 	return this.compound;
     }
     
+    @Override
     Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
 	Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
 	referenced.put(AnnotationType.WF, (List<Annotation>)(List<?>) this.getSpan().getTargets());
 	return referenced;
+    }
+    
+    @Override
+    public Integer getOffset() {
+	return this.span.getOffset();
     }
 
     /*

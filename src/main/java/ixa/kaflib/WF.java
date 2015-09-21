@@ -48,6 +48,7 @@ public class WF extends IdentifiableAnnotation implements SentenceLevelAnnotatio
 	return offset != null;
     }
     
+    @Override
     public Integer getOffset() {
 	return offset;
     }

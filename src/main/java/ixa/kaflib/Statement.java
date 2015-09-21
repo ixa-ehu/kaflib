@@ -73,6 +73,11 @@ public class Statement extends IdentifiableAnnotation {
 	return refs;
     }
     
+    @Override
+    public Integer getOffset() {
+	return Math.min(Math.min(this.getTarget().getOffset(), this.getSource().getOffset()), this.getCue().getOffset());
+    }
+    
     /*
     @Override
     public boolean equals(Object o) {
@@ -115,7 +120,12 @@ public class Statement extends IdentifiableAnnotation {
 	    refs.put(AnnotationType.TERM, terms);
 	    return refs;
 	}
-	
+
+	@Override
+	public Integer getOffset() {
+	    return this.getSpan().getOffset();
+	}
+
 	/*
 	@Override
 	public boolean equals(Object o) {
@@ -156,7 +166,12 @@ public class Statement extends IdentifiableAnnotation {
 	    refs.put(AnnotationType.TERM, terms);
 	    return refs;
 	}
-	
+
+	@Override
+	public Integer getOffset() {
+	    return this.getSpan().getOffset();
+	}
+
 	/*
 	@Override
 	public boolean equals(Object o) {
@@ -197,7 +212,12 @@ public class Statement extends IdentifiableAnnotation {
 	    refs.put(AnnotationType.TERM, terms);
 	    return refs;
 	}
-	
+
+	@Override
+	public Integer getOffset() {
+	    return this.getSpan().getOffset();
+	}
+
 	/*
 	@Override
 	public boolean equals(Object o) {

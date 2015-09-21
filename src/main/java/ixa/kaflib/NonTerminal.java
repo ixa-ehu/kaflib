@@ -51,6 +51,12 @@ public class NonTerminal extends TreeNode implements SentenceLevelAnnotation {
 	return referenced;
     }
     
+    @Override
+    public Integer getOffset() {
+	if (this.children.size() == 0) return null;
+	return this.children.get(0).getOffset();
+    }
+    
     public Integer getSent() {
 	return this.children.get(0).getSent();
     }

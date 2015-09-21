@@ -60,7 +60,12 @@ public class Opinion extends IdentifiableAnnotation {
 		    (List<Annotation>) (List<?>) this.getSpan().getTargets());
 	    return referenced;
 	}
-	
+	    
+	@Override
+	public Integer getOffset() {
+	    return this.getSpan().getOffset();
+	}
+
 	/*
 	@Override
 	public boolean equals(Object o) {
@@ -110,7 +115,12 @@ public class Opinion extends IdentifiableAnnotation {
 		    (List<Annotation>) (List<?>) this.getSpan().getTargets());
 	    return referenced;
 	}
-	
+	    
+	@Override
+	public Integer getOffset() {
+	    return this.getSpan().getOffset();
+	}
+
 	/*
 	@Override
 	public boolean equals(Object o) {
@@ -234,7 +244,12 @@ public class Opinion extends IdentifiableAnnotation {
 	    referenced.put(AnnotationType.TERM, (List<Annotation>) (List<?>) this.getSpan().getTargets());
 	    return referenced;
 	}
-	
+	    
+	@Override
+	public Integer getOffset() {
+	    return this.getSpan().getOffset();
+	}
+
 	/*
 	@Override
 	public boolean equals(Object o) {
@@ -326,6 +341,11 @@ public class Opinion extends IdentifiableAnnotation {
 	if ((this.opinionTarget != null) && (this.opinionTarget.getSpan() != null)) referencedTerms.addAll(this.opinionTarget.getSpan().getTargets());
 	referenced.put(AnnotationType.TERM, (List<Annotation>) (List<?>) referencedTerms);
 	return referenced;
+    }
+    
+    @Override
+    public Integer getOffset() {
+	return Math.min(Math.min(this.getOpinionExpression().getOffset(), this.getOpinionHolder().getOffset()), this.getOpinionTarget().getOffset());
     }
     
     /*

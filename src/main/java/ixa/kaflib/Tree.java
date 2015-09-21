@@ -48,6 +48,11 @@ public class Tree extends Annotation implements MultiLayerAnnotation, SentenceLe
 	referenced.put(AnnotationType.TERM, this.root.getReferencedAnnotations().get(AnnotationType.TERM));
 	return referenced;
     }
+    
+    @Override
+    public Integer getOffset() {
+	return this.root.getOffset();
+    }
 
 
     /***********************************************************/

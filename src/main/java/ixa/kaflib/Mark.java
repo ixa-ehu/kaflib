@@ -168,7 +168,12 @@ public class Mark extends IdentifiableAnnotation implements SentenceLevelAnnotat
 	referenced.put(AnnotationType.WF, (List<Annotation>)(List<?>) this.getSpan().getTargets());
 	return referenced;
     }
-
+    
+    @Override
+    public Integer getOffset() {
+	return this.getSpan().getOffset();
+    }
+    
     @Override
     public Integer getSent() {
 	return this.span.getFirstTarget().getSent();

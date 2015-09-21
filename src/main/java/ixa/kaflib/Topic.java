@@ -83,6 +83,11 @@ public class Topic extends Annotation {
 	return new HashMap<AnnotationType, List<Annotation>>();
     }
     
+    @Override
+    public Integer getOffset() {
+	return null;
+    }
+    
     /*
     @Override
     public boolean equals(Object o) {

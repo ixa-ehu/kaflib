@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.List;
 
 
-public abstract class Annotation implements Serializable {
+public abstract class Annotation implements Comparable<Annotation>, Serializable {
 
     protected AnnotationContainer annotationContainer;
     
@@ -19,4 +19,13 @@ public abstract class Annotation implements Serializable {
     }
     
     abstract Map<AnnotationType, List<Annotation>> getReferencedAnnotations();
+
+    public abstract Integer getOffset();
+    
+    @Override
+    public int compareTo(Annotation annotation) {
+	if (this.getOffset() < annotation.getOffset()) return -1;
+	else if (this.getOffset() > annotation.getOffset()) return 1;
+	return 0;
+    }
 }

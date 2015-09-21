@@ -93,10 +93,16 @@ public class Chunk extends IdentifiableAnnotation implements SentenceLevelAnnota
 	return str;
     }
     
+    @Override
     Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
 	Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
 	referenced.put(AnnotationType.TERM, (List<Annotation>)(List<?>) this.getSpan().getTargets());
 	return referenced;
+    }
+    
+    @Override
+    public Integer getOffset() {
+	return this.span.getOffset();
     }
     
     @Override

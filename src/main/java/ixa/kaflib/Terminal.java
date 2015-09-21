@@ -62,6 +62,11 @@ public class Terminal extends TreeNode implements SentenceLevelAnnotation {
 	return referenced;
     }
     
+    @Override
+    public Integer getOffset() {
+	return this.getSpan().getOffset();
+    }
+    
     public Integer getSent() {
 	return this.getSpan().getFirstTarget().getSent();
     }

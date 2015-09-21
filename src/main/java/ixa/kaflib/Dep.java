@@ -81,7 +81,12 @@ public class Dep extends Annotation implements SentenceLevelAnnotation {
 	referenced.put(AnnotationType.TERM, terms);
 	return referenced;
     }
-
+    
+    @Override
+    public Integer getOffset() {
+	return Math.min(this.getFrom().getOffset(), this.getTo().getOffset());
+    }
+    
     @Override
     public Integer getSent() {
 	return this.from.getSent();

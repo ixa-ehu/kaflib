@@ -55,6 +55,11 @@ public class Factuality extends IdentifiableAnnotation implements SentenceLevelA
 	return references;
     }
     
+    @Override
+    public Integer getOffset() {
+	return this.getSpan().getOffset();
+    }
+    
     /*
     @Override
     public boolean equals(Object o) {
@@ -138,7 +143,12 @@ public class Factuality extends IdentifiableAnnotation implements SentenceLevelA
 	Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
 	    return new HashMap<AnnotationType, List<Annotation>>();
 	}
-	
+	    
+	@Override
+	public Integer getOffset() {
+	    return null;
+	}
+
 	/*
 	@Override
 	public boolean equals(Object o) {

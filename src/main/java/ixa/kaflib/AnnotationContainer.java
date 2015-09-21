@@ -133,25 +133,27 @@ class AnnotationContainer implements Serializable {
     }
     
     private void indexAnnotationParaSent(Annotation ann, AnnotationType type) {
-	String groupID = getGroupID(ann);
-	if (ann instanceof SentenceLevelAnnotation) {
-	    Integer sent = ((SentenceLevelAnnotation) ann).getSent();
-	    Integer para = ((ParagraphLevelAnnotation) ann).getPara();
-	    if (sent != null) {
-		Helper.addToIndex(ann, type, groupID, sent, this.sentIndex);
-	    }
-	    if (para != null) {
-		Helper.addToIndex(ann, type, groupID, para, this.paraIndex);
-		if (!indexedSents.contains(sent)) {
-		    this.addSentToPara(sent, para);
-		    indexedSents.add(sent);
+	if (ann.getOffset() != null) { // Do not index annotations with no offset defined (those not related to any WFs)
+	    String groupID = getGroupID(ann);
+	    if (ann instanceof SentenceLevelAnnotation) {
+		Integer sent = ((SentenceLevelAnnotation) ann).getSent();
+		Integer para = ((ParagraphLevelAnnotation) ann).getPara();
+		if (sent != null) {
+		    Helper.addToIndex(ann, type, groupID, sent, this.sentIndex);
+		}
+		if (para != null) {
+		    Helper.addToIndex(ann, type, groupID, para, this.paraIndex);
+		    if (!indexedSents.contains(sent)) {
+			this.addSentToPara(sent, para);
+			indexedSents.add(sent);
+		    }
 		}
 	    }
-	}
-	else if (ann instanceof ParagraphLevelAnnotation) {
-	    Integer para = ((ParagraphLevelAnnotation) ann).getPara();
-	    if (para != null) {
-		Helper.addToIndex(ann, type, groupID, para, this.paraIndex);
+	    else if (ann instanceof ParagraphLevelAnnotation) {
+		Integer para = ((ParagraphLevelAnnotation) ann).getPara();
+		if (para != null) {
+		    Helper.addToIndex(ann, type, groupID, para, this.paraIndex);
+		}
 	    }
 	}
     }
@@ -324,6 +326,7 @@ class AnnotationContainer implements Serializable {
 		    groupIndex.put(key, annotations);
 		}
 		annotations.add(ann);
+		Collections.sort(annotations);
 	    }
 	}
 	

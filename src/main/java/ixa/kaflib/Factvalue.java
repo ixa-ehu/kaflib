@@ -61,7 +61,12 @@ public class Factvalue extends Annotation implements SentenceLevelAnnotation {
 	referenced.put(AnnotationType.WF, wfs);
 	return referenced;
     }
-
+    
+    @Override
+    public Integer getOffset() {
+	return this.getWF().getOffset();
+    }
+    
     @Override
     public Integer getSent() {
 	return this.word.getSent();

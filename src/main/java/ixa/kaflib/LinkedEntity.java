@@ -74,7 +74,12 @@ public class LinkedEntity extends IdentifiableAnnotation {
 	referenced.put(AnnotationType.WF, (List<Annotation>) (List<?>) this.getSpan().getTargets());
 	return referenced;
     }
-
+    
+    @Override
+    public Integer getOffset() {
+	return this.getSpan().getOffset();
+    }
+    
     /**
      * Returns the term targets of the first span. When targets of other spans
      * are needed getReferences() method should be used.

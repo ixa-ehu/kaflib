@@ -150,7 +150,13 @@ public class Entity extends IdentifiableAnnotation implements Relational, Senten
     /** Deprecated */
     public void addReference(List<Term> span) {
 	this.references.add(KAFDocument.<Term>list2Span(span));
-    }    
+    } 
+    
+    @Override
+    public Integer getOffset() {
+	if (this.getSpans().size() == 0) return null;
+	return this.getSpans().get(0).getOffset();
+    }
     
     /*
     @Override

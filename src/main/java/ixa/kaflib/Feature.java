@@ -119,7 +119,13 @@ public class Feature extends IdentifiableAnnotation implements Relational, Seria
 	referenced.put(AnnotationType.TERM, terms);
 	return referenced;
     }
-
+    
+    @Override
+    public Integer getOffset() {
+	if (this.getSpans().size() == 0) return null;
+	return this.getSpans().get(0).getOffset();
+    }
+    
 
     @Deprecated
     public List<List<Term>> getReferences() {

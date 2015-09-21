@@ -1,9 +1,7 @@
 package ixa.kaflib;
 
 
-public abstract class IdentifiableAnnotation
-    extends Annotation
-    implements Comparable<IdentifiableAnnotation> {
+public abstract class IdentifiableAnnotation extends Annotation {
 
     protected String id;
     
@@ -23,11 +21,6 @@ public abstract class IdentifiableAnnotation
 	this.id = id;
     }
 
-    @Override
-    public int compareTo(IdentifiableAnnotation o) {
-	return this.getId().compareTo(o.getId());
-    }
-     
     /*
     @Override
     public boolean equals(Object o) {
