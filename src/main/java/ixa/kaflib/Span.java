@@ -35,11 +35,11 @@ public class Span<T extends IdentifiableAnnotation> implements Serializable {
     }
 
     public List<T> getTargets() {
-	return this.targets;
+	return this.sortedTargets;
     }
 
     public T getFirstTarget() {
-	return this.targets.get(0);
+	return this.sortedTargets.get(0);
     }
 
     public boolean hasHead() {
@@ -51,7 +51,7 @@ public class Span<T extends IdentifiableAnnotation> implements Serializable {
     }
 
     public boolean isHead(T target) {
-	return (target == this.head);
+	return (target.equals(this.head));
     }
 
     public void setHead(T head) {
@@ -75,6 +75,12 @@ public class Span<T extends IdentifiableAnnotation> implements Serializable {
 	for (T target : targets) {
 	    this.addTarget(target);
 	}
+    }
+    
+    public void removeTarget(T target) {
+	this.targets.remove(target);
+	this.sortedTargets.remove(target);
+	if (this.head.equals(target)) this.head = null;
     }
 
     public boolean hasTarget(T target) {
@@ -102,7 +108,7 @@ public class Span<T extends IdentifiableAnnotation> implements Serializable {
     */
     
     public Integer getOffset() {
-	if (this.targets.size() == 0) return null;
+	if (this.isEmpty()) return null;
 	return this.getFirstTarget().getOffset();
     }
 
@@ -115,10 +121,16 @@ public class Span<T extends IdentifiableAnnotation> implements Serializable {
 	}
 	return spanId.hashCode();
     }
+    
     @Override
-	public String toString() {
-	return "Span{" +
-	    "targets=" + targets +
-	    '}';
+    public String toString() {
+	String str = new String();
+	for (int i=0; i<this.targets.size(); i++) {
+	    str += this.targets.get(i).toString();
+	    if (i < this.targets.size()-1) {
+		str += " ";
+	    }
+	}
+	return str;
     }
 }

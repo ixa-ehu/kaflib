@@ -1,7 +1,6 @@
 package ixa.kaflib;
 
 import ixa.kaflib.KAFDocument.AnnotationType;
-import ixa.kaflib.KAFDocument.Utils;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -226,6 +225,13 @@ public class Term extends IdentifiableAnnotation implements SentenceLevelAnnotat
 	    return null;
 	}
 	
+	@Override
+	public String toString() {
+	    if (this.resource == null && this.polarity == null) return new String();
+	    else if (this.resource == null) return this.polarity;
+	    return this.resource + ": " + this.polarity;
+	}
+	
 	/*
 	@Override
 	public boolean equals(Object o) {
@@ -312,34 +318,6 @@ public class Term extends IdentifiableAnnotation implements SentenceLevelAnnotat
 	this.termcase = termcase;
     }
 
-    public String getForm() {
-	String str = "";
-	for (WF wf : span.getTargets()) {
-	    if (!str.isEmpty()) {
-		str += " ";
-	    }
-	    str += wf.getForm();
-	}
-	return str;
-    }
-
-   public String getStr() {
-       String strValue = this.getForm();
-       boolean valid = false;
-       while (!valid) {
-	   if (strValue.startsWith("-") || strValue.endsWith("-")) {
-	       strValue = strValue.replace("-", " - ");
-	   }
-	   else if (strValue.contains("--")) { 
-	       strValue = strValue.replace("--", "-");
-	   }
-	   else {
-	       valid = true;
-	   }
-       }
-       return strValue;
-    }
-
     public boolean hasHead() {
 	return (this.head != null);
     }
@@ -348,9 +326,6 @@ public class Term extends IdentifiableAnnotation implements SentenceLevelAnnotat
         return this.head;
     }
 
-    /** Creates and adds a Sentiment object.
-     * @return a new sentiment.
-     */
     public Sentiment createSentiment() {
 	Sentiment newSentiment = new Sentiment(this.annotationContainer);
 	this.setSentiment(newSentiment);
@@ -384,61 +359,12 @@ public class Term extends IdentifiableAnnotation implements SentenceLevelAnnotat
 	}
     }
 
-    public List<WF> getWFs() {
-	return this.span.getTargets();
-    }
-
-    public WF getHeadWF() {
-	return this.span.getHead();
-    }
-
-    public void addWF(WF wf) {
-	this.span.addTarget(wf);
-    }
-
-    public void addWF(WF wf, boolean isHead) {
-	this.span.addTarget(wf, isHead);
-    }
-
     public Span<WF> getSpan() {
 	return this.span;
     }
 
     public void setSpan(Span<WF> span) {
 	this.span = span;
-    }
-
-    public Integer getSent() {
-	Span<WF> wfs = this.getSpan();
-	List<WF> wfl = wfs.getTargets();
-	WF wf = wfl.get(0);
-	//
-	if (wf == null) System.out.println(wfl.size());
-	Integer sent = wf.getSent();
-	return this.getSpan().getTargets().get(0).getSent();
-	/*
-	if (!this.isComponent()) {
-	    return this.getSpan().getTargets().get(0).getSent();
-	} else {
-	    return this.getCompound().getSent();
-	}
-	*/
-    }
-    
-    public Integer getPara() {
-	return this.getSpan().getTargets().get(0).getPara();
-    }
-
-    public List<ExternalRef> getExternalRefs() {
-	return externalReferences;
-    }
-
-    public void addExternalRef(ExternalRef externalRef) {
-	externalReferences.add(externalRef);
-    }
-
-    public void addExternalRefs(List<ExternalRef> externalRefs) {
-	externalReferences.addAll(externalRefs);
     }
 
     boolean isComponent() {
@@ -462,7 +388,102 @@ public class Term extends IdentifiableAnnotation implements SentenceLevelAnnotat
     
     @Override
     public Integer getOffset() {
-	return this.span.getOffset();
+	if (this.getCompound() != null) { // is component
+	    return this.getCompound().getOffset();
+	} else {
+	    return this.getSpan().getOffset();
+	}
+    }
+    
+    @Override
+    public Integer getSent() {
+	if (this.getCompound() != null) { // is component
+	    return this.getCompound().getSent();
+	} else {
+	    return this.getSpan().isEmpty() ? null : this.getSpan().getFirstTarget().getSent();
+	}
+    }
+    
+    @Override
+    public Integer getPara() {
+	if (this.getCompound() != null) { // is component
+	    return this.getCompound().getPara();
+	} else {
+	    return this.getSpan().isEmpty() ? null : this.getSpan().getFirstTarget().getPara();
+	}
+    }
+    
+    @Override
+    public String toString() {
+	return this.span.toString();
+    }
+    
+    
+    @Deprecated
+    // Use toString()
+    public String getForm() {
+	String str = "";
+	for (WF wf : span.getTargets()) {
+	    if (!str.isEmpty()) {
+		str += " ";
+	    }
+	    str += wf.getForm();
+	}
+	return str;
+    }
+
+    @Deprecated
+    // Use toStringComment()
+    public String getStr() {
+	String strValue = this.getForm();
+	boolean valid = false;
+	while (!valid) {
+	    if (strValue.startsWith("-") || strValue.endsWith("-")) {
+		strValue = strValue.replace("-", " - ");
+	    }
+	    else if (strValue.contains("--")) { 
+		strValue = strValue.replace("--", "-");
+	    }
+	    else {
+		valid = true;
+	    }
+	}
+	return strValue;
+    }
+
+    @Deprecated
+    public List<WF> getWFs() {
+	return this.span.getTargets();
+    }
+
+    @Deprecated
+    public WF getHeadWF() {
+	return this.span.getHead();
+    }
+
+    @Deprecated
+    public void addWF(WF wf) {
+	this.span.addTarget(wf);
+    }
+
+    @Deprecated
+    public void addWF(WF wf, boolean isHead) {
+	this.span.addTarget(wf, isHead);
+    }
+
+    @Deprecated
+    public List<ExternalRef> getExternalRefs() {
+	return externalReferences;
+    }
+
+    @Deprecated
+    public void addExternalRef(ExternalRef externalRef) {
+	externalReferences.add(externalRef);
+    }
+
+    @Deprecated
+    public void addExternalRefs(List<ExternalRef> externalRefs) {
+	externalReferences.addAll(externalRefs);
     }
 
     /*

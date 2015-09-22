@@ -5,7 +5,6 @@ import ixa.kaflib.KAFDocument.AnnotationType;
 import ixa.kaflib.KAFDocument.Layer;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.Reader;
 import java.util.ArrayList;
@@ -63,7 +62,7 @@ public class KAFDocumentTest {
     
     @Test
     public void testFileDesc() {
-	KAFDocument naf = this.createDoc();
+	KAFDocument naf = createDoc();
 	assertNull("NAF document's fileDesc was not null before creating one", naf.getFileDesc());
 	KAFDocument.FileDesc fd = naf.createFileDesc();
 	assertNotNull("NAF document's fileDesc was null after creating one", naf.getFileDesc());
@@ -71,7 +70,7 @@ public class KAFDocumentTest {
     
     @Test
     public void testPublic() {
-	KAFDocument naf = this.createDoc();
+	KAFDocument naf = createDoc();
 	assertNull("NAF document's 'public' was not null before creating one", naf.getPublic());
 	KAFDocument.Public pb = naf.createPublic();
 	assertNotNull("NAF document's 'public' was null after creating one", naf.getPublic());	
@@ -80,7 +79,7 @@ public class KAFDocumentTest {
     @Test
     public void testLinguisticProcessor() {
 	// Initial status
-	KAFDocument naf = this.createDoc();
+	KAFDocument naf = createDoc();
 	List<KAFDocument.LinguisticProcessor> lpList = new ArrayList<KAFDocument.LinguisticProcessor>();
 	Map<String, List<KAFDocument.LinguisticProcessor>> lpMap = new LinkedHashMap<String, List<KAFDocument.LinguisticProcessor>>();
 	assertEquals("NAF document contains LinguisticProcessors before creating them explicitly", lpList, naf.getLinguisticProcessorList());
@@ -109,11 +108,11 @@ public class KAFDocumentTest {
 	assertEquals("LinguisticProcessor lp2 was not correctly added to the document", lpList, naf.getLinguisticProcessorList());
 	assertEquals("LinguisticProcessor lp2 was not correctly added to the document", lpMap, naf.getLinguisticProcessors());
 	// Add many preexisting LPs to a new NAF document
-	KAFDocument naf2 = this.createDoc();
+	KAFDocument naf2 = createDoc();
 	naf2.addLinguisticProcessors(lpMap);
 	assertEquals("LPs in doc1 and doc2 are different after calling doc2.addLinguisticProcessors(doc1LPs)", naf.getLinguisticProcessors(), naf2.getLinguisticProcessors());
 	// Add many preexisting LPs to a NAF document which already contains some of the mentioned LPs
-	KAFDocument naf3 = this.createDoc();
+	KAFDocument naf3 = createDoc();
 	naf3.addLinguisticProcessor("text", "test_tokenizer_2");
 	naf3.addLinguisticProcessors(lpMap);
 	assertEquals("LPs in doc1 and doc2 are different after calling doc2.addLinguisticProcessors(doc1LPs). doc2 contained some of the LPs in doc1.", naf.getLinguisticProcessors(), naf2.getLinguisticProcessors());
@@ -164,14 +163,14 @@ public class KAFDocumentTest {
     
     @Test
     public void testRawText() {
-	KAFDocument naf = this.createDoc();
+	KAFDocument naf = createDoc();
 	naf.setRawText("Testing...");
 	assertEquals("Raw text is not correctly added", "Testing...", naf.getRawText());
     }
 
     @Test
     public void testGetSentence() {
-	KAFDocument naf = this.createDoc();	
+	KAFDocument naf = createDoc();	
 	WF wf1 = naf.newWF(19, 3, "The", 2);
 	WF wf2 = naf.newWF(23, 9, "president", 2);
 	WF wf3 = naf.newWF(33, "is", 2);
@@ -185,7 +184,7 @@ public class KAFDocumentTest {
     
     @Test
     public void testGetParagraph() {
-	KAFDocument naf = this.createDoc();	
+	KAFDocument naf = createDoc();	
 	WF wf1 = naf.newWF(19, 3, "The", 3);
 	wf1.setPara(2);
 	WF wf2 = naf.newWF(23, 9, "president", 3);
@@ -204,7 +203,7 @@ public class KAFDocumentTest {
     @Test
     public void testWFFunctions() {
 	/* WF creation */
-	KAFDocument naf1 = this.createDoc();
+	KAFDocument naf1 = createDoc();
 	WF wf1 = naf1.newWF("w1", 0, 3, "The", 0);
 	wf1.setPara(0);
 	WF wf2 = naf1.newWF("w2", 4, 5, "house", 0);
@@ -256,7 +255,7 @@ public class KAFDocumentTest {
     }
     
     
-    private KAFDocument createDoc() {
+    static KAFDocument createDoc() {
 	String defaultLang = "en";
 	String defaultVersion = "test";
 	return new KAFDocument(defaultLang, defaultVersion);

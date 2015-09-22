@@ -62,4 +62,18 @@ public class WFTest {
 	assertEquals(msg + ": wrong page", page, wf.getPage());
 	assertEquals(msg + ": wrong xpath", xpath, wf.getXpath());
     }
+    
+    static Span<WF> createWFSpan(AnnotationContainer annotationContainer) {
+	WF wf1 = new WF(annotationContainer, "w1", 0, 3, "The", 3);
+	wf1.setPara(2);
+	WF wf2 = new WF(annotationContainer, "w2", 4, 5, "White", 3);
+	wf2.setPara(2);
+	WF wf3 = new WF(annotationContainer, "w3", 10, 5, "House", 3);
+	wf3.setPara(2);
+	Span<WF> span = new Span<WF>();
+	span.addTarget(wf1);
+	span.addTarget(wf2);
+	span.addTarget(wf3, true);
+	return span;
+    }
 }

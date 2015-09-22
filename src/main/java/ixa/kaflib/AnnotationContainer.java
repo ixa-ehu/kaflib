@@ -35,6 +35,8 @@ class AnnotationContainer implements Serializable {
     private Set<Integer> indexedSents; /* Used to keep count of which sentences have already been indexed by paragraphs
     					(to avoid repeating the same sentence in different paragraphs, due to tokenizer bugs */
     
+    private Integer creationOrderId = 0;
+    
     static final String DEFAULT_GROUP = "kaflib_default_group";
 
 
@@ -51,6 +53,10 @@ class AnnotationContainer implements Serializable {
 	indexedSents = new HashSet<Integer>();
     }
 
+    
+    Integer getNextCreationOrderId() {
+	return this.creationOrderId++;
+    }
     
     /** Returns raw text */
     String getRawText() {
