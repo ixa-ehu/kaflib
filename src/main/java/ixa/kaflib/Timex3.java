@@ -46,6 +46,7 @@ public class Timex3 extends IdentifiableAnnotation implements TLinkReferable {
     Timex3(AnnotationContainer annotationContainer, String id, String type){
         super(annotationContainer, id);
 	this.type = type;
+	this.span = new Span<WF>();
     }
 
     public String getType() {
@@ -198,6 +199,7 @@ public class Timex3 extends IdentifiableAnnotation implements TLinkReferable {
     }
     */
 
+    @Deprecated
     public boolean hasSpan() {
 	return this.span != null;
     }

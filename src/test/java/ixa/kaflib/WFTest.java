@@ -52,7 +52,7 @@ public class WFTest {
     }
     
     
-    private void testWF(WF wf, String id, Integer offset, Integer length, String form, Integer sent, Integer para, Integer page, String xpath, String msg) {
+    static void testWF(WF wf, String id, Integer offset, Integer length, String form, Integer sent, Integer para, Integer page, String xpath, String msg) {
 	assertEquals(msg + ": wrong id", id, wf.getId());
 	assertEquals(msg + ": wrong offset", offset, wf.getOffset());
 	assertEquals(msg + ": wrong length", length, wf.getLength());

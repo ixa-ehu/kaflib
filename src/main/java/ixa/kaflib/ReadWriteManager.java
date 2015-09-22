@@ -1651,7 +1651,7 @@ class ReadWriteManager {
 		if (timex3.hasComment()) {
 		    timex3Elem.setAttribute("comment", timex3.getComment());
 		}
-		if (timex3.hasSpan()) {
+		if (timex3.getSpan().getTargets().size() > 0) {
 		    Span<WF> span = timex3.getSpan();
 		    Comment spanComment = new Comment(timex3.getSpanStr(span));
 		    timex3Elem.addContent(spanComment);

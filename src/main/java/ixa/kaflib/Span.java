@@ -102,6 +102,7 @@ public class Span<T extends IdentifiableAnnotation> implements Serializable {
     */
     
     public Integer getOffset() {
+	if (this.targets.size() == 0) return null;
 	return this.getFirstTarget().getOffset();
     }
 

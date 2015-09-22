@@ -558,18 +558,6 @@ public class KAFDocument implements Serializable {
     public WF newWF(int offset, String form, int sent) {
 	return this.newWF(offset, form.length(), form, sent);
     }
-    
-    private void addToWfTermIndex(List<WF> wfs, Term term) {
-	for (WF wf : wfs) {
-	    String id = wf.getId();
-	    List<Term> terms = wfId2Terms.get(id);
-	    if (terms == null) {
-		terms = new ArrayList<Term>();
-		wfId2Terms.put(id, terms);
-	    }
-	    terms.add(term);
-	}
-    }
 
     /** Creates a Term object to load an existing term. It receives the ID as an argument. The Term is added to the document object.
      * @param id term's ID.
@@ -1153,7 +1141,52 @@ public Entity newEntity(List<Span<Term>> references) {
     public List<Annotation> getLayer(Layer layer, String group) {
 	return annotationContainer.getLayer(layer, group);
     }
+    
+    public List<List<WF>> getSentences() {
+	return (List<List<WF>>)(List<?>) annotationContainer.getSentences(AnnotationType.WF);
+    }
+    
+    public List<List<WF>> getParagraphs() {
+	return (List<List<WF>>)(List<?>) annotationContainer.getParagraphs(AnnotationType.WF);
+    }
 
+    public List<Annotation> getBySent(AnnotationType type, Integer sent) {
+	return this.annotationContainer.getSentAnnotations(sent, type);
+    }
+
+    public List<Annotation> getBySent(AnnotationType type, String group, Integer sent) {
+	return this.annotationContainer.getSentAnnotations(sent, type, group);
+    }
+    
+    public List<Annotation> getByPara(AnnotationType type, Integer para) {
+	return this.annotationContainer.getParaAnnotations(para, type);
+    }
+    
+    public List<Annotation> getByPara(AnnotationType type, String group, Integer para) {
+	return this.annotationContainer.getParaAnnotations(para, type, group);
+    }
+    
+    public Integer getFirstSentence() {
+	return this.annotationContainer.getFirstSentence();
+    }
+
+    public Integer getNumSentences() {
+	return this.annotationContainer.getNumSentences();
+    }
+
+    public Integer getFirstParagraph() {
+	return this.annotationContainer.getFirstParagraph();
+    }
+
+    public Integer getNumParagraphs() {
+	return this.annotationContainer.getNumParagraphs();
+    }
+
+    public List<Integer> getSentsByParagraph(Integer para) {
+	return this.annotationContainer.getParaSents(para);
+    }
+
+    
     /** Returns the raw text **/
     public String getRawText() {
 	return annotationContainer.getRawText();
@@ -1266,48 +1299,7 @@ public Entity newEntity(List<Span<Term>> references) {
     }
 
 
-    /** Returns a list with all sentences. Each sentence is a list of WFs. */
-    public List<List<WF>> getSentences() {
-	return (List<List<WF>>)(List<?>) annotationContainer.getSentences(AnnotationType.WF);
-    }
 
-    public Integer getFirstSentence() {
-	return this.getWFs().get(0).getSent();
-    }
-
-    public Integer getNumSentences() {
-	return this.annotationContainer.getNumSentences();
-    }
-
-    public List<Integer> getSentsByParagraph(Integer para) {
-	return this.annotationContainer.getParaSents(para);
-    }
-
-    public Integer getFirstParagraph() {
-	return this.getWFs().get(0).getPara();
-    }
-
-    public Integer getNumParagraphs() {
-	return this.annotationContainer.getNumParagraphs();
-    }
-
-
-    public List<Annotation> getBySent(AnnotationType type, Integer sent) {
-	return this.annotationContainer.getSentAnnotations(sent, type);
-    }
-
-    public List<Annotation> getBySent(AnnotationType type, String group, Integer sent) {
-	return this.annotationContainer.getSentAnnotations(sent, type, group);
-    }
-    
-    public List<Annotation> getByPara(AnnotationType type, Integer para) {
-	return this.annotationContainer.getParaAnnotations(para, type);
-    }
-    
-    public List<Annotation> getByPara(AnnotationType type, String group, Integer para) {
-	return this.annotationContainer.getParaAnnotations(para, type, group);
-    }
-    
     
     // Hau kendu behar da
     public List<Term> getTermsFromWFs(List<String> wfIds) {
@@ -1414,14 +1406,12 @@ public Entity newEntity(List<Span<Term>> references) {
     
     public Integer getParagraph()
     {
-	List<WF> wfs = this.getWFs();
-	return (wfs.size() > 0) ? this.getWFs().get(0).getPara() : null;
+	return this.getFirstParagraph();
     }
     
     public Integer getSentence()
     {
-	List<WF> wfs = this.getWFs();
-	return (wfs.size() > 0) ? this.getWFs().get(0).getSent() : null;
+	return this.getFirstSentence();
     }
 
     public void addExistingAnnotation(Annotation ann, Layer layer, AnnotationType type) {
@@ -1883,6 +1873,20 @@ public Entity newEntity(List<Span<Term>> references) {
     public List<Statement> getStatementsByPara(Integer para) {
 	return (List<Statement>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.STATEMENT);
     }
+    
+    @Deprecated
+    private void addToWfTermIndex(List<WF> wfs, Term term) {
+	for (WF wf : wfs) {
+	    String id = wf.getId();
+	    List<Term> terms = wfId2Terms.get(id);
+	    if (terms == null) {
+		terms = new ArrayList<Term>();
+		wfId2Terms.put(id, terms);
+	    }
+	    terms.add(term);
+	}
+    }
+
     
     
     public static Span<WF> newWFSpan() {

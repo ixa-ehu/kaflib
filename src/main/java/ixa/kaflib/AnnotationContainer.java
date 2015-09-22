@@ -217,7 +217,9 @@ class AnnotationContainer implements Serializable {
      * @return
      */
     List<Integer> getParaSents(Integer para) {
-	List<Integer> sentList = new ArrayList<Integer>(this.paraSentIndex.get(para));
+	Set<Integer> sents = this.paraSentIndex.get(para);
+	if (sents == null) return new ArrayList<Integer>();
+	List<Integer> sentList = new ArrayList<Integer>(sents);
 	Collections.sort(sentList);
 	return sentList;
     }
@@ -239,7 +241,8 @@ class AnnotationContainer implements Serializable {
     }
     
     Integer getNumSentences() {
-	return this.sentIndex.size();
+	if (this.sentIndex.get(AnnotationType.WF) == null) return 0;
+	return this.sentIndex.get(AnnotationType.WF).get(DEFAULT_GROUP).size();
     }
     
     Integer getNumParagraphs() {
@@ -250,6 +253,24 @@ class AnnotationContainer implements Serializable {
     /** Returns all tokens classified into sentences */
     List<List<Annotation>> getSentences(AnnotationType type) {
 	return this.getSentences(type, DEFAULT_GROUP);
+    }
+    
+    Integer getFirstSentence() {
+	if (this.sentIndex.get(AnnotationType.WF) != null) {
+	    if (this.sentIndex.get(AnnotationType.WF).get(DEFAULT_GROUP) != null) {
+		return Helper.getMinKey(this.sentIndex.get(AnnotationType.WF).get(DEFAULT_GROUP));
+	    }
+	}
+	return null;
+    }
+    
+    Integer getFirstParagraph() {
+	if (this.paraIndex.get(AnnotationType.WF) != null) {
+	    if (this.paraIndex.get(AnnotationType.WF).get(DEFAULT_GROUP) != null) {
+		return Helper.getMinKey(this.paraIndex.get(AnnotationType.WF).get(DEFAULT_GROUP));
+	    }
+	}
+	return null;
     }
     
     /** Return all annotations of type "type" classified into sentences */
@@ -339,6 +360,15 @@ class AnnotationContainer implements Serializable {
 			List<Annotation> annotations = groupIndex.get(key);
 			if (annotations != null) {
 			    annotations.remove(ann);
+			    if (annotations.isEmpty()) {
+				groupIndex.remove(key);
+				if (groupIndex.isEmpty()) {
+				    typeIndex.remove(groupID);
+				    if (typeIndex.isEmpty()) {
+					index.remove(type);
+				    }
+				}
+			    }
 			}
 		    }
 		}
@@ -445,7 +475,19 @@ class AnnotationContainer implements Serializable {
 	    if (groups == null) return;
 	    List<Annotation> annotations = groups.get(group);
 	    if (annotations != null) groups.remove(ann);
-	} 
+	}
+	
+	static <T> Integer getMinKey(Map<Integer, T> map) {
+	    if (map.isEmpty()) return null;
+	    Set<Integer> keys = map.keySet();
+	    Integer min = Integer.MAX_VALUE;
+	    for (Integer key : keys) {
+		if (key < min) {
+		    min = key;
+		}
+	    }
+	    return min;
+	}
     }
     
 }

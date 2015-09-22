@@ -1,12 +1,15 @@
 package ixa.kaflib;
 
 import static org.junit.Assert.*;
+import ixa.kaflib.KAFDocument.AnnotationType;
+import ixa.kaflib.KAFDocument.Layer;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +36,7 @@ public class KAFDocumentTest {
 	    KAFDocument naf = KAFDocument.createFromFile(nafFile);
 	    this.testLangVersionHelper(naf, "en", "test");
 	} catch(Exception e) {
+	    e.printStackTrace();
 	    fail("Error creating NAF from file \"naf_example.xml\": " + e.getMessage());
 	}
     }
@@ -44,6 +48,7 @@ public class KAFDocumentTest {
 	    KAFDocument naf = KAFDocument.createFromStream(nafStream);
 	    this.testLangVersionHelper(naf, "en", "test");
 	} catch(Exception e) {
+	    e.printStackTrace();
 	    fail("Error creating NAF from file \"naf_example.xml\": " + e.getMessage());
 	}
     }
@@ -163,12 +168,92 @@ public class KAFDocumentTest {
 	naf.setRawText("Testing...");
 	assertEquals("Raw text is not correctly added", "Testing...", naf.getRawText());
     }
-    
+
     @Test
-    public void testCommonGetters() {
-	
+    public void testGetSentence() {
+	KAFDocument naf = this.createDoc();	
+	WF wf1 = naf.newWF(19, 3, "The", 2);
+	WF wf2 = naf.newWF(23, 9, "president", 2);
+	WF wf3 = naf.newWF(33, "is", 2);
+	WF wf4 = naf.newWF(36, "black", 2);
+	assertEquals("KAFDocument::getSentence() did not return the actual sentence number of the doc (which only contains one sentence)", new Integer(2), naf.getSentence());
+	wf1.setSent(3);
+	assertEquals("KAFDocument::getSentence() did not return the actual sentence number of the doc (after editing the sentence number of the first WF)", new Integer(2), naf.getSentence());
+	wf4.setSent(0);
+	assertEquals("KAFDocument::getSentence() did not return the actual sentence number of the doc (after editing sent values of WFs)", new Integer(0), naf.getSentence());
     }
     
+    @Test
+    public void testGetParagraph() {
+	KAFDocument naf = this.createDoc();	
+	WF wf1 = naf.newWF(19, 3, "The", 3);
+	wf1.setPara(2);
+	WF wf2 = naf.newWF(23, 9, "president", 3);
+	wf2.setPara(2);
+	WF wf3 = naf.newWF(33, "is", 3);
+	wf3.setPara(2);
+	WF wf4 = naf.newWF(36, "black", 3);
+	wf4.setPara(2);
+	assertEquals("KAFDocument::getParagraph() did not return the actual paragraph number of the doc (which only contains one paragraph)", new Integer(2), naf.getParagraph());
+	wf1.setPara(3);
+	assertEquals("KAFDocument::getParagraph() did not return the actual paragraph number of the doc (after editing the paragraph number of the first WF)", new Integer(2), naf.getParagraph());
+	wf4.setPara(0);
+	assertEquals("KAFDocument::getParagraph() did not return the actual paragraph number of the doc (after editing paragraph values of WFs)", new Integer(0), naf.getParagraph());
+    }
+    
+    @Test
+    public void testWFFunctions() {
+	/* WF creation */
+	KAFDocument naf1 = this.createDoc();
+	WF wf1 = naf1.newWF("w1", 0, 3, "The", 0);
+	wf1.setPara(0);
+	WF wf2 = naf1.newWF("w2", 4, 5, "house", 0);
+	wf2.setPara(0);
+	WF wf3 = naf1.newWF("w3", 10, "is", 0);
+	wf3.setPara(0);
+	WF wf4 = naf1.newWF("w6", 13, "white", 0);
+	wf4.setPara(0);
+	WF wf5 = naf1.newWF(19, 3, "The", 1);
+	wf5.setPara(1);
+	WF wf6 = naf1.newWF(23, 9, "president", 1);
+	wf6.setPara(1);
+	WF wf7 = naf1.newWF(33, "is", 1);
+	wf7.setPara(1);
+	WF wf8 = naf1.newWF(36, "black", 1);
+	wf8.setPara(1);
+	WFTest.testWF(wf1, "w1", 0, 3, "The", 0, 0, null, null, "KAFDocument::newWF called");
+	WFTest.testWF(wf2, "w2", 4, 5, "house", 0, 0, null, null, "KAFDocument::newWF called");
+	WFTest.testWF(wf3, "w3", 10, 2, "is", 0, 0, null, null, "KAFDocument::newWF called");
+	WFTest.testWF(wf4, "w6", 13, 5, "white", 0, 0, null, null, "KAFDocument::newWF called");
+	WFTest.testWF(wf5, "w7", 19, 3, "The", 1, 1, null, null, "KAFDocument::newWF called");
+	WFTest.testWF(wf6, "w8", 23, 9, "president", 1, 1, null, null, "KAFDocument::newWF called");
+	WFTest.testWF(wf7, "w9", 33, 2, "is", 1, 1, null, null, "KAFDocument::newWF called");
+	WFTest.testWF(wf8, "w10", 36, 5, "black", 1, 1, null, null, "KAFDocument::newWF called");
+	/* WF queries */
+	List<WF> wfs = Arrays.asList(wf1, wf2, wf3, wf4, wf5, wf6, wf7, wf8);
+	List<Annotation> queriedWFs = naf1.getAnnotations(AnnotationType.WF);
+	assertEquals("KAFDocument::getAnnotations() did not work correctly with WFs", wfs, queriedWFs);
+	List<Annotation> queriedTextLayer = naf1.getLayer(Layer.TEXT);
+	assertEquals("KAFDocument::getLayer() did not work correctly with TEXT layer", wfs, queriedTextLayer);
+	List<WF> queriedWFs2 = naf1.getWFs();
+	assertEquals("KAFDocument::getWFs() did not return all WFs", wfs, queriedWFs2);
+	/* Queries by sentence*/
+	List<WF> sent1 = Arrays.asList(wf5, wf6, wf7, wf8);
+	assertEquals("KAFDocument::getBySent(WF) did not return the correct sent", sent1, naf1.getBySent(AnnotationType.WF, 1));
+	assertEquals("KAFDocument::getWFsBySent() did not return the correct sent", sent1, naf1.getWFsBySent(1));
+	wf1.setSent(1);
+	sent1 = Arrays.asList(wf1, wf5, wf6, wf7, wf8);
+	assertEquals("KAFDocument::getBySent(WF) did not return the correct sent", sent1, naf1.getBySent(AnnotationType.WF, 1));
+	assertEquals("KAFDocument::getWFsBySent() did not return the correct sent", sent1, naf1.getWFsBySent(1));
+	/* Queries by paragraph*/
+	List<WF> para1 = Arrays.asList(wf5, wf6, wf7, wf8);
+	assertEquals("KAFDocument::getByPara(WF) did not return the correct para", para1, naf1.getByPara(AnnotationType.WF, 1));
+	assertEquals("KAFDocument::getWFsByPara() did not return the correct para", para1, naf1.getWFsByPara(1));
+	wf1.setPara(1);
+	para1 = Arrays.asList(wf1, wf5, wf6, wf7, wf8);
+	assertEquals("KAFDocument::getByPara(WF) did not return the correct para", para1, naf1.getByPara(AnnotationType.WF, 1));
+	assertEquals("KAFDocument::getWFsByPara() did not return the correct para", para1, naf1.getWFsByPara(1));
+    }
     
     
     private KAFDocument createDoc() {
