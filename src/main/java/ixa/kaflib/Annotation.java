@@ -40,14 +40,18 @@ public abstract class Annotation implements Comparable<Annotation>, Serializable
 	String strValue = this.toString();
 	boolean valid = false;
 	while (!valid) {
-	    if (strValue.startsWith("-") || strValue.endsWith("-")) {
-		strValue = strValue.replace("-", " - ");
+	    valid = true;
+	    if (strValue.contains("--")) { 
+		strValue = strValue.replace("--", "- -");
+		valid = false;
 	    }
-	    else if (strValue.contains("--")) { 
-		strValue = strValue.replace("--", "-");
+	    if (strValue.startsWith("-")) {
+		strValue = " " + strValue;
+		valid = false;
 	    }
-	    else {
-		valid = true;
+	    if (strValue.endsWith("-")) {
+		strValue = strValue + " ";
+		valid = false;
 	    }
 	}
 	return strValue;
