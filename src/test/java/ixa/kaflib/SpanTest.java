@@ -81,7 +81,7 @@ public class SpanTest {
 	List<WF> wfs5 = new ArrayList<WF>(Arrays.asList(wf1, wf2, wf3, wf4, wf5, wf6, wf7, wf8));
 	testSpan(span, wfs5, null, "Targets added");
 	/* toString() */
-	assertEquals("Span::toString() problem", "[The cat is gone . . . .]", span.toString());
+	assertEquals("Span::toString() problem", "The cat is gone . . . .", span.toString());
 	/* hashCode() */
 	List<WF> wfs10 = new ArrayList<WF>(Arrays.asList(wf1, wf2, wf3));
 	List<WF> wfs11 = new ArrayList<WF>(Arrays.asList(wf1, wf2, wf3));

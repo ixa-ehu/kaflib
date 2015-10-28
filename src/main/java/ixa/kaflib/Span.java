@@ -101,14 +101,13 @@ public class Span<T extends IdentifiableAnnotation> implements Serializable {
 
     @Override
     public String toString() {
-	String str = new String("[");
+	String str = new String();
 	for (int i=0; i<this.targets.size(); i++) {
 	    str += this.targets.get(i).toString();
 	    if (i < this.targets.size()-1) {
 		str += new String(" ");
 	    }
 	}
-	str += new String("]");
 	return str;
     }
     
