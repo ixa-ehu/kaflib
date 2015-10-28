@@ -10,14 +10,12 @@ public class Span<T extends IdentifiableAnnotation> implements Serializable {
     private List<T> targets;
     private List<T> sortedTargets;
     private T head;
-    
+
     private static final long serialVersionUID = 1L;
 
 
     Span() {
-	this.targets = new ArrayList<T>();
-	this.sortedTargets = new ArrayList<T>();
-	this.head = null;
+	this(new ArrayList<T>(), null);
     }
 
     Span(List<T> targets) {
@@ -26,36 +24,33 @@ public class Span<T extends IdentifiableAnnotation> implements Serializable {
 
     Span(List<T> targets, T head) {
 	this.targets = targets;
-	this.sortedTargets = new ArrayList<T>();
+	this.sortedTargets = new ArrayList<T>(targets);
+	Collections.sort(this.sortedTargets);
 	this.head = head;
     }
 
-    public boolean isEmpty() {
-	return (this.targets.size() <= 0);
+    public Integer size() {
+	return this.targets.size();
+    }
+
+    public Boolean isEmpty() {
+	return (this.size() <= 0);
+    }
+
+    public Boolean hasTarget(T target) {
+	return this.targets.contains(target);
     }
 
     public List<T> getTargets() {
+	return this.targets;
+    }
+
+    public List<T> getTargetsSorted() {
 	return this.sortedTargets;
     }
 
     public T getFirstTarget() {
-	return this.sortedTargets.get(0);
-    }
-
-    public boolean hasHead() {
-	return (this.head != null);
-    }
-
-    public T getHead() {
-	return this.head;
-    }
-
-    public boolean isHead(T target) {
-	return (target.equals(this.head));
-    }
-
-    public void setHead(T head) {
-	this.head = head;
+	return this.getTargets().get(0);
     }
 
     public void addTarget(T target) {
@@ -72,65 +67,60 @@ public class Span<T extends IdentifiableAnnotation> implements Serializable {
     }
 
     public void addTargets(List<T> targets) {
-	for (T target : targets) {
-	    this.addTarget(target);
-	}
+	this.targets.addAll(targets);
+	this.sortedTargets.addAll(targets);
+	Collections.sort(this.sortedTargets);
     }
-    
+
     public void removeTarget(T target) {
 	this.targets.remove(target);
 	this.sortedTargets.remove(target);
 	if (this.head.equals(target)) this.head = null;
     }
 
-    public boolean hasTarget(T target) {
-	for (T t : targets) {
-	    if (t == target) {
-		return true;
-	    }
-	}
-	return false;
+    public boolean hasHead() {
+	return (this.head != null);
     }
 
-    public int size() {
-	return this.targets.size();
+    public T getHead() {
+	return this.head;
     }
 
-    /*
-    @Override
-    public boolean equals(Object o) {
-	if (this == o) return true;
-	if (!(o instanceof Span)) return false;
-	Span ann = (Span) o;
-	return Utils.areEquals(this.sortedTargets, ann.sortedTargets) &&
-		Utils.areEquals(this.head, ann.head);
+    public Boolean isHead(T target) {
+	return (target.equals(this.head));
     }
-    */
-    
+
+    public void setHead(T head) {
+	this.head = head;
+    }
+
     public Integer getOffset() {
 	if (this.isEmpty()) return null;
-	return this.getFirstTarget().getOffset();
+	return this.sortedTargets.get(0).getOffset();
     }
 
     @Override
-	public int hashCode() {
-	String spanId = "";
-	for (T target : this.sortedTargets) {
-	    if (!spanId.isEmpty()) spanId += "_";
-	    spanId += target.getId();
-	}
-	return spanId.hashCode();
-    }
-    
-    @Override
     public String toString() {
-	String str = new String();
+	String str = new String("[");
 	for (int i=0; i<this.targets.size(); i++) {
 	    str += this.targets.get(i).toString();
 	    if (i < this.targets.size()-1) {
-		str += " ";
+		str += new String(" ");
 	    }
 	}
+	str += new String("]");
 	return str;
+    }
+    
+    @Override
+    public int hashCode() {
+	return this.getOffset();
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+	Span<?> span = (Span<?>) o;
+	return this.sortedTargets.equals(span.sortedTargets)
+		&& ((this.head == null && span.head == null) || this.head.equals(span.head)); 
     }
 }
