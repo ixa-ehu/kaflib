@@ -17,6 +17,15 @@ public class Span<T extends IdentifiableAnnotation> implements Serializable {
     Span() {
 	this(new ArrayList<T>(), null);
     }
+    
+    Span(T... targets) {
+	this.targets = new ArrayList<T>();
+	this.sortedTargets = new ArrayList<T>();
+	this.head = null;
+	for (T target : targets) {
+	    this.addTarget(target);
+	}
+    }
 
     Span(List<T> targets) {
 	this(targets, null);

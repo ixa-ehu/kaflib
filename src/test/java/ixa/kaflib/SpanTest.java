@@ -25,6 +25,9 @@ public class SpanTest {
 	testSpan(span1, wfs1, null, "Span constructed");
 	testSpan(span2, wfs2, wf4, "Span constructed");
 	testSpan(span3, new ArrayList<WF>(), null, "Span constructed");
+	// List argument
+	Span<WF> span4 = new Span<WF>(wf1, wf2, wf3, wf4);
+	testSpan(span4, new ArrayList<WF>(Arrays.asList(wf1, wf2, wf3, wf4)), null, "Span constructed");
     }
     
     @Test
