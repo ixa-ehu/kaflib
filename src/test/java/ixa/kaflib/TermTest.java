@@ -5,6 +5,7 @@ import ixa.kaflib.KAFDocument.AnnotationType;
 import ixa.kaflib.Term.Sentiment;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,6 +62,20 @@ public class TermTest {
 	term.addComponent(component2, true);
 	components.add(component2);
 	testTerm(term, "t1", "open", "house", "V", "feat", "case1", sentiment, components, component2, span2, new ArrayList<ExternalRef>(), false, compound, "Term created and head component added");
+    }
+    
+    @Test
+    public void testExternalReferences() {
+	ExternalRef er1 = new ExternalRef("res1", "ref1");
+	ExternalRef er2 = new ExternalRef("res2", "ref2");
+	AnnotationContainer annCont = new AnnotationContainer();
+	Span<WF> span = WFTest.createWFSpan(annCont);
+	Term term = new Term(annCont, "t1", span, false);
+	term.getExternalReferences().add(er1);
+	term.getExternalReferences().add(er2);
+	ExternalReferences extRefs = new ExternalReferences();
+	extRefs.add(Arrays.asList(er1, er2));
+	assertEquals(extRefs, term.getExternalReferences());
     }
     
     @Test
@@ -162,7 +177,18 @@ public class TermTest {
 	assertEquals("Term.Sentiment::toString() error", "pol", sentiment.toString());
 	sentiment.setPolarity(null);
 	assertEquals("Term.Sentiment::toString() error", "", sentiment.toString());
-	
+    }
+    
+    @Test
+    public void testDeprecatedMethods() {
+	ExternalRef er1 = new ExternalRef("res1", "ref1");
+	ExternalRef er2 = new ExternalRef("res2", "ref2");
+	AnnotationContainer annCont = new AnnotationContainer();
+	Span<WF> span = WFTest.createWFSpan(annCont);
+	Term term = new Term(annCont, "t1", span, false);
+	term.addExternalRef(er1);
+	term.addExternalRefs(Arrays.asList(er2));
+	assertEquals(Arrays.asList(er1, er2), term.getExternalRefs());
     }
     
     private static void testTerm(Term term, String id, String type, String lemma, String pos, String morphofeat, String termCase, Term.Sentiment sentiment,

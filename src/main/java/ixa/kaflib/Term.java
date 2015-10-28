@@ -9,7 +9,7 @@ import java.util.HashMap;
 
 
 /** Class for representing terms. Terms refer to previous word forms (and groups multi-words) and attach lemma, part of speech, synset and name entity information. */
-public class Term extends IdentifiableAnnotation implements SentenceLevelAnnotation {
+public class Term extends IdentifiableAnnotation implements SentenceLevelAnnotation, WithExternalRefs {
 
     /** Type of the term (optional). Currently, 2 values are possible: open and close. */
     private String type;
@@ -49,7 +49,7 @@ public class Term extends IdentifiableAnnotation implements SentenceLevelAnnotat
     private Span<WF> span;
 
     /** ExternalReferences are used to associate terms to external lexical or semantic resources, such as elements of a Knowledge base: semantic lexicon  (like WordNet) or an ontology (optional) */
-    private List<ExternalRef> externalReferences;
+    private ExternalReferences externalRefs;
 
     private boolean isComponent;
     private Term compound; // Parent compound term of this component
@@ -254,7 +254,7 @@ public class Term extends IdentifiableAnnotation implements SentenceLevelAnnotat
 	super(annotationContainer, id);
 	this.components = new ArrayList<Term>();
 	this.span = span;
-	this.externalReferences = new ArrayList<ExternalRef>();
+	this.externalRefs = new ExternalReferences();
 	this.isComponent = isComponent;
     }
 
@@ -379,6 +379,10 @@ public class Term extends IdentifiableAnnotation implements SentenceLevelAnnotat
 	return this.compound;
     }
     
+    public ExternalReferences getExternalReferences() {
+	return this.externalRefs;
+    }
+    
     @Override
     Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
 	Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
@@ -473,17 +477,17 @@ public class Term extends IdentifiableAnnotation implements SentenceLevelAnnotat
 
     @Deprecated
     public List<ExternalRef> getExternalRefs() {
-	return externalReferences;
+	return this.externalRefs.get();
     }
 
     @Deprecated
     public void addExternalRef(ExternalRef externalRef) {
-	externalReferences.add(externalRef);
+	this.externalRefs.add(externalRef);
     }
 
     @Deprecated
     public void addExternalRefs(List<ExternalRef> externalRefs) {
-	externalReferences.addAll(externalRefs);
+	this.externalRefs.add(externalRefs);
     }
 
     /*
