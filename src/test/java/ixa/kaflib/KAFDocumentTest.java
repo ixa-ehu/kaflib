@@ -254,6 +254,35 @@ public class KAFDocumentTest {
 	assertEquals("KAFDocument::getWFsByPara() did not return the correct para", para1, naf1.getWFsByPara(1));
     }
     
+    @Test
+    public void testTermFunctions() {
+	/* Term creation */
+	KAFDocument naf = createDoc();
+	WF wf1 = naf.newWF("w1", 0, 3, "The", 0);
+	WF wf2 = naf.newWF("w2", 4, 5, "house", 0);
+	WF wf3 = naf.newWF("w3", 10, "is", 0);
+	WF wf4 = naf.newWF("w6", 13, "white", 0);
+	WF wf5 = naf.newWF(19, 3, "The", 1);
+	WF wf6 = naf.newWF(23, 9, "president", 1);
+	WF wf7 = naf.newWF(33, "is", 1);
+	WF wf8 = naf.newWF(36, "black", 1);
+	Term t1 = naf.newTerm("t1", new Span<WF>(wf1, wf2));
+	Term t2 = naf.newTerm("t2", new Span<WF>(wf3), true);
+	Term t3 = naf.newTerm(new Span<WF>(wf4), false);
+	Term t4 = naf.newTerm("t4", new Span<WF>(wf5, wf6), 1);
+	Term t5 = naf.newTerm(new Span<WF>(wf7, wf8));
+	Term t6 = naf.newCompound(Arrays.asList(t4, t5), "The president is black");
+	TermTest.testTerm(t1, "t1", null, null, null, null, null, null, new ArrayList<Term>(), null, new Span<WF>(wf1, wf2), new ArrayList<ExternalRef>(), false, null, "");
+	TermTest.testTerm(t2, "t2", null, null, null, null, null, null, new ArrayList<Term>(), null, new Span<WF>(wf3), new ArrayList<ExternalRef>(), true, null, "");
+	TermTest.testTerm(t3, "t3", null, null, null, null, null, null, new ArrayList<Term>(), null, new Span<WF>(wf4), new ArrayList<ExternalRef>(), false, null, "");
+	TermTest.testTerm(t4, "t4", null, null, null, null, null, null, new ArrayList<Term>(), null, new Span<WF>(wf5, wf6), new ArrayList<ExternalRef>(), false, t6, "");
+	TermTest.testTerm(t5, "t5", null, null, null, null, null, null, new ArrayList<Term>(), null, new Span<WF>(wf7, wf8), new ArrayList<ExternalRef>(), false, t6, "");
+	TermTest.testTerm(t6, "t.mw1", null, "The president is black", null, null, null, null, Arrays.asList(t4, t5), null, new Span<WF>(wf5, wf6, wf7, wf8), new ArrayList<ExternalRef>(), false, null, "");
+	/* Sentiment creation */
+	Term.Sentiment s1 = naf.newSentiment();
+	TermTest.testSentiment(s1, null, null, null, null, null, null, null, null, "");
+    }
+    
     
     static KAFDocument createDoc() {
 	String defaultLang = "en";

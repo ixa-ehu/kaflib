@@ -191,7 +191,7 @@ public class TermTest {
 	assertEquals(Arrays.asList(er1, er2), term.getExternalRefs());
     }
     
-    private static void testTerm(Term term, String id, String type, String lemma, String pos, String morphofeat, String termCase, Term.Sentiment sentiment,
+    static void testTerm(Term term, String id, String type, String lemma, String pos, String morphofeat, String termCase, Term.Sentiment sentiment,
 	    List<Term> components, Term head, Span<WF> span, List<ExternalRef> externalRefs, Boolean isComponent, Term compound, String msg) {
 	assertEquals(msg + ": ids do not match", id, term.getId());
 	assertEquals(msg + ": types do not match", type, term.getType());
@@ -208,7 +208,7 @@ public class TermTest {
 	assertEquals(msg + ": compounds do not match", compound, term.getCompound());
     }
     
-    private static void testSentiment(Sentiment sentiment, String resource, String polarity, String strength, String subjectivity, String sentimentSemanticType,
+    static void testSentiment(Sentiment sentiment, String resource, String polarity, String strength, String subjectivity, String sentimentSemanticType,
 	    String sentimentModifier, String sentimentMarker, String sentimentProductFeature, String msg) {
 	assertEquals(msg + ": resources do not match", resource, sentiment.getResource());
 	assertEquals(msg + ": polaritys do not match", polarity, sentiment.getPolarity());
