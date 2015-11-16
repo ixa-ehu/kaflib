@@ -53,6 +53,11 @@ public class Tree extends Annotation implements MultiLayerAnnotation, SentenceLe
     public Integer getOffset() {
 	return this.root.getOffset();
     }
+    
+    @Override
+    public String toString() {
+	return null;
+    }
 
 
     /***********************************************************/

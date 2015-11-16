@@ -60,6 +60,12 @@ public class Factuality extends IdentifiableAnnotation implements SentenceLevelA
 	return this.getSpan().getOffset();
     }
     
+    @Override
+    public String toString() {
+	return this.span.toString();
+    }
+    
+    
     /*
     @Override
     public boolean equals(Object o) {
@@ -71,6 +77,7 @@ public class Factuality extends IdentifiableAnnotation implements SentenceLevelA
     }
     */
     
+    @Deprecated
     public String getSpanStr(Span<Term> span) {
    	String str = "";
    	for (Term term : span.getTargets()) {
@@ -146,6 +153,11 @@ public class Factuality extends IdentifiableAnnotation implements SentenceLevelA
 	    
 	@Override
 	public Integer getOffset() {
+	    return null;
+	}
+	
+	@Override
+	public String toString() {
 	    return null;
 	}
 

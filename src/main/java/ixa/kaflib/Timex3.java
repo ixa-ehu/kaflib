@@ -188,21 +188,6 @@ public class Timex3 extends IdentifiableAnnotation implements TLinkReferable {
     public void setComment(String comment) {
 	this.comment = comment;
     }
-    
-    /*
-    public Integer getSent() {
-	return this.span.getFirstTarget().getSent();
-    }
-    
-    public Integer getPara() {
-	return this.span.getFirstTarget().getPara();
-    }
-    */
-
-    @Deprecated
-    public boolean hasSpan() {
-	return this.span != null;
-    }
 
     public Span<WF> getSpan() {
 	return this.span;
@@ -212,17 +197,6 @@ public class Timex3 extends IdentifiableAnnotation implements TLinkReferable {
 	this.span = span;
     }
 
-    public String getSpanStr(Span<WF> span) {
-	String str = "";
-	for (WF wf : span.getTargets()) {
-	    if (!str.isEmpty()) {
-		str += " ";
-	    }
-	    str += wf.getForm();
-	}
-	return str;
-    }
-    
     Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
 	Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
 	List<Annotation> wfs = new ArrayList<Annotation>();
@@ -236,6 +210,29 @@ public class Timex3 extends IdentifiableAnnotation implements TLinkReferable {
     @Override
     public Integer getOffset() {
 	return this.getSpan().getOffset();
+    }
+    
+    @Override
+    public String toString() {
+	return this.span.toString();
+    }
+    
+
+    @Deprecated
+    public boolean hasSpan() {
+	return this.span != null;
+    }
+
+    @Deprecated
+    public String getSpanStr(Span<WF> span) {
+	String str = "";
+	for (WF wf : span.getTargets()) {
+	    if (!str.isEmpty()) {
+		str += " ";
+	    }
+	    str += wf.getForm();
+	}
+	return str;
     }
     
     /*

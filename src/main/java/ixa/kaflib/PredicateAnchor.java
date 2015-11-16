@@ -87,6 +87,11 @@ public class PredicateAnchor extends IdentifiableAnnotation implements SentenceL
 	return this.getSpan().getOffset();
     }
     
+    @Override
+    public String toString() {
+	return null;
+    }
+    
     /*
     @Override
     public boolean equals(Object o) {

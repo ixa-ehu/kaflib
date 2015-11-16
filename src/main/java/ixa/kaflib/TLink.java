@@ -76,6 +76,11 @@ public class TLink extends IdentifiableAnnotation {
 	return Math.min(this.getFrom().getOffset(), this.getTo().getOffset());
     }
     
+    @Override
+    public String toString() {
+	return this.relType + "(" + this.from + ", " + this.to + ")";
+    }
+    
     /*
     @Override
     public boolean equals(Object o) {

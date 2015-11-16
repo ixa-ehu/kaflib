@@ -95,21 +95,6 @@ public class Feature extends IdentifiableAnnotation implements Relational, Seria
 	externalReferences.addAll(externalRefs);
     }
 
-    public String getSpanStr(Span<Term> span) {
-	String str = "";
-	for (Term term : span.getTargets()) {
-	    if (!str.isEmpty()) {
-		str += " ";
-	    }
-	    str += term.getStr();
-	}
-	return str;
-    }
-
-    public String getStr() {
-	return getSpanStr(this.getSpans().get(0));
-    }
-    
     Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
 	Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
 	List<Annotation> terms = new ArrayList<Annotation>();
@@ -126,6 +111,11 @@ public class Feature extends IdentifiableAnnotation implements Relational, Seria
 	return this.getSpans().get(0).getOffset();
     }
     
+    @Override
+    public String toString() {
+	return (this.references.size() > 0) ? this.references.get(0).toString() : new String();
+    }
+    
 
     @Deprecated
     public List<List<Term>> getReferences() {
@@ -140,6 +130,24 @@ public class Feature extends IdentifiableAnnotation implements Relational, Seria
     public void addReference(List<Term> span) {
 	this.references.add(KAFDocument.<Term>list2Span(span));
     }
+
+    @Deprecated
+    public String getSpanStr(Span<Term> span) {
+	String str = "";
+	for (Term term : span.getTargets()) {
+	    if (!str.isEmpty()) {
+		str += " ";
+	    }
+	    str += term.getStr();
+	}
+	return str;
+    }
+
+    @Deprecated
+    public String getStr() {
+	return getSpanStr(this.getSpans().get(0));
+    }
+    
     
     /*
     @Override

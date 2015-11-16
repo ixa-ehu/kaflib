@@ -120,17 +120,6 @@ public class Mark extends IdentifiableAnnotation implements SentenceLevelAnnotat
 	this.markcase = markcase;
     }
 
-    public String getStr() {
-	String str = "";
-	for (WF wf : span.getTargets()) {
-	    if (!str.isEmpty()) {
-		str += " ";
-	    }
-	    str += wf.getForm();
-	}
-	return str;
-    }
-
     public Span<WF> getSpan() {
 	return this.span;
     }
@@ -187,6 +176,24 @@ public class Mark extends IdentifiableAnnotation implements SentenceLevelAnnotat
     @Override
     public String getGroupID() {
 	return this.getSource();
+    }
+    
+    @Override
+    public String toString() {
+	return this.span.toString();
+    }
+
+    
+    @Deprecated
+    public String getStr() {
+	String str = "";
+	for (WF wf : span.getTargets()) {
+	    if (!str.isEmpty()) {
+		str += " ";
+	    }
+	    str += wf.getForm();
+	}
+	return str;
     }
 
     /*

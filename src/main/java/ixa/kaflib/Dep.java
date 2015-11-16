@@ -69,10 +69,6 @@ public class Dep extends Annotation implements SentenceLevelAnnotation {
 	this.depcase = depcase;
     }
 
-    public String getStr() {
-	return rfunc + "(" + this.getFrom().getStr() + ", " + this.getTo().getStr() + ")";
-    }
-    
     Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
 	Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
 	List<Annotation> terms = new ArrayList<Annotation>();
@@ -95,6 +91,17 @@ public class Dep extends Annotation implements SentenceLevelAnnotation {
     @Override
     public Integer getPara() {
 	return this.from.getPara();
+    }
+    
+    @Override
+    public String toString() {
+	return this.rfunc + "(" + this.from + ", " + this.to + ")";
+    }
+    
+    
+    @Deprecated
+    public String getStr() {
+	return rfunc + "(" + this.getFrom().getStr() + ", " + this.getTo().getStr() + ")";
     }
     
     /*

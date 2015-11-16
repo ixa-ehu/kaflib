@@ -77,6 +77,11 @@ public class Factvalue extends Annotation implements SentenceLevelAnnotation {
 	return this.word.getPara();
     }
     
+    @Override
+    public String toString() {
+	return this.word.toString();
+    }
+    
     /*
     @Override
     public boolean equals(Object o) {

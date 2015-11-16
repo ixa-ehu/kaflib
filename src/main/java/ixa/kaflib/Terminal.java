@@ -24,30 +24,6 @@ public class Terminal extends TreeNode implements SentenceLevelAnnotation {
 	return this.span;
     }
 
-    private String getStrValue() {
-	String str = "";
-	for (Term term : span.getTargets()) {
-	    if (!str.isEmpty()) {
-		str += " ";
-	    }
-	    str += term.getStr();
-	}
-	return str;
-    }
-
-    public String getStr() {
-	String strValue = this.getStrValue();
-	if (strValue.startsWith("-") || strValue.endsWith("-")) {
-	    return strValue.replace("-", "- ");
-   	}
-   	else if (strValue.contains("--")) { 
-	    return strValue.replace("--", "-");
-   	}
-   	else {
-	    return strValue;
-   	}
-    }
-
     public void addChild(TreeNode tn) throws Exception {
 	throw new Exception("It is not possible to add child nodes to Terminal nodes.");
     }
@@ -67,12 +43,46 @@ public class Terminal extends TreeNode implements SentenceLevelAnnotation {
 	return this.getSpan().getOffset();
     }
     
+    @Override
     public Integer getSent() {
 	return this.getSpan().getFirstTarget().getSent();
     }
     
+    @Override
     public Integer getPara() {
 	return this.getSpan().getFirstTarget().getPara();
+    }
+    
+    @Override
+    public String toString() {
+	return this.span.toString();
+    }
+
+
+    @Deprecated
+    private String getStrValue() {
+	String str = "";
+	for (Term term : span.getTargets()) {
+	    if (!str.isEmpty()) {
+		str += " ";
+	    }
+	    str += term.getStr();
+	}
+	return str;
+    }
+
+    @Deprecated
+    public String getStr() {
+	String strValue = this.getStrValue();
+	if (strValue.startsWith("-") || strValue.endsWith("-")) {
+	    return strValue.replace("-", "- ");
+   	}
+   	else if (strValue.contains("--")) { 
+	    return strValue.replace("--", "-");
+   	}
+   	else {
+	    return strValue;
+   	}
     }
 
     /*

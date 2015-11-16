@@ -58,17 +58,6 @@ public class LinkedEntity extends IdentifiableAnnotation {
 	return this.mentions;
     }
 
-    public String getSpanStr() {
-	String str = "";
-	for (WF wf : mentions.getTargets()) {
-	    if (!str.isEmpty()) {
-		str += " ";
-	    }
-	    str += wf.getForm();
-	}
-	return str;
-    }
-
     Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
 	Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
 	referenced.put(AnnotationType.WF, (List<Annotation>) (List<?>) this.getSpan().getTargets());
@@ -80,13 +69,32 @@ public class LinkedEntity extends IdentifiableAnnotation {
 	return this.getSpan().getOffset();
     }
     
+    @Override
+    public String toString() {
+	return this.mentions.toString();
+    }
+    
     /**
      * Returns the term targets of the first span. When targets of other spans
      * are needed getReferences() method should be used.
      */
+    @Deprecated
     public Span<WF> getWFs() {
 	return mentions;
     }
+    
+    @Deprecated
+    public String getSpanStr() {
+	String str = "";
+	for (WF wf : mentions.getTargets()) {
+	    if (!str.isEmpty()) {
+		str += " ";
+	    }
+	    str += wf.getForm();
+	}
+	return str;
+    }
+
 
     /*
      * @Override public boolean equals(Object o) { if (this == o) return true;

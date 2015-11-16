@@ -88,6 +88,11 @@ public class Topic extends Annotation {
 	return null;
     }
     
+    @Override
+    public String toString() {
+	return null;
+    }
+    
     /*
     @Override
     public boolean equals(Object o) {

@@ -66,6 +66,11 @@ public class Opinion extends IdentifiableAnnotation {
 	    return this.getSpan().getOffset();
 	}
 
+	@Override
+	public String toString() {
+	    return this.span.toString();
+	}
+	
 	/*
 	@Override
 	public boolean equals(Object o) {
@@ -121,6 +126,11 @@ public class Opinion extends IdentifiableAnnotation {
 	    return this.getSpan().getOffset();
 	}
 
+	@Override
+	public String toString() {
+	    return this.span.toString();
+	}
+	
 	/*
 	@Override
 	public boolean equals(Object o) {
@@ -247,7 +257,12 @@ public class Opinion extends IdentifiableAnnotation {
 	    
 	@Override
 	public Integer getOffset() {
-	    return this.getSpan().getOffset();
+	    return this.span.getOffset();
+	}
+	
+	@Override
+	public String toString() {
+	    return this.span.toString();
 	}
 
 	/*
@@ -316,21 +331,6 @@ public class Opinion extends IdentifiableAnnotation {
 	return this.opinionExpression;
     }
 
-    public String getSpanStr(Span<Term> span) {
-	String str = "";
-	for (Term term : span.getTargets()) {
-	    if (!str.isEmpty()) {
-		str += " ";
-	    }
-	    str += term.getStr();
-	}
-	return str;
-    }
-
-    public String getStr() {
-	return getSpanStr(this.getOpinionExpression().getSpan());
-    }
-
     Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
 	Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
 	List<Term> referencedTerms = new ArrayList<Term>();
@@ -348,6 +348,29 @@ public class Opinion extends IdentifiableAnnotation {
 	return Math.min(Math.min(this.getOpinionExpression().getOffset(), this.getOpinionHolder().getOffset()), this.getOpinionTarget().getOffset());
     }
     
+    @Override
+    public String toString() {
+	return this.opinionExpression.toString();
+    }
+    
+    
+    @Deprecated
+    public String getSpanStr(Span<Term> span) {
+	String str = "";
+	for (Term term : span.getTargets()) {
+	    if (!str.isEmpty()) {
+		str += " ";
+	    }
+	    str += term.getStr();
+	}
+	return str;
+    }
+
+    @Deprecated
+    public String getStr() {
+	return getSpanStr(this.getOpinionExpression().getSpan());
+    }
+
     /*
     @Override
     public boolean equals(Object o) {

@@ -73,14 +73,6 @@ public class Relation extends IdentifiableAnnotation implements Serializable {
 	this.confidence = confidence;
     }
 
-    public String getStr() {
-	String str = "(" + this.from.getStr() + ", " + this.to.getStr() + ")";
-	if (this.hasConfidence()) {
-	    str += " [" + this.getConfidence() + "]";
-	}
-	return str;
-    }
-    
     Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
 	Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
 	List<Annotation> entities = new ArrayList<Annotation>();
@@ -101,6 +93,21 @@ public class Relation extends IdentifiableAnnotation implements Serializable {
     @Override
     public Integer getOffset() {
 	return Math.min(this.getFrom().getOffset(), this.getTo().getOffset());
+    }
+    
+    @Override
+    public String toString() {
+	return "(" + this.from + ", " + this.to + ")";
+    }
+    
+    
+    @Deprecated
+    public String getStr() {
+	String str = "(" + this.from.getStr() + ", " + this.to.getStr() + ")";
+	if (this.hasConfidence()) {
+	    str += " [" + this.getConfidence() + "]";
+	}
+	return str;
     }
     
     /*

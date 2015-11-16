@@ -65,17 +65,6 @@ public class Predicate extends IdentifiableAnnotation implements SentenceLevelAn
 	    return this.getSpan().getOffset();
 	}
 
-	public String getStr() {
-	    String str = "";
-	    for (Term term : this.span.getTargets()) {
-		if (!str.isEmpty()) {
-		    str += " ";
-		}
-		str += term.getStr();
-	    }
-	    return str;
-	}
-
 	public List<ExternalRef> getExternalRefs() {
 	    return externalReferences;
 	}
@@ -88,6 +77,23 @@ public class Predicate extends IdentifiableAnnotation implements SentenceLevelAn
 	    externalReferences.addAll(externalRefs);
 	}
 	
+	@Override
+	public String toString() {
+	    return this.span.toString();
+	}
+
+	@Deprecated
+	public String getStr() {
+	    String str = "";
+	    for (Term term : this.span.getTargets()) {
+		if (!str.isEmpty()) {
+		    str += " ";
+		}
+		str += term.getStr();
+	    }
+	    return str;
+	}
+
 	/*
 	@Override
 	public boolean equals(Object o) {
@@ -176,39 +182,6 @@ public class Predicate extends IdentifiableAnnotation implements SentenceLevelAn
 	referenced.put(AnnotationType.TERM, terms);
 	return referenced;
     }
-    
-    @Override
-    public Integer getOffset() {
-	return this.getSpan().getOffset();
-    }
-    
-    public String getStr() {
-	String str = "";
-	if (!this.span.isEmpty()) {
-	    Term target = this.span.getFirstTarget();
-	    str += target.getId() + " " + target.getStr() + " ";
-	}
-	str += ":";
-	for (Role role : this.roles) {
-	    if (!role.span.isEmpty()) {
-		Term roleTarget = role.getSpan().getFirstTarget();
-		str += " " + role.getSemRole() + "[" + roleTarget.getId() + " "
-			+ roleTarget.getStr() + "]";
-	    }
-	}
-	return str;
-    }
-
-    public String getSpanStr() {
-	String str = "";
-	for (Term term : this.span.getTargets()) {
-	    if (!str.isEmpty()) {
-		str += " ";
-	    }
-	    str += term.getStr();
-	}
-	return str;
-    }
 
     public List<ExternalRef> getExternalRefs() {
 	return externalReferences;
@@ -230,6 +203,58 @@ public class Predicate extends IdentifiableAnnotation implements SentenceLevelAn
 	this.roles.add(role);
     }
     
+    @Override
+    public Integer getOffset() {
+	return this.getSpan().getOffset();
+    }
+
+    @Override
+    public String toString() {
+	String str = new String();
+	if (!this.span.isEmpty()) {
+	    str += this.span.getFirstTarget().getId() + " " + this.span.getFirstTarget().toString();
+	}
+	str += ":";
+	for (Role role: this.roles) {
+	    if (!role.getSpan().isEmpty()) {
+		str += " " + role.getSemRole() + "[" + role.getSpan().getFirstTarget().getId() + " " + role.getSpan().getFirstTarget() + "]";
+	    }
+	}
+	
+	return str;
+    }
+    
+    
+    @Deprecated
+    public String getStr() {
+	String str = "";
+	if (!this.span.isEmpty()) {
+	    Term target = this.span.getFirstTarget();
+	    str += target.getId() + " " + target.getStr() + " ";
+	}
+	str += ":";
+	for (Role role : this.roles) {
+	    if (!role.span.isEmpty()) {
+		Term roleTarget = role.getSpan().getFirstTarget();
+		str += " " + role.getSemRole() + "[" + roleTarget.getId() + " "
+			+ roleTarget.getStr() + "]";
+	    }
+	}
+	return str;
+    }
+
+    @Deprecated
+    public String getSpanStr() {
+	String str = "";
+	for (Term term : this.span.getTargets()) {
+	    if (!str.isEmpty()) {
+		str += " ";
+	    }
+	    str += term.getStr();
+	}
+	return str;
+    }
+
     /*
     @Override
     public boolean equals(Object o) {

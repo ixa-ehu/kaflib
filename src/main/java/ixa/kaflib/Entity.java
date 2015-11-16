@@ -105,21 +105,6 @@ public class Entity extends IdentifiableAnnotation implements Relational, Senten
 	externalReferences.addAll(externalRefs);
     }
 
-    public String getSpanStr(Span<Term> span) {
-	String str = "";
-	for (Term term : span.getTargets()) {
-	    if (!str.isEmpty()) {
-		str += " ";
-	    }
-	    str += term.getStr();
-	}
-	return str;
-    }
-
-    public String getStr() {
-	return getSpanStr(this.getSpans().get(0));
-    }
-    
     Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
 	Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
 	List<Annotation> terms = new ArrayList<Annotation>();
@@ -138,7 +123,19 @@ public class Entity extends IdentifiableAnnotation implements Relational, Senten
 	return this.getSpans().get(0).getFirstTarget().getPara();
     }
 
-    /** Deprecated */
+    @Override
+    public Integer getOffset() {
+	if (this.getSpans().size() == 0) return null;
+	return this.getSpans().get(0).getOffset();
+    }
+    
+    @Override
+    public String toString() {
+	return (this.references.size() > 0) ? this.references.get(0).toString() : new String();
+    }
+    
+    
+    @Deprecated
     public List<List<Term>> getReferences() {
 	List<List<Term>> list = new ArrayList<List<Term>>();
 	for (Span<Term> span : this.references) {
@@ -147,15 +144,26 @@ public class Entity extends IdentifiableAnnotation implements Relational, Senten
 	return list;
     }
 
-    /** Deprecated */
+    @Deprecated
     public void addReference(List<Term> span) {
 	this.references.add(KAFDocument.<Term>list2Span(span));
     } 
     
-    @Override
-    public Integer getOffset() {
-	if (this.getSpans().size() == 0) return null;
-	return this.getSpans().get(0).getOffset();
+    @Deprecated
+    public String getSpanStr(Span<Term> span) {
+	String str = "";
+	for (Term term : span.getTargets()) {
+	    if (!str.isEmpty()) {
+		str += " ";
+	    }
+	    str += term.getStr();
+	}
+	return str;
+    }
+
+    @Deprecated
+    public String getStr() {
+	return getSpanStr(this.getSpans().get(0));
     }
     
     /*

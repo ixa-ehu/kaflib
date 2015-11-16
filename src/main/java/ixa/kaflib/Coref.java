@@ -81,17 +81,6 @@ public class Coref extends IdentifiableAnnotation {
     public void addSpan(Span<Term> span) {
 	this.mentions.add(span);
     }
-
-    public String getSpanStr(Span<Term> span) {
-	String str = "";
-	for (Term term : span.getTargets()) {
-	    if (!str.isEmpty()) {
-		str += " ";
-	    }
-	    str += term.getStr();
-	}
-	return str;
-    }
     
     @Override
     Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
@@ -110,7 +99,13 @@ public class Coref extends IdentifiableAnnotation {
 	return this.mentions.get(0).getOffset();
     }
     
-    /** Deprecated */
+    @Override
+    public String toString() {
+	return null;
+    }
+    
+    
+    @Deprecated
     public List<List<Target>> getReferences() {
 	List<List<Target>> list = new ArrayList<List<Target>>();
 	for (Span<Term> span : this.mentions) {
@@ -119,9 +114,21 @@ public class Coref extends IdentifiableAnnotation {
 	return list;
     }
 
-    /** Deprecated */
+    @Deprecated
     public void addReference(List<Target> span) {
 	this.mentions.add(KAFDocument.targetList2Span(span));
+    }
+    
+    @Deprecated
+    public String getSpanStr(Span<Term> span) {
+	String str = "";
+	for (Term term : span.getTargets()) {
+	    if (!str.isEmpty()) {
+		str += " ";
+	    }
+	    str += term.getStr();
+	}
+	return str;
     }
     
     /*

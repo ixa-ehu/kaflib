@@ -82,17 +82,6 @@ public class Chunk extends IdentifiableAnnotation implements SentenceLevelAnnota
 	this.span = span;
     }
 
-    public String getStr() {
-	String str = "";
-	for (Term term : this.span.getTargets()) {
-	    if (!str.isEmpty()) {
-		str += " ";
-	    }
-	    str += term.getStr();
-	}
-	return str;
-    }
-    
     @Override
     Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
 	Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
@@ -114,10 +103,28 @@ public class Chunk extends IdentifiableAnnotation implements SentenceLevelAnnota
     public Integer getPara() {
 	return this.span.getFirstTarget().getPara();
     }
+    
+    @Override
+    public String toString() {
+	return this.span.toString();
+    }
 
-    /** Deprecated */
+    
+    @Deprecated
     public void setHead(Term term) {
         this.span.setHead(term);
+    }
+    
+    @Deprecated
+    public String getStr() {
+	String str = "";
+	for (Term term : this.span.getTargets()) {
+	    if (!str.isEmpty()) {
+		str += " ";
+	    }
+	    str += term.getStr();
+	}
+	return str;
     }
     
     /*

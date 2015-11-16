@@ -65,6 +65,11 @@ public class NonTerminal extends TreeNode implements SentenceLevelAnnotation {
 	return this.children.get(0).getPara();
     }
     
+    @Override
+    public String toString() {
+	return null;
+    }
+    
     /*
     @Override
     public boolean equals(Object o) {
