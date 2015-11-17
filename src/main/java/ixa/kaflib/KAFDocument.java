@@ -32,7 +32,9 @@ import org.jdom2.Element;
 @SuppressWarnings("unchecked")
 /** Respresents a KAF document. It's the main class of the library, as it keeps all elements of the document (word forms, terms, entities...) and manages all object creations. The document can be created by the user calling it's methods, or loading from an existing XML file.*/
 public class KAFDocument implements Serializable {
-
+    
+    private static final long serialVersionUID = 42L; // Serializable...
+    
     public enum Layer {
 	TEXT,
 	TERMS,
@@ -95,190 +97,112 @@ public class KAFDocument implements Serializable {
 	STATEMENT_CUE,
     }
     
-    static List<AnnotationType> highLevelAnnotationTypes;
-    static Map<AnnotationType, Layer> highLevelAnnotationType2Layer;
-    static Map<AnnotationType, Class<?>> annotationTypeClasses;
-    private static final long serialVersionUID = 42L; // Serializable...
-    
-    private Map<String, List<Term>> wfId2Terms; // Rodrirekin hitz egin hau kentzeko
-    
-
-    public class FileDesc implements Serializable {
-	public String author;
-	public String title;
-	public String publisher;
-	public String section;
-	public String location;
-	public String magazine;
-	public String filename;
-	public String filetype;
-	public Integer pages;
-	public String creationtime;
-	private static final long serialVersionUID = 42L; // Serializable...
-	
-
-	private FileDesc() {}
-	
-	@Override
-	public boolean equals(Object o) {
-	    if (this == o) return true;
-	    if (!(o instanceof FileDesc)) return false;
-	    FileDesc fd = (FileDesc) o;
-	    return Utils.areEquals(this.author, fd.author) &&
-		    Utils.areEquals(this.title, fd.title) &&
-		    Utils.areEquals(this.publisher, fd.publisher) &&
-		    Utils.areEquals(this.section, fd.section) &&
-		    Utils.areEquals(this.location, fd.location) &&
-		    Utils.areEquals(this.magazine, fd.magazine) &&
-		    Utils.areEquals(this.filename, fd.filename) &&
-		    Utils.areEquals(this.filetype, fd.filetype) &&
-		    Utils.areEquals(this.pages, fd.pages) &&
-		    Utils.areEquals(this.creationtime, fd.creationtime);
-	}
+    static final List<AnnotationType> TOP_TYPES;
+    static {
+	TOP_TYPES = Arrays.asList(
+		AnnotationType.WF,
+		AnnotationType.TERM,
+		AnnotationType.MW,
+		AnnotationType.ENTITY,
+		AnnotationType.CHUNK,
+		AnnotationType.DEP,
+		AnnotationType.TREE,
+		AnnotationType.COREF,
+		AnnotationType.OPINION,
+		AnnotationType.CLINK,
+		AnnotationType.TLINK,
+		AnnotationType.PREDICATE_ANCHOR,
+		AnnotationType.PREDICATE,
+		AnnotationType.TIMEX3,
+		AnnotationType.FACTUALITY,
+		AnnotationType.FACTVALUE,
+		AnnotationType.MARK,
+		AnnotationType.PROPERTY,
+		AnnotationType.CATEGORY,
+		AnnotationType.LINKED_ENTITY,
+		AnnotationType.RELATION,
+		AnnotationType.TOPIC,
+		AnnotationType.STATEMENT);
     }
-
-    public class Public implements Serializable {
-	public String publicId;
-	public String uri;
-	private static final long serialVersionUID = 42L; // Serializable...
-
-	private Public() {
-	}
-	
-	@Override
-	public boolean equals(Object o) {
-	    if (this == o) return true;
-	    if (!(o instanceof Public)) return false;
-	    Public pub = (Public) o;
-	    return Utils.areEquals(this.publicId, pub.publicId) &&
-		    Utils.areEquals(this.uri, pub.uri);
-	}
+    
+    static final Map<AnnotationType, Layer> TYPE_2_LAYER; // Only top level annotation types
+    static {
+	TYPE_2_LAYER = new HashMap<AnnotationType, Layer>();
+	TYPE_2_LAYER.put(AnnotationType.WF, Layer.TEXT);
+	TYPE_2_LAYER.put(AnnotationType.TERM, Layer.TERMS);
+	TYPE_2_LAYER.put(AnnotationType.MW, Layer.TERMS);
+	TYPE_2_LAYER.put(AnnotationType.ENTITY, Layer.ENTITIES);
+	TYPE_2_LAYER.put(AnnotationType.CHUNK, Layer.CHUNKS);
+	TYPE_2_LAYER.put(AnnotationType.DEP, Layer.DEPS);
+	TYPE_2_LAYER.put(AnnotationType.TREE, Layer.CONSTITUENCY);
+	TYPE_2_LAYER.put(AnnotationType.COREF, Layer.COREFERENCES);
+	TYPE_2_LAYER.put(AnnotationType.OPINION, Layer.OPINIONS);
+	TYPE_2_LAYER.put(AnnotationType.CLINK, Layer.CAUSAL_RELATIONS);
+	TYPE_2_LAYER.put(AnnotationType.TLINK, Layer.TEMPORAL_RELATIONS);
+	TYPE_2_LAYER.put(AnnotationType.PREDICATE_ANCHOR, Layer.TEMPORAL_RELATIONS);
+	TYPE_2_LAYER.put(AnnotationType.PREDICATE, Layer.SRL);
+	TYPE_2_LAYER.put(AnnotationType.TIMEX3, Layer.TIME_EXPRESSIONS);
+	TYPE_2_LAYER.put(AnnotationType.FACTUALITY, Layer.FACTUALITIES);
+	TYPE_2_LAYER.put(AnnotationType.FACTVALUE, Layer.FACTUALITY_LAYER);
+	TYPE_2_LAYER.put(AnnotationType.MARK, Layer.MARKABLES);
+	TYPE_2_LAYER.put(AnnotationType.PROPERTY, Layer.PROPERTIES);
+	TYPE_2_LAYER.put(AnnotationType.CATEGORY, Layer.CATEGORIES);
+	TYPE_2_LAYER.put(AnnotationType.LINKED_ENTITY, Layer.LINKED_ENTITIES);
+	TYPE_2_LAYER.put(AnnotationType.RELATION, Layer.RELATIONS);
+	TYPE_2_LAYER.put(AnnotationType.TOPIC, Layer.TOPICS);
+	TYPE_2_LAYER.put(AnnotationType.STATEMENT, Layer.ATTRIBUTION);
     }
-
-    public class LinguisticProcessor implements Serializable {
-	String layer;
-	String name;
-	String timestamp;
-	String beginTimestamp;
-	String endTimestamp;
-	String version;
-	String hostname;
-	private static final long serialVersionUID = 42L; // Serializable...
-
-	private LinguisticProcessor(String name, String layer) {
-	    this.layer = layer;
-	    this.name = name;
-	}
-
-	/* Deprecated */
-	private LinguisticProcessor(String name, String timestamp, String version) {
-	    this.name = name;
-	    this.timestamp = timestamp;
-	    this.version = version;
-	}
-
-	public String getLayer() {
-	    return this.layer;
-	}
-
-	public void setName(String name) {
-	    this.name = name;
-	}
-
-	public String getName() {
-	    return name;
-	}
-
-	public boolean hasTimestamp() {
-	    return this.timestamp != null;
-	}
-
-	public void setTimestamp(String timestamp) {
-	    this.timestamp = timestamp;
-	}
-
-	public void setTimestamp() {
-	    String timestamp = createTimestamp();
-	    this.timestamp = timestamp;
-	}
-
-	public String getTimestamp() {
-	    return this.timestamp;
-	}
-
-	public boolean hasBeginTimestamp() {
-	    return beginTimestamp != null;
-	}
-
-	public void setBeginTimestamp(String timestamp) {
-	    this.beginTimestamp = timestamp;
-	    if (!this.hasHostname()) {
-		try {
-		    this.setHostname(InetAddress.getLocalHost().getHostName());
-		} catch(UnknownHostException e) {}
+    
+    static final Map<Layer, List<AnnotationType>> LAYER_2_TYPES; // Only top level annotation types
+    static {
+	LAYER_2_TYPES = new HashMap<Layer, List<AnnotationType>>();
+	for (AnnotationType type : TYPE_2_LAYER.keySet()) {
+	    Layer layer = TYPE_2_LAYER.get(type);
+	    List<AnnotationType> layerTypes = LAYER_2_TYPES.get(layer);
+	    if (layerTypes == null) {
+		layerTypes = new ArrayList<AnnotationType>();
+		LAYER_2_TYPES.put(layer, layerTypes);
 	    }
-	}
-
-	public void setBeginTimestamp() {
-	    String timestamp = createTimestamp();
-	    this.setBeginTimestamp(timestamp);
-	}
-
-	public String getBeginTimestamp() {
-	    return beginTimestamp;
-	}
-
-	public boolean hasEndTimestamp() {
-	    return endTimestamp != null;
-	}
-
-	public void setEndTimestamp(String timestamp) {
-	    this.endTimestamp = timestamp;
-	}
-
-	public void setEndTimestamp() {
-	    String timestamp = createTimestamp();
-	    this.endTimestamp = timestamp;
-	}
-
-	public String getEndTimestamp() {
-	    return endTimestamp;
-	}
-
-	public boolean hasVersion() {
-	    return version != null;
-	}
-
-	public void setVersion(String version) {
-	    this.version = version;
-	}
-
-	public String getVersion() {
-	    return version;
-	}
-
-	public Boolean hasHostname() {
-	    return this.hostname != null;
-	}
-
-	public String getHostname() {
-	    return this.hostname;
-	}
-
-	public void setHostname(String hostname) {
-	    this.hostname = hostname;
-	}
-
-	@Override
-	public boolean equals(Object o) {
-	    if (this == o) return true;
-	    if (!(o instanceof LinguisticProcessor)) return false;
-	    LinguisticProcessor lp = (LinguisticProcessor) o;
-	    return Utils.areEquals(this.layer, lp.layer) &&
-		    Utils.areEquals(this.name, lp.name) &&
-		    Utils.areEquals(this.version, lp.version);
+	    layerTypes.add(type);
 	}
     }
+    
+    static final Map<AnnotationType, Class<?>> TYPE_2_CLASS;
+    static {
+	TYPE_2_CLASS = new HashMap<AnnotationType, Class<?>>();
+	TYPE_2_CLASS.put(AnnotationType.WF, WF.class);
+	TYPE_2_CLASS.put(AnnotationType.TERM, Term.class);
+	TYPE_2_CLASS.put(AnnotationType.COMPONENT, Term.class);
+	TYPE_2_CLASS.put(AnnotationType.MW, Term.class);
+	TYPE_2_CLASS.put(AnnotationType.ENTITY, Entity.class);
+	TYPE_2_CLASS.put(AnnotationType.CHUNK, Chunk.class);
+	TYPE_2_CLASS.put(AnnotationType.DEP, Dep.class);
+	TYPE_2_CLASS.put(AnnotationType.TREE, Tree.class);
+	TYPE_2_CLASS.put(AnnotationType.NON_TERMINAL, NonTerminal.class);
+	TYPE_2_CLASS.put(AnnotationType.TERMINAL, Terminal.class);
+	TYPE_2_CLASS.put(AnnotationType.COREF, Coref.class);
+	TYPE_2_CLASS.put(AnnotationType.OPINION, Opinion.class);
+	TYPE_2_CLASS.put(AnnotationType.OPINION_HOLDER, OpinionHolder.class);
+	TYPE_2_CLASS.put(AnnotationType.OPINION_TARGET, OpinionTarget.class);
+	TYPE_2_CLASS.put(AnnotationType.OPINION_EXPRESSION, OpinionExpression.class);
+	TYPE_2_CLASS.put(AnnotationType.CLINK, CLink.class);
+	TYPE_2_CLASS.put(AnnotationType.TLINK, TLink.class);
+	TYPE_2_CLASS.put(AnnotationType.PREDICATE, Predicate.class);
+	TYPE_2_CLASS.put(AnnotationType.ROLE, Role.class);
+	TYPE_2_CLASS.put(AnnotationType.TIMEX3, Timex3.class);
+	TYPE_2_CLASS.put(AnnotationType.FACTUALITY, Factuality.class);
+	TYPE_2_CLASS.put(AnnotationType.FACTVALUE, Factvalue.class);
+	TYPE_2_CLASS.put(AnnotationType.MARK, Mark.class);
+	TYPE_2_CLASS.put(AnnotationType.PROPERTY, Feature.class);
+	TYPE_2_CLASS.put(AnnotationType.CATEGORY, Feature.class);
+	TYPE_2_CLASS.put(AnnotationType.LINKED_ENTITY, LinkedEntity.class);
+	TYPE_2_CLASS.put(AnnotationType.RELATION, Relation.class);
+	TYPE_2_CLASS.put(AnnotationType.TOPIC, Topic.class);
+	TYPE_2_CLASS.put(AnnotationType.STATEMENT, Statement.class);
+    }
+
+
+    private Map<String, List<Term>> wfId2Terms; // Rodrirekin hitz egin hau kentzeko
 
     /** Language identifier */
     private String lang;
@@ -303,91 +227,10 @@ public class KAFDocument implements Serializable {
     public KAFDocument(String lang, String version) {
 	this.lang = lang;
 	this.version = version;
-	lps = new LinkedHashMap<String, List<LinguisticProcessor>>();
-	idManager = new IdManager();
-	annotationContainer = new AnnotationContainer();
-	
-	highLevelAnnotationTypes = Arrays.asList(
-		AnnotationType.WF,
-		AnnotationType.TERM,
-		AnnotationType.ENTITY,
-		AnnotationType.CHUNK,
-		AnnotationType.DEP,
-		AnnotationType.TREE,
-		AnnotationType.COREF,
-		AnnotationType.OPINION,
-		AnnotationType.CLINK,
-		AnnotationType.TLINK,
-		AnnotationType.PREDICATE_ANCHOR,
-		AnnotationType.PREDICATE,
-		AnnotationType.TIMEX3,
-		AnnotationType.FACTUALITY,
-		AnnotationType.FACTVALUE,
-		AnnotationType.MARK,
-		AnnotationType.PROPERTY,
-		AnnotationType.CATEGORY,
-		AnnotationType.LINKED_ENTITY,
-		AnnotationType.RELATION,
-		AnnotationType.TOPIC,
-		AnnotationType.STATEMENT);
-	
-	highLevelAnnotationType2Layer = new HashMap<AnnotationType, Layer>();
-	highLevelAnnotationType2Layer.put(AnnotationType.WF, Layer.TEXT);
-	highLevelAnnotationType2Layer.put(AnnotationType.TERM, Layer.TERMS);
-	highLevelAnnotationType2Layer.put(AnnotationType.ENTITY, Layer.ENTITIES);
-	highLevelAnnotationType2Layer.put(AnnotationType.CHUNK, Layer.CHUNKS);
-	highLevelAnnotationType2Layer.put(AnnotationType.DEP, Layer.DEPS);
-	highLevelAnnotationType2Layer.put(AnnotationType.TREE, Layer.CONSTITUENCY);
-	highLevelAnnotationType2Layer.put(AnnotationType.COREF, Layer.COREFERENCES);
-	highLevelAnnotationType2Layer.put(AnnotationType.OPINION, Layer.OPINIONS);
-	highLevelAnnotationType2Layer.put(AnnotationType.CLINK, Layer.CAUSAL_RELATIONS);
-	highLevelAnnotationType2Layer.put(AnnotationType.TLINK, Layer.TEMPORAL_RELATIONS);
-	highLevelAnnotationType2Layer.put(AnnotationType.PREDICATE_ANCHOR, Layer.TEMPORAL_RELATIONS);
-	highLevelAnnotationType2Layer.put(AnnotationType.PREDICATE, Layer.SRL);
-	highLevelAnnotationType2Layer.put(AnnotationType.TIMEX3, Layer.TIME_EXPRESSIONS);
-	highLevelAnnotationType2Layer.put(AnnotationType.FACTUALITY, Layer.FACTUALITIES);
-	highLevelAnnotationType2Layer.put(AnnotationType.FACTVALUE, Layer.FACTUALITY_LAYER);
-	highLevelAnnotationType2Layer.put(AnnotationType.MARK, Layer.MARKABLES);
-	highLevelAnnotationType2Layer.put(AnnotationType.PROPERTY, Layer.PROPERTIES);
-	highLevelAnnotationType2Layer.put(AnnotationType.CATEGORY, Layer.CATEGORIES);
-	highLevelAnnotationType2Layer.put(AnnotationType.LINKED_ENTITY, Layer.LINKED_ENTITIES);
-	highLevelAnnotationType2Layer.put(AnnotationType.RELATION, Layer.RELATIONS);
-	highLevelAnnotationType2Layer.put(AnnotationType.TOPIC, Layer.TOPICS);
-	highLevelAnnotationType2Layer.put(AnnotationType.STATEMENT, Layer.ATTRIBUTION);
-	
-	annotationTypeClasses = new HashMap<AnnotationType, Class<?>>();
-	annotationTypeClasses.put(AnnotationType.WF, WF.class);
-	annotationTypeClasses.put(AnnotationType.TERM, Term.class);
-	annotationTypeClasses.put(AnnotationType.COMPONENT, Term.class);
-	annotationTypeClasses.put(AnnotationType.MW, Term.class);
-	annotationTypeClasses.put(AnnotationType.ENTITY, Entity.class);
-	annotationTypeClasses.put(AnnotationType.CHUNK, Chunk.class);
-	annotationTypeClasses.put(AnnotationType.DEP, Dep.class);
-	annotationTypeClasses.put(AnnotationType.TREE, Tree.class);
-	annotationTypeClasses.put(AnnotationType.NON_TERMINAL, NonTerminal.class);
-	annotationTypeClasses.put(AnnotationType.TERMINAL, Terminal.class);
-	//annotationTypeClasses.put(AnnotationType.EDGE, .class);
-	annotationTypeClasses.put(AnnotationType.COREF, Coref.class);
-	annotationTypeClasses.put(AnnotationType.OPINION, Opinion.class);
-	annotationTypeClasses.put(AnnotationType.OPINION_HOLDER, OpinionHolder.class);
-	annotationTypeClasses.put(AnnotationType.OPINION_TARGET, OpinionTarget.class);
-	annotationTypeClasses.put(AnnotationType.OPINION_EXPRESSION, OpinionExpression.class);
-	annotationTypeClasses.put(AnnotationType.CLINK, CLink.class);
-	annotationTypeClasses.put(AnnotationType.TLINK, TLink.class);
-	annotationTypeClasses.put(AnnotationType.PREDICATE, Predicate.class);
-	annotationTypeClasses.put(AnnotationType.ROLE, Role.class);
-	annotationTypeClasses.put(AnnotationType.TIMEX3, Timex3.class);
-	annotationTypeClasses.put(AnnotationType.FACTUALITY, Factuality.class);
-	annotationTypeClasses.put(AnnotationType.FACTVALUE, Factvalue.class);
-	annotationTypeClasses.put(AnnotationType.MARK, Mark.class);
-	annotationTypeClasses.put(AnnotationType.PROPERTY, Feature.class);
-	annotationTypeClasses.put(AnnotationType.CATEGORY, Feature.class);
-	annotationTypeClasses.put(AnnotationType.LINKED_ENTITY, LinkedEntity.class);
-	annotationTypeClasses.put(AnnotationType.RELATION, Relation.class);
-	annotationTypeClasses.put(AnnotationType.TOPIC, Topic.class);
-	annotationTypeClasses.put(AnnotationType.STATEMENT, Statement.class);
-	
-	this.wfId2Terms = new HashMap<String, List<Term>>();
+	this.lps = new LinkedHashMap<String, List<LinguisticProcessor>>();
+	this.idManager = new IdManager();
+	this.annotationContainer = new AnnotationContainer();
+	this.wfId2Terms = new HashMap<String, List<Term>>(); // Kentzeko...
     }
 
     /** Creates a new KAFDocument and loads the contents of the file passed as argument
@@ -1304,8 +1147,8 @@ public Entity newEntity(List<Span<Term>> references) {
 	    for (Integer sentence : sentences) {
 		KAFDocument naf = new KAFDocument(this.getLang(), this.getVersion());
 		naf.setRawText(this.getRawText());
-		for (AnnotationType type : highLevelAnnotationTypes) {
-		    Layer layer = highLevelAnnotationType2Layer.get(type);
+		for (AnnotationType type : TOP_TYPES) {
+		    Layer layer = TYPE_2_LAYER.get(type);
 		    if (isSentenceLevelAnnotationType(type)) {
 			List<Annotation> annotations = new ArrayList<Annotation>();
 			if (isMultiLayerAnnotationType(type)) {
@@ -1333,8 +1176,8 @@ public Entity newEntity(List<Span<Term>> references) {
 	for (Integer paragraph = 1; paragraph <= numParagraphs; paragraph++) {
 	    KAFDocument naf = new KAFDocument(this.getLang(), this.getVersion());
 	    naf.setRawText(this.getRawText());
-	    for (AnnotationType type : highLevelAnnotationTypes) {
-		Layer layer = highLevelAnnotationType2Layer.get(type);
+	    for (AnnotationType type : TOP_TYPES) {
+		Layer layer = TYPE_2_LAYER.get(type);
 		if (isParagraphLevelAnnotationType(type)) {
 		    List<Annotation> annotations = new ArrayList<Annotation>();
 		    if (isMultiLayerAnnotationType(type)) {
@@ -1360,8 +1203,8 @@ public Entity newEntity(List<Span<Term>> references) {
 	KAFDocument joinedNaf = new KAFDocument(firstNaf.getLang(), nafs.get(0).getVersion());
 	joinedNaf.setRawText(firstNaf.getRawText());
 	for (KAFDocument nafPart : nafs) {
-	    for (AnnotationType type : highLevelAnnotationTypes) {
-		Layer layer = highLevelAnnotationType2Layer.get(type);
+	    for (AnnotationType type : TOP_TYPES) {
+		Layer layer = TYPE_2_LAYER.get(type);
 		List<Annotation> annotations = new ArrayList<Annotation>();
 		if (isMultiLayerAnnotationType(type)) {
 		    for (String groupId : nafPart.annotationContainer.getGroupIDs(type)) {
@@ -1397,25 +1240,25 @@ public Entity newEntity(List<Span<Term>> references) {
     }
     
     private static Boolean isMultiLayerAnnotationType(AnnotationType type) {
-	Class<?> annotationClass = annotationTypeClasses.get(type);
+	Class<?> annotationClass = TYPE_2_CLASS.get(type);
 	if (annotationClass == null) return false;
 	return MultiLayerAnnotation.class.isAssignableFrom(annotationClass);
     }
     
     private static Boolean isSentenceLevelAnnotationType(AnnotationType type) {
-	Class<?> annotationClass = annotationTypeClasses.get(type);
+	Class<?> annotationClass = TYPE_2_CLASS.get(type);
 	if (annotationClass == null) return false;
 	return SentenceLevelAnnotation.class.isAssignableFrom(annotationClass);
     }
     
     private static Boolean isParagraphLevelAnnotationType(AnnotationType type) {
-	Class<?> annotationClass = annotationTypeClasses.get(type);
+	Class<?> annotationClass = TYPE_2_CLASS.get(type);
 	if (annotationClass == null) return false;
 	return ParagraphLevelAnnotation.class.isAssignableFrom(annotationClass);
     }
     
     private static Boolean isIdentifiableAnnotationType(AnnotationType type) {
-	Class<?> annotationClass = annotationTypeClasses.get(type);
+	Class<?> annotationClass = TYPE_2_CLASS.get(type);
 	if (annotationClass == null) return false;
 	return IdentifiableAnnotation.class.isAssignableFrom(annotationClass);
     }
@@ -2162,4 +2005,188 @@ public Entity newEntity(List<Span<Term>> references) {
     }
     return result;
     }
+    
+    
+    
+    /*****************/
+    /* Inner Classes */
+    /*****************/
+    
+    public class FileDesc implements Serializable {
+	public String author;
+	public String title;
+	public String publisher;
+	public String section;
+	public String location;
+	public String magazine;
+	public String filename;
+	public String filetype;
+	public Integer pages;
+	public String creationtime;
+	private static final long serialVersionUID = 42L; // Serializable...
+	
+
+	private FileDesc() {}
+	
+	@Override
+	public boolean equals(Object o) {
+	    if (this == o) return true;
+	    if (!(o instanceof FileDesc)) return false;
+	    FileDesc fd = (FileDesc) o;
+	    return Utils.areEquals(this.author, fd.author) &&
+		    Utils.areEquals(this.title, fd.title) &&
+		    Utils.areEquals(this.publisher, fd.publisher) &&
+		    Utils.areEquals(this.section, fd.section) &&
+		    Utils.areEquals(this.location, fd.location) &&
+		    Utils.areEquals(this.magazine, fd.magazine) &&
+		    Utils.areEquals(this.filename, fd.filename) &&
+		    Utils.areEquals(this.filetype, fd.filetype) &&
+		    Utils.areEquals(this.pages, fd.pages) &&
+		    Utils.areEquals(this.creationtime, fd.creationtime);
+	}
+    }
+
+    public class Public implements Serializable {
+	public String publicId;
+	public String uri;
+	private static final long serialVersionUID = 42L; // Serializable...
+
+	private Public() {
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+	    if (this == o) return true;
+	    if (!(o instanceof Public)) return false;
+	    Public pub = (Public) o;
+	    return Utils.areEquals(this.publicId, pub.publicId) &&
+		    Utils.areEquals(this.uri, pub.uri);
+	}
+    }
+
+    public class LinguisticProcessor implements Serializable {
+	String layer;
+	String name;
+	String timestamp;
+	String beginTimestamp;
+	String endTimestamp;
+	String version;
+	String hostname;
+	private static final long serialVersionUID = 42L; // Serializable...
+
+	private LinguisticProcessor(String name, String layer) {
+	    this.layer = layer;
+	    this.name = name;
+	}
+
+	/* Deprecated */
+	private LinguisticProcessor(String name, String timestamp, String version) {
+	    this.name = name;
+	    this.timestamp = timestamp;
+	    this.version = version;
+	}
+
+	public String getLayer() {
+	    return this.layer;
+	}
+
+	public void setName(String name) {
+	    this.name = name;
+	}
+
+	public String getName() {
+	    return name;
+	}
+
+	public boolean hasTimestamp() {
+	    return this.timestamp != null;
+	}
+
+	public void setTimestamp(String timestamp) {
+	    this.timestamp = timestamp;
+	}
+
+	public void setTimestamp() {
+	    String timestamp = createTimestamp();
+	    this.timestamp = timestamp;
+	}
+
+	public String getTimestamp() {
+	    return this.timestamp;
+	}
+
+	public boolean hasBeginTimestamp() {
+	    return beginTimestamp != null;
+	}
+
+	public void setBeginTimestamp(String timestamp) {
+	    this.beginTimestamp = timestamp;
+	    if (!this.hasHostname()) {
+		try {
+		    this.setHostname(InetAddress.getLocalHost().getHostName());
+		} catch(UnknownHostException e) {}
+	    }
+	}
+
+	public void setBeginTimestamp() {
+	    String timestamp = createTimestamp();
+	    this.setBeginTimestamp(timestamp);
+	}
+
+	public String getBeginTimestamp() {
+	    return beginTimestamp;
+	}
+
+	public boolean hasEndTimestamp() {
+	    return endTimestamp != null;
+	}
+
+	public void setEndTimestamp(String timestamp) {
+	    this.endTimestamp = timestamp;
+	}
+
+	public void setEndTimestamp() {
+	    String timestamp = createTimestamp();
+	    this.endTimestamp = timestamp;
+	}
+
+	public String getEndTimestamp() {
+	    return endTimestamp;
+	}
+
+	public boolean hasVersion() {
+	    return version != null;
+	}
+
+	public void setVersion(String version) {
+	    this.version = version;
+	}
+
+	public String getVersion() {
+	    return version;
+	}
+
+	public Boolean hasHostname() {
+	    return this.hostname != null;
+	}
+
+	public String getHostname() {
+	    return this.hostname;
+	}
+
+	public void setHostname(String hostname) {
+	    this.hostname = hostname;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+	    if (this == o) return true;
+	    if (!(o instanceof LinguisticProcessor)) return false;
+	    LinguisticProcessor lp = (LinguisticProcessor) o;
+	    return Utils.areEquals(this.layer, lp.layer) &&
+		    Utils.areEquals(this.name, lp.name) &&
+		    Utils.areEquals(this.version, lp.version);
+	}
+    }
+    
 }
