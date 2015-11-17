@@ -569,37 +569,8 @@ public class KAFDocument implements Serializable {
      */
     public Term newTerm(String id, Span<WF> span) {
 	idManager.updateCounter(AnnotationType.TERM, id);
-	Term newTerm = new Term(this.annotationContainer, id, span, false);
+	Term newTerm = new Term(this.annotationContainer, id, span);
 	annotationContainer.add(newTerm, Layer.TERMS, AnnotationType.TERM);
-	addToWfTermIndex(newTerm.getSpan().getTargets(), newTerm); // Rodrirekin hitz egin hau kentzeko
-	return newTerm;
-    }
-
-    public Term newTerm(String id, Span<WF> span, boolean isComponent) {
-	idManager.updateCounter(AnnotationType.TERM, id);
-	Term newTerm = new Term(this.annotationContainer, id, span, isComponent);
-	if (!isComponent) {
-	    annotationContainer.add(newTerm, Layer.TERMS, AnnotationType.TERM);
-	}
-	addToWfTermIndex(newTerm.getSpan().getTargets(), newTerm); // Rodrirekin hitz egin hau kentzeko
-	return newTerm;
-    }
-
-    public Term newTerm(Span<WF> span, boolean isComponent) {
-	String newId = idManager.getNextId(AnnotationType.TERM);
-	Term newTerm = new Term(this.annotationContainer, newId, span, isComponent);
-	if (!isComponent) {
-	    annotationContainer.add(newTerm, Layer.TERMS, AnnotationType.TERM);
-	}
-	addToWfTermIndex(newTerm.getSpan().getTargets(), newTerm); // Rodrirekin hitz egin hau kentzeko
-	return newTerm;
-    }    
-
-    public Term newTerm(String id, Span<WF> span, Integer position) {
-	idManager.updateCounter(AnnotationType.TERM, id);
-	Term newTerm = new Term(this.annotationContainer, id, span, false);
-	annotationContainer.add(newTerm, Layer.TERMS, AnnotationType.TERM, position);
-	addToWfTermIndex(newTerm.getSpan().getTargets(), newTerm); // Rodrirekin hitz egin hau kentzeko
 	return newTerm;
     }
 
@@ -612,26 +583,29 @@ public class KAFDocument implements Serializable {
      */
     public Term newTerm(Span<WF> span) {
 	String newId = idManager.getNextId(AnnotationType.TERM);
-	Term newTerm = new Term(this.annotationContainer, newId, span, false);
+	Term newTerm = new Term(this.annotationContainer, newId, span);
 	annotationContainer.add(newTerm, Layer.TERMS, AnnotationType.TERM);
-	addToWfTermIndex(newTerm.getSpan().getTargets(), newTerm); // Rodrirekin hitz egin hau kentzeko
 	return newTerm;
     }
 
-    public Term newCompound(List<Term> terms, String lemma) {
+    public Term newCompound(String id, List<Term> terms, String lemma) {
 	Span<WF> span = new Span<WF>();
 	for (Term term : terms) {
 	    span.addTargets(term.getSpan().getTargets()); 
 	}
-	String newId = idManager.getNextId(AnnotationType.MW);
-	Term compound = newTerm(newId, span, annotationContainer.getPosition(Layer.TERMS, terms.get(0)));
+	idManager.updateCounter(AnnotationType.MW, id);
+	Term compound = newTerm(id, span);
 	compound.setLemma(lemma);
 	for (Term term : terms) {
 	    compound.addComponent(term);
-	    term.setCompound(compound);
 	    this.annotationContainer.remove(term, Layer.TERMS, AnnotationType.TERM);
 	}
 	return compound;
+    }
+
+    public Term newCompound(List<Term> terms, String lemma) {
+	String newId = idManager.getNextId(AnnotationType.MW);
+	return this.newCompound(newId, terms, lemma);
     }
 
     /** Creates a Sentiment object.
@@ -1533,10 +1507,19 @@ public Entity newEntity(List<Span<Term>> references) {
     public Term createTermOptions(String type, String lemma, String pos, String morphofeat, List<WF> wfs) {
 	return this.newTermOptions(type, lemma, pos, morphofeat, this.<WF>list2Span(wfs));
     }
-    
+
+    @Deprecated
+    public Term newTerm(String id, Span<WF> span, Integer position) {
+	idManager.updateCounter(AnnotationType.TERM, id);
+	Term newTerm = new Term(this.annotationContainer, id, span);
+	annotationContainer.add(newTerm, Layer.TERMS, AnnotationType.TERM, position);
+	return newTerm;
+    }
+
+    @Deprecated
     public Term newTermOptions(String morphofeat, Span<WF> span) {
 	String newId = idManager.getNextId(AnnotationType.TERM);
-	Term newTerm = new Term(this.annotationContainer, newId, span, false);
+	Term newTerm = new Term(this.annotationContainer, newId, span);
 	newTerm.setMorphofeat(morphofeat);
 	annotationContainer.add(newTerm, Layer.TERMS, AnnotationType.TERM);
 	return newTerm;
@@ -1873,20 +1856,6 @@ public Entity newEntity(List<Span<Term>> references) {
     public List<Statement> getStatementsByPara(Integer para) {
 	return (List<Statement>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.STATEMENT);
     }
-    
-    @Deprecated
-    private void addToWfTermIndex(List<WF> wfs, Term term) {
-	for (WF wf : wfs) {
-	    String id = wf.getId();
-	    List<Term> terms = wfId2Terms.get(id);
-	    if (terms == null) {
-		terms = new ArrayList<Term>();
-		wfId2Terms.put(id, terms);
-	    }
-	    terms.add(term);
-	}
-    }
-
     
     
     public static Span<WF> newWFSpan() {

@@ -1089,7 +1089,7 @@ class ReadWriteManager {
 	    }
 	    span.addTarget(wf, isHead);
 	}
-	Term newTerm = kaf.newTerm(tid, span, isComponent);
+	Term newTerm = kaf.newTerm(tid, span);
 	String type = getOptAttribute("type", termElem);
 	if (type != null) {
 	    newTerm.setType(type);

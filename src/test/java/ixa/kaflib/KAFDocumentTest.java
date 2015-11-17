@@ -267,20 +267,41 @@ public class KAFDocumentTest {
 	WF wf7 = naf.newWF(33, "is", 1);
 	WF wf8 = naf.newWF(36, "black", 1);
 	Term t1 = naf.newTerm("t1", new Span<WF>(wf1, wf2));
-	Term t2 = naf.newTerm("t2", new Span<WF>(wf3), true);
-	Term t3 = naf.newTerm(new Span<WF>(wf4), false);
-	Term t4 = naf.newTerm("t4", new Span<WF>(wf5, wf6), 1);
-	Term t5 = naf.newTerm(new Span<WF>(wf7, wf8));
-	Term t6 = naf.newCompound(Arrays.asList(t4, t5), "The president is black");
-	TermTest.testTerm(t1, "t1", null, null, null, null, null, null, new ArrayList<Term>(), null, new Span<WF>(wf1, wf2), new ArrayList<ExternalRef>(), false, null, "");
-	TermTest.testTerm(t2, "t2", null, null, null, null, null, null, new ArrayList<Term>(), null, new Span<WF>(wf3), new ArrayList<ExternalRef>(), true, null, "");
+	Term t2 = naf.newTerm(new Span<WF>(wf3));
+	Term t3 = naf.newTerm("t3", new Span<WF>(wf4));
+	Term t4 = naf.newTerm("t4", new Span<WF>(wf5));
+	Term t5 = naf.newTerm(new Span<WF>(wf6));
+	Term t6 = naf.newTerm("t8", new Span<WF>(wf7));
+	Term t7 = naf.newTerm(new Span<WF>(wf8));
+	Term mw1 = naf.newCompound("t.mw3", Arrays.asList(t4, t5), "The president");
+	Term mw2 = naf.newCompound(Arrays.asList(t1, t2), "The house is");
+	TermTest.testTerm(t1, "t1", null, null, null, null, null, null, new ArrayList<Term>(), null, new Span<WF>(wf1, wf2), new ArrayList<ExternalRef>(), true, mw2, "");
+	TermTest.testTerm(t2, "t2", null, null, null, null, null, null, new ArrayList<Term>(), null, new Span<WF>(wf3), new ArrayList<ExternalRef>(), true, mw2, "");
 	TermTest.testTerm(t3, "t3", null, null, null, null, null, null, new ArrayList<Term>(), null, new Span<WF>(wf4), new ArrayList<ExternalRef>(), false, null, "");
-	TermTest.testTerm(t4, "t4", null, null, null, null, null, null, new ArrayList<Term>(), null, new Span<WF>(wf5, wf6), new ArrayList<ExternalRef>(), false, t6, "");
-	TermTest.testTerm(t5, "t5", null, null, null, null, null, null, new ArrayList<Term>(), null, new Span<WF>(wf7, wf8), new ArrayList<ExternalRef>(), false, t6, "");
-	TermTest.testTerm(t6, "t.mw1", null, "The president is black", null, null, null, null, Arrays.asList(t4, t5), null, new Span<WF>(wf5, wf6, wf7, wf8), new ArrayList<ExternalRef>(), false, null, "");
+	TermTest.testTerm(t4, "t4", null, null, null, null, null, null, new ArrayList<Term>(), null, new Span<WF>(wf5), new ArrayList<ExternalRef>(), true, mw1, "");
+	TermTest.testTerm(t5, "t5", null, null, null, null, null, null, new ArrayList<Term>(), null, new Span<WF>(wf6), new ArrayList<ExternalRef>(), true, mw1, "");
+	TermTest.testTerm(t6, "t8", null, null, null, null, null, null, new ArrayList<Term>(), null, new Span<WF>(wf7), new ArrayList<ExternalRef>(), false, null, "");
+	TermTest.testTerm(t7, "t9", null, null, null, null, null, null, new ArrayList<Term>(), null, new Span<WF>(wf8), new ArrayList<ExternalRef>(), false, null, "");
+	TermTest.testTerm(mw1, "t.mw3", null, "The president", null, null, null, null, Arrays.asList(t4, t5), null, new Span<WF>(wf5, wf6), new ArrayList<ExternalRef>(), false, null, "");
+	TermTest.testTerm(mw2, "t.mw4", null, "The house is", null, null, null, null, Arrays.asList(t1, t2), null, new Span<WF>(wf1, wf2, wf3), new ArrayList<ExternalRef>(), false, null, "");
 	/* Sentiment creation */
 	Term.Sentiment s1 = naf.newSentiment();
 	TermTest.testSentiment(s1, null, null, null, null, null, null, null, null, "");
+	/* Term queries */
+	List<Term> terms = Arrays.asList(t3, t6, t7);
+	List<Term> components = Arrays.asList(t1, t2, t4, t5);
+	List<Term> mws = Arrays.asList(mw1, mw2);
+	List<Term> termsLayer = Arrays.asList(mw2, t3, mw1, t6, t7);
+	List<Annotation> queriedTerms = naf.getAnnotations(AnnotationType.TERM);
+	assertEquals("KAFDocument::getAnnotations() did not work correctly with Terms", terms, queriedTerms);
+	List<Annotation> queriedComponents= naf.getAnnotations(AnnotationType.COMPONENT);
+	assertEquals("KAFDocument::getAnnotations() did not work correctly with Components", components, queriedComponents);
+	List<Annotation> queriedMWs = naf.getAnnotations(AnnotationType.MW);
+	assertEquals("KAFDocument::getAnnotations() did not work correctly with MWs", mws, queriedMWs);
+	List<Annotation> queriedTermsLayer = naf.getLayer(Layer.TERMS);
+	assertEquals("KAFDocument::getLayer() did not work correctly with TERMS layer", termsLayer, queriedTermsLayer);
+	List<Term> queriedTerms2 = naf.getTerms();
+	assertEquals("KAFDocument::getTerms() did not return all terms", termsLayer, queriedTerms2);
     }
     
     

@@ -18,7 +18,7 @@ public class TermTest {
     public void testConstructor() {
 	AnnotationContainer annCont = new AnnotationContainer();
 	Span<WF> span = WFTest.createWFSpan(annCont);
-	Term term = new Term(annCont, "t12", span, false);
+	Term term = new Term(annCont, "t12", span);
 	testTerm(term, "t12", null, null, null, null, null, null, new ArrayList<Term>(), null, span, new ArrayList<ExternalRef>(), false, null, "Term created");
     }
     
@@ -27,14 +27,14 @@ public class TermTest {
 	AnnotationContainer annCont = new AnnotationContainer();
 	Span<WF> span = WFTest.createWFSpan(annCont);
 	Span<WF> span2 = WFTest.createWFSpan(annCont);
-	Term term = new Term(annCont, "t1", span, false);
+	Term term = new Term(annCont, "t1", span);
 	testTerm(term, "t1", null, null, null, null, null, null, new ArrayList<Term>(), null, span, new ArrayList<ExternalRef>(), false, null, "Term created");
-	Term component1 = new Term(annCont, "t2", span, false);
+	Term component1 = new Term(annCont, "t2", span);
 	testTerm(component1, "t2", null, null, null, null, null, null, new ArrayList<Term>(), null, span, new ArrayList<ExternalRef>(), false, null, "Term created");
-	Term component2 = new Term(annCont, "t3", span, false);
+	Term component2 = new Term(annCont, "t3", span);
 	testTerm(component2, "t3", null, null, null, null, null, null, new ArrayList<Term>(), null, span, new ArrayList<ExternalRef>(), false, null, "Term created");
-	Term compound = new Term(annCont, "t4", span2, true);
-	testTerm(compound, "t4", null, null, null, null, null, null, new ArrayList<Term>(), null, span2, new ArrayList<ExternalRef>(), true, null, "Compund created");
+	Term compound = new Term(annCont, "t4", span2);
+	testTerm(compound, "t4", null, null, null, null, null, null, new ArrayList<Term>(), null, span2, new ArrayList<ExternalRef>(), false, null, "Compund created");
 	List<Term> components = new ArrayList<Term>();
 	/* HAS methods */
 	assertFalse("should have returned false", term.hasType());
@@ -54,14 +54,12 @@ public class TermTest {
 	testTerm(term, "t1", "open", "house", "V", "feat", "case1", sentiment, components, null, span, new ArrayList<ExternalRef>(), false, null, "Term created and several values set");
 	term.setSpan(span2);
 	testTerm(term, "t1", "open", "house", "V", "feat", "case1", sentiment, components, null, span2, new ArrayList<ExternalRef>(), false, null, "Term created and several values set");
-	term.setCompound(compound);
-	testTerm(term, "t1", "open", "house", "V", "feat", "case1", sentiment, components, null, span2, new ArrayList<ExternalRef>(), false, compound, "Term created and compound added");
 	term.addComponent(component1);
 	components.add(component1);
-	testTerm(term, "t1", "open", "house", "V", "feat", "case1", sentiment, components, null, span2, new ArrayList<ExternalRef>(), false, compound, "Term created and first component added");
+	testTerm(term, "t1", "open", "house", "V", "feat", "case1", sentiment, components, null, span2, new ArrayList<ExternalRef>(), false, null, "Term created and first component added");
 	term.addComponent(component2, true);
 	components.add(component2);
-	testTerm(term, "t1", "open", "house", "V", "feat", "case1", sentiment, components, component2, span2, new ArrayList<ExternalRef>(), false, compound, "Term created and head component added");
+	testTerm(term, "t1", "open", "house", "V", "feat", "case1", sentiment, components, component2, span2, new ArrayList<ExternalRef>(), false, null, "Term created and head component added");
     }
     
     @Test
@@ -70,7 +68,7 @@ public class TermTest {
 	ExternalRef er2 = new ExternalRef("res2", "ref2");
 	AnnotationContainer annCont = new AnnotationContainer();
 	Span<WF> span = WFTest.createWFSpan(annCont);
-	Term term = new Term(annCont, "t1", span, false);
+	Term term = new Term(annCont, "t1", span);
 	term.getExternalReferences().add(er1);
 	term.getExternalReferences().add(er2);
 	ExternalReferences extRefs = new ExternalReferences();
@@ -82,7 +80,7 @@ public class TermTest {
     public void testGetReferencedAnnotations() {
 	AnnotationContainer annCont = new AnnotationContainer();
 	Span<WF> span = WFTest.createWFSpan(annCont);
-	Term term = new Term(annCont, "t1", span, false);
+	Term term = new Term(annCont, "t1", span);
 	Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
 	referenced.put(AnnotationType.WF, (List<Annotation>)(List<?>)span.getTargets());
 	assertEquals("Term object did not return the correct referenced WFs", referenced, term.getReferencedAnnotations());
@@ -92,7 +90,7 @@ public class TermTest {
     public void testGetOffset() {
 	AnnotationContainer annCont = new AnnotationContainer();
 	Span<WF> span = WFTest.createWFSpan(annCont);
-	Term term = new Term(annCont, "t1", span, false);
+	Term term = new Term(annCont, "t1", span);
 	assertEquals("Term did not return the correct offset when calling getOffset()", new Integer(0), term.getOffset());
 	span.removeTarget(span.getFirstTarget());
 	assertEquals("Term did not return the correct offset when calling getOffset()", new Integer(4), term.getOffset());
@@ -105,7 +103,7 @@ public class TermTest {
     public void testSentPara() {
 	AnnotationContainer annCont = new AnnotationContainer();
 	Span<WF> span = WFTest.createWFSpan(annCont);
-	Term term = new Term(annCont, "t1", span, false);
+	Term term = new Term(annCont, "t1", span);
 	assertEquals("sent value is not correct", new Integer(3), term.getSent());
 	assertEquals("para value is not correct", new Integer(2), term.getPara());
 	WF wf11 = new WF(annCont, "w11", 15, 4, "test", 0);
@@ -126,7 +124,7 @@ public class TermTest {
     public void testToString() {
 	AnnotationContainer annCont = new AnnotationContainer();
 	Span<WF> span = WFTest.createWFSpan(annCont);
-	Term term = new Term(annCont, "t1", span, false);
+	Term term = new Term(annCont, "t1", span);
 	assertEquals("Term did not return the correct string when calling toString()", "The White House", term.toString());
 	WF wf11 = new WF(annCont, "w11", 15, 4, "area", 3);
 	term.getSpan().addTarget(wf11);
@@ -185,7 +183,7 @@ public class TermTest {
 	ExternalRef er2 = new ExternalRef("res2", "ref2");
 	AnnotationContainer annCont = new AnnotationContainer();
 	Span<WF> span = WFTest.createWFSpan(annCont);
-	Term term = new Term(annCont, "t1", span, false);
+	Term term = new Term(annCont, "t1", span);
 	term.addExternalRef(er1);
 	term.addExternalRefs(Arrays.asList(er2));
 	assertEquals(Arrays.asList(er1, er2), term.getExternalRefs());

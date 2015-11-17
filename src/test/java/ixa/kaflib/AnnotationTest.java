@@ -19,8 +19,8 @@ public class AnnotationTest {
 	WF wf1 = new WF(container, "w1", 37, 3, "cat", 1);
 	WF wf2 = new WF(container, "w2", 33, 3, "the", 1);
 	Span<WF> span1 = new Span<WF>(wf1, wf2);
-	Term t1 = new Term(container, "t1", span1, false);
-	Term t2 = new Term(container, "t2", span1, false);
+	Term t1 = new Term(container, "t1", span1);
+	Term t2 = new Term(container, "t2", span1);
 	WF wf3 = new WF(container, "w3", 27, 5, "black", 1);
 	// wf3, wf2, t1, t2, wf1
 	List<Annotation> annotations = new ArrayList<Annotation>();

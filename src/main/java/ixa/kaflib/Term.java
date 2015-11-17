@@ -57,6 +57,266 @@ public class Term extends IdentifiableAnnotation implements SentenceLevelAnnotat
     private static final long serialVersionUID = 1L;
 
 
+    Term(AnnotationContainer annotationContainer, String id, Span<WF> span) {
+	super(annotationContainer, id);
+	this.components = new ArrayList<Term>();
+	this.span = span;
+	this.externalRefs = new ExternalReferences();
+	this.isComponent = false;
+    }
+
+    public boolean hasType() {
+	return type != null;
+    }
+
+    public String getType() {
+	return type;
+    }
+
+    public void setType(String type) {
+	this.type = type;
+    }
+
+    public boolean hasLemma() {
+	return lemma != null;
+    }
+
+    public String getLemma() {
+	return lemma;
+    }
+
+    public void setLemma(String lemma) {
+	this.lemma = lemma;
+    }
+
+    public boolean hasPos() {
+	return pos != null;
+    }
+
+    public String getPos() {
+	return pos;
+    }
+
+    public void setPos(String pos) {
+	this.pos = pos;
+    }
+
+    public boolean hasMorphofeat() {
+	return morphofeat != null;
+    }
+
+    public String getMorphofeat() {
+	return morphofeat;
+    }
+
+    public void setMorphofeat(String morphofeat) {
+	this.morphofeat = morphofeat;
+    }
+
+    public boolean hasCase() {
+	return termcase != null;
+    }
+
+    public String getCase() {
+	return termcase;
+    }
+
+    public void setCase(String termcase) {
+	this.termcase = termcase;
+    }
+
+    public boolean hasHead() {
+	return (this.head != null);
+    }
+
+    public Term getHead() {
+        return this.head;
+    }
+
+    public Sentiment createSentiment() {
+	Sentiment newSentiment = new Sentiment(this.annotationContainer);
+	this.setSentiment(newSentiment);
+	return newSentiment;
+    }
+
+    public boolean hasSentiment() {
+	return (this.sentiment != null);
+    }
+
+    public Sentiment getSentiment() {
+	return sentiment;
+    }
+    
+    public void setSentiment(Sentiment sentiment) {
+        this.sentiment = sentiment;
+    }
+
+    public List<Term> getComponents() {
+	return this.components;
+    }
+
+    public void addComponent(Term component) {
+	component.isComponent = true;
+	component.compound = this;
+	components.add(component);
+    }
+
+    public void addComponent(Term component, boolean isHead) {
+	this.addComponent(component);
+	if (isHead) {
+	    this.head = component;
+	}
+    }
+
+    public Span<WF> getSpan() {
+	return this.span;
+    }
+
+    public void setSpan(Span<WF> span) {
+	this.span = span;
+    }
+
+    boolean isComponent() {
+	return this.isComponent;
+    }
+
+    public Term getCompound() {
+	return this.compound;
+    }
+    
+    public ExternalReferences getExternalReferences() {
+	return this.externalRefs;
+    }
+    
+    @Override
+    Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
+	Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
+	referenced.put(AnnotationType.WF, (List<Annotation>)(List<?>) this.getSpan().getTargets());
+	return referenced;
+    }
+    
+    @Override
+    public Integer getOffset() {
+	if (this.isComponent()) {
+	    return this.getCompound().getOffset();
+	} else {
+	    return this.getSpan().getOffset();
+	}
+    }
+    
+    @Override
+    public Integer getSent() {
+	if (this.isComponent()) {
+	    return this.getCompound().getSent();
+	} else {
+	    return this.getSpan().isEmpty() ? null : this.getSpan().getFirstTarget().getSent();
+	}
+    }
+    
+    @Override
+    public Integer getPara() {
+	if (this.isComponent()) {
+	    return this.getCompound().getPara();
+	} else {
+	    return this.getSpan().isEmpty() ? null : this.getSpan().getFirstTarget().getPara();
+	}
+    }
+    
+    @Override
+    public String toString() {
+	return this.span.toString();
+    }
+    
+    
+    @Deprecated
+    // Use toString()
+    public String getForm() {
+	String str = "";
+	for (WF wf : span.getTargets()) {
+	    if (!str.isEmpty()) {
+		str += " ";
+	    }
+	    str += wf.getForm();
+	}
+	return str;
+    }
+
+    @Deprecated
+    // Use toStringComment()
+    public String getStr() {
+	String strValue = this.getForm();
+	boolean valid = false;
+	while (!valid) {
+	    if (strValue.startsWith("-") || strValue.endsWith("-")) {
+		strValue = strValue.replace("-", " - ");
+	    }
+	    else if (strValue.contains("--")) { 
+		strValue = strValue.replace("--", "-");
+	    }
+	    else {
+		valid = true;
+	    }
+	}
+	return strValue;
+    }
+
+    @Deprecated
+    public List<WF> getWFs() {
+	return this.span.getTargets();
+    }
+
+    @Deprecated
+    public WF getHeadWF() {
+	return this.span.getHead();
+    }
+
+    @Deprecated
+    public void addWF(WF wf) {
+	this.span.addTarget(wf);
+    }
+
+    @Deprecated
+    public void addWF(WF wf, boolean isHead) {
+	this.span.addTarget(wf, isHead);
+    }
+
+    @Deprecated
+    public List<ExternalRef> getExternalRefs() {
+	return this.externalRefs.get();
+    }
+
+    @Deprecated
+    public void addExternalRef(ExternalRef externalRef) {
+	this.externalRefs.add(externalRef);
+    }
+
+    @Deprecated
+    public void addExternalRefs(List<ExternalRef> externalRefs) {
+	this.externalRefs.add(externalRefs);
+    }
+
+    /*
+    @Override
+    public boolean equals(Object o) {
+	if (this == o) return true;
+	if (!(o instanceof Term)) return false;
+	Term ann = (Term) o;
+	return Utils.areEquals(this.type, ann.type) &&
+		Utils.areEquals(this.lemma, ann.lemma) &&
+		Utils.areEquals(this.pos, ann.pos) &&
+		Utils.areEquals(this.morphofeat, ann.morphofeat) &&
+		Utils.areEquals(this.termcase, ann.termcase) &&
+		Utils.areEquals(this.sentiment, ann.sentiment) &&
+		Utils.areEquals(this.components, ann.components) &&
+		Utils.areEquals(this.head, ann.head) &&
+		Utils.areEquals(this.span, ann.span) &&
+		Utils.areEquals(this.externalReferences, ann.externalReferences) &&
+		Utils.areEquals(this.isComponent, ann.isComponent) &&
+		Utils.areEquals(this.compound, ann.compound);
+    }
+    */
+    
+
     /** The term layer represents sentiment information which is context-independent and that can be found in a sentiment lexicon.
      * It is related to concepts expressed by words/ terms (e.g. beautiful) or multi-word expressions (e. g. out of order).
      * We provide possibilities to store sentiment information at word level and at sense/synset level. In the latter case, the sentiment information
@@ -249,265 +509,5 @@ public class Term extends IdentifiableAnnotation implements SentenceLevelAnnotat
 	}
 	*/
     }
-
-    Term(AnnotationContainer annotationContainer, String id, Span<WF> span, boolean isComponent) {
-	super(annotationContainer, id);
-	this.components = new ArrayList<Term>();
-	this.span = span;
-	this.externalRefs = new ExternalReferences();
-	this.isComponent = isComponent;
-    }
-
-    public boolean hasType() {
-	return type != null;
-    }
-
-    public String getType() {
-	return type;
-    }
-
-    public void setType(String type) {
-	this.type = type;
-    }
-
-    public boolean hasLemma() {
-	return lemma != null;
-    }
-
-    public String getLemma() {
-	return lemma;
-    }
-
-    public void setLemma(String lemma) {
-	this.lemma = lemma;
-    }
-
-    public boolean hasPos() {
-	return pos != null;
-    }
-
-    public String getPos() {
-	return pos;
-    }
-
-    public void setPos(String pos) {
-	this.pos = pos;
-    }
-
-    public boolean hasMorphofeat() {
-	return morphofeat != null;
-    }
-
-    public String getMorphofeat() {
-	return morphofeat;
-    }
-
-    public void setMorphofeat(String morphofeat) {
-	this.morphofeat = morphofeat;
-    }
-
-    public boolean hasCase() {
-	return termcase != null;
-    }
-
-    public String getCase() {
-	return termcase;
-    }
-
-    public void setCase(String termcase) {
-	this.termcase = termcase;
-    }
-
-    public boolean hasHead() {
-	return (this.head != null);
-    }
-
-    public Term getHead() {
-        return this.head;
-    }
-
-    public Sentiment createSentiment() {
-	Sentiment newSentiment = new Sentiment(this.annotationContainer);
-	this.setSentiment(newSentiment);
-	return newSentiment;
-    }
-
-    public boolean hasSentiment() {
-	return (this.sentiment != null);
-    }
-
-    public Sentiment getSentiment() {
-	return sentiment;
-    }
     
-    public void setSentiment(Sentiment sentiment) {
-        this.sentiment = sentiment;
-    }
-
-    public List<Term> getComponents() {
-	return this.components;
-    }
-
-    public void addComponent(Term component) {
-	components.add(component);
-    }
-
-    public void addComponent(Term component, boolean isHead) {
-	components.add(component);
-	if (isHead) {
-	    this.head = component;
-	}
-    }
-
-    public Span<WF> getSpan() {
-	return this.span;
-    }
-
-    public void setSpan(Span<WF> span) {
-	this.span = span;
-    }
-
-    boolean isComponent() {
-	return this.isComponent;
-    }
-
-    public void setCompound(Term compound) {
-	this.compound = compound;
-    }
-
-    public Term getCompound() {
-	return this.compound;
-    }
-    
-    public ExternalReferences getExternalReferences() {
-	return this.externalRefs;
-    }
-    
-    @Override
-    Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
-	Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
-	referenced.put(AnnotationType.WF, (List<Annotation>)(List<?>) this.getSpan().getTargets());
-	return referenced;
-    }
-    
-    @Override
-    public Integer getOffset() {
-	if (this.getCompound() != null) { // is component
-	    return this.getCompound().getOffset();
-	} else {
-	    return this.getSpan().getOffset();
-	}
-    }
-    
-    @Override
-    public Integer getSent() {
-	if (this.getCompound() != null) { // is component
-	    return this.getCompound().getSent();
-	} else {
-	    return this.getSpan().isEmpty() ? null : this.getSpan().getFirstTarget().getSent();
-	}
-    }
-    
-    @Override
-    public Integer getPara() {
-	if (this.getCompound() != null) { // is component
-	    return this.getCompound().getPara();
-	} else {
-	    return this.getSpan().isEmpty() ? null : this.getSpan().getFirstTarget().getPara();
-	}
-    }
-    
-    @Override
-    public String toString() {
-	return this.span.toString();
-    }
-    
-    
-    @Deprecated
-    // Use toString()
-    public String getForm() {
-	String str = "";
-	for (WF wf : span.getTargets()) {
-	    if (!str.isEmpty()) {
-		str += " ";
-	    }
-	    str += wf.getForm();
-	}
-	return str;
-    }
-
-    @Deprecated
-    // Use toStringComment()
-    public String getStr() {
-	String strValue = this.getForm();
-	boolean valid = false;
-	while (!valid) {
-	    if (strValue.startsWith("-") || strValue.endsWith("-")) {
-		strValue = strValue.replace("-", " - ");
-	    }
-	    else if (strValue.contains("--")) { 
-		strValue = strValue.replace("--", "-");
-	    }
-	    else {
-		valid = true;
-	    }
-	}
-	return strValue;
-    }
-
-    @Deprecated
-    public List<WF> getWFs() {
-	return this.span.getTargets();
-    }
-
-    @Deprecated
-    public WF getHeadWF() {
-	return this.span.getHead();
-    }
-
-    @Deprecated
-    public void addWF(WF wf) {
-	this.span.addTarget(wf);
-    }
-
-    @Deprecated
-    public void addWF(WF wf, boolean isHead) {
-	this.span.addTarget(wf, isHead);
-    }
-
-    @Deprecated
-    public List<ExternalRef> getExternalRefs() {
-	return this.externalRefs.get();
-    }
-
-    @Deprecated
-    public void addExternalRef(ExternalRef externalRef) {
-	this.externalRefs.add(externalRef);
-    }
-
-    @Deprecated
-    public void addExternalRefs(List<ExternalRef> externalRefs) {
-	this.externalRefs.add(externalRefs);
-    }
-
-    /*
-    @Override
-    public boolean equals(Object o) {
-	if (this == o) return true;
-	if (!(o instanceof Term)) return false;
-	Term ann = (Term) o;
-	return Utils.areEquals(this.type, ann.type) &&
-		Utils.areEquals(this.lemma, ann.lemma) &&
-		Utils.areEquals(this.pos, ann.pos) &&
-		Utils.areEquals(this.morphofeat, ann.morphofeat) &&
-		Utils.areEquals(this.termcase, ann.termcase) &&
-		Utils.areEquals(this.sentiment, ann.sentiment) &&
-		Utils.areEquals(this.components, ann.components) &&
-		Utils.areEquals(this.head, ann.head) &&
-		Utils.areEquals(this.span, ann.span) &&
-		Utils.areEquals(this.externalReferences, ann.externalReferences) &&
-		Utils.areEquals(this.isComponent, ann.isComponent) &&
-		Utils.areEquals(this.compound, ann.compound);
-    }
-    */
 }
