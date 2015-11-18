@@ -1411,7 +1411,7 @@ class ReadWriteManager {
 	    root.addContent(rawElem);
 	}
 
-	List<WF> text = (List<WF>)(List<?>)annotationContainer.getLayer(Layer.TEXT);
+	List<WF> text = (List<WF>)(List<?>)annotationContainer.getAnnotations(Layer.TEXT);
 	if (text.size() > 0) {
 	    Element textElem = new Element("text");
 	    for (WF wf : text) {
@@ -1435,7 +1435,7 @@ class ReadWriteManager {
 	    root.addContent(textElem);
 	}
 
-	List<Term> terms = (List<Term>)(List<?>)annotationContainer.getLayer(Layer.TERMS);
+	List<Term> terms = (List<Term>)(List<?>)annotationContainer.getAnnotations(Layer.TERMS);
 	if (terms.size() > 0) {
 	    Element termsElem = new Element("terms");
 	    for (Term term : terms) {
@@ -1444,7 +1444,7 @@ class ReadWriteManager {
 	    root.addContent(termsElem);
 	}
 
-	List<Mark> marks = (List<Mark>)(List<?>)annotationContainer.getLayer(Layer.MARKABLES);
+	List<Mark> marks = (List<Mark>)(List<?>)annotationContainer.getAnnotations(Layer.MARKABLES);
 	if (marks.size() > 0) {
 	    Element marksElem = new Element("markables");
 	    for (Mark mark : marks) {
@@ -1494,7 +1494,7 @@ class ReadWriteManager {
 	    root.addContent(marksElem);
 	}
 
-	List<Dep> deps = (List<Dep>)(List<?>)annotationContainer.getLayer(Layer.DEPS);
+	List<Dep> deps = (List<Dep>)(List<?>)annotationContainer.getAnnotations(Layer.DEPS);
 	if (deps.size() > 0) {
 	    Element depsElem = new Element("deps");
 	    for (Dep dep : deps) {
@@ -1512,7 +1512,7 @@ class ReadWriteManager {
 	    root.addContent(depsElem);
 	}
 
-	List<Chunk> chunks = (List<Chunk>)(List<?>)annotationContainer.getLayer(Layer.CHUNKS);
+	List<Chunk> chunks = (List<Chunk>)(List<?>)annotationContainer.getAnnotations(Layer.CHUNKS);
 	if (chunks.size() > 0) {
 	    Element chunksElem = new Element("chunks");
 	    for (Chunk chunk : chunks) {
@@ -1539,7 +1539,7 @@ class ReadWriteManager {
 	    root.addContent(chunksElem);
 	}
 
-	List<Entity> entities = (List<Entity>)(List<?>)annotationContainer.getLayer(Layer.ENTITIES);
+	List<Entity> entities = (List<Entity>)(List<?>)annotationContainer.getAnnotations(Layer.ENTITIES);
 	if (entities.size() > 0) {
 	    Element entitiesElem = new Element("entities");
 	    for (Entity entity : entities) {
@@ -1577,7 +1577,7 @@ class ReadWriteManager {
 	    root.addContent(entitiesElem);
 	}
 
-	List<Coref> corefs = (List<Coref>)(List<?>)annotationContainer.getLayer(Layer.COREFERENCES);
+	List<Coref> corefs = (List<Coref>)(List<?>)annotationContainer.getAnnotations(Layer.COREFERENCES);
 	if (corefs.size() > 0) {
 	    Element corefsElem = new Element("coreferences");
 	    for (Coref coref : corefs) {
@@ -1610,7 +1610,7 @@ class ReadWriteManager {
 	    root.addContent(corefsElem);
 	}
 
-	List<Timex3> timeExs = (List<Timex3>)(List<?>)annotationContainer.getLayer(Layer.TIME_EXPRESSIONS);
+	List<Timex3> timeExs = (List<Timex3>)(List<?>)annotationContainer.getAnnotations(Layer.TIME_EXPRESSIONS);
 	if (timeExs.size() > 0){
 	    Element timeExsElem = new Element("timeExpressions");
 	    for (Timex3 timex3 : timeExs) {
@@ -1687,7 +1687,7 @@ class ReadWriteManager {
 	    root.addContent(timeExsElem);
 	}
 	
-	List<Factuality> factualities = (List<Factuality>)(List<?>)annotationContainer.getLayer(Layer.FACTUALITIES);
+	List<Factuality> factualities = (List<Factuality>)(List<?>)annotationContainer.getAnnotations(Layer.FACTUALITIES);
 	if (factualities.size() > 0) {
 		Element factsElement = new Element("factualities");
 		for (Factuality f : factualities) {
@@ -1714,7 +1714,7 @@ class ReadWriteManager {
 		root.addContent(factsElement);
 	}
 
-	List<Factvalue> factValues = (List<Factvalue>)(List<?>)annotationContainer.getLayer(Layer.FACTUALITY_LAYER);
+	List<Factvalue> factValues = (List<Factvalue>)(List<?>)annotationContainer.getAnnotations(Layer.FACTUALITY_LAYER);
 	if (factValues.size() > 0) {
 		Element factsElement = new Element("factualitylayer");
 		for (Factvalue f : factValues) {
@@ -1736,7 +1736,7 @@ class ReadWriteManager {
 		root.addContent(factsElement);
 	}
 
-	List<LinkedEntity> linkedEntities = (List<LinkedEntity>)(List<?>)annotationContainer.getLayer(Layer.LINKED_ENTITIES);
+	List<LinkedEntity> linkedEntities = (List<LinkedEntity>)(List<?>)annotationContainer.getAnnotations(Layer.LINKED_ENTITIES);
 	if (linkedEntities.size() > 0) {
 		Element linkedEntityElement = new Element("linkedEntities");
 		for (LinkedEntity e : linkedEntities) {
@@ -1762,7 +1762,7 @@ class ReadWriteManager {
 	}
 
 	Element featuresElem = new Element("features");
-	List<Feature> properties = (List<Feature>)(List<?>)annotationContainer.getLayer(Layer.PROPERTIES);
+	List<Feature> properties = (List<Feature>)(List<?>)annotationContainer.getAnnotations(Layer.PROPERTIES);
 	if (properties.size() > 0) {
 	    Element propertiesElem = new Element("properties");
 	    for (Feature property : properties) {
@@ -1790,7 +1790,7 @@ class ReadWriteManager {
 	    }
 	    featuresElem.addContent(propertiesElem);
 	}
-	List<Feature> categories = (List<Feature>)(List<?>)annotationContainer.getLayer(Layer.CATEGORIES);
+	List<Feature> categories = (List<Feature>)(List<?>)annotationContainer.getAnnotations(Layer.CATEGORIES);
 	if (categories.size() > 0) {
 	    Element categoriesElem = new Element("categories");
 	    for (Feature category : categories) {
@@ -1822,7 +1822,7 @@ class ReadWriteManager {
 	    root.addContent(featuresElem);
 	}
 
-	List<Opinion> opinions = (List<Opinion>)(List<?>)annotationContainer.getLayer(Layer.OPINIONS);
+	List<Opinion> opinions = (List<Opinion>)(List<?>)annotationContainer.getAnnotations(Layer.OPINIONS);
 	if (opinions.size() > 0) {
 	    Element opinionsElem = new Element("opinions");
 	    for (Opinion opinion : opinions) {
@@ -1915,7 +1915,7 @@ class ReadWriteManager {
 	    root.addContent(opinionsElem);
 	}
 
-	List<Relation> relations = (List<Relation>)(List<?>)annotationContainer.getLayer(Layer.RELATIONS);
+	List<Relation> relations = (List<Relation>)(List<?>)annotationContainer.getAnnotations(Layer.RELATIONS);
 	if (relations.size() > 0) {
 	    Element relationsElem = new Element("relations");
 	    for (Relation relation : relations) {
@@ -1933,7 +1933,7 @@ class ReadWriteManager {
 	    root.addContent(relationsElem);
 	}
 
-	List<Predicate> predicates = (List<Predicate>)(List<?>)annotationContainer.getLayer(Layer.SRL);
+	List<Predicate> predicates = (List<Predicate>)(List<?>)annotationContainer.getAnnotations(Layer.SRL);
 	if (predicates.size() > 0) {
 	    Element predicatesElem = new Element("srl");
 	    for (Predicate predicate : predicates) {
@@ -2002,7 +2002,7 @@ class ReadWriteManager {
 	if (treeTypes.size() > 0) {
 	    Element constituentsElem = new Element("constituency");	
 	    for (String type : treeTypes) {
-		List<Tree> trees = (List<Tree>)(List<?>)annotationContainer.getLayer(Layer.CONSTITUENCY, type);
+		List<Tree> trees = (List<Tree>)(List<?>)annotationContainer.getAnnotations(Layer.CONSTITUENCY, type);
 		for (Tree tree : trees) {
 		    Element treeElem = new Element("tree");
 		    if (!tree.getType().equals(annotationContainer.DEFAULT_GROUP)) {
@@ -2074,7 +2074,7 @@ class ReadWriteManager {
 	    root.addContent(constituentsElem); 
 	}
 
-	List<Annotation> tempRels = (List<Annotation>)(List<?>)annotationContainer.getLayer(Layer.TEMPORAL_RELATIONS);
+	List<Annotation> tempRels = (List<Annotation>)(List<?>)annotationContainer.getAnnotations(Layer.TEMPORAL_RELATIONS);
 	if (tempRels.size() > 0) {
 	    Element tempRelsElem = new Element("temporalRelations");
 	    for (Annotation tempRel : tempRels) {
@@ -2115,7 +2115,7 @@ class ReadWriteManager {
 	    root.addContent(tempRelsElem);
 	}
 
-	List<CLink> cLinks = (List<CLink>)(List<?>)annotationContainer.getLayer(Layer.CAUSAL_RELATIONS);
+	List<CLink> cLinks = (List<CLink>)(List<?>)annotationContainer.getAnnotations(Layer.CAUSAL_RELATIONS);
 	if (cLinks.size() > 0) {
 	    Element cLinksElem = new Element("causalRelations");
 	    for (CLink cLink : cLinks) {
@@ -2138,7 +2138,7 @@ class ReadWriteManager {
 	    root.addContent(cLinksElem);
 	}
 	
-	List<Topic> topics = (List<Topic>)(List<?>)annotationContainer.getLayer(Layer.TOPICS);
+	List<Topic> topics = (List<Topic>)(List<?>)annotationContainer.getAnnotations(Layer.TOPICS);
 	if (topics.size() > 0) {
 	    Element topicsElem = new Element("topics");
 	    for (Topic topic : topics) {
@@ -2161,7 +2161,7 @@ class ReadWriteManager {
 	    root.addContent(topicsElem);
 	}
 	
-	List<Statement> statements = (List<Statement>)(List<?>)annotationContainer.getLayer(Layer.ATTRIBUTION);
+	List<Statement> statements = (List<Statement>)(List<?>)annotationContainer.getAnnotations(Layer.ATTRIBUTION);
 	if (statements.size() > 0) {
 	    Element attributionElem = new Element("attribution");
 	    for (Statement statement : statements) {

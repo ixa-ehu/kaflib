@@ -96,7 +96,7 @@ public class KAFDocument implements Serializable {
 	STATEMENT_SOURCE,
 	STATEMENT_CUE,
     }
-    
+
     static final List<AnnotationType> TOP_TYPES;
     static {
 	TOP_TYPES = Arrays.asList(
@@ -124,7 +124,7 @@ public class KAFDocument implements Serializable {
 		AnnotationType.TOPIC,
 		AnnotationType.STATEMENT);
     }
-    
+
     static final Map<AnnotationType, Layer> TYPE_2_LAYER; // Only top level annotation types
     static {
 	TYPE_2_LAYER = new HashMap<AnnotationType, Layer>();
@@ -952,11 +952,11 @@ public Entity newEntity(List<Span<Term>> references) {
     }
     
     public List<Annotation> getLayer(Layer layer) {
-	return annotationContainer.getLayer(layer);
+	return annotationContainer.getAnnotations(layer);
     }
     
     public List<Annotation> getLayer(Layer layer, String group) {
-	return annotationContainer.getLayer(layer, group);
+	return annotationContainer.getAnnotations(layer, group);
     }
     
     public List<List<WF>> getSentences() {

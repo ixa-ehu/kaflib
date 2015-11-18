@@ -21,7 +21,7 @@ import org.jdom2.Element;
 /** A container to keep all annotations of a document (word forms, terms, dependencies, chunks, entities and coreferences). There are different hash maps to index annotations by different properties as ID, sentence... It enables to retrieve annotations by different properties in an effective way. Performance is very important. */
 class AnnotationContainer implements Serializable {
 
-    /* Annotation layers */
+    /* Annotation containers */
     private String rawText;
     private Map<Layer, Map<String, List<Annotation>>> layers; /* (Layer => (Group => Annotations)) */
     private Map<AnnotationType, Map<String, List<Annotation>>> annotations; /* (AnnotationType => (Group => Annotations)) */
@@ -63,18 +63,18 @@ class AnnotationContainer implements Serializable {
 	return rawText;
     }
 
-    List<Annotation> getLayer(Layer layer) {
+    List<Annotation> getAnnotations(Layer layer) {
 	return Helper.get(layer, this.layers);
+    }
+
+    List<Annotation> getAnnotations(Layer layer, String group) {
+	return Helper.get(layer, group, this.layers);
     }
     
     List<Annotation> getAnnotations(AnnotationType type) {
 	return Helper.get(type, this.annotations);
     }
 
-    List<Annotation> getLayer(Layer layer, String group) {
-	return Helper.get(layer, group, this.layers);
-    }
-    
     List<Annotation> getAnnotations(AnnotationType type, String group) {
 	return Helper.get(type, group, this.annotations);
     }
