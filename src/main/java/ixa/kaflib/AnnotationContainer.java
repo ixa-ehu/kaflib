@@ -7,6 +7,7 @@ import ixa.kaflib.KAFDocument.Utils;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.ArrayList;
@@ -116,13 +117,21 @@ class AnnotationContainer implements Serializable {
 	rawText = str;
     }
     
-    void add(Annotation ann, Layer layer, AnnotationType type) {
-	this.add(ann, layer, type, null);
+    void append(Annotation ann, Layer layer, AnnotationType type) {
+	this.add(ann, layer, type, null, false);
     }
     
-    void add(Annotation ann, Layer layer, AnnotationType type, Integer position) {
-	Helper.addAnnotation(ann, layer, getGroupID(ann), position, this.layers);
-	Helper.addAnnotation(ann, type, getGroupID(ann), position, this.annotations);
+    void addSorted(Annotation ann, Layer layer, AnnotationType type) {
+	this.add(ann, layer, type, null, true);
+    }
+
+    void addAt(Annotation ann, Layer layer, AnnotationType type, Integer position) {
+	this.add(ann, layer, type, position, false);
+    }
+    
+    private void add(Annotation ann, Layer layer, AnnotationType type, Integer position, Boolean sorted) {
+	Helper.addAnnotation(ann, layer, getGroupID(ann), position, sorted, this.layers);
+	Helper.addAnnotation(ann, type, getGroupID(ann), position, sorted, this.annotations);
 	/* Index */
 	this.indexAnnotation(ann, type);
     }
@@ -328,6 +337,7 @@ class AnnotationContainer implements Serializable {
 	paraSents.add(sent);
     }
     
+    
     /*
     @Override
     public boolean equals(Object o) {
@@ -389,7 +399,7 @@ class AnnotationContainer implements Serializable {
 	    }
 	}
 	
-	static <T> void addAnnotation(Annotation ann, T type, String groupID, Integer position, Map<T, Map<String, List<Annotation>>> container) {
+	static <T> void addAnnotation(Annotation ann, T type, String groupID, Integer position, Boolean sorted, Map<T, Map<String, List<Annotation>>> container) {
 	    Map<String, List<Annotation>> typeGroups = container.get(type);
 	    if (typeGroups == null) {
 		typeGroups = new HashMap<String, List<Annotation>>();
@@ -400,10 +410,27 @@ class AnnotationContainer implements Serializable {
 		annotations = new ArrayList<Annotation>();
 		typeGroups.put(groupID, annotations);
 	    }
-	    if ((position == null) || (position > annotations.size())) {
+	    if (((position == null) || (position > annotations.size())) && (!sorted)) {
 		annotations.add(ann);
-	    } else {
+	    } else if (position != null) {
 		annotations.add(position, ann);
+	    } else { // sorted
+		ListIterator<Annotation> iter = annotations.listIterator();
+		while (iter.hasNext()) {
+		    Annotation nextAnn = iter.next();
+		    if (nextAnn.getOffset() > ann.getOffset()) {
+			if (iter.hasPrevious()) {
+			    iter.previous();
+			    iter.add(ann);
+			} else {
+			    annotations.add(0, ann);
+			}
+			break;
+		    }
+		}
+		if (!iter.hasNext()) {
+		    annotations.add(ann);
+		}
 	    }
 	}
 
