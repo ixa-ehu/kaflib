@@ -472,20 +472,6 @@ public class KAFDocument implements Serializable {
 	annotationContainer.append(newMark, Layer.MARKABLES, AnnotationType.MARK);
 	return newMark;
     }
-    
-    public Mark newMark(Span<WF> span, String source) {
-	Mark newMark = this.newMark(span);
-	newMark.setSource(source);
-	return newMark;
-    }
-
-    public Mark newMark(String id, String source, Span<WF> span) {
-	idManager.updateCounter(AnnotationType.MARK, id);
-	Mark newMark = new Mark(this.annotationContainer, id, span);
-	newMark.setSource(source);
-	annotationContainer.append(newMark, Layer.MARKABLES, AnnotationType.MARK);
-	return newMark;
-    }
 
     /** Creates a new dependency. The Dep is added to the document object.
      * @param from the origin term of the dependency.
@@ -861,7 +847,7 @@ public Entity newEntity(List<Span<Term>> references) {
     }
 
     public Tree newConstituent(TreeNode root) {
-	return this.newConstituent(root, AnnotationContainer.DEFAULT_GROUP);
+	return this.newConstituent(root, null);
     }
 
     public void addConstituencyFromParentheses(String parseOut) throws Exception {
@@ -946,19 +932,11 @@ public Entity newEntity(List<Span<Term>> references) {
     public List<Annotation> getAnnotations(AnnotationType type) {
 	return annotationContainer.getAnnotations(type);
     }
-    
-    public List<Annotation> getAnnotations(AnnotationType type, String group) {
-	return annotationContainer.getAnnotations(type, group);
-    }
-    
+
     public List<Annotation> getLayer(Layer layer) {
 	return annotationContainer.getAnnotations(layer);
     }
-    
-    public List<Annotation> getLayer(Layer layer, String group) {
-	return annotationContainer.getAnnotations(layer, group);
-    }
-    
+
     public List<List<WF>> getSentences() {
 	return (List<List<WF>>)(List<?>) annotationContainer.getSentences(AnnotationType.WF);
     }
@@ -971,18 +949,10 @@ public Entity newEntity(List<Span<Term>> references) {
 	return this.annotationContainer.getSentAnnotations(sent, type);
     }
 
-    public List<Annotation> getBySent(AnnotationType type, String group, Integer sent) {
-	return this.annotationContainer.getSentAnnotations(sent, type, group);
-    }
-    
     public List<Annotation> getByPara(AnnotationType type, Integer para) {
 	return this.annotationContainer.getParaAnnotations(para, type);
     }
-    
-    public List<Annotation> getByPara(AnnotationType type, String group, Integer para) {
-	return this.annotationContainer.getParaAnnotations(para, type, group);
-    }
-    
+
     public Integer getFirstSentence() {
 	return this.annotationContainer.getFirstSentence();
     }
@@ -1032,12 +1002,8 @@ public Entity newEntity(List<Span<Term>> references) {
 	return (List<Dep>)(List<?>) this.getAnnotations(AnnotationType.DEP);
     }
 
-    public List<Tree> getConstituents(String type) {
-	return (List<Tree>)(List<?>) this.getAnnotations(AnnotationType.TREE, type);
-    }
-
     public List<Tree> getConstituents() {
-	return (List<Tree>)(List<?>) this.getAnnotations(AnnotationType.TREE, AnnotationContainer.DEFAULT_GROUP);
+	return (List<Tree>)(List<?>) this.getAnnotations(AnnotationType.TREE);
     }
 
     public List<Coref> getCorefs() {
@@ -1076,12 +1042,8 @@ public Entity newEntity(List<Span<Term>> references) {
 	return (List<Factvalue>)(List<?>) this.getAnnotations(AnnotationType.FACTVALUE);
     }
 
-    public List<Mark> getMarks(String source) {
-	return (List<Mark>)(List<?>) this.getAnnotations(AnnotationType.MARK, source);
-    }
-
-    public List<String> getMarkSources() {
-	return annotationContainer.getGroupIDs(AnnotationType.MARK);
+    public List<Mark> getMarks() {
+	return (List<Mark>)(List<?>) this.getAnnotations(AnnotationType.MARK);
     }
 
     /** Returns a list with all relations in the document */
@@ -1150,14 +1112,7 @@ public Entity newEntity(List<Span<Term>> references) {
 		for (AnnotationType type : TOP_TYPES) {
 		    Layer layer = TYPE_2_LAYER.get(type);
 		    if (isSentenceLevelAnnotationType(type)) {
-			List<Annotation> annotations = new ArrayList<Annotation>();
-			if (isMultiLayerAnnotationType(type)) {
-			    for (String groupId : annotationContainer.getGroupIDs(type)) {
-				annotations.addAll(this.getBySent(type, groupId, sentence));
-			    }
-			} else {
-			    annotations = this.getBySent(type, sentence);
-			}
+			List<Annotation> annotations = this.getBySent(type, sentence);
 			for (Annotation ann : annotations) {
 			    naf.addExistingAnnotation(ann, layer, type);
 			}
@@ -1179,14 +1134,7 @@ public Entity newEntity(List<Span<Term>> references) {
 	    for (AnnotationType type : TOP_TYPES) {
 		Layer layer = TYPE_2_LAYER.get(type);
 		if (isParagraphLevelAnnotationType(type)) {
-		    List<Annotation> annotations = new ArrayList<Annotation>();
-		    if (isMultiLayerAnnotationType(type)) {
-			for (String groupId : annotationContainer.getGroupIDs(type)) {
-			    annotations.addAll(this.getByPara(type, groupId, paragraph));
-			}
-		    } else {
-			annotations = this.getByPara(type, paragraph);
-		    }
+		    List<Annotation> annotations = this.getByPara(type, paragraph);
 		    for (Annotation ann : annotations) {
 			naf.addExistingAnnotation(ann, layer, type);
 		    }
@@ -1205,14 +1153,7 @@ public Entity newEntity(List<Span<Term>> references) {
 	for (KAFDocument nafPart : nafs) {
 	    for (AnnotationType type : TOP_TYPES) {
 		Layer layer = TYPE_2_LAYER.get(type);
-		List<Annotation> annotations = new ArrayList<Annotation>();
-		if (isMultiLayerAnnotationType(type)) {
-		    for (String groupId : nafPart.annotationContainer.getGroupIDs(type)) {
-			annotations.addAll(nafPart.getAnnotations(type, groupId));
-		    }
-		} else {
-		    annotations = nafPart.getAnnotations(type);
-		}
+		List<Annotation> annotations = nafPart.getAnnotations(type);
 		for (Annotation ann : annotations) {
 		    joinedNaf.addExistingAnnotation(ann, layer, type);
 		}
@@ -1238,13 +1179,7 @@ public Entity newEntity(List<Span<Term>> references) {
 	}
 	annotationContainer.append(ann, layer, type);
     }
-    
-    private static Boolean isMultiLayerAnnotationType(AnnotationType type) {
-	Class<?> annotationClass = TYPE_2_CLASS.get(type);
-	if (annotationClass == null) return false;
-	return MultiLayerAnnotation.class.isAssignableFrom(annotationClass);
-    }
-    
+
     private static Boolean isSentenceLevelAnnotationType(AnnotationType type) {
 	Class<?> annotationClass = TYPE_2_CLASS.get(type);
 	if (annotationClass == null) return false;
@@ -1426,6 +1361,22 @@ public Entity newEntity(List<Span<Term>> references) {
 	    spanReferences.add(this.targetList2Span(list));
 	}
 	return this.newCoref(spanReferences);
+    }
+    
+    @Deprecated
+    public Mark newMark(Span<WF> span, String source) {
+	Mark newMark = this.newMark(span);
+	newMark.setSource(source);
+	return newMark;
+    }
+
+    @Deprecated
+    public Mark newMark(String id, String source, Span<WF> span) {
+	idManager.updateCounter(AnnotationType.MARK, id);
+	Mark newMark = new Mark(this.annotationContainer, id, span);
+	newMark.setSource(source);
+	annotationContainer.append(newMark, Layer.MARKABLES, AnnotationType.MARK);
+	return newMark;
     }
 
     /** Deprecated */

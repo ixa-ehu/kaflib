@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Stack;
 
 
-public class Tree extends Annotation implements MultiLayerAnnotation, SentenceLevelAnnotation {
+public class Tree extends Annotation implements SentenceLevelAnnotation {
 
     private static final String HEAD_MARK = "=H";
     
@@ -296,11 +296,7 @@ public class Tree extends Annotation implements MultiLayerAnnotation, SentenceLe
 	}
 	return tag.substring(0, tag.length() - HEAD_MARK.length());
     }
-    
-    public String getGroupID() {
-	return this.getType();
-    }
-    
+
     public Integer getSent() {
 	return this.root.getSent();
     }

@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.HashMap;
 
 
-public class Mark extends IdentifiableAnnotation implements SentenceLevelAnnotation, MultiLayerAnnotation {
+public class Mark extends IdentifiableAnnotation implements SentenceLevelAnnotation {
 
     private String source;
 
@@ -173,11 +173,6 @@ public class Mark extends IdentifiableAnnotation implements SentenceLevelAnnotat
 	return this.span.getFirstTarget().getPara();
     }
 
-    @Override
-    public String getGroupID() {
-	return this.getSource();
-    }
-    
     @Override
     public String toString() {
 	return this.span.toString();
