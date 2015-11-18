@@ -87,6 +87,14 @@ class AnnotationContainer implements Serializable {
 	return Helper.getInvReferences(ann, type, this.invRefIndex);
     }
     
+    List<Annotation> getInverse(List<Annotation> anns) {
+	List<Annotation> result = new ArrayList<Annotation>();
+	for (Annotation ann : anns) {
+	    result.addAll(Helper.getInvReferences(ann, this.invRefIndex));
+	}
+	return result;
+    }
+    
     List<Annotation> getInverse(List<Annotation> anns, AnnotationType type) {
 	List<Annotation> result = new ArrayList<Annotation>();
 	for (Annotation ann : anns) {
