@@ -1091,7 +1091,7 @@ public Entity newEntity(List<Span<Term>> references) {
 
     public List<Dep> getDepsFromTerm(final Term term) {
 	final List<Dep> result = new ArrayList<Dep>();
-	for (final Dep dep : (List<Dep>)(List<?>)annotationContainer.getInverse(term, AnnotationType.DEP)) {
+	for (final Dep dep : (List<Dep>)(List<?>)annotationContainer.getAnnotationsBy(term, AnnotationType.DEP)) {
 	    if (dep.getFrom() == term) {
 		result.add(dep);
 	    }
@@ -1733,11 +1733,11 @@ public Entity newEntity(List<Span<Term>> references) {
     }
 
     public List<Entity> getEntitiesByTerm(Term term) {
-	return (List<Entity>)(List<?>) this.annotationContainer.getInverse(term, AnnotationType.ENTITY);
+	return (List<Entity>)(List<?>) this.annotationContainer.getAnnotationsBy(term, AnnotationType.ENTITY);
     }
 
     public List<Predicate> getPredicatesByTerm(Term term) {
-	return (List<Predicate>)(List<?>) this.annotationContainer.getInverse(term, AnnotationType.PREDICATE);
+	return (List<Predicate>)(List<?>) this.annotationContainer.getAnnotationsBy(term, AnnotationType.PREDICATE);
     }
     
     public List<Term> getSentenceTerms(int sent) {
@@ -1901,7 +1901,7 @@ public Entity newEntity(List<Span<Term>> references) {
     }
     
     public List<Dep> getDepsByTerm(final Term term) {
-    return (List<Dep>)(List<?>) this.annotationContainer.getInverse(term, AnnotationType.DEP);
+    return (List<Dep>)(List<?>) this.annotationContainer.getAnnotationsBy(term, AnnotationType.DEP);
     }
     
     public Term getTermsHead(Iterable<Term> descendents) {

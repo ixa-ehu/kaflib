@@ -64,7 +64,7 @@ class AnnotationContainer implements Serializable {
 	for (AnnotationType type : KAFDocument.LAYER_2_TYPES.get(layer)) {
 	    annotations.addAll(this.annotations.get(type));
 	}
-	return (annotations == null) ? new ArrayList<Annotation>() : annotations;
+	return annotations;
     }
 
     List<Annotation> getAnnotations(AnnotationType type) {
@@ -72,24 +72,39 @@ class AnnotationContainer implements Serializable {
 	return (annotations == null) ? new ArrayList<Annotation>() : annotations;
     }
 
-    List<Annotation> getInverse(Annotation ann, AnnotationType type) {
+    List<Annotation> getAnnotationsBy(Annotation ann, AnnotationType type) {
 	Map<AnnotationType, List<Annotation>> annIndex = this.invRefIndex.get(ann);
 	if (annIndex == null) return new ArrayList<Annotation>();
 	List<Annotation> annotations = annIndex.get(type);
 	return (annotations == null) ? new ArrayList<Annotation>() : annotations;
     }
 
-    List<Annotation> getInverse(List<Annotation> anns, AnnotationType type) {
-	List<Annotation> result = new ArrayList<Annotation>();
+    List<Annotation> getAnnotationsBy(List<Annotation> anns, AnnotationType type) {
+	List<Annotation> annotations = new ArrayList<Annotation>();
 	for (Annotation ann : anns) {
-	    result.addAll(this.getInverse(ann, type));
+	    annotations.addAll(this.getAnnotationsBy(ann, type));
 	}
-	return result;
+	return annotations;
     }
 
-    /** Returns all unknown layers as a DOM Element list */
+    List<Annotation> getAnnotationsBy(Annotation ann, Layer layer) {
+	List<Annotation> annotations = new ArrayList<Annotation>();
+	for (AnnotationType type : KAFDocument.LAYER_2_TYPES.get(layer)) {
+	    annotations.addAll(this.getAnnotationsBy(ann, type));
+	}
+	return annotations;
+    }
+
+    List<Annotation> getAnnotationsBy(List<Annotation> anns, Layer layer) {
+	List<Annotation> annotations = new ArrayList<Annotation>();
+	for (Annotation ann : anns) {
+	    annotations.addAll(this.getAnnotationsBy(ann, layer));
+	}
+	return annotations;
+    }
+
     Set<Element> getUnknownLayers() {
-	return unknownLayers;
+	return this.unknownLayers;
     }
     
     
@@ -113,27 +128,108 @@ class AnnotationContainer implements Serializable {
 	this.unknownLayers.add(layer);
     }
     
-    void reindexAnnotationParaSent(Annotation ann, AnnotationType type, Integer oldSent, Integer oldPara) {
-	/* Remove index */
-	if (oldSent != null) {
-	    Helper.removeFromIndex(ann, type, oldSent, this.sentIndex);
+    void indexNewReference(AnnotationType sourceType, Annotation refSource, Annotation refTarget) {
+	Map<AnnotationType, List<Annotation>> annotationRefs= this.invRefIndex.get(refTarget);
+	if (annotationRefs == null) {
+	    annotationRefs = new HashMap<AnnotationType, List<Annotation>>();
+	    this.invRefIndex.put(refTarget, annotationRefs);
 	}
-	if (oldPara != null) {
-	    Helper.removeFromIndex(ann, type, oldPara, this.paraIndex);
+	List<Annotation> typeRefs = annotationRefs.get(sourceType);
+	if (typeRefs == null) {
+	    typeRefs = new ArrayList<Annotation>();
+	    annotationRefs.put(sourceType, typeRefs);
 	}
-	/* Re-index */
-	this.indexAnnotationParaSent(ann, type);
-	/* Re-index related annotations */
-	/*
-	for (Layer relatedLayer : Layer.values()) {
-	    for (Annotation relatedAnn : this.getInverse(ann, relatedLayer)) {
-		System.out.println("SARTZERA");
-		this.reindexAnnotationParaSent(relatedAnn, relatedLayer, oldSent, oldPara);
+	typeRefs.add(refSource);
+    }
+    
+    void unindexReference(AnnotationType sourceType, Annotation refSource, Annotation refTarget) {
+	Map<AnnotationType, List<Annotation>> annotationRefs = this.invRefIndex.get(refTarget);
+	if (annotationRefs == null) return;
+	List<Annotation> typeRefs = annotationRefs.get(sourceType);
+	if (typeRefs == null) return;
+	typeRefs.remove(refSource);
+	if (typeRefs.isEmpty()) {
+	    annotationRefs.remove(sourceType);
+	    if (annotationRefs.isEmpty()) {
+		this.invRefIndex.remove(refTarget);
 	    }
 	}
-	*/
+    }
+    
+    void reindexAnnotationSent(Annotation ann, AnnotationType type, Integer oldSent) {
+	/* Remove index */
+	if (oldSent != null) {
+	    Map<Integer, List<Annotation>> typeIndex = this.sentIndex.get(type);
+	    if (typeIndex == null) return;
+	    List<Annotation> annotations = typeIndex.get(oldSent);
+	    if (annotations == null) return;
+	    annotations.remove(ann);
+	    if (annotations.isEmpty()) {
+		typeIndex.remove(oldSent);
+		if (typeIndex.isEmpty()) {
+		    this.sentIndex.remove(type);
+		}
+	    }
+	}
+	/* Index */
+	if (ann.getOffset() != null) { // Do not index annotations with no offset defined (those not related to any WFs)
+	    if (ann instanceof SentenceLevelAnnotation) {
+		Integer sent = ((SentenceLevelAnnotation) ann).getSent();
+		if (sent != null) {
+		    Map<Integer, List<Annotation>> typeIndex = this.sentIndex.get(type);
+		    if (typeIndex == null) {
+			typeIndex = new HashMap<Integer, List<Annotation>>();
+			this.sentIndex.put(type, typeIndex);
+		    }
+		    List<Annotation> annotations = typeIndex.get(sent);
+		    if (annotations == null) {
+			annotations = new ArrayList<Annotation>();
+			typeIndex.put(sent, annotations);
+		    }
+		    annotations.add(ann);
+		    Collections.sort(annotations);
+		}
+	    }
+	}
     }
 
+    void reindexAnnotationPara(Annotation ann, AnnotationType type, Integer oldPara) {
+	/* Remove index */
+	if (oldPara != null) {
+	    Map<Integer, List<Annotation>> typeIndex = this.paraIndex.get(type);
+	    if (typeIndex == null) return;
+	    List<Annotation> annotations = typeIndex.get(oldPara);
+	    if (annotations == null) return;
+	    annotations.remove(ann);
+	    if (annotations.isEmpty()) {
+		typeIndex.remove(oldPara);
+		if (typeIndex.isEmpty()) {
+		    this.paraIndex.remove(type);
+		}
+	    }
+	}
+	/* Index */
+	if (ann.getOffset() != null) { // Do not index annotations with no offset defined (those not related to any WFs)
+	    if (ann instanceof ParagraphLevelAnnotation) {
+		Integer para = ((ParagraphLevelAnnotation) ann).getPara();
+		if (para != null) {
+		    Map<Integer, List<Annotation>> typeIndex = this.paraIndex.get(type);
+		    if (typeIndex == null) {
+			typeIndex = new HashMap<Integer, List<Annotation>>();
+			this.paraIndex.put(type, typeIndex);
+		    }
+		    List<Annotation> annotations = typeIndex.get(para);
+		    if (annotations == null) {
+			annotations = new ArrayList<Annotation>();
+			typeIndex.put(para, annotations);
+		    }
+		    annotations.add(ann);
+		    Collections.sort(annotations);
+		}
+	    }
+	}
+    }
+    
     void remove(Annotation ann, AnnotationType type) {
 	Helper.remove(ann, type, this.annotations);
 	if (ann instanceof SentenceLevelAnnotation) {
