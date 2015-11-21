@@ -2,7 +2,6 @@ package ixa.kaflib;
 
 import ixa.kaflib.KAFDocument.AnnotationType;
 import ixa.kaflib.KAFDocument.Layer;
-import ixa.kaflib.KAFDocument.Utils;
 
 import java.io.Serializable;
 import java.util.HashSet;
@@ -13,8 +12,9 @@ import java.util.Set;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.Iterator;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.jdom2.Element;
 
@@ -30,12 +30,13 @@ class AnnotationContainer implements Serializable {
     /* Indices */
     private Map<Annotation, Map<AnnotationType, List<Annotation>>> invRefIndex; /* (Annotation => (AnnotationType => Annotations)) */
     private Map<AnnotationType, Map<Integer, List<Annotation>>> sentIndex; /* (AnnotationType => (Sentence => Annotations)) */
-    private Map<AnnotationType, Map<Integer, List<Annotation>>> paraIndex; /* (AnnotationType => (Paragraph => Annotations)) */
     private Map<Integer, Set<Integer>> paraSentIndex; /* Para => List<Sent> */
-    private Set<Integer> indexedSents; /* Used to keep count of which sentences have already been indexed by paragraphs
-    					(to avoid repeating the same sentence in different paragraphs, due to tokenizer bugs */
-    
+    private Map<Integer, Map<Integer, Integer>> paraSentIndexInfo; /* (Sentence => (Paragraph => NumberOfAnnotations)) */
+    private Boolean paraSentIndexUpToDate;
+
     private Integer creationOrderId = 0;
+    
+    private static final long serialVersionUID = 42L; // Serializable...
 
 
     /** This creates a new AnnotationContainer object */
@@ -45,9 +46,9 @@ class AnnotationContainer implements Serializable {
 	unknownLayers = new HashSet<Element>();
 	invRefIndex = new HashMap<Annotation, Map<AnnotationType, List<Annotation>>>();
 	sentIndex = new HashMap<AnnotationType, Map<Integer, List<Annotation>>>();
-	paraIndex = new HashMap<AnnotationType, Map<Integer, List<Annotation>>>();
-	paraSentIndex = new HashMap<Integer, Set<Integer>>();
-	indexedSents = new HashSet<Integer>();
+	paraSentIndex = new TreeMap<Integer, Set<Integer>>();
+	paraSentIndexInfo = new HashMap<Integer, Map<Integer, Integer>>();
+	paraSentIndexUpToDate = true;
     }
 
     Integer getNextCreationOrderId() {
@@ -102,6 +103,37 @@ class AnnotationContainer implements Serializable {
 	}
 	return annotations;
     }
+    
+    List<Annotation> getAnnotationsBySent(Integer sent, AnnotationType type) {
+	Map<Integer, List<Annotation>> typeIndex = this.sentIndex.get(type);
+	if (typeIndex == null) return new ArrayList<Annotation>();
+	List<Annotation> annotations = typeIndex.get(sent);
+	return (annotations == null) ? new ArrayList<Annotation>() : annotations;
+    }
+    
+    List<List<Annotation>> getAnnotationsBySentences(AnnotationType type) {
+	List<List<Annotation>> annsBySents = new ArrayList<List<Annotation>>();
+	for (Integer sent : this.getSentences()) {
+	    annsBySents.add(this.getAnnotationsBySent(sent, type));
+	}
+	return annsBySents;
+    }
+    
+    List<List<Annotation>> getAnnotationsByParagraphs(AnnotationType type) {
+	List<List<Annotation>> annsByParas = new ArrayList<List<Annotation>>();
+	for (Integer para : this.getParagraphs()) {
+	    annsByParas.add(this.getAnnotationsByPara(para, type));
+	}
+	return annsByParas;
+    }
+
+    List<Annotation> getAnnotationsByPara(Integer para, AnnotationType type) {
+	List<Annotation> paraAnnotations = new ArrayList<Annotation>();
+	for (Integer sent : this.getSentsByPara(para)) {
+	    paraAnnotations.addAll(this.getAnnotationsBySent(sent, type));
+	}
+	return paraAnnotations;
+    }
 
     Set<Element> getUnknownLayers() {
 	return this.unknownLayers;
@@ -112,7 +144,7 @@ class AnnotationContainer implements Serializable {
 	rawText = str;
     }
     
-    void append(Annotation ann, AnnotationType type) {
+    void add(Annotation ann, AnnotationType type) {
 	this.addAnnotation(ann, type, null, false);
     }
     
@@ -155,181 +187,101 @@ class AnnotationContainer implements Serializable {
 	    }
 	}
     }
-    
-    void reindexAnnotationSent(Annotation ann, AnnotationType type, Integer oldSent) {
-	/* Remove index */
-	if (oldSent != null) {
-	    Map<Integer, List<Annotation>> typeIndex = this.sentIndex.get(type);
-	    if (typeIndex == null) return;
-	    List<Annotation> annotations = typeIndex.get(oldSent);
-	    if (annotations == null) return;
-	    annotations.remove(ann);
-	    if (annotations.isEmpty()) {
-		typeIndex.remove(oldSent);
-		if (typeIndex.isEmpty()) {
-		    this.sentIndex.remove(type);
-		}
-	    }
-	}
-	/* Index */
-	if (ann.getOffset() != null) { // Do not index annotations with no offset defined (those not related to any WFs)
-	    if (ann instanceof SentenceLevelAnnotation) {
-		Integer sent = ((SentenceLevelAnnotation) ann).getSent();
-		if (sent != null) {
-		    Map<Integer, List<Annotation>> typeIndex = this.sentIndex.get(type);
-		    if (typeIndex == null) {
-			typeIndex = new HashMap<Integer, List<Annotation>>();
-			this.sentIndex.put(type, typeIndex);
-		    }
-		    List<Annotation> annotations = typeIndex.get(sent);
-		    if (annotations == null) {
-			annotations = new ArrayList<Annotation>();
-			typeIndex.put(sent, annotations);
-		    }
-		    annotations.add(ann);
-		    Collections.sort(annotations);
-		}
-	    }
+
+    void updateAnnotationSent(Annotation ann, AnnotationType type, Integer oldSent, Integer newSent) {
+	if (ann instanceof WF) {
+	    Integer para = ((WF) ann).getPara();
+	    this.unindexAnnotationBySent(ann, type, oldSent);
+	    this.indexAnnotationBySent(ann, type, newSent);
+	    this.unindexSentByPara(oldSent, para);
+	    this.indexSentByPara(newSent, para);
 	}
     }
 
-    void reindexAnnotationPara(Annotation ann, AnnotationType type, Integer oldPara) {
-	/* Remove index */
-	if (oldPara != null) {
-	    Map<Integer, List<Annotation>> typeIndex = this.paraIndex.get(type);
-	    if (typeIndex == null) return;
-	    List<Annotation> annotations = typeIndex.get(oldPara);
-	    if (annotations == null) return;
-	    annotations.remove(ann);
-	    if (annotations.isEmpty()) {
-		typeIndex.remove(oldPara);
-		if (typeIndex.isEmpty()) {
-		    this.paraIndex.remove(type);
-		}
-	    }
-	}
-	/* Index */
-	if (ann.getOffset() != null) { // Do not index annotations with no offset defined (those not related to any WFs)
-	    if (ann instanceof ParagraphLevelAnnotation) {
-		Integer para = ((ParagraphLevelAnnotation) ann).getPara();
-		if (para != null) {
-		    Map<Integer, List<Annotation>> typeIndex = this.paraIndex.get(type);
-		    if (typeIndex == null) {
-			typeIndex = new HashMap<Integer, List<Annotation>>();
-			this.paraIndex.put(type, typeIndex);
-		    }
-		    List<Annotation> annotations = typeIndex.get(para);
-		    if (annotations == null) {
-			annotations = new ArrayList<Annotation>();
-			typeIndex.put(para, annotations);
-		    }
-		    annotations.add(ann);
-		    Collections.sort(annotations);
-		}
-	    }
+    void updateAnnotationPara(Annotation ann, AnnotationType type, Integer oldPara, Integer newPara) {
+	if (ann instanceof WF) {
+	    Integer sent = ((SentenceLevelAnnotation) ann).getSent();
+	    this.unindexSentByPara(sent, oldPara);
+	    this.indexSentByPara(sent, newPara);
 	}
     }
     
     void remove(Annotation ann, AnnotationType type) {
-	Helper.remove(ann, type, this.annotations);
+	List<Annotation> annotations = this.annotations.get(type);
+	if (annotations != null) annotations.remove(ann);
+	/* Unindex */
 	if (ann instanceof SentenceLevelAnnotation) {
 	    Integer sent = ((SentenceLevelAnnotation) ann).getSent();
-	    List<Annotation> sentAnnotations = this.getSentAnnotations(sent, type);
-	    sentAnnotations.remove(ann);
-	    if (ann instanceof ParagraphLevelAnnotation) {
-		Integer para = ((ParagraphLevelAnnotation) ann).getPara();
-		List<Annotation> paraAnnotations = this.getParaAnnotations(para, type);
-		paraAnnotations.remove(ann);
-	    }
+	    Integer para = ((ParagraphLevelAnnotation) ann).getPara();
+	    this.unindexAnnotationBySent(ann, type, sent);
+	    this.unindexSentByPara(sent, para);
 	}
     }
 
-    void removeLayer(Layer layerName) {
+    void remove(AnnotationType type) {
+	for (Annotation ann : this.annotations.get(type)) {
+	    this.remove(ann, type);
+	}
+    }
+
+    void remove(Layer layerName) {
 	for (AnnotationType type : KAFDocument.LAYER_2_TYPES.get(layerName)) {
-	    this.annotations.remove(type);
+	    this.remove(type);
 	}
     }
 
-    /**
-     * Returns all sentences in a paragraph.
-     * @param para The paragraph
-     * @return
-     */
-    List<Integer> getParaSents(Integer para) {
+    List<Integer> getSentsByPara(Integer para) {
+	if (!this.paraSentIndexUpToDate) {
+	    this.updateParaSentIndex();
+	}
 	Set<Integer> sents = this.paraSentIndex.get(para);
 	if (sents == null) return new ArrayList<Integer>();
-	List<Integer> sentList = new ArrayList<Integer>(sents);
-	Collections.sort(sentList);
-	return sentList;
+	return new ArrayList<Integer>(sents);
     }
 
-    List<Annotation> getSentAnnotations(Integer sent, AnnotationType type) {
-	return Helper.getIndexedAnnotations(type, sent, this.sentIndex);
-    }
-
-    List<Annotation> getParaAnnotations(Integer para, AnnotationType type) {
-	return Helper.getIndexedAnnotations(type, para, this.paraIndex);
-    }
-    
     Integer getNumSentences() {
-	if (this.sentIndex.get(AnnotationType.WF) == null) return 0;
-	return this.sentIndex.get(AnnotationType.WF).size();
+	Set<Integer> sentences = this.paraSentIndexInfo.keySet();
+	return (sentences != null) ? sentences.size() : 0;
     }
     
     Integer getNumParagraphs() {
-	if (this.paraIndex.get(AnnotationType.WF) == null) return 0;
-	return this.paraIndex.get(AnnotationType.WF).size();
+	if (!this.paraSentIndexUpToDate) {
+	    this.updateParaSentIndex();
+	}
+	Set<Integer> paragraphs = this.paraSentIndex.keySet();
+	return (paragraphs != null) ? paragraphs.size() : 0;
+    }
+    
+    List<Integer> getSentences() {
+	List<Integer> sentences = new ArrayList<Integer>(this.paraSentIndexInfo.keySet());
+	Collections.sort(sentences);
+	return sentences;
+    }
+    
+    List<Integer> getParagraphs() {
+	if (!this.paraSentIndexUpToDate) {
+	    this.updateParaSentIndex();
+	}
+	List<Integer> paragraphs = new ArrayList<Integer>(this.paraSentIndex.keySet());
+	Collections.sort(paragraphs);
+	return paragraphs;
     }
     
     Integer getFirstSentence() {
-	if (this.sentIndex.get(AnnotationType.WF) != null) {
-	    if (this.sentIndex.get(AnnotationType.WF) != null) {
-		return Helper.getMinKey(this.sentIndex.get(AnnotationType.WF));
-	    }
-	}
-	return null;
+	List<Integer> sentences = this.getSentences();
+	return (sentences.size() > 0) ? sentences.get(0) : null;
     }
     
     Integer getFirstParagraph() {
-	if (this.paraIndex.get(AnnotationType.WF) != null) {
-	    if (this.paraIndex.get(AnnotationType.WF) != null) {
-		return Helper.getMinKey(this.paraIndex.get(AnnotationType.WF));
-	    }
-	}
-	return null;
-    }
-    
-    /** Return all annotations of type "type" classified into sentences */
-    List<List<Annotation>> getSentences(AnnotationType type) {
-	List<List<Annotation>> sentences = new ArrayList<List<Annotation>>();
-	for (int sent : Helper.getIndexKeys(type, this.sentIndex)) {
-	    sentences.add(this.getSentAnnotations(sent, type));
-	}
-	return sentences;
-    }
-
-    /** Return all annotations of type "type" classified into paragraphs */
-    List<List<Annotation>> getParagraphs(AnnotationType type) {
-	List<List<Annotation>> paragraphs = new ArrayList<List<Annotation>>();
-	for (int para : Helper.getIndexKeys(type, this.paraIndex)) {
-	    paragraphs.add(this.getParaAnnotations(para, type));
-	}
-	return paragraphs;
+	List<Integer> paragraphs = this.getParagraphs();
+	return (paragraphs.size() > 0) ? paragraphs.get(0) : null;
     }
 
     Integer getPosition(AnnotationType type, Annotation ann) {
-	return this.annotations.get(type).indexOf(ann);
+	List<Annotation> annotations = this.annotations.get(type);
+	return (annotations != null) ? annotations.indexOf(ann) : null;
     }
-    
-    void addSentToPara(Integer sent, Integer para) {
-	Set<Integer> paraSents = this.paraSentIndex.get(para);
-	if (paraSents == null) {
-	    paraSents = new HashSet<Integer>();
-	    this.paraSentIndex.put(para, paraSents);
-	}
-	paraSents.add(sent);
-    }
-    
+
     
     /* Helper methods */
     
@@ -372,120 +324,145 @@ class AnnotationContainer implements Serializable {
 	Iterator<Map.Entry<AnnotationType, List<Annotation>>> it = invReferences.entrySet().iterator();
 	while (it.hasNext()) {
 	    Map.Entry<AnnotationType, List<Annotation>> pair = it.next();
-	    for (Annotation ref : pair.getValue()) {
-		Helper.addInvReference(ann, ref, type, this.invRefIndex);
+	    for (Annotation target : pair.getValue()) {
+		this.indexNewReference(type, ann, target);
 	    }
 	}
-	/* Sentence and paragraph index */
-	this.indexAnnotationParaSent(ann, type);
+	/* Index annotation by sentence */
+	if (ann instanceof SentenceLevelAnnotation) {
+	    Integer sent = ((SentenceLevelAnnotation) ann).getSent();
+	    this.indexAnnotationBySent(ann, type, sent);
+	    /* Index sentence by paragraph */
+	    if (ann instanceof WF) {
+		Integer para = ((SentenceLevelAnnotation) ann).getPara();
+		this.indexSentByPara(sent, para);
+	    }
+	}
     }
-    
-    private void indexAnnotationParaSent(Annotation ann, AnnotationType type) {
+
+    private void indexAnnotationBySent(Annotation ann, AnnotationType type, Integer sent) {
+	if (!(ann instanceof SentenceLevelAnnotation)) return;
 	if (ann.getOffset() != null) { // Do not index annotations with no offset defined (those not related to any WFs)
-	    if (ann instanceof SentenceLevelAnnotation) {
-		Integer sent = ((SentenceLevelAnnotation) ann).getSent();
-		Integer para = ((ParagraphLevelAnnotation) ann).getPara();
-		if (sent != null) {
-		    Helper.addToIndex(ann, type, sent, this.sentIndex);
+	    if (sent != null) {
+		/* Add annotation to sentence index */
+		Map<Integer, List<Annotation>> typeIndex = this.sentIndex.get(type);
+		if (typeIndex == null) {
+		    typeIndex = new HashMap<Integer, List<Annotation>>();
+		    this.sentIndex.put(type, typeIndex);
 		}
-		if (para != null) {
-		    Helper.addToIndex(ann, type, para, this.paraIndex);
-		    if (!indexedSents.contains(sent)) {
-			this.addSentToPara(sent, para);
-			indexedSents.add(sent);
+		List<Annotation> annotations = typeIndex.get(sent);
+		if (annotations == null) {
+		    annotations = new ArrayList<Annotation>();
+		    typeIndex.put(sent, annotations);
+		}
+		annotations.add(ann);
+		Collections.sort(annotations);
+	    }
+	}
+	/* Index inversely referenced annotations */
+	Map<AnnotationType, List<Annotation>> referencedAnnotations = this.invRefIndex.get(ann);
+	if (referencedAnnotations != null) {
+	    for (Map.Entry<AnnotationType, List<Annotation>> entry : referencedAnnotations.entrySet()) {
+		AnnotationType currentType = entry.getKey();
+		for (Annotation currentAnn : entry.getValue()) {
+		    this.indexAnnotationBySent(currentAnn, currentType, sent);
+		}
+	    }
+	}
+    }
+
+    private void unindexAnnotationBySent(Annotation ann, AnnotationType type, Integer sent) {
+	if (!(ann instanceof SentenceLevelAnnotation)) return;
+	if (sent != null) {
+	    /* Remove annotation from sentence index */
+	    Map<Integer, List<Annotation>> typeIndex = this.sentIndex.get(type);
+	    if (typeIndex != null) {
+		List<Annotation> annotations = typeIndex.get(sent);
+		if (annotations != null) {
+		    annotations.remove(ann);
+		    if (annotations.isEmpty()) {
+			typeIndex.remove(sent);
+			if (typeIndex.isEmpty()) {
+			    this.sentIndex.remove(type);
+			}
 		    }
 		}
 	    }
-	    else if (ann instanceof ParagraphLevelAnnotation) {
-		Integer para = ((ParagraphLevelAnnotation) ann).getPara();
-		if (para != null) {
-		    Helper.addToIndex(ann, type, para, this.paraIndex);
+	}
+	/* Unindex inversely referenced annotations */
+	Map<AnnotationType, List<Annotation>> referencedAnnotations = this.invRefIndex.get(ann);
+	if (referencedAnnotations != null) {
+	    for (Map.Entry<AnnotationType, List<Annotation>> entry : referencedAnnotations.entrySet()) {
+		AnnotationType currentType = entry.getKey();
+		for (Annotation currentAnn : entry.getValue()) {
+		    this.unindexAnnotationBySent(currentAnn, currentType, sent);
 		}
 	    }
 	}
     }
     
+    private void indexSentByPara(Integer sent, Integer para) {
+	if ((sent != null) && (para != null)) {
+	    Map<Integer, Integer> numAnnotationsSent = this.paraSentIndexInfo.get(sent);
+	    if (numAnnotationsSent == null) {
+		numAnnotationsSent = new HashMap<Integer, Integer>();
+		this.paraSentIndexInfo.put(sent, numAnnotationsSent);
+	    }
+	    Integer numAnnotations = numAnnotationsSent.get(para);
+	    if (numAnnotations == null) {
+		numAnnotations = 0;
+		this.paraSentIndexUpToDate = false;
+	    }
+	    numAnnotations++;
+	    numAnnotationsSent.put(para, numAnnotations);
+	}
+    }
     
+    private void unindexSentByPara(Integer sent, Integer para) {
+	if ((sent != null) && (para != null)) {
+	    Map<Integer, Integer> numAnnotationsSent = this.paraSentIndexInfo.get(sent);
+	    if (numAnnotationsSent != null) {
+		Integer numAnnotations = numAnnotationsSent.get(para);
+		if (numAnnotations != null) {
+		    numAnnotations--;
+		    numAnnotationsSent.put(para, numAnnotations);
+		    if (numAnnotations <= 0) {
+			numAnnotationsSent.remove(para);
+			this.paraSentIndexUpToDate = false;
+			if (numAnnotationsSent.isEmpty()) {
+			    this.paraSentIndexInfo.remove(sent);
+			}
+		    }
+		}
+	    }
+	}
+    }
 
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+    private void updateParaSentIndex() {
+	this.paraSentIndex.clear();
+	for (Map.Entry<Integer, Map<Integer, Integer>> sentInfo : this.paraSentIndexInfo.entrySet()) {
+	    Integer sent = sentInfo.getKey();
+	    Integer maxAnnotationsParagraph = null;
+	    Integer maxAnnotations = 0;
+	    for (Map.Entry<Integer, Integer> paraInfo : sentInfo.getValue().entrySet()) {
+		Integer para = paraInfo.getKey();
+		Integer numAnnotations = paraInfo.getValue();
+		if (numAnnotations >= maxAnnotations) {
+		    maxAnnotationsParagraph = para;
+		}
+	    }
+	    if (maxAnnotationsParagraph != null) {
+		Set<Integer> paraSents = this.paraSentIndex.get(maxAnnotationsParagraph);
+		if (paraSents == null) {
+		    paraSents = new TreeSet<Integer>();
+		    this.paraSentIndex.put(maxAnnotationsParagraph, paraSents);
+		}
+		paraSents.add(sent);
+	    }
+	}
+	this.paraSentIndexUpToDate = true;
+    }
+
     
     /*
     @Override
@@ -498,143 +475,5 @@ class AnnotationContainer implements Serializable {
 		Utils.areEquals(this.unknownLayers, ac.unknownLayers);
     }
     */
-
-    
-    private static class Helper {
-	
-	static <T> void addToIndex(Annotation ann, T type, Integer key, Map<T, Map<Integer, List<Annotation>>> index) {
-	    if (key != null) {
-		Map<Integer, List<Annotation>> typeIndex = index.get(type);
-		if (typeIndex == null) {
-		    typeIndex = new HashMap<Integer, List<Annotation>>();
-		    index.put(type, typeIndex);
-		}
-		List<Annotation> annotations = typeIndex.get(key);
-		if (annotations == null) {
-		    annotations = new ArrayList<Annotation>();
-		    typeIndex.put(key, annotations);
-		}
-		annotations.add(ann);
-		Collections.sort(annotations);
-	    }
-	}
-	
-	static <T> void removeFromIndex(Annotation ann, T type, Integer key, Map<T, Map<Integer, List<Annotation>>> index) {
-	    if (key != null) {
-		Map<Integer, List<Annotation>> typeIndex = index.get(type);
-		if (typeIndex != null) {
-		    List<Annotation> annotations = typeIndex.get(key);
-		    if (annotations != null) {
-			annotations.remove(ann);
-			if (annotations.isEmpty()) {
-			    typeIndex.remove(key);
-			    if (typeIndex.isEmpty()) {
-				index.remove(type);
-			    }
-			}
-		    }
-
-		}
-	    }
-	}
-	
-	static <T> void addAnnotation(Annotation ann, T type, Integer position, Boolean sorted, Map<T, List<Annotation>> container) {
-	    List<Annotation> annotations = container.get(type);
-	    if (annotations == null) {
-		annotations = new ArrayList<Annotation>();
-		container.put(type, annotations);
-	    }
-	    if (((position == null) || (position > annotations.size())) && (!sorted)) {
-		annotations.add(ann);
-	    } else if (position != null) {
-		annotations.add(position, ann);
-	    } else { // sorted
-		ListIterator<Annotation> iter = annotations.listIterator();
-		while (iter.hasNext()) {
-		    Annotation nextAnn = iter.next();
-		    if (nextAnn.getOffset() > ann.getOffset()) {
-			if (iter.hasPrevious()) {
-			    iter.previous();
-			    iter.add(ann);
-			} else {
-			    annotations.add(0, ann);
-			}
-			break;
-		    }
-		}
-		if (!iter.hasNext()) {
-		    annotations.add(ann);
-		}
-	    }
-	}
-
-	static <T> List<Annotation> getIndexedAnnotations(T type, Integer key, Map<T, Map<Integer, List<Annotation>>> index) {
-	    Map<Integer, List<Annotation>> typeIndex = index.get(type);
-	    if (typeIndex == null) return new ArrayList<Annotation>();
-	    List<Annotation> annotations = typeIndex.get(key);
-	    return (annotations == null) ? new ArrayList<Annotation>() : annotations;
-	}
-	
-	static <T> List<Integer> getIndexKeys(T type, Map<T, Map<Integer, List<Annotation>>> index) {
-	    Map<Integer, List<Annotation>> typeIndex = index.get(type);
-	    if (typeIndex == null) return new ArrayList<Integer>();
-	    List<Integer> keys= new ArrayList<Integer>(typeIndex.keySet());
-	    Collections.sort(keys);
-	    return keys;
-	}
-	
-	static <T> void addInvReference(Annotation src, Annotation ref, T type, Map<Annotation, Map<T, List<Annotation>>> index) {
-	    Map<T, List<Annotation>> annIndex = index.get(ref);
-	    if (annIndex == null) {
-		annIndex = new HashMap<T, List<Annotation>>();
-		index.put(ref, annIndex);
-	    }
-	    List<Annotation> refAnnotations = annIndex.get(type);
-	    if (refAnnotations == null) {
-		refAnnotations = new ArrayList<Annotation>();
-		annIndex.put(type, refAnnotations);
-	    }
-	    refAnnotations.add(src);
-	}
-	
-	static <T> List<Annotation> getInvReferences(Annotation ann, T type, Map<Annotation, Map<T, List<Annotation>>> index) {
-	    Map<T, List<Annotation>> annIndex = index.get(ann);
-	    if (annIndex == null) return new ArrayList<Annotation>();
-	    List<Annotation> annotations = annIndex.get(type);
-	    return (annotations == null) ? new ArrayList<Annotation>() : annotations;
-	}
-	
-	static <T> List<Annotation> getInvReferences(Annotation ann, Map<Annotation, Map<T, List<Annotation>>> index) {
-	    List<Annotation> annotations = new ArrayList<Annotation>();
-	    Map<T, List<Annotation>> annIndex = index.get(ann);
-	    if (annIndex == null) return new ArrayList<Annotation>();
-	    for (T type: annIndex.keySet()) {
-		annotations.addAll(annIndex.get(type));
-	    }
-	    return annotations;
-	}
-
-	static <T> List<Annotation> get(T type, Map<T, List<Annotation>> container) {
-	    List<Annotation> annotations = container.get(type);
-	    return (annotations != null) ? annotations : new ArrayList<Annotation>();
-	}
-
-	static <T> void remove(Annotation ann, T type, Map<T, List<Annotation>> container) {
-	    List<Annotation> annotations = container.get(type);
-	    if (annotations != null) annotations.remove(ann);
-	}
-	
-	static <T> Integer getMinKey(Map<Integer, T> map) {
-	    if (map.isEmpty()) return null;
-	    Set<Integer> keys = map.keySet();
-	    Integer min = Integer.MAX_VALUE;
-	    for (Integer key : keys) {
-		if (key < min) {
-		    min = key;
-		}
-	    }
-	    return min;
-	}
-    }
     
 }

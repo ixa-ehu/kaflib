@@ -383,7 +383,7 @@ public class KAFDocument implements Serializable {
     public WF newWF(String id, int offset, int length, String form, int sent) {
 	idManager.updateCounter(AnnotationType.WF, id);
 	WF newWF = new WF(this.annotationContainer, id, offset, length, form, sent);
-	annotationContainer.append(newWF, AnnotationType.WF);
+	annotationContainer.add(newWF, AnnotationType.WF);
 	return newWF;
     }
     
@@ -394,7 +394,7 @@ public class KAFDocument implements Serializable {
     public WF newWF(int offset, Integer length, String form, int sent) {
 	String newId = idManager.getNextId(AnnotationType.WF);
 	WF newWF = new WF(this.annotationContainer, newId, offset, length, form, sent);
-	annotationContainer.append(newWF, AnnotationType.WF);
+	annotationContainer.add(newWF, AnnotationType.WF);
 	return newWF;
     }
     
@@ -413,7 +413,7 @@ public class KAFDocument implements Serializable {
     public Term newTerm(String id, Span<WF> span) {
 	idManager.updateCounter(AnnotationType.TERM, id);
 	Term newTerm = new Term(this.annotationContainer, id, span);
-	annotationContainer.append(newTerm, AnnotationType.TERM);
+	annotationContainer.add(newTerm, AnnotationType.TERM);
 	return newTerm;
     }
 
@@ -427,7 +427,7 @@ public class KAFDocument implements Serializable {
     public Term newTerm(Span<WF> span) {
 	String newId = idManager.getNextId(AnnotationType.TERM);
 	Term newTerm = new Term(this.annotationContainer, newId, span);
-	annotationContainer.append(newTerm, AnnotationType.TERM);
+	annotationContainer.add(newTerm, AnnotationType.TERM);
 	return newTerm;
     }
 
@@ -462,14 +462,14 @@ public class KAFDocument implements Serializable {
     public Mark newMark(String id, Span<WF> span) {
 	idManager.updateCounter(AnnotationType.MARK, id);
 	Mark newMark = new Mark(this.annotationContainer, id, span);
-	annotationContainer.append(newMark, AnnotationType.MARK);
+	annotationContainer.add(newMark, AnnotationType.MARK);
 	return newMark;
     }
 
     public Mark newMark(Span<WF> span) {
 	String newId = idManager.getNextId(AnnotationType.MARK);
 	Mark newMark = new Mark(this.annotationContainer, newId, span);
-	annotationContainer.append(newMark, AnnotationType.MARK);
+	annotationContainer.add(newMark, AnnotationType.MARK);
 	return newMark;
     }
 
@@ -481,7 +481,7 @@ public class KAFDocument implements Serializable {
      */
 public Dep newDep(Term from, Term to, String rfunc) {
     Dep newDep = new Dep(this.annotationContainer, from, to, rfunc);
-    annotationContainer.append(newDep, AnnotationType.DEP);
+    annotationContainer.add(newDep, AnnotationType.DEP);
     return newDep;
 }
 
@@ -496,7 +496,7 @@ public Chunk newChunk(String id, String phrase, Span<Term> span) {
     idManager.updateCounter(AnnotationType.CHUNK, id);
     Chunk newChunk = new Chunk(this.annotationContainer, id, span);
     newChunk.setPhrase(phrase);
-    annotationContainer.append(newChunk, AnnotationType.CHUNK);
+    annotationContainer.add(newChunk, AnnotationType.CHUNK);
     return newChunk;
 }
 
@@ -510,7 +510,7 @@ public Chunk newChunk(String phrase, Span<Term> span) {
     String newId = idManager.getNextId(AnnotationType.CHUNK);
     Chunk newChunk = new Chunk(this.annotationContainer, newId, span);
     newChunk.setPhrase(phrase);
-    annotationContainer.append(newChunk, AnnotationType.CHUNK);
+    annotationContainer.add(newChunk, AnnotationType.CHUNK);
     return newChunk;
 }
 
@@ -523,7 +523,7 @@ public Chunk newChunk(String phrase, Span<Term> span) {
 public Entity newEntity(String id, List<Span<Term>> references) {
     idManager.updateCounter(AnnotationType.ENTITY, id);
 	Entity newEntity = new Entity(this.annotationContainer, id, references);
-	annotationContainer.append(newEntity, AnnotationType.ENTITY);
+	annotationContainer.add(newEntity, AnnotationType.ENTITY);
 	return newEntity;
     }
 
@@ -535,7 +535,7 @@ public Entity newEntity(String id, List<Span<Term>> references) {
 public Entity newEntity(List<Span<Term>> references) {
 	String newId = idManager.getNextId(AnnotationType.ENTITY);
 	Entity newEntity = new Entity(this.annotationContainer, newId, references);
-	annotationContainer.append(newEntity, AnnotationType.ENTITY);
+	annotationContainer.add(newEntity, AnnotationType.ENTITY);
 	return newEntity;
     }
 
@@ -547,7 +547,7 @@ public Entity newEntity(List<Span<Term>> references) {
     public Coref newCoref(String id, List<Span<Term>> mentions) {
 	idManager.updateCounter(AnnotationType.COREF, id);
 	Coref newCoref = new Coref(this.annotationContainer, id, mentions);
-	annotationContainer.append(newCoref, AnnotationType.COREF);
+	annotationContainer.add(newCoref, AnnotationType.COREF);
 	return newCoref;
     }
 
@@ -558,7 +558,7 @@ public Entity newEntity(List<Span<Term>> references) {
     public Coref newCoref(List<Span<Term>> mentions) {
 	String newId = idManager.getNextId(AnnotationType.COREF);
 	Coref newCoref = new Coref(this.annotationContainer, newId, mentions);
-	annotationContainer.append(newCoref, AnnotationType.COREF);
+	annotationContainer.add(newCoref, AnnotationType.COREF);
 	return newCoref;
     }
 
@@ -570,7 +570,7 @@ public Entity newEntity(List<Span<Term>> references) {
     public Timex3 newTimex3(String id, String type) {
 	idManager.updateCounter(AnnotationType.TIMEX3, id);
 	Timex3 newTimex3 = new Timex3(this.annotationContainer, id, type);
-	annotationContainer.append(newTimex3, AnnotationType.TIMEX3);
+	annotationContainer.add(newTimex3, AnnotationType.TIMEX3);
 	return newTimex3;
     }
 
@@ -581,35 +581,35 @@ public Entity newEntity(List<Span<Term>> references) {
     public Timex3 newTimex3(String type) {
 	String newId = idManager.getNextId(AnnotationType.TIMEX3);
 	Timex3 newTimex3 = new Timex3(this.annotationContainer, newId, type);
-	annotationContainer.append(newTimex3, AnnotationType.TIMEX3);
+	annotationContainer.add(newTimex3, AnnotationType.TIMEX3);
 	return newTimex3;
     }
 
     public TLink newTLink(String id, TLinkReferable from, TLinkReferable to, String relType) {
 	idManager.updateCounter(AnnotationType.TLINK, id);
 	TLink newTLink = new TLink(this.annotationContainer, id, from, to, relType);
-	annotationContainer.append(newTLink, AnnotationType.TLINK);
+	annotationContainer.add(newTLink, AnnotationType.TLINK);
 	return newTLink;
     }
 
     public TLink newTLink(TLinkReferable from, TLinkReferable to, String relType) {
 	String newId = idManager.getNextId(AnnotationType.TLINK);
 	TLink newTLink = new TLink(this.annotationContainer, newId, from, to, relType);
-	annotationContainer.append(newTLink, AnnotationType.TLINK);
+	annotationContainer.add(newTLink, AnnotationType.TLINK);
 	return newTLink;
     }
     
     public PredicateAnchor newPredicateAnchor(Span<Predicate> span) {
 	String newId = idManager.getNextId(AnnotationType.PREDICATE_ANCHOR);
 	PredicateAnchor newPredicateAnchor = new PredicateAnchor(this.annotationContainer, newId, span);
-	annotationContainer.append(newPredicateAnchor, AnnotationType.PREDICATE_ANCHOR);
+	annotationContainer.add(newPredicateAnchor, AnnotationType.PREDICATE_ANCHOR);
 	return newPredicateAnchor;
     }
     
     public PredicateAnchor newPredicateAnchor(String id, Span<Predicate> span) {
 	idManager.updateCounter(AnnotationType.PREDICATE_ANCHOR, id);
 	PredicateAnchor newPredicateAnchor = new PredicateAnchor(this.annotationContainer, id, span);
-	annotationContainer.append(newPredicateAnchor, AnnotationType.PREDICATE_ANCHOR);
+	annotationContainer.add(newPredicateAnchor, AnnotationType.PREDICATE_ANCHOR);
 	return newPredicateAnchor;
     }
     
@@ -632,28 +632,28 @@ public Entity newEntity(List<Span<Term>> references) {
     public CLink newCLink(String id, Predicate from, Predicate to) {
 	idManager.updateCounter(AnnotationType.CLINK, id);
 	CLink newCLink = new CLink(this.annotationContainer, id, from, to);
-	annotationContainer.append(newCLink, AnnotationType.CLINK);
+	annotationContainer.add(newCLink, AnnotationType.CLINK);
 	return newCLink;
     }
 
     public CLink newCLink(Predicate from, Predicate to) {
 	String newId = idManager.getNextId(AnnotationType.CLINK);
 	CLink newCLink = new CLink(this.annotationContainer, newId, from, to);
-	annotationContainer.append(newCLink, AnnotationType.CLINK);
+	annotationContainer.add(newCLink, AnnotationType.CLINK);
 	return newCLink;
     }
     
     public Factuality newFactuality(String id, Span<Term> span) {
 	idManager.updateCounter(AnnotationType.FACTUALITY, id);
 	Factuality newFactuality= new Factuality(this.annotationContainer, id, span);
-	annotationContainer.append(newFactuality, AnnotationType.FACTUALITY);
+	annotationContainer.add(newFactuality, AnnotationType.FACTUALITY);
 	return newFactuality;
     }
 
     public Factuality newFactuality(Span<Term> span) {
 	String newId = idManager.getNextId(AnnotationType.FACTUALITY);
 	Factuality newFactuality= new Factuality(this.annotationContainer, newId, span);
-	annotationContainer.append(newFactuality, AnnotationType.FACTUALITY);
+	annotationContainer.add(newFactuality, AnnotationType.FACTUALITY);
 	return newFactuality;
     }
     
@@ -667,7 +667,7 @@ public Entity newEntity(List<Span<Term>> references) {
 	 */
     public Factvalue newFactvalue(WF wf, String prediction) {
 	Factvalue factuality = new Factvalue(this.annotationContainer, wf, prediction);
-	annotationContainer.append(factuality, AnnotationType.FACTVALUE);
+	annotationContainer.add(factuality, AnnotationType.FACTVALUE);
 	return factuality;
     }
 
@@ -679,7 +679,7 @@ public Entity newEntity(List<Span<Term>> references) {
 	public LinkedEntity newLinkedEntity(Span<WF> span) {
 		String newId = idManager.getNextId(Annotations.LINKED_ENTITY);
 		LinkedEntity linkedEntity = new LinkedEntity(newId, span);
-		annotationContainer.append(linkedEntity);
+		annotationContainer.add(linkedEntity);
 		return linkedEntity;
 	}
     */
@@ -693,7 +693,7 @@ public Entity newEntity(List<Span<Term>> references) {
     public Feature newProperty(String id, String lemma, List<Span<Term>> references) {
 	idManager.updateCounter(AnnotationType.PROPERTY, id);
 	Feature newProperty = new Feature(this.annotationContainer, id, lemma, references);
-	annotationContainer.append(newProperty, AnnotationType.PROPERTY);
+	annotationContainer.add(newProperty, AnnotationType.PROPERTY);
 	return newProperty;
     }
     
@@ -705,7 +705,7 @@ public Entity newEntity(List<Span<Term>> references) {
     public Feature newProperty(String lemma, List<Span<Term>> references) {
 	String newId = idManager.getNextId(AnnotationType.PROPERTY);
 	Feature newProperty = new Feature(this.annotationContainer, newId, lemma, references);
-	annotationContainer.append(newProperty, AnnotationType.PROPERTY);
+	annotationContainer.add(newProperty, AnnotationType.PROPERTY);
 	return newProperty;
     }
     
@@ -718,7 +718,7 @@ public Entity newEntity(List<Span<Term>> references) {
     public Feature newCategory(String id, String lemma, List<Span<Term>> references) {
 	idManager.updateCounter(AnnotationType.CATEGORY, id);
 	Feature newCategory = new Feature(this.annotationContainer, id, lemma, references);
-	annotationContainer.append(newCategory, AnnotationType.CATEGORY);
+	annotationContainer.add(newCategory, AnnotationType.CATEGORY);
 	return newCategory;
     }
     
@@ -730,7 +730,7 @@ public Entity newEntity(List<Span<Term>> references) {
     public Feature newCategory(String lemma, List<Span<Term>> references) {
 	String newId = idManager.getNextId(AnnotationType.CATEGORY);
 	Feature newCategory = new Feature(this.annotationContainer, newId, lemma, references);
-	annotationContainer.append(newCategory, AnnotationType.CATEGORY);
+	annotationContainer.add(newCategory, AnnotationType.CATEGORY);
 	return newCategory;
     }
     
@@ -740,7 +740,7 @@ public Entity newEntity(List<Span<Term>> references) {
     public Opinion newOpinion() {
 	String newId = idManager.getNextId(AnnotationType.OPINION);
 	Opinion newOpinion = new Opinion(this.annotationContainer, newId);
-	annotationContainer.append(newOpinion, AnnotationType.OPINION);
+	annotationContainer.add(newOpinion, AnnotationType.OPINION);
 	return newOpinion;
     }
 
@@ -750,7 +750,7 @@ public Entity newEntity(List<Span<Term>> references) {
     public Opinion newOpinion(String id) {
         idManager.updateCounter(AnnotationType.OPINION, id);
 	Opinion newOpinion = new Opinion(this.annotationContainer, id);
-	annotationContainer.append(newOpinion, AnnotationType.OPINION);
+	annotationContainer.add(newOpinion, AnnotationType.OPINION);
 	return newOpinion;
     }
 
@@ -762,7 +762,7 @@ public Entity newEntity(List<Span<Term>> references) {
     public Relation newRelation(Relational from, Relational to) {
 	String newId = idManager.getNextId(AnnotationType.RELATION);
 	Relation newRelation = new Relation(this.annotationContainer, newId, from, to);
-	annotationContainer.append(newRelation, AnnotationType.RELATION);
+	annotationContainer.add(newRelation, AnnotationType.RELATION);
 	return newRelation;
     }
     
@@ -775,7 +775,7 @@ public Entity newEntity(List<Span<Term>> references) {
     public Relation newRelation(String id, Relational from, Relational to) {
 	idManager.updateCounter(AnnotationType.RELATION, id);
 	Relation newRelation = new Relation(this.annotationContainer, id, from, to);
-	annotationContainer.append(newRelation, AnnotationType.RELATION);
+	annotationContainer.add(newRelation, AnnotationType.RELATION);
 	return newRelation;
     }
     
@@ -787,7 +787,7 @@ public Entity newEntity(List<Span<Term>> references) {
     public Predicate newPredicate(String id, Span<Term> span) {
 	    idManager.updateCounter(AnnotationType.PREDICATE, id);
 	Predicate newPredicate = new Predicate(this.annotationContainer, id, span);
-	annotationContainer.append(newPredicate, AnnotationType.PREDICATE);
+	annotationContainer.add(newPredicate, AnnotationType.PREDICATE);
 	return newPredicate;
     }
 
@@ -798,7 +798,7 @@ public Entity newEntity(List<Span<Term>> references) {
     public Predicate newPredicate(Span<Term> span) {
 	String newId = idManager.getNextId(AnnotationType.PREDICATE);
 	Predicate newPredicate = new Predicate(this.annotationContainer, newId, span);
-	annotationContainer.append(newPredicate, AnnotationType.PREDICATE);
+	annotationContainer.add(newPredicate, AnnotationType.PREDICATE);
 	return newPredicate;
     }
 
@@ -842,7 +842,7 @@ public Entity newEntity(List<Span<Term>> references) {
 
     public Tree newConstituent(TreeNode root, String type) {
 	Tree tree = new Tree(this.annotationContainer, root, type);
-	annotationContainer.append(tree, AnnotationType.TREE);
+	annotationContainer.add(tree, AnnotationType.TREE);
 	return tree;
     }
 
@@ -886,21 +886,21 @@ public Entity newEntity(List<Span<Term>> references) {
 
     public Topic newTopic(String value) {
 	Topic newTopic = new Topic(this.annotationContainer, value);
-	annotationContainer.append(newTopic, AnnotationType.TOPIC);
+	annotationContainer.add(newTopic, AnnotationType.TOPIC);
 	return newTopic;
     }
     
     public Statement newStatement(Statement.StatementTarget target) {
 	String newId = idManager.getNextId(AnnotationType.STATEMENT);
 	Statement newStatement = new Statement(this.annotationContainer, newId, target);
-	annotationContainer.append(newStatement, AnnotationType.STATEMENT);
+	annotationContainer.add(newStatement, AnnotationType.STATEMENT);
 	return newStatement;
     }
     
     public Statement newStatement(String id, Statement.StatementTarget target) {
         idManager.updateCounter(AnnotationType.STATEMENT, id);
 	Statement newStatement = new Statement(this.annotationContainer, id, target);
-	annotationContainer.append(newStatement, AnnotationType.STATEMENT);
+	annotationContainer.add(newStatement, AnnotationType.STATEMENT);
 	return newStatement;
     }
     
@@ -938,19 +938,19 @@ public Entity newEntity(List<Span<Term>> references) {
     }
 
     public List<List<WF>> getSentences() {
-	return (List<List<WF>>)(List<?>) annotationContainer.getSentences(AnnotationType.WF);
+	return (List<List<WF>>)(List<?>) annotationContainer.getAnnotationsBySentences(AnnotationType.WF);
     }
     
     public List<List<WF>> getParagraphs() {
-	return (List<List<WF>>)(List<?>) annotationContainer.getParagraphs(AnnotationType.WF);
+	return (List<List<WF>>)(List<?>) annotationContainer.getAnnotationsByParagraphs(AnnotationType.WF);
     }
 
     public List<Annotation> getBySent(AnnotationType type, Integer sent) {
-	return this.annotationContainer.getSentAnnotations(sent, type);
+	return this.annotationContainer.getAnnotationsBySent(sent, type);
     }
 
     public List<Annotation> getByPara(AnnotationType type, Integer para) {
-	return this.annotationContainer.getParaAnnotations(para, type);
+	return this.annotationContainer.getAnnotationsByPara(para, type);
     }
 
     public Integer getFirstSentence() {
@@ -970,7 +970,7 @@ public Entity newEntity(List<Span<Term>> references) {
     }
 
     public List<Integer> getSentsByParagraph(Integer para) {
-	return this.annotationContainer.getParaSents(para);
+	return this.annotationContainer.getSentsByPara(para);
     }
 
     
@@ -1110,7 +1110,6 @@ public Entity newEntity(List<Span<Term>> references) {
 		KAFDocument naf = new KAFDocument(this.getLang(), this.getVersion());
 		naf.setRawText(this.getRawText());
 		for (AnnotationType type : TOP_TYPES) {
-		    Layer layer = TYPE_2_LAYER.get(type);
 		    if (isSentenceLevelAnnotationType(type)) {
 			List<Annotation> annotations = this.getBySent(type, sentence);
 			for (Annotation ann : annotations) {
@@ -1132,7 +1131,6 @@ public Entity newEntity(List<Span<Term>> references) {
 	    KAFDocument naf = new KAFDocument(this.getLang(), this.getVersion());
 	    naf.setRawText(this.getRawText());
 	    for (AnnotationType type : TOP_TYPES) {
-		Layer layer = TYPE_2_LAYER.get(type);
 		if (isParagraphLevelAnnotationType(type)) {
 		    List<Annotation> annotations = this.getByPara(type, paragraph);
 		    for (Annotation ann : annotations) {
@@ -1152,7 +1150,6 @@ public Entity newEntity(List<Span<Term>> references) {
 	joinedNaf.setRawText(firstNaf.getRawText());
 	for (KAFDocument nafPart : nafs) {
 	    for (AnnotationType type : TOP_TYPES) {
-		Layer layer = TYPE_2_LAYER.get(type);
 		List<Annotation> annotations = nafPart.getAnnotations(type);
 		for (Annotation ann : annotations) {
 		    joinedNaf.addExistingAnnotation(ann, type);
@@ -1177,7 +1174,7 @@ public Entity newEntity(List<Span<Term>> references) {
 	    String newId = idManager.getNextId(type);
 	    ((IdentifiableAnnotation) ann).setId(newId);
 	}
-	annotationContainer.append(ann, type);
+	annotationContainer.add(ann, type);
     }
 
     private static Boolean isSentenceLevelAnnotationType(AnnotationType type) {
@@ -1299,7 +1296,7 @@ public Entity newEntity(List<Span<Term>> references) {
 	String newId = idManager.getNextId(AnnotationType.TERM);
 	Term newTerm = new Term(this.annotationContainer, newId, span);
 	newTerm.setMorphofeat(morphofeat);
-	annotationContainer.append(newTerm, AnnotationType.TERM);
+	annotationContainer.add(newTerm, AnnotationType.TERM);
 	return newTerm;
     }
 
@@ -1375,7 +1372,7 @@ public Entity newEntity(List<Span<Term>> references) {
 	idManager.updateCounter(AnnotationType.MARK, id);
 	Mark newMark = new Mark(this.annotationContainer, id, span);
 	newMark.setSource(source);
-	annotationContainer.append(newMark, AnnotationType.MARK);
+	annotationContainer.add(newMark, AnnotationType.MARK);
 	return newMark;
     }
 
@@ -1413,242 +1410,242 @@ public Entity newEntity(List<Span<Term>> references) {
     
     @Deprecated
     public List<WF> getWFsBySent(Integer sent) {
-	return (List<WF>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.WF);
+	return (List<WF>)(List<?>) this.annotationContainer.getAnnotationsBySent(sent, AnnotationType.WF);
     }
 
     @Deprecated
     public List<WF> getWFsByPara(Integer para) {
-	return (List<WF>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.WF);
+	return (List<WF>)(List<?>) this.annotationContainer.getAnnotationsByPara(para, AnnotationType.WF);
     }
 
     @Deprecated
     public List<Term> getTermsBySent(Integer sent) {
-	return (List<Term>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.TERM);
+	return (List<Term>)(List<?>) this.annotationContainer.getAnnotationsBySent(sent, AnnotationType.TERM);
     }
 
     @Deprecated
     public List<Term> getTermsByPara(Integer para) {
-	return (List<Term>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.TERM);
+	return (List<Term>)(List<?>) this.annotationContainer.getAnnotationsByPara(para, AnnotationType.TERM);
     }
 
     @Deprecated
     public List<Entity> getEntitiesBySent(Integer sent) {
-	return (List<Entity>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.ENTITY);
+	return (List<Entity>)(List<?>) this.annotationContainer.getAnnotationsBySent(sent, AnnotationType.ENTITY);
     }
 
     @Deprecated
     public List<Entity> getEntitiesByPara(Integer para) {
-	return (List<Entity>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.ENTITY);
+	return (List<Entity>)(List<?>) this.annotationContainer.getAnnotationsByPara(para, AnnotationType.ENTITY);
     }
 
     @Deprecated
     public List<Chunk> getChunksBySent(Integer sent) {
-	return (List<Chunk>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.CHUNK);
+	return (List<Chunk>)(List<?>) this.annotationContainer.getAnnotationsBySent(sent, AnnotationType.CHUNK);
     }
 
     @Deprecated
     public List<Chunk> getChunksByPara(Integer para) {
-	return (List<Chunk>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.CHUNK);
+	return (List<Chunk>)(List<?>) this.annotationContainer.getAnnotationsByPara(para, AnnotationType.CHUNK);
     }
 
     @Deprecated
     public List<Dep> getDepsBySent(Integer sent) {
-	return (List<Dep>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.DEP);
+	return (List<Dep>)(List<?>) this.annotationContainer.getAnnotationsBySent(sent, AnnotationType.DEP);
     }
 
     @Deprecated
     public List<Dep> getDepsByPara(Integer para) {
-	return (List<Dep>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.DEP);
+	return (List<Dep>)(List<?>) this.annotationContainer.getAnnotationsByPara(para, AnnotationType.DEP);
     }
 
     @Deprecated
     public List<Tree> getConstituentsBySent(Integer sent) {
-	return (List<Tree>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.TREE);
+	return (List<Tree>)(List<?>) this.annotationContainer.getAnnotationsBySent(sent, AnnotationType.TREE);
     }
 
     @Deprecated
     public List<Tree> getConstituentsByPara(Integer para) {
-	return (List<Tree>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.TREE);
+	return (List<Tree>)(List<?>) this.annotationContainer.getAnnotationsByPara(para, AnnotationType.TREE);
     }
 
     @Deprecated
     public List<Tree> getConstituentsBySent(Integer sent, String treeType) {
-	return (List<Tree>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.TREE);
+	return (List<Tree>)(List<?>) this.annotationContainer.getAnnotationsBySent(sent, AnnotationType.TREE);
     }
 
     @Deprecated
     public List<Tree> getConstituentsByPara(Integer para, String treeType) {
-	return (List<Tree>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.TREE);
+	return (List<Tree>)(List<?>) this.annotationContainer.getAnnotationsByPara(para, AnnotationType.TREE);
     }
 
     @Deprecated
     public List<Coref> getCorefsBySent(Integer sent) {
-	return (List<Coref>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.COREF);
+	return (List<Coref>)(List<?>) this.annotationContainer.getAnnotationsBySent(sent, AnnotationType.COREF);
     }
 
     @Deprecated
     public List<Coref> getCorefsByPara(Integer para) {
-	return (List<Coref>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.COREF);
+	return (List<Coref>)(List<?>) this.annotationContainer.getAnnotationsByPara(para, AnnotationType.COREF);
     }
 
     @Deprecated
     public List<Opinion> getOpinionsBySent(Integer sent) {
-	return (List<Opinion>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.OPINION);
+	return (List<Opinion>)(List<?>) this.annotationContainer.getAnnotationsBySent(sent, AnnotationType.OPINION);
     }
 
     @Deprecated
     public List<Opinion> getOpinionsByPara(Integer para) {
-	return (List<Opinion>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.OPINION);
+	return (List<Opinion>)(List<?>) this.annotationContainer.getAnnotationsByPara(para, AnnotationType.OPINION);
     }
 
     @Deprecated
     public List<CLink> getCLinksBySent(Integer sent) {
-	return (List<CLink>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.CLINK);
+	return (List<CLink>)(List<?>) this.annotationContainer.getAnnotationsBySent(sent, AnnotationType.CLINK);
     }
 
     @Deprecated
     public List<CLink> getCLinksByPara(Integer para) {
-	return (List<CLink>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.CLINK);
+	return (List<CLink>)(List<?>) this.annotationContainer.getAnnotationsByPara(para, AnnotationType.CLINK);
     }
 
     @Deprecated
     public List<TLink> getTLinksBySent(Integer sent) {
-	return (List<TLink>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.TLINK);
+	return (List<TLink>)(List<?>) this.annotationContainer.getAnnotationsBySent(sent, AnnotationType.TLINK);
     }
 
     @Deprecated
     public List<TLink> getTLinksByPara(Integer para) {
-	return (List<TLink>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.TLINK);
+	return (List<TLink>)(List<?>) this.annotationContainer.getAnnotationsByPara(para, AnnotationType.TLINK);
     }
 
     @Deprecated
     public List<PredicateAnchor> getPredicateAnchorsBySent(Integer sent) {
-	return (List<PredicateAnchor>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.PREDICATE_ANCHOR);
+	return (List<PredicateAnchor>)(List<?>) this.annotationContainer.getAnnotationsBySent(sent, AnnotationType.PREDICATE_ANCHOR);
     }
 
     @Deprecated
     public List<PredicateAnchor> getPredicateAnchorsByPara(Integer para) {
-	return (List<PredicateAnchor>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.PREDICATE_ANCHOR);
+	return (List<PredicateAnchor>)(List<?>) this.annotationContainer.getAnnotationsByPara(para, AnnotationType.PREDICATE_ANCHOR);
     }
 
     @Deprecated
     public List<Predicate> getPredicatesBySent(Integer sent) {
-	return (List<Predicate>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.PREDICATE);
+	return (List<Predicate>)(List<?>) this.annotationContainer.getAnnotationsBySent(sent, AnnotationType.PREDICATE);
     }
 
     @Deprecated
     public List<Predicate> getPredicatesByPara(Integer para) {
-	return (List<Predicate>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.PREDICATE);
+	return (List<Predicate>)(List<?>) this.annotationContainer.getAnnotationsByPara(para, AnnotationType.PREDICATE);
     }
 
     @Deprecated
     public List<Timex3> getTimeExsBySent(Integer sent) {
-	return (List<Timex3>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.TIMEX3);
+	return (List<Timex3>)(List<?>) this.annotationContainer.getAnnotationsBySent(sent, AnnotationType.TIMEX3);
     }
 
     @Deprecated
     public List<Timex3> getTimeExsByPara(Integer para) {
-	return (List<Timex3>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.TIMEX3);
+	return (List<Timex3>)(List<?>) this.annotationContainer.getAnnotationsByPara(para, AnnotationType.TIMEX3);
     }
 
     @Deprecated
     public List<Factuality> getFactualitiesBySent(Integer sent) {
-	return (List<Factuality>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.FACTUALITY);
+	return (List<Factuality>)(List<?>) this.annotationContainer.getAnnotationsBySent(sent, AnnotationType.FACTUALITY);
     }
 
     @Deprecated
     public List<Factuality> getFactualitiesByPara(Integer para) {
-	return (List<Factuality>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.FACTUALITY);
+	return (List<Factuality>)(List<?>) this.annotationContainer.getAnnotationsByPara(para, AnnotationType.FACTUALITY);
     }
 
     @Deprecated
     public List<Factvalue> getFactvaluesBySent(Integer sent) {
-	return (List<Factvalue>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.FACTVALUE);
+	return (List<Factvalue>)(List<?>) this.annotationContainer.getAnnotationsBySent(sent, AnnotationType.FACTVALUE);
     }
 
     @Deprecated
     public List<Factvalue> getFactvaluesByPara(Integer para) {
-	return (List<Factvalue>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.FACTVALUE);
+	return (List<Factvalue>)(List<?>) this.annotationContainer.getAnnotationsByPara(para, AnnotationType.FACTVALUE);
     }
 
     @Deprecated
     public List<Mark> getMarksBySent(Integer sent) {
-	return (List<Mark>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.MARK);
+	return (List<Mark>)(List<?>) this.annotationContainer.getAnnotationsBySent(sent, AnnotationType.MARK);
     }
 
     @Deprecated
     public List<Mark> getMarksByPara(Integer para) {
-	return (List<Mark>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.MARK);
+	return (List<Mark>)(List<?>) this.annotationContainer.getAnnotationsByPara(para, AnnotationType.MARK);
     }
 
     @Deprecated
     public List<Mark> getMarksBySent(Integer sent, String group) {
-	return (List<Mark>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.MARK);
+	return (List<Mark>)(List<?>) this.annotationContainer.getAnnotationsBySent(sent, AnnotationType.MARK);
     }
 
     @Deprecated
     public List<Mark> getMarksByPara(Integer para, String group) {
-	return (List<Mark>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.MARK);
+	return (List<Mark>)(List<?>) this.annotationContainer.getAnnotationsByPara(para, AnnotationType.MARK);
     }
 
     @Deprecated
     public List<Feature> getPropertiesBySent(Integer sent) {
-	return (List<Feature>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.PROPERTY);
+	return (List<Feature>)(List<?>) this.annotationContainer.getAnnotationsBySent(sent, AnnotationType.PROPERTY);
     }
 
     @Deprecated
     public List<Feature> getPropertiesByPara(Integer para) {
-	return (List<Feature>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.PROPERTY);
+	return (List<Feature>)(List<?>) this.annotationContainer.getAnnotationsByPara(para, AnnotationType.PROPERTY);
     }
 
     @Deprecated
     public List<Feature> getCategoriesBySent(Integer sent) {
-	return (List<Feature>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.CATEGORY);
+	return (List<Feature>)(List<?>) this.annotationContainer.getAnnotationsBySent(sent, AnnotationType.CATEGORY);
     }
 
     @Deprecated
     public List<Feature> getCategoriesByPara(Integer para) {
-	return (List<Feature>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.CATEGORY);
+	return (List<Feature>)(List<?>) this.annotationContainer.getAnnotationsByPara(para, AnnotationType.CATEGORY);
     }
 
     @Deprecated
     public List<LinkedEntity> getLinkedEntitiesBySent(Integer sent) {
-	return (List<LinkedEntity>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.LINKED_ENTITY);
+	return (List<LinkedEntity>)(List<?>) this.annotationContainer.getAnnotationsBySent(sent, AnnotationType.LINKED_ENTITY);
     }
 
     @Deprecated
     public List<LinkedEntity> getLinkedEntitiesByPara(Integer para) {
-	return (List<LinkedEntity>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.LINKED_ENTITY);
+	return (List<LinkedEntity>)(List<?>) this.annotationContainer.getAnnotationsByPara(para, AnnotationType.LINKED_ENTITY);
     }
 
     @Deprecated
     public List<Relation> getRelationsBySent(Integer sent) {
-	return (List<Relation>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.RELATION);
+	return (List<Relation>)(List<?>) this.annotationContainer.getAnnotationsBySent(sent, AnnotationType.RELATION);
     }
 
     @Deprecated
     public List<Relation> getRelationsByPara(Integer para) {
-	return (List<Relation>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.RELATION);
+	return (List<Relation>)(List<?>) this.annotationContainer.getAnnotationsByPara(para, AnnotationType.RELATION);
     }
 
     @Deprecated
     public List<Topic> getTopicsBySent(Integer sent) {
-	return (List<Topic>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.TOPIC);
+	return (List<Topic>)(List<?>) this.annotationContainer.getAnnotationsBySent(sent, AnnotationType.TOPIC);
     }
 
     @Deprecated
     public List<Topic> getTopicsByPara(Integer para) {
-	return (List<Topic>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.TOPIC);
+	return (List<Topic>)(List<?>) this.annotationContainer.getAnnotationsByPara(para, AnnotationType.TOPIC);
     }
 
     @Deprecated
     public List<Statement> getStatementsBySent(Integer sent) {
-	return (List<Statement>)(List<?>) this.annotationContainer.getSentAnnotations(sent, AnnotationType.STATEMENT);
+	return (List<Statement>)(List<?>) this.annotationContainer.getAnnotationsBySent(sent, AnnotationType.STATEMENT);
     }
 
     @Deprecated
     public List<Statement> getStatementsByPara(Integer para) {
-	return (List<Statement>)(List<?>) this.annotationContainer.getParaAnnotations(para, AnnotationType.STATEMENT);
+	return (List<Statement>)(List<?>) this.annotationContainer.getAnnotationsByPara(para, AnnotationType.STATEMENT);
     }
     
     
@@ -1677,7 +1674,7 @@ public Entity newEntity(List<Span<Term>> references) {
     }
 
     public void removeLayer(Layer layer) {
-	this.annotationContainer.removeLayer(layer);
+	this.annotationContainer.remove(layer);
     }
 
     /** Converts a List into a Span */
@@ -1741,7 +1738,7 @@ public Entity newEntity(List<Span<Term>> references) {
     }
     
     public List<Term> getSentenceTerms(int sent) {
-	return (List<Term>)(List<?>) annotationContainer.getSentAnnotations(sent, AnnotationType.TERM);
+	return (List<Term>)(List<?>) annotationContainer.getAnnotationsBySent(sent, AnnotationType.TERM);
     }
 
     

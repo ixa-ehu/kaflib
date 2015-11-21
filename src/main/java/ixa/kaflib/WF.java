@@ -71,9 +71,8 @@ public class WF extends IdentifiableAnnotation implements SentenceLevelAnnotatio
 
     public void setSent(Integer sent) {
 	Integer oldSent = this.sent;
-	Integer oldPara = this.para;
 	this.sent = sent;
-	this.annotationContainer.reindexAnnotationSent(this, KAFDocument.AnnotationType.WF, oldSent);
+	this.annotationContainer.updateAnnotationSent(this, AnnotationType.WF, oldSent, sent);
     }
 
     public boolean hasPara() {
@@ -85,10 +84,9 @@ public class WF extends IdentifiableAnnotation implements SentenceLevelAnnotatio
     }
 
     public void setPara(Integer para) {
-	Integer oldSent = this.sent;
 	Integer oldPara = this.para;
 	this.para = para;
-	this.annotationContainer.reindexAnnotationPara(this, KAFDocument.AnnotationType.WF, oldPara);
+	this.annotationContainer.updateAnnotationPara(this, AnnotationType.WF, oldPara, para);
     }
 
     public boolean hasPage() {
