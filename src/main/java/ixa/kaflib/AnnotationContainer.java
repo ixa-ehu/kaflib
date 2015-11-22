@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -81,11 +82,11 @@ class AnnotationContainer implements Serializable {
     }
 
     List<Annotation> getAnnotationsBy(List<Annotation> anns, AnnotationType type) {
-	List<Annotation> annotations = new ArrayList<Annotation>();
+	Set<Annotation> annotations = new LinkedHashSet<Annotation>();
 	for (Annotation ann : anns) {
 	    annotations.addAll(this.getAnnotationsBy(ann, type));
 	}
-	return annotations;
+	return new ArrayList<Annotation>(annotations);
     }
 
     List<Annotation> getAnnotationsBy(Annotation ann, Layer layer) {
@@ -97,11 +98,11 @@ class AnnotationContainer implements Serializable {
     }
 
     List<Annotation> getAnnotationsBy(List<Annotation> anns, Layer layer) {
-	List<Annotation> annotations = new ArrayList<Annotation>();
+	Set<Annotation> annotations = new LinkedHashSet<Annotation>();
 	for (Annotation ann : anns) {
 	    annotations.addAll(this.getAnnotationsBy(ann, layer));
 	}
-	return annotations;
+	return new ArrayList<Annotation>(annotations);
     }
     
     List<Annotation> getAnnotationsBySent(Integer sent, AnnotationType type) {
@@ -159,31 +160,45 @@ class AnnotationContainer implements Serializable {
     void addUnknownLayer(Element layer) {
 	this.unknownLayers.add(layer);
     }
-    
-    void indexNewReference(AnnotationType sourceType, Annotation refSource, Annotation refTarget) {
-	Map<AnnotationType, List<Annotation>> annotationRefs= this.invRefIndex.get(refTarget);
+
+    void indexAnnotationReferences(AnnotationType sourceType, Annotation source, Annotation target) {
+	/* Index source <-> target annotations */
+	Map<AnnotationType, List<Annotation>> annotationRefs= this.invRefIndex.get(target);
 	if (annotationRefs == null) {
 	    annotationRefs = new HashMap<AnnotationType, List<Annotation>>();
-	    this.invRefIndex.put(refTarget, annotationRefs);
+	    this.invRefIndex.put(target, annotationRefs);
 	}
 	List<Annotation> typeRefs = annotationRefs.get(sourceType);
 	if (typeRefs == null) {
 	    typeRefs = new ArrayList<Annotation>();
 	    annotationRefs.put(sourceType, typeRefs);
 	}
-	typeRefs.add(refSource);
+	typeRefs.add(source);
+	/* Index target's children recursively */
+	for (Map.Entry<AnnotationType, List<Annotation>> entry : target.getReferencedAnnotations().entrySet()) {
+	    for (Annotation targetChild : entry.getValue()) {
+		this.indexAnnotationReferences(sourceType, source, targetChild);
+	    }
+	}
     }
     
-    void unindexReference(AnnotationType sourceType, Annotation refSource, Annotation refTarget) {
-	Map<AnnotationType, List<Annotation>> annotationRefs = this.invRefIndex.get(refTarget);
+    void unindexAnnotationReferences(AnnotationType sourceType, Annotation source, Annotation target) {
+	/* Unindex source <-> target relation */
+	Map<AnnotationType, List<Annotation>> annotationRefs = this.invRefIndex.get(target);
 	if (annotationRefs == null) return;
 	List<Annotation> typeRefs = annotationRefs.get(sourceType);
 	if (typeRefs == null) return;
-	typeRefs.remove(refSource);
+	typeRefs.remove(source);
 	if (typeRefs.isEmpty()) {
 	    annotationRefs.remove(sourceType);
 	    if (annotationRefs.isEmpty()) {
-		this.invRefIndex.remove(refTarget);
+		this.invRefIndex.remove(target);
+	    }
+	}
+	/* Unindex target's children recursively */
+	for (Map.Entry<AnnotationType, List<Annotation>> entry : target.getReferencedAnnotations().entrySet()) {
+	    for (Annotation targetChild : entry.getValue()) {
+		this.unindexAnnotationReferences(sourceType, source, targetChild);
 	    }
 	}
     }
@@ -325,7 +340,7 @@ class AnnotationContainer implements Serializable {
 	while (it.hasNext()) {
 	    Map.Entry<AnnotationType, List<Annotation>> pair = it.next();
 	    for (Annotation target : pair.getValue()) {
-		this.indexNewReference(type, ann, target);
+		this.indexAnnotationReferences(type, ann, target);
 	    }
 	}
 	/* Index annotation by sentence */
