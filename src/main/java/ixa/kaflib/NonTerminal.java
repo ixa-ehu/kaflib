@@ -33,7 +33,7 @@ public class NonTerminal extends TreeNode implements SentenceLevelAnnotation {
 	this.label = label;
     }
 
-    public void addChild(TreeNode tn) throws Exception {
+    public void addChild(TreeNode tn) {
 	this.children.add(tn);
     }
 
