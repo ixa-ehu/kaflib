@@ -68,6 +68,7 @@ class AnnotationContainer implements Serializable {
 	}
 	return annotations;
     }
+    
 
     List<Annotation> getAnnotations(AnnotationType type) {
 	List<Annotation> annotations = this.annotations.get(type);
@@ -80,6 +81,14 @@ class AnnotationContainer implements Serializable {
 	List<Annotation> annotations = annIndex.get(type);
 	return (annotations == null) ? new ArrayList<Annotation>() : annotations;
     }
+    
+    List<Annotation> getAnnotationsBy(Annotation ann, Layer layer) {
+	List<Annotation> annotations = new ArrayList<Annotation>();
+	for (AnnotationType type : KAFDocument.LAYER_2_TYPES.get(layer)) {
+	    annotations.addAll(this.getAnnotationsBy(ann, type));
+	}
+	return annotations;
+    }
 
     List<Annotation> getAnnotationsBy(List<Annotation> anns, AnnotationType type) {
 	Set<Annotation> annotations = new LinkedHashSet<Annotation>();
@@ -87,14 +96,6 @@ class AnnotationContainer implements Serializable {
 	    annotations.addAll(this.getAnnotationsBy(ann, type));
 	}
 	return new ArrayList<Annotation>(annotations);
-    }
-
-    List<Annotation> getAnnotationsBy(Annotation ann, Layer layer) {
-	List<Annotation> annotations = new ArrayList<Annotation>();
-	for (AnnotationType type : KAFDocument.LAYER_2_TYPES.get(layer)) {
-	    annotations.addAll(this.getAnnotationsBy(ann, type));
-	}
-	return annotations;
     }
 
     List<Annotation> getAnnotationsBy(List<Annotation> anns, Layer layer) {
@@ -112,12 +113,48 @@ class AnnotationContainer implements Serializable {
 	return (annotations == null) ? new ArrayList<Annotation>() : annotations;
     }
     
+    List<Annotation> getAnnotationsBySent(Integer sent, Layer layer) {
+	List<Annotation> annotations = new ArrayList<Annotation>();
+	for (AnnotationType type : KAFDocument.LAYER_2_TYPES.get(layer)) {
+	    annotations.addAll(this.getAnnotationsBySent(sent, type));
+	}
+	return annotations;
+    }
+    
+    List<Annotation> getAnnotationsByPara(Integer para, AnnotationType type) {
+	List<Annotation> paraAnnotations = new ArrayList<Annotation>();
+	for (Integer sent : this.getSentsByPara(para)) {
+	    paraAnnotations.addAll(this.getAnnotationsBySent(sent, type));
+	}
+	return paraAnnotations;
+    }
+    
+    List<Annotation> getAnnotationsByPara(Integer para, Layer layer) {
+	List<Annotation> annotations = new ArrayList<Annotation>();
+	for (AnnotationType type : KAFDocument.LAYER_2_TYPES.get(layer)) {
+	    annotations.addAll(this.getAnnotationsByPara(para, type));
+	}
+	return annotations;
+    }
+
     List<List<Annotation>> getAnnotationsBySentences(AnnotationType type) {
 	List<List<Annotation>> annsBySents = new ArrayList<List<Annotation>>();
 	for (Integer sent : this.getSentences()) {
 	    annsBySents.add(this.getAnnotationsBySent(sent, type));
 	}
 	return annsBySents;
+    }
+    
+    List<List<Annotation>> getAnnotationsBySentences(Layer layer) {
+	List<List<Annotation>> annotations = new ArrayList<List<Annotation>>();
+	for (Integer sent : this.getSentences()) {
+	    List<Annotation> sentAnnotations = new ArrayList<Annotation>();
+	    for (AnnotationType type : KAFDocument.LAYER_2_TYPES.get(layer)) {
+		sentAnnotations.addAll(this.getAnnotationsBySent(sent, type));
+	    }
+	    annotations.add(sentAnnotations);
+	}
+	return annotations;
     }
     
     List<List<Annotation>> getAnnotationsByParagraphs(AnnotationType type) {
@@ -128,18 +165,74 @@ class AnnotationContainer implements Serializable {
 	return annsByParas;
     }
 
-    List<Annotation> getAnnotationsByPara(Integer para, AnnotationType type) {
-	List<Annotation> paraAnnotations = new ArrayList<Annotation>();
-	for (Integer sent : this.getSentsByPara(para)) {
-	    paraAnnotations.addAll(this.getAnnotationsBySent(sent, type));
+    List<List<Annotation>> getAnnotationsByParagraphs(Layer layer) {
+	List<List<Annotation>> annotations = new ArrayList<List<Annotation>>();
+	for (Integer para : this.getParagraphs()) {
+	    List<Annotation> sentAnnotations = new ArrayList<Annotation>();
+	    for (AnnotationType type : KAFDocument.LAYER_2_TYPES.get(layer)) {
+		sentAnnotations.addAll(this.getAnnotationsByPara(para, type));
+	    }
+	    annotations.add(sentAnnotations);
 	}
-	return paraAnnotations;
+	return annotations;
     }
 
     Set<Element> getUnknownLayers() {
 	return this.unknownLayers;
     }
     
+    List<Integer> getSentsByPara(Integer para) {
+	if (!this.paraSentIndexUpToDate) {
+	    this.updateParaSentIndex();
+	}
+	Set<Integer> sents = this.paraSentIndex.get(para);
+	if (sents == null) return new ArrayList<Integer>();
+	return new ArrayList<Integer>(sents);
+    }
+
+    Integer getNumSentences() {
+	Set<Integer> sentences = this.sentIndex.get(AnnotationType.WF).keySet();
+	return (sentences != null) ? sentences.size() : 0;
+    }
+    
+    Integer getNumParagraphs() {
+	if (!this.paraSentIndexUpToDate) {
+	    this.updateParaSentIndex();
+	}
+	Set<Integer> paragraphs = this.paraSentIndex.keySet();
+	return (paragraphs != null) ? paragraphs.size() : 0;
+    }
+    
+    List<Integer> getSentences() {
+	List<Integer> sentences = new ArrayList<Integer>(this.sentIndex.get(AnnotationType.WF).keySet());
+	Collections.sort(sentences);
+	return sentences;
+    }
+    
+    List<Integer> getParagraphs() {
+	if (!this.paraSentIndexUpToDate) {
+	    this.updateParaSentIndex();
+	}
+	List<Integer> paragraphs = new ArrayList<Integer>(this.paraSentIndex.keySet());
+	Collections.sort(paragraphs);
+	return paragraphs;
+    }
+    
+    Integer getFirstSentence() {
+	List<Integer> sentences = this.getSentences();
+	return (sentences.size() > 0) ? sentences.get(0) : null;
+    }
+    
+    Integer getFirstParagraph() {
+	List<Integer> paragraphs = this.getParagraphs();
+	return (paragraphs.size() > 0) ? paragraphs.get(0) : null;
+    }
+
+    Integer getPosition(AnnotationType type, Annotation ann) {
+	List<Annotation> annotations = this.annotations.get(type);
+	return (annotations != null) ? annotations.indexOf(ann) : null;
+    }
+
     
     void setRawText(String str) {
 	rawText = str;
@@ -162,43 +255,21 @@ class AnnotationContainer implements Serializable {
     }
 
     void indexAnnotationReferences(AnnotationType sourceType, Annotation source, Annotation target) {
-	/* Index source <-> target annotations */
-	Map<AnnotationType, List<Annotation>> annotationRefs= this.invRefIndex.get(target);
-	if (annotationRefs == null) {
-	    annotationRefs = new HashMap<AnnotationType, List<Annotation>>();
-	    this.invRefIndex.put(target, annotationRefs);
-	}
-	List<Annotation> typeRefs = annotationRefs.get(sourceType);
-	if (typeRefs == null) {
-	    typeRefs = new ArrayList<Annotation>();
-	    annotationRefs.put(sourceType, typeRefs);
-	}
-	typeRefs.add(source);
+	this.indexAnnotationReference(sourceType, source, target);
 	/* Index target's children recursively */
 	for (Map.Entry<AnnotationType, List<Annotation>> entry : target.getReferencedAnnotations().entrySet()) {
 	    for (Annotation targetChild : entry.getValue()) {
-		this.indexAnnotationReferences(sourceType, source, targetChild);
+		this.indexAnnotationReference(sourceType, source, targetChild);
 	    }
 	}
     }
-    
+
     void unindexAnnotationReferences(AnnotationType sourceType, Annotation source, Annotation target) {
-	/* Unindex source <-> target relation */
-	Map<AnnotationType, List<Annotation>> annotationRefs = this.invRefIndex.get(target);
-	if (annotationRefs == null) return;
-	List<Annotation> typeRefs = annotationRefs.get(sourceType);
-	if (typeRefs == null) return;
-	typeRefs.remove(source);
-	if (typeRefs.isEmpty()) {
-	    annotationRefs.remove(sourceType);
-	    if (annotationRefs.isEmpty()) {
-		this.invRefIndex.remove(target);
-	    }
-	}
+	this.unindexAnnotationReference(sourceType, source, target);
 	/* Unindex target's children recursively */
 	for (Map.Entry<AnnotationType, List<Annotation>> entry : target.getReferencedAnnotations().entrySet()) {
 	    for (Annotation targetChild : entry.getValue()) {
-		this.unindexAnnotationReferences(sourceType, source, targetChild);
+		this.unindexAnnotationReference(sourceType, source, targetChild);
 	    }
 	}
     }
@@ -234,8 +305,9 @@ class AnnotationContainer implements Serializable {
     }
 
     void remove(AnnotationType type) {
-	for (Annotation ann : this.annotations.get(type)) {
-	    this.remove(ann, type);
+	List<Annotation> annotations = this.annotations.get(type);
+	while (!annotations.isEmpty()) {
+	    this.remove(annotations.get(0), type);
 	}
     }
 
@@ -243,58 +315,6 @@ class AnnotationContainer implements Serializable {
 	for (AnnotationType type : KAFDocument.LAYER_2_TYPES.get(layerName)) {
 	    this.remove(type);
 	}
-    }
-
-    List<Integer> getSentsByPara(Integer para) {
-	if (!this.paraSentIndexUpToDate) {
-	    this.updateParaSentIndex();
-	}
-	Set<Integer> sents = this.paraSentIndex.get(para);
-	if (sents == null) return new ArrayList<Integer>();
-	return new ArrayList<Integer>(sents);
-    }
-
-    Integer getNumSentences() {
-	Set<Integer> sentences = this.paraSentIndexInfo.keySet();
-	return (sentences != null) ? sentences.size() : 0;
-    }
-    
-    Integer getNumParagraphs() {
-	if (!this.paraSentIndexUpToDate) {
-	    this.updateParaSentIndex();
-	}
-	Set<Integer> paragraphs = this.paraSentIndex.keySet();
-	return (paragraphs != null) ? paragraphs.size() : 0;
-    }
-    
-    List<Integer> getSentences() {
-	List<Integer> sentences = new ArrayList<Integer>(this.paraSentIndexInfo.keySet());
-	Collections.sort(sentences);
-	return sentences;
-    }
-    
-    List<Integer> getParagraphs() {
-	if (!this.paraSentIndexUpToDate) {
-	    this.updateParaSentIndex();
-	}
-	List<Integer> paragraphs = new ArrayList<Integer>(this.paraSentIndex.keySet());
-	Collections.sort(paragraphs);
-	return paragraphs;
-    }
-    
-    Integer getFirstSentence() {
-	List<Integer> sentences = this.getSentences();
-	return (sentences.size() > 0) ? sentences.get(0) : null;
-    }
-    
-    Integer getFirstParagraph() {
-	List<Integer> paragraphs = this.getParagraphs();
-	return (paragraphs.size() > 0) ? paragraphs.get(0) : null;
-    }
-
-    Integer getPosition(AnnotationType type, Annotation ann) {
-	List<Annotation> annotations = this.annotations.get(type);
-	return (annotations != null) ? annotations.indexOf(ann) : null;
     }
 
     
@@ -354,9 +374,51 @@ class AnnotationContainer implements Serializable {
 	    }
 	}
     }
-
+    
+    private void indexAnnotationReference(AnnotationType sourceType, Annotation source, Annotation target) {
+	Map<AnnotationType, List<Annotation>> annotationRefs= this.invRefIndex.get(target);
+	if (annotationRefs == null) {
+	    annotationRefs = new HashMap<AnnotationType, List<Annotation>>();
+	    this.invRefIndex.put(target, annotationRefs);
+	}
+	List<Annotation> typeRefs = annotationRefs.get(sourceType);
+	if (typeRefs == null) {
+	    typeRefs = new ArrayList<Annotation>();
+	    annotationRefs.put(sourceType, typeRefs);
+	}
+	typeRefs.add(source);
+    }
+    
+    private void unindexAnnotationReference(AnnotationType sourceType, Annotation source, Annotation target) {
+	Map<AnnotationType, List<Annotation>> annotationRefs = this.invRefIndex.get(target);
+	if (annotationRefs == null) return;
+	List<Annotation> typeRefs = annotationRefs.get(sourceType);
+	if (typeRefs == null) return;
+	typeRefs.remove(source);
+	if (typeRefs.isEmpty()) {
+	    annotationRefs.remove(sourceType);
+	    if (annotationRefs.isEmpty()) {
+		this.invRefIndex.remove(target);
+	    }
+	}
+    }
+    
     private void indexAnnotationBySent(Annotation ann, AnnotationType type, Integer sent) {
 	if (!(ann instanceof SentenceLevelAnnotation)) return;
+	this.addAnnotationToSentIndex(ann, type, sent);
+	/* Index inversely referenced annotations */
+	Map<AnnotationType, List<Annotation>> referencedAnnotations = this.invRefIndex.get(ann);
+	if (referencedAnnotations != null) {
+	    for (Map.Entry<AnnotationType, List<Annotation>> entry : referencedAnnotations.entrySet()) {
+		AnnotationType currentType = entry.getKey();
+		for (Annotation currentAnn : entry.getValue()) {
+		    this.addAnnotationToSentIndex(currentAnn, currentType, sent);
+		}
+	    }
+	}
+    }
+    
+    private void addAnnotationToSentIndex(Annotation ann, AnnotationType type, Integer sent) {
 	if (ann.getOffset() != null) { // Do not index annotations with no offset defined (those not related to any WFs)
 	    if (sent != null) {
 		/* Add annotation to sentence index */
@@ -370,24 +432,30 @@ class AnnotationContainer implements Serializable {
 		    annotations = new ArrayList<Annotation>();
 		    typeIndex.put(sent, annotations);
 		}
-		annotations.add(ann);
-		Collections.sort(annotations);
-	    }
-	}
-	/* Index inversely referenced annotations */
-	Map<AnnotationType, List<Annotation>> referencedAnnotations = this.invRefIndex.get(ann);
-	if (referencedAnnotations != null) {
-	    for (Map.Entry<AnnotationType, List<Annotation>> entry : referencedAnnotations.entrySet()) {
-		AnnotationType currentType = entry.getKey();
-		for (Annotation currentAnn : entry.getValue()) {
-		    this.indexAnnotationBySent(currentAnn, currentType, sent);
+		if (!annotations.contains(ann)) {
+		    annotations.add(ann);
 		}
+		Collections.sort(annotations);
 	    }
 	}
     }
 
     private void unindexAnnotationBySent(Annotation ann, AnnotationType type, Integer sent) {
 	if (!(ann instanceof SentenceLevelAnnotation)) return;
+	this.removeAnnotationFromSentIndex(ann, type, sent);
+	/* Unindex inversely referenced annotations */
+	Map<AnnotationType, List<Annotation>> referencedAnnotations = this.invRefIndex.get(ann);
+	if (referencedAnnotations != null) {
+	    for (Map.Entry<AnnotationType, List<Annotation>> entry : referencedAnnotations.entrySet()) {
+		AnnotationType currentType = entry.getKey();
+		for (Annotation currentAnn : entry.getValue()) {
+		    this.removeAnnotationFromSentIndex(currentAnn, currentType, sent);
+		}
+	    }
+	}
+    }
+    
+    private void removeAnnotationFromSentIndex(Annotation ann, AnnotationType type, Integer sent) {
 	if (sent != null) {
 	    /* Remove annotation from sentence index */
 	    Map<Integer, List<Annotation>> typeIndex = this.sentIndex.get(type);
@@ -401,16 +469,6 @@ class AnnotationContainer implements Serializable {
 			    this.sentIndex.remove(type);
 			}
 		    }
-		}
-	    }
-	}
-	/* Unindex inversely referenced annotations */
-	Map<AnnotationType, List<Annotation>> referencedAnnotations = this.invRefIndex.get(ann);
-	if (referencedAnnotations != null) {
-	    for (Map.Entry<AnnotationType, List<Annotation>> entry : referencedAnnotations.entrySet()) {
-		AnnotationType currentType = entry.getKey();
-		for (Annotation currentAnn : entry.getValue()) {
-		    this.unindexAnnotationBySent(currentAnn, currentType, sent);
 		}
 	    }
 	}
@@ -464,6 +522,7 @@ class AnnotationContainer implements Serializable {
 		Integer numAnnotations = paraInfo.getValue();
 		if (numAnnotations >= maxAnnotations) {
 		    maxAnnotationsParagraph = para;
+		    maxAnnotations= numAnnotations;
 		}
 	    }
 	    if (maxAnnotationsParagraph != null) {
