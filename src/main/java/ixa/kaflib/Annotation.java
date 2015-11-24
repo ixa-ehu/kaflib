@@ -21,11 +21,26 @@ public abstract class Annotation implements Comparable<Annotation>, Serializable
     }
     
     abstract Map<AnnotationType, List<Annotation>> getReferencedAnnotations();
+    
+    /*
+    public Map<AnnotationType, List<Annotation>> getReferencedAnnotationsDeep() {
+	Map<AnnotationType, List<Annotation>> referencedAnns = new HashMap<KAFDocument.AnnotationType, List<Annotation>>();
+	for (Map.Entry<AnnotationType, List<Annotation>> entry : this.getReferencedAnnotations().entrySet()) {
+	    AnnotationType type = entry.getKey();
+	    List<Annotation> annotations = new ArrayList<Annotation>(entry.getValue());
+	    referencedAnns.put(type, annotations);
+	    
+	    
+	}
+	return referencedAnns;
+    }
+    */
 
     public abstract Integer getOffset();
     
     @Override
     public int compareTo(Annotation annotation) {
+	if (this.equals(annotation)) return 0;
 	if (this.getOffset() < annotation.getOffset()) return -1;
 	else if (this.getOffset() > annotation.getOffset()) return 1;
 	else { // this.offset == annotation.getOffset()
@@ -56,4 +71,19 @@ public abstract class Annotation implements Comparable<Annotation>, Serializable
 	}
 	return strValue;
     }
+    
+    /*
+    private static void insertAnnotationsInMap(Map<AnnotationType, List<Annotation>> originalMap, Map<AnnotationType, List<Annotation>> newMap) {
+	for (Map.Entry<AnnotationType, List<Annotation>> entry : newMap.entrySet()) {
+	    AnnotationType type = entry.getKey();
+	    List<Annotation> annotations = new ArrayList<Annotation>(entry.getValue());
+	    Set<Annotation> typeAnns = new LinkedHashSet<Annotation>(originalMap.get(type));
+	    if (typeAnns == null) {
+		typeAnns = new LinkedHashSet<Annotation>();
+		originalMap.put(type, typeAnns);
+	    }
+	    typeAnns.addAll(annotations);
+	}
+    }
+    */
 }
