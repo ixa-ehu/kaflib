@@ -197,6 +197,8 @@ public class KAFDocumentTest {
 	wf1.setPara(3);
 	assertEquals("KAFDocument::getParagraph() did not return the actual paragraph number of the doc (after editing the paragraph number of the first WF)", new Integer(2), naf.getParagraph());
 	wf4.setPara(0);
+	assertEquals("KAFDocument::getParagraph() did not return the actual paragraph number of the doc (after editing paragraph values of WFs)", new Integer(2), naf.getParagraph());
+	wf3.setPara(0);
 	assertEquals("KAFDocument::getParagraph() did not return the actual paragraph number of the doc (after editing paragraph values of WFs)", new Integer(0), naf.getParagraph());
     }
     
@@ -245,7 +247,9 @@ public class KAFDocumentTest {
 	assertEquals("KAFDocument::getBySent(WF) did not return the correct sent", sent1, naf1.getBySent(AnnotationType.WF, 1));
 	assertEquals("KAFDocument::getWFsBySent() did not return the correct sent", sent1, naf1.getWFsBySent(1));
 	/* Queries by paragraph*/
-	List<WF> para1 = Arrays.asList(wf5, wf6, wf7, wf8);
+	List<WF> para0 = Arrays.asList(wf2, wf3, wf4);
+	List<WF> para1 = Arrays.asList(wf1, wf5, wf6, wf7, wf8);
+	assertEquals("KAFDocument::getByPara(WF) did not return the correct para", para0, naf1.getByPara(AnnotationType.WF, 0));
 	assertEquals("KAFDocument::getByPara(WF) did not return the correct para", para1, naf1.getByPara(AnnotationType.WF, 1));
 	assertEquals("KAFDocument::getWFsByPara() did not return the correct para", para1, naf1.getWFsByPara(1));
 	wf1.setPara(1);

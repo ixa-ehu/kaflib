@@ -484,10 +484,10 @@ class AnnotationContainer implements Serializable {
 	    Integer numAnnotations = numAnnotationsSent.get(para);
 	    if (numAnnotations == null) {
 		numAnnotations = 0;
-		this.paraSentIndexUpToDate = false;
 	    }
 	    numAnnotations++;
 	    numAnnotationsSent.put(para, numAnnotations);
+	    this.paraSentIndexUpToDate = false;
 	}
     }
     
