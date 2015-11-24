@@ -1,5 +1,7 @@
 package ixa.kaflib;
 
+import ixa.kaflib.KAFDocument.AnnotationType;
+
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -10,7 +12,11 @@ public class Span<T extends IdentifiableAnnotation> implements Serializable {
     private List<T> targets;
     private List<T> sortedTargets;
     private T head;
-
+    
+    private AnnotationContainer annotationContainer;
+    private Annotation ownerAnnotation;
+    private AnnotationType ownerType;
+    
     private static final long serialVersionUID = 1L;
 
 
@@ -66,6 +72,10 @@ public class Span<T extends IdentifiableAnnotation> implements Serializable {
 	this.targets.add(target);
 	this.sortedTargets.add(target);
 	Collections.sort(this.sortedTargets);
+	// Update index
+	if (this.hasOwner()) {
+	    this.annotationContainer.indexAnnotationReferences(this.ownerType, this.ownerAnnotation, target);
+	}
     }
 
     public void addTarget(T target, boolean isHead) {
@@ -76,15 +86,19 @@ public class Span<T extends IdentifiableAnnotation> implements Serializable {
     }
 
     public void addTargets(List<T> targets) {
-	this.targets.addAll(targets);
-	this.sortedTargets.addAll(targets);
-	Collections.sort(this.sortedTargets);
+	for (T target : targets) {
+	    this.addTarget(target);
+	}
     }
 
     public void removeTarget(T target) {
 	this.targets.remove(target);
 	this.sortedTargets.remove(target);
 	if (this.head.equals(target)) this.head = null;
+	// Update index
+	if (this.hasOwner()) {
+	    this.annotationContainer.unindexAnnotationReferences(this.ownerType, this.ownerAnnotation, target);
+	}	
     }
 
     public boolean hasHead() {
@@ -130,5 +144,20 @@ public class Span<T extends IdentifiableAnnotation> implements Serializable {
 	Span<?> span = (Span<?>) o;
 	return this.sortedTargets.equals(span.sortedTargets)
 		&& ((this.head == null && span.head == null) || this.head.equals(span.head)); 
+    }
+    
+    
+    Boolean hasOwner() {
+	return this.ownerAnnotation != null;
+    }
+    
+    Annotation getOwner() {
+	return this.ownerAnnotation;
+    }
+    
+    void setOwner(Annotation owner, AnnotationType type, AnnotationContainer annotationContainer) {
+	this.ownerAnnotation = owner;
+	this.ownerType = type;
+	this.annotationContainer = annotationContainer;
     }
 }

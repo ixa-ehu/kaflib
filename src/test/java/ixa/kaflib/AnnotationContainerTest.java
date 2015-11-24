@@ -100,6 +100,27 @@ public class AnnotationContainerTest {
 	assertEquals(Arrays.asList(e2), container.getAnnotationsBy(new ArrayList<Annotation>(Arrays.asList(wf3, wf4, wf5)), Layer.ENTITIES));
 	assertEquals(Arrays.asList(e1), container.getAnnotationsBy(new ArrayList<Annotation>(Arrays.asList(wf9, wf1)), AnnotationType.ENTITY));
 	assertEquals(Arrays.asList(e3, e1, e2), container.getAnnotationsBy(new ArrayList<Annotation>(Arrays.asList(wf7, wf1, wf3)), AnnotationType.ENTITY));
+	
+	/* Unindex reference */
+	
+	container.unindexAnnotationReferences(AnnotationType.ENTITY, e2, t3);
+
+	assertEquals(Arrays.asList(t3), container.getAnnotationsBy(wf4, AnnotationType.TERM));
+	assertEquals(Arrays.asList(), container.getAnnotationsBy(wf4, AnnotationType.ENTITY));
+	assertEquals(Arrays.asList(e2), container.getAnnotationsBy(wf3, AnnotationType.ENTITY));
+	assertEquals(Arrays.asList(t3), container.getAnnotationsBy(new ArrayList<Annotation>(Arrays.asList(wf4, wf5, wf6)), AnnotationType.TERM));
+	assertEquals(Arrays.asList(), container.getAnnotationsBy(new ArrayList<Annotation>(Arrays.asList(wf4, wf5, wf6)), AnnotationType.ENTITY));
+	assertEquals(Arrays.asList(e2), container.getAnnotationsBy(new ArrayList<Annotation>(Arrays.asList(wf3, wf4, wf5, wf6)), AnnotationType.ENTITY));
+	
+	/* Index reference */
+
+	container.indexAnnotationReferences(AnnotationType.ENTITY, e2, t3);
+	
+	assertEquals(Arrays.asList(t3), container.getAnnotationsBy(wf4, AnnotationType.TERM));
+	assertEquals(Arrays.asList(e2), container.getAnnotationsBy(wf4, AnnotationType.ENTITY));
+	assertEquals(Arrays.asList(t3), container.getAnnotationsBy(new ArrayList<Annotation>(Arrays.asList(wf4, wf5, wf6)), AnnotationType.TERM));
+	assertEquals(Arrays.asList(e2), container.getAnnotationsBy(new ArrayList<Annotation>(Arrays.asList(wf4, wf5, wf6)), AnnotationType.ENTITY));
+	assertEquals(Arrays.asList(e2), container.getAnnotationsBy(new ArrayList<Annotation>(Arrays.asList(wf3, wf4, wf5, wf6)), AnnotationType.ENTITY));
     }
     
     @Test
