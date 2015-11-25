@@ -21,13 +21,13 @@ public class LinkedEntity extends IdentifiableAnnotation {
     /**
      * Mentions to the same entity (at least one required)
      */
-    private Span<WF> mentions;
+    private Span<WF> span;
 
     private static final long serialVersionUID = 1L;
 
     LinkedEntity(AnnotationContainer annotationContainer, String id, Span<WF> mentions) {
 	super(annotationContainer, id);
-	this.mentions = mentions;
+	this.setSpan(mentions);
     }
 
     public String getResource() {
@@ -55,7 +55,12 @@ public class LinkedEntity extends IdentifiableAnnotation {
     }
 
     public Span<WF> getSpan() {
-	return this.mentions;
+	return this.span;
+    }
+    
+    public void setSpan(Span<WF> span) {
+	span.setOwner(this, AnnotationType.LINKED_ENTITY, this.annotationContainer);
+	this.span = span;
     }
 
     Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
@@ -71,7 +76,7 @@ public class LinkedEntity extends IdentifiableAnnotation {
     
     @Override
     public String toString() {
-	return this.mentions.toString();
+	return this.span.toString();
     }
     
     /**
@@ -80,13 +85,13 @@ public class LinkedEntity extends IdentifiableAnnotation {
      */
     @Deprecated
     public Span<WF> getWFs() {
-	return mentions;
+	return span;
     }
     
     @Deprecated
     public String getSpanStr() {
 	String str = "";
-	for (WF wf : mentions.getTargets()) {
+	for (WF wf : span.getTargets()) {
 	    if (!str.isEmpty()) {
 		str += " ";
 	    }

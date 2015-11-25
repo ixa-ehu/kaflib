@@ -35,6 +35,7 @@ public class NonTerminal extends TreeNode implements SentenceLevelAnnotation {
 
     public void addChild(TreeNode tn) {
 	this.children.add(tn);
+	this.annotationContainer.indexAnnotationReferences(AnnotationType.NON_TERMINAL, this, tn);
     }
 
     public List<TreeNode> getChildren() {
@@ -43,11 +44,14 @@ public class NonTerminal extends TreeNode implements SentenceLevelAnnotation {
     
     Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
 	Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
-	List<Annotation> terms = new ArrayList<Annotation>();
-	for (TreeNode node : this.children) {
-	    terms.addAll(node.getReferencedAnnotations().get(AnnotationType.TERM));
+	List<Annotation> nonTerminals = new ArrayList<Annotation>();
+	List<Annotation> terminals = new ArrayList<Annotation>();
+	for (TreeNode child : this.getChildren()) {
+	    if (child instanceof NonTerminal) nonTerminals.add(child);
+	    else terminals.add(child);
 	}
-	referenced.put(AnnotationType.TERM, terms);
+	referenced.put(AnnotationType.NON_TERMINAL, nonTerminals);
+	referenced.put(AnnotationType.TERMINAL, terminals);
 	return referenced;
     }
     

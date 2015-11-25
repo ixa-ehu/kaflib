@@ -20,7 +20,7 @@ public class Predicate extends IdentifiableAnnotation implements SentenceLevelAn
 	Role(AnnotationContainer annotationContainer, String id, String semRole, Span<Term> span) {
 	    super(annotationContainer, id);
 	    this.semRole = semRole;
-	    this.span = span;
+	    this.setSpan(span);
 	    this.externalReferences = new ArrayList<ExternalRef>();
 	}
 
@@ -37,6 +37,7 @@ public class Predicate extends IdentifiableAnnotation implements SentenceLevelAn
 	}
 
 	public void setSpan(Span<Term> span) {
+	    span.setOwner(this, AnnotationType.ROLE, this.annotationContainer);
 	    this.span = span;
 	}
 
@@ -117,7 +118,7 @@ public class Predicate extends IdentifiableAnnotation implements SentenceLevelAn
 
     Predicate(AnnotationContainer annotationContainer, String id, Span<Term> span) {
 	super(annotationContainer, id);
-	this.span = span;
+	this.setSpan(span);
 	this.roles = new ArrayList<Role>();
 	this.confidence = -1.0f;
 	this.externalReferences = new ArrayList<ExternalRef>();
@@ -152,6 +153,7 @@ public class Predicate extends IdentifiableAnnotation implements SentenceLevelAn
     }
 
     public void setSpan(Span<Term> span) {
+	span.setOwner(this, AnnotationType.PREDICATE, this.annotationContainer);
 	this.span = span;
     }
 

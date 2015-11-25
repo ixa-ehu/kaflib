@@ -16,12 +16,17 @@ public class Terminal extends TreeNode implements SentenceLevelAnnotation {
     
     Terminal(AnnotationContainer annotationContainer, String id, Span<Term> span) {
 	super(annotationContainer, id, false, true);
-	this.span = span;
+	this.setSpan(span);
     }
 
     /** Returns the Span object */
     public Span<Term> getSpan() {
 	return this.span;
+    }
+    
+    public void setSpan(Span<Term> span) {
+	span.setOwner(this, AnnotationType.TERMINAL, this.annotationContainer);
+	this.span = span;
     }
 
     public void addChild(TreeNode tn) throws Exception {

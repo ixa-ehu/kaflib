@@ -83,6 +83,8 @@ public class TermTest {
 	Term term = new Term(annCont, "t1", span);
 	Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
 	referenced.put(AnnotationType.WF, (List<Annotation>)(List<?>)span.getTargets());
+	referenced.put(AnnotationType.COMPONENT, new ArrayList<Annotation>());
+	referenced.put(AnnotationType.SENTIMENT, new ArrayList<Annotation>());
 	assertEquals("Term object did not return the correct referenced WFs", referenced, term.getReferencedAnnotations());
     }
     

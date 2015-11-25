@@ -254,6 +254,7 @@ class AnnotationContainer implements Serializable {
     }
 
     void indexAnnotationReferences(AnnotationType sourceType, Annotation source, Annotation target) {
+	if (source == null || target == null) return;
 	/* Prepare sources */
 	Map<AnnotationType, TreeSet<Annotation>> sourcesMap = this.invRefIndex.get(source);
 	if (sourcesMap == null) sourcesMap = new HashMap<AnnotationType, TreeSet<Annotation>>();
@@ -282,6 +283,7 @@ class AnnotationContainer implements Serializable {
     }
 
     void unindexAnnotationReferences(AnnotationType sourceType, Annotation source, Annotation target) {
+	if (source == null || target == null) return;
 	/* Prepare sources */
 	Map<AnnotationType, TreeSet<Annotation>> sourcesMap = this.invRefIndex.get(source);
 	if (sourcesMap == null) sourcesMap = new HashMap<AnnotationType, TreeSet<Annotation>>();
@@ -412,6 +414,7 @@ class AnnotationContainer implements Serializable {
     
     private void indexAnnotationReference(AnnotationType sourceType, Annotation source, Annotation target) {
 	Map<AnnotationType, TreeSet<Annotation>> annotationRefs= this.invRefIndex.get(target);
+	if (target == null) return;
 	if (annotationRefs == null) {
 	    annotationRefs = new HashMap<AnnotationType, TreeSet<Annotation>>();
 	    this.invRefIndex.put(target, annotationRefs);

@@ -60,7 +60,7 @@ public class Term extends IdentifiableAnnotation implements SentenceLevelAnnotat
     Term(AnnotationContainer annotationContainer, String id, Span<WF> span) {
 	super(annotationContainer, id);
 	this.components = new ArrayList<Term>();
-	this.span = span;
+	this.setSpan(span);
 	this.externalRefs = new ExternalReferences();
 	this.isComponent = false;
     }
@@ -148,7 +148,11 @@ public class Term extends IdentifiableAnnotation implements SentenceLevelAnnotat
     }
     
     public void setSentiment(Sentiment sentiment) {
+	if (this.sentiment != null) {
+	    this.annotationContainer.unindexAnnotationReferences(AnnotationType.TERM, this, this.sentiment);	    
+	}
         this.sentiment = sentiment;
+	this.annotationContainer.indexAnnotationReferences(AnnotationType.TERM, this, this.sentiment);
     }
 
     public List<Term> getComponents() {
@@ -159,6 +163,7 @@ public class Term extends IdentifiableAnnotation implements SentenceLevelAnnotat
 	component.isComponent = true;
 	component.compound = this;
 	components.add(component);
+	this.annotationContainer.indexAnnotationReferences(AnnotationType.TERM, this, component);
     }
 
     public void addComponent(Term component, boolean isHead) {
@@ -173,6 +178,7 @@ public class Term extends IdentifiableAnnotation implements SentenceLevelAnnotat
     }
 
     public void setSpan(Span<WF> span) {
+	span.setOwner(this, AnnotationType.TERM, this.annotationContainer);
 	this.span = span;
     }
 
@@ -192,6 +198,10 @@ public class Term extends IdentifiableAnnotation implements SentenceLevelAnnotat
     Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
 	Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
 	referenced.put(AnnotationType.WF, (List<Annotation>)(List<?>) this.getSpan().getTargets());
+	referenced.put(AnnotationType.COMPONENT, (List<Annotation>)(List<?>)this.getComponents());
+	List<Annotation> sentiments = new ArrayList<Annotation>();
+	if (this.sentiment != null) sentiments.add(this.sentiment);
+	referenced.put(AnnotationType.SENTIMENT, sentiments);
 	return referenced;
     }
     

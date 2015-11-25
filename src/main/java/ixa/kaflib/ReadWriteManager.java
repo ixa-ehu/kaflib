@@ -2084,8 +2084,8 @@ class ReadWriteManager {
 		    tLinkElem.setAttribute("id", tLink.getId());
 		    tLinkElem.setAttribute("from", tLink.getFrom().getId());
 		    tLinkElem.setAttribute("to", tLink.getTo().getId());
-		    tLinkElem.setAttribute("fromType", tLink.getFromType());
-		    tLinkElem.setAttribute("toType", tLink.getToType());
+		    tLinkElem.setAttribute("fromType", (tLink.getFromType() == AnnotationType.PREDICATE) ? "event" : "timex");
+		    tLinkElem.setAttribute("toType", (tLink.getToType() == AnnotationType.PREDICATE) ? "event" : "timex");
 		    tLinkElem.setAttribute("relType", tLink.getRelType());
 		    tempRelsElem.addContent(tLinkElem);
 		} else if (tempRel instanceof PredicateAnchor) {

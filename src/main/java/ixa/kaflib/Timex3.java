@@ -46,7 +46,7 @@ public class Timex3 extends IdentifiableAnnotation implements TLinkReferable {
     Timex3(AnnotationContainer annotationContainer, String id, String type){
         super(annotationContainer, id);
 	this.type = type;
-	this.span = new Span<WF>();
+	this.setSpan(new Span<WF>());
     }
 
     public String getType() {
@@ -66,7 +66,11 @@ public class Timex3 extends IdentifiableAnnotation implements TLinkReferable {
     }
 
     public void setBeginPoint(Timex3 beginPoint) {
+	if (this.beginPoint != null) {
+	    this.annotationContainer.unindexAnnotationReferences(AnnotationType.TIMEX3, this, this.beginPoint);
+	}
 	this.beginPoint = beginPoint;
+	this.annotationContainer.indexAnnotationReferences(AnnotationType.TIMEX3, this, this.beginPoint);
     }
 
     public boolean hasEndPoint() {
@@ -78,7 +82,11 @@ public class Timex3 extends IdentifiableAnnotation implements TLinkReferable {
     }
 
     public void setEndPoint(Timex3 endPoint) {
+	if (this.endPoint != null) {
+	    this.annotationContainer.unindexAnnotationReferences(AnnotationType.TIMEX3, this, this.endPoint);
+	}
 	this.endPoint = endPoint;
+	this.annotationContainer.indexAnnotationReferences(AnnotationType.TIMEX3, this, this.endPoint);
     }
 
     public boolean hasFreq() {
@@ -194,6 +202,7 @@ public class Timex3 extends IdentifiableAnnotation implements TLinkReferable {
     }
 
     public void setSpan(Span<WF> span) {
+	span.setOwner(this, AnnotationType.TIMEX3, this.annotationContainer);
 	this.span = span;
     }
 
@@ -204,6 +213,10 @@ public class Timex3 extends IdentifiableAnnotation implements TLinkReferable {
 	    wfs.addAll((List<Annotation>)(List<?>) this.span.getTargets());
 	}
 	referenced.put(AnnotationType.WF, wfs);
+	List<Annotation> timex3s = new ArrayList<Annotation>();
+	timex3s.add(this.beginPoint);
+	timex3s.add(this.endPoint);
+	referenced.put(AnnotationType.TIMEX3, timex3s);
 	return referenced;
     }
     

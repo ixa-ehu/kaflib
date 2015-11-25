@@ -27,7 +27,7 @@ public class Chunk extends IdentifiableAnnotation implements SentenceLevelAnnota
 	if (span.size() < 1) {
 	    throw new IllegalStateException("Chunks must contain at least one term target");
 	}
-	this.span = span;
+	this.setSpan(span);
     }
 
     public boolean hasHead() {
@@ -79,6 +79,7 @@ public class Chunk extends IdentifiableAnnotation implements SentenceLevelAnnota
     }
 
     public void setSpan(Span<Term> span) {
+	span.setOwner(this, AnnotationType.CHUNK, this.annotationContainer);
 	this.span = span;
     }
 

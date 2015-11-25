@@ -19,7 +19,7 @@ public class Opinion extends IdentifiableAnnotation {
 	
 	OpinionHolder(AnnotationContainer annotationContainer, Span<Term> span) {
 	    super(annotationContainer);
-	    this.span = span;
+	    this.setSpan(span);
 	}
 
 	public boolean hasType() {
@@ -51,6 +51,7 @@ public class Opinion extends IdentifiableAnnotation {
 	}
 
 	public void setSpan(Span<Term> span) {
+	    span.setOwner(this, AnnotationType.OPINION_HOLDER, this.annotationContainer);
 	    this.span = span;
 	}
 
@@ -91,7 +92,7 @@ public class Opinion extends IdentifiableAnnotation {
 
 	OpinionTarget(AnnotationContainer annotationContainer, Span<Term> span) {
 	    super(annotationContainer);
-	    this.span = span;
+	    this.setSpan(span);
 	}
 
 	public List<Term> getTerms() {
@@ -111,6 +112,7 @@ public class Opinion extends IdentifiableAnnotation {
 	}
 
 	public void setSpan(Span<Term> span) {
+	    span.setOwner(this, AnnotationType.OPINION_TARGET, this.annotationContainer);
 	    this.span = span;
 	}
 
@@ -166,7 +168,7 @@ public class Opinion extends IdentifiableAnnotation {
 
 	OpinionExpression(AnnotationContainer annotationContainer, Span<Term> span) {
 	    super(annotationContainer);
-	    this.span = span;
+	    this.setSpan(span);
 	}
 
 	public boolean hasPolarity() {
@@ -246,6 +248,7 @@ public class Opinion extends IdentifiableAnnotation {
 	}
 
 	public void setSpan(Span<Term> span) {
+	    span.setOwner(this, AnnotationType.OPINION_EXPRESSION, this.annotationContainer);
 	    this.span = span;
 	}
 
@@ -317,17 +320,29 @@ public class Opinion extends IdentifiableAnnotation {
     }
 
     public OpinionHolder createOpinionHolder(Span<Term> span) {
+	if (this.opinionHolder != null) {
+	    this.annotationContainer.unindexAnnotationReferences(AnnotationType.OPINION, this, this.opinionHolder);
+	}
 	this.opinionHolder = new Opinion.OpinionHolder(this.annotationContainer, span);
+	this.annotationContainer.indexAnnotationReferences(AnnotationType.OPINION, this, this.opinionHolder);
 	return this.opinionHolder;
     }
 
     public OpinionTarget createOpinionTarget(Span<Term> span) {
+	if (this.opinionTarget != null) {
+	    this.annotationContainer.unindexAnnotationReferences(AnnotationType.OPINION, this, this.opinionTarget);
+	}
 	this.opinionTarget = new Opinion.OpinionTarget(this.annotationContainer, span);
+	this.annotationContainer.indexAnnotationReferences(AnnotationType.OPINION, this, this.opinionTarget);
 	return this.opinionTarget;
     }
 
     public OpinionExpression createOpinionExpression(Span<Term> span) {
+	if (this.opinionExpression != null) {
+	    this.annotationContainer.unindexAnnotationReferences(AnnotationType.OPINION, this, this.opinionExpression);
+	}
 	this.opinionExpression = new Opinion.OpinionExpression(this.annotationContainer, span);
+	this.annotationContainer.indexAnnotationReferences(AnnotationType.OPINION, this, this.opinionExpression);
 	return this.opinionExpression;
     }
 

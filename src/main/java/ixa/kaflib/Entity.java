@@ -42,7 +42,10 @@ public class Entity extends IdentifiableAnnotation implements Relational, Senten
 	if (references.get(0).size() < 1) {
 	    throw new IllegalStateException("Entities' reference's spans must contain at least one target");
 	}
-	this.references = references;
+	this.references = new ArrayList<Span<Term>>();
+	for (Span<Term> span : references) {
+	    this.addSpan(span);
+	}
 	this.externalReferences = new ArrayList<ExternalRef>();
     }
 
@@ -90,6 +93,7 @@ public class Entity extends IdentifiableAnnotation implements Relational, Senten
     }
 
     public void addSpan(Span<Term> span) {
+	span.setOwner(this, AnnotationType.ENTITY, this.annotationContainer);
 	this.references.add(span);
     }
 

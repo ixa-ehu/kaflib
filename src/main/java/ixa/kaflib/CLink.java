@@ -31,7 +31,9 @@ public class CLink extends IdentifiableAnnotation {
     }
 
     public void setFrom(Predicate from) {
+	this.annotationContainer.unindexAnnotationReferences(AnnotationType.CLINK, this, this.from);
 	this.from = from;
+	this.annotationContainer.indexAnnotationReferences(AnnotationType.CLINK, this, this.from);
     }
 
     public Predicate getTo() {
@@ -39,7 +41,9 @@ public class CLink extends IdentifiableAnnotation {
     }
 
     public void setTo(Predicate to) {
+	this.annotationContainer.unindexAnnotationReferences(AnnotationType.CLINK, this, this.to);
 	this.to = to;
+	this.annotationContainer.indexAnnotationReferences(AnnotationType.CLINK, this, this.to);
     }
 
     public boolean hasRelType() {

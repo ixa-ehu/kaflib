@@ -31,7 +31,9 @@ public class TLink extends IdentifiableAnnotation {
     }
 
     public void setFrom(TLinkReferable from) {
+	this.annotationContainer.unindexAnnotationReferences(AnnotationType.TLINK, this, (Annotation) this.from);
 	this.from = from;
+	this.annotationContainer.indexAnnotationReferences(AnnotationType.TLINK, this, (Annotation) this.from);
     }
 
     public TLinkReferable getTo() {
@@ -39,15 +41,17 @@ public class TLink extends IdentifiableAnnotation {
     }
 
     public void setTo(TLinkReferable to) {
+	this.annotationContainer.unindexAnnotationReferences(AnnotationType.TLINK, this, (Annotation) this.to);
 	this.to = to;
+	this.annotationContainer.indexAnnotationReferences(AnnotationType.TLINK, this, (Annotation) this.to);
     }
 
-    public String getFromType() {
-	return (this.from instanceof Predicate) ? "event" : "timex";
+    public AnnotationType getFromType() {
+	return (this.from instanceof Predicate) ? AnnotationType.PREDICATE : AnnotationType.TIMEX3;
     }
 
-    public String getToType() {
-	return (this.to instanceof Predicate) ? "event" : "timex";
+    public AnnotationType getToType() {
+	return (this.to instanceof Predicate) ? AnnotationType.PREDICATE : AnnotationType.TIMEX3;
     }
 
     public String getRelType() {

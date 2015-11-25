@@ -41,11 +41,14 @@ public class Tree extends Annotation implements SentenceLevelAnnotation {
 
     public void setRoot(TreeNode root) {
 	this.root = root;
+	this.annotationContainer.indexAnnotationReferences(AnnotationType.TREE, this, root);
     }
     
     Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
 	Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
-	referenced.put(AnnotationType.TERM, this.root.getReferencedAnnotations().get(AnnotationType.TERM));
+	List<Annotation> root = new ArrayList<Annotation>();
+	root.add(this.root);
+	referenced.put((this.root instanceof Terminal) ? AnnotationType.TERMINAL : AnnotationType.NON_TERMINAL, root);
 	return referenced;
     }
     

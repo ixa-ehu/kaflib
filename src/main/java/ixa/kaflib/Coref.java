@@ -31,7 +31,10 @@ public class Coref extends IdentifiableAnnotation {
 	if (mentions.get(0).size() < 1) {
 	    throw new IllegalStateException("Coreferences' reference's spans must contain at least one target");
 	}
-	this.mentions = mentions;
+	this.mentions = new ArrayList<Span<Term>>();
+	for (Span<Term> span : mentions) {
+	    this.addSpan(span);
+	}
 	this.externalReferences = new ArrayList<ExternalRef>();
     }
 
@@ -79,6 +82,7 @@ public class Coref extends IdentifiableAnnotation {
     }
 
     public void addSpan(Span<Term> span) {
+	span.setOwner(this, AnnotationType.COREF, this.annotationContainer);
 	this.mentions.add(span);
     }
     

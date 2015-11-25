@@ -18,7 +18,7 @@ public class Factuality extends IdentifiableAnnotation implements SentenceLevelA
     
     Factuality(AnnotationContainer annotationContainer, String id, Span<Term> span) {
 	super(annotationContainer, id);
-	this.span = span;
+	this.setSpan(span);
 	this.factVals = new ArrayList<FactVal>();
     }
     
@@ -28,6 +28,11 @@ public class Factuality extends IdentifiableAnnotation implements SentenceLevelA
     
     public Span<Term> getSpan() {
 	return this.span;
+    }
+    
+    public void setSpan(Span<Term> span) {
+	span.setOwner(this, AnnotationType.FACTUALITY, this.annotationContainer);
+	this.span = span;
     }
     
     public List<FactVal> getFactVals() {

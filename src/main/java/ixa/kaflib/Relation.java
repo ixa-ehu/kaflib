@@ -42,17 +42,33 @@ public class Relation extends IdentifiableAnnotation implements Serializable {
     public Relational getFrom() {
         return this.from;
     }
+    
+    public AnnotationType getFromType() {
+	if (this.from instanceof Entity) return AnnotationType.ENTITY;
+	else if (((Feature)this.from).isAProperty()) return AnnotationType.PROPERTY;
+	else return AnnotationType.CATEGORY;
+    }
 
     public void setFrom(Relational obj) {
+	this.annotationContainer.unindexAnnotationReferences(AnnotationType.RELATION, this, (Annotation)this.from);
 	this.from = obj;
+	this.annotationContainer.indexAnnotationReferences(AnnotationType.RELATION, this, (Annotation)this.from);
     }
 
     public Relational getTo() {
         return this.to;
     }
+    
+    public AnnotationType getToType() {
+	if (this.to instanceof Entity) return AnnotationType.ENTITY;
+	else if (((Feature)this.to).isAProperty()) return AnnotationType.PROPERTY;
+	else return AnnotationType.CATEGORY;
+    }
 
     public void setTo(Relational obj) {
+	this.annotationContainer.unindexAnnotationReferences(AnnotationType.RELATION, this, (Annotation)this.to);
 	this.to = obj;
+	this.annotationContainer.indexAnnotationReferences(AnnotationType.RELATION, this, (Annotation)this.to);
     }
 
     public boolean hasConfidence() {
@@ -78,11 +94,13 @@ public class Relation extends IdentifiableAnnotation implements Serializable {
 	List<Annotation> entities = new ArrayList<Annotation>();
 	List<Annotation> properties = new ArrayList<Annotation>();
 	List<Annotation> categories = new ArrayList<Annotation>();
-	if (this.from instanceof Entity) entities.add((Annotation)this.from);
-	else if (((Feature)this.from).isAProperty()) properties.add((Annotation)this.from);
+	AnnotationType fromType = this.getFromType();
+	AnnotationType toType = this.getToType();
+	if (fromType == AnnotationType.ENTITY) entities.add((Annotation)this.from);
+	else if (fromType == AnnotationType.PROPERTY) properties.add((Annotation)this.from);
 	else categories.add((Annotation)this.from);
-	if (this.to instanceof Entity) entities.add((Annotation)this.to);
-	else if (((Feature)this.to).isAProperty()) properties.add((Annotation)this.to);
+	if (toType == AnnotationType.ENTITY) entities.add((Annotation)this.to);
+	else if (toType == AnnotationType.PROPERTY) properties.add((Annotation)this.to);
 	else categories.add((Annotation)this.to);
 	referenced.put(AnnotationType.ENTITY, (List<Annotation>)(List<?>) entities);
 	referenced.put(AnnotationType.PROPERTY, (List<Annotation>)(List<?>) properties);

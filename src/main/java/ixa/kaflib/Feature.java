@@ -32,7 +32,10 @@ public class Feature extends IdentifiableAnnotation implements Relational, Seria
 	}
 	this.id = id;
 	this.lemma = lemma;
-	this.references = references;
+	this.references = new ArrayList<Span<Term>>();
+	for (Span<Term> span : references) {
+	    this.addSpan(span);
+	}
 	this.externalReferences = new ArrayList<ExternalRef>();
     }
 
@@ -80,6 +83,8 @@ public class Feature extends IdentifiableAnnotation implements Relational, Seria
     }
 
     public void addSpan(Span<Term> span) {
+	AnnotationType type = this.isAProperty() ? AnnotationType.PROPERTY : AnnotationType.CATEGORY;
+	span.setOwner(this, type, this.annotationContainer);
 	references.add(span);
     }
 

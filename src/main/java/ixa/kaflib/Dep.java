@@ -38,7 +38,9 @@ public class Dep extends Annotation implements SentenceLevelAnnotation {
     }
 
     public void setFrom(Term term) {
+	this.annotationContainer.unindexAnnotationReferences(AnnotationType.DEP, this, this.from);
 	this.from = term;
+	this.annotationContainer.indexAnnotationReferences(AnnotationType.DEP, this, this.from);
     }
 
     public Term getTo() {
@@ -46,7 +48,9 @@ public class Dep extends Annotation implements SentenceLevelAnnotation {
     }
 
     public void setTo(Term term) {
+	this.annotationContainer.unindexAnnotationReferences(AnnotationType.DEP, this, this.to);
 	this.to = term;
+	this.annotationContainer.indexAnnotationReferences(AnnotationType.DEP, this, this.to);
     }
 
     public String getRfunc() {

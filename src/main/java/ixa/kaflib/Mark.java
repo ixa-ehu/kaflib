@@ -44,7 +44,7 @@ public class Mark extends IdentifiableAnnotation implements SentenceLevelAnnotat
 
     Mark(AnnotationContainer annotationContainer, String id, Span<WF> span) {
 	super(annotationContainer, id);
-	this.span = span;
+	this.setSpan(span);
 	this.externalReferences = new ArrayList<ExternalRef>();
     }
 
@@ -125,6 +125,7 @@ public class Mark extends IdentifiableAnnotation implements SentenceLevelAnnotat
     }
 
     public void setSpan(Span<WF> span) {
+	span.setOwner(this, AnnotationType.MARK, this.annotationContainer);
 	this.span = span;
     }
     

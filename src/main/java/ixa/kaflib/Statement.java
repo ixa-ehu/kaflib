@@ -26,7 +26,11 @@ public class Statement extends IdentifiableAnnotation {
     }
     
     public void setTarget(StatementTarget target) {
+	if (this.target != null) {
+	    this.annotationContainer.unindexAnnotationReferences(AnnotationType.STATEMENT, this, this.target);
+	}
 	this.target = target;
+	this.annotationContainer.indexAnnotationReferences(AnnotationType.STATEMENT, this, this.target);
     }
     
     public Boolean hasSource() {
@@ -38,7 +42,11 @@ public class Statement extends IdentifiableAnnotation {
     }
     
     public void setSource(StatementSource source) {
+	if (this.source != null) {
+	    this.annotationContainer.unindexAnnotationReferences(AnnotationType.STATEMENT, this, this.source);
+	}
 	this.source = source;
+	this.annotationContainer.indexAnnotationReferences(AnnotationType.STATEMENT, this, this.source);
     }
     
     public Boolean hasCue() {
@@ -50,7 +58,11 @@ public class Statement extends IdentifiableAnnotation {
     }
     
     public void setCue(StatementCue cue) {
+	if (this.cue != null) {
+	    this.annotationContainer.unindexAnnotationReferences(AnnotationType.STATEMENT, this, this.cue);
+	}
 	this.cue = cue;
+	this.annotationContainer.indexAnnotationReferences(AnnotationType.STATEMENT, this, this.cue);
     }
     
     public Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
@@ -105,7 +117,7 @@ public class Statement extends IdentifiableAnnotation {
 	
 	public StatementTarget(AnnotationContainer annotationContainer, Span<Term> span) {
 	    super(annotationContainer);
-	    this.span = span;
+	    this.setSpan(span);
 	}
 	
 	public Span<Term> getSpan() {
@@ -113,6 +125,7 @@ public class Statement extends IdentifiableAnnotation {
 	}
 	
 	public void setSpan(Span<Term> span) {
+	    span.setOwner(this, AnnotationType.STATEMENT_TARGET, this.annotationContainer);
 	    this.span = span;
 	}
 	
@@ -156,7 +169,7 @@ public class Statement extends IdentifiableAnnotation {
 	
 	public StatementSource(AnnotationContainer annotationContainer, Span<Term> span) {
 	    super(annotationContainer);
-	    this.span = span;
+	    this.setSpan(span);
 	}
 	
 	public Span<Term> getSpan() {
@@ -164,6 +177,7 @@ public class Statement extends IdentifiableAnnotation {
 	}
 	
 	public void setSpan(Span<Term> span) {
+	    span.setOwner(this, AnnotationType.STATEMENT_SOURCE, this.annotationContainer);
 	    this.span = span;
 	}
 	
@@ -207,7 +221,7 @@ public class Statement extends IdentifiableAnnotation {
 	
 	public StatementCue(AnnotationContainer annotationContainer, Span<Term> span) {
 	    super(annotationContainer);
-	    this.span = span;
+	    this.setSpan(span);
 	}
 	
 	public Span<Term> getSpan() {
@@ -215,6 +229,7 @@ public class Statement extends IdentifiableAnnotation {
 	}
 	
 	public void setSpan(Span<Term> span) {
+	    span.setOwner(this, AnnotationType.STATEMENT_CUE, this.annotationContainer);
 	    this.span = span;
 	}
 	

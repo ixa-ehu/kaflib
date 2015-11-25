@@ -33,6 +33,12 @@ public class Factvalue extends Annotation implements SentenceLevelAnnotation {
     public WF getWF() {
 	return word;
     }
+    
+    public void setWF(WF word) {
+	this.annotationContainer.unindexAnnotationReferences(AnnotationType.DEP, this, this.word);
+	this.word = word;
+	this.annotationContainer.unindexAnnotationReferences(AnnotationType.DEP, this, this.word);
+    }
 
     public String getPrediction() {
 	return this.prediction;

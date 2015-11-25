@@ -18,7 +18,7 @@ public class PredicateAnchor extends IdentifiableAnnotation implements SentenceL
     
     public PredicateAnchor(AnnotationContainer annotationContainer, String id, Span<Predicate> span) {
 	super(annotationContainer, id);
-	this.span = span;
+	this.setSpan(span);
     }
     
     public boolean hasAnchorTime() {
@@ -62,6 +62,7 @@ public class PredicateAnchor extends IdentifiableAnnotation implements SentenceL
     }
     
     public void setSpan(Span<Predicate> span) {
+	span.setOwner(this, AnnotationType.PREDICATE_ANCHOR, this.annotationContainer);
 	this.span = span;
     }
     
