@@ -3,8 +3,12 @@ package ixa.kaflib;
 import ixa.kaflib.KAFDocument.AnnotationType;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 
 public abstract class Annotation implements Comparable<Annotation>, Serializable {
@@ -21,20 +25,17 @@ public abstract class Annotation implements Comparable<Annotation>, Serializable
     }
     
     abstract Map<AnnotationType, List<Annotation>> getReferencedAnnotations();
-    
-    /*
+
     public Map<AnnotationType, List<Annotation>> getReferencedAnnotationsDeep() {
-	Map<AnnotationType, List<Annotation>> referencedAnns = new HashMap<KAFDocument.AnnotationType, List<Annotation>>();
+	Map<AnnotationType, List<Annotation>> referencedAnns = new HashMap<AnnotationType, List<Annotation>>();
+	mergeAnnotationMaps(referencedAnns, this.getReferencedAnnotations());
 	for (Map.Entry<AnnotationType, List<Annotation>> entry : this.getReferencedAnnotations().entrySet()) {
-	    AnnotationType type = entry.getKey();
-	    List<Annotation> annotations = new ArrayList<Annotation>(entry.getValue());
-	    referencedAnns.put(type, annotations);
-	    
-	    
+	    for (Annotation annotation : entry.getValue()) {
+		mergeAnnotationMaps(referencedAnns, annotation.getReferencedAnnotationsDeep());
+	    }
 	}
 	return referencedAnns;
     }
-    */
 
     public abstract Integer getOffset();
     
@@ -72,18 +73,19 @@ public abstract class Annotation implements Comparable<Annotation>, Serializable
 	return strValue;
     }
     
-    /*
-    private static void insertAnnotationsInMap(Map<AnnotationType, List<Annotation>> originalMap, Map<AnnotationType, List<Annotation>> newMap) {
+
+    private static void mergeAnnotationMaps(Map<AnnotationType, List<Annotation>> originalMap, Map<AnnotationType, List<Annotation>> newMap) {
 	for (Map.Entry<AnnotationType, List<Annotation>> entry : newMap.entrySet()) {
 	    AnnotationType type = entry.getKey();
 	    List<Annotation> annotations = new ArrayList<Annotation>(entry.getValue());
-	    Set<Annotation> typeAnns = new LinkedHashSet<Annotation>(originalMap.get(type));
+	    List<Annotation> typeAnns = originalMap.get(type);
 	    if (typeAnns == null) {
-		typeAnns = new LinkedHashSet<Annotation>();
+		typeAnns = new ArrayList<Annotation>();
 		originalMap.put(type, typeAnns);
 	    }
-	    typeAnns.addAll(annotations);
+	    Set<Annotation> typeAnnSet = new TreeSet<Annotation>(typeAnns);
+	    typeAnnSet.addAll(annotations);
+	    originalMap.put(type, new ArrayList<Annotation>(typeAnnSet));
 	}
     }
-    */
 }

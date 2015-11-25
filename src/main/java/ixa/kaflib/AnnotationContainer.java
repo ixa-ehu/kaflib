@@ -254,21 +254,57 @@ class AnnotationContainer implements Serializable {
     }
 
     void indexAnnotationReferences(AnnotationType sourceType, Annotation source, Annotation target) {
-	this.indexAnnotationReference(sourceType, source, target);
-	/* Index target's children recursively */
-	for (Map.Entry<AnnotationType, List<Annotation>> entry : target.getReferencedAnnotations().entrySet()) {
-	    for (Annotation targetChild : entry.getValue()) {
-		this.indexAnnotationReference(sourceType, source, targetChild);
+	/* Prepare sources */
+	Map<AnnotationType, TreeSet<Annotation>> sourcesMap = this.invRefIndex.get(source);
+	if (sourcesMap == null) sourcesMap = new HashMap<AnnotationType, TreeSet<Annotation>>();
+	TreeSet<Annotation> sourceTypeAnns = sourcesMap.get(sourceType);
+	if (sourceTypeAnns == null) {
+	    sourceTypeAnns = new TreeSet<Annotation>();
+	    sourcesMap.put(sourceType, sourceTypeAnns);
+	}
+	sourceTypeAnns.add(source);
+	/* Prepare targets */
+	Map<AnnotationType, List<Annotation>> targetsMap = target.getReferencedAnnotationsDeep();
+	Set<Annotation> targets = new HashSet<Annotation>();
+	for (Map.Entry<AnnotationType, List<Annotation>> targetEntry : targetsMap.entrySet()) {
+	    targets.addAll(targetEntry.getValue());
+	}
+	targets.add(target);
+	/* Index all source-target combinations */
+	for (Map.Entry<AnnotationType, TreeSet<Annotation>> sourceEntry : sourcesMap.entrySet()) {
+	    AnnotationType currSourceType = sourceEntry.getKey();
+	    for (Annotation currSource : sourceEntry.getValue()) {
+		for (Annotation currTarget : targets) {
+		    this.indexAnnotationReference(currSourceType, currSource, currTarget);
+		}
 	    }
 	}
     }
 
     void unindexAnnotationReferences(AnnotationType sourceType, Annotation source, Annotation target) {
-	this.unindexAnnotationReference(sourceType, source, target);
-	/* Unindex target's children recursively */
-	for (Map.Entry<AnnotationType, List<Annotation>> entry : target.getReferencedAnnotations().entrySet()) {
-	    for (Annotation targetChild : entry.getValue()) {
-		this.unindexAnnotationReference(sourceType, source, targetChild);
+	/* Prepare sources */
+	Map<AnnotationType, TreeSet<Annotation>> sourcesMap = this.invRefIndex.get(source);
+	if (sourcesMap == null) sourcesMap = new HashMap<AnnotationType, TreeSet<Annotation>>();
+	TreeSet<Annotation> sourceTypeAnns = sourcesMap.get(sourceType);
+	if (sourceTypeAnns == null) {
+	    sourceTypeAnns = new TreeSet<Annotation>();
+	    sourcesMap.put(sourceType, sourceTypeAnns);
+	}
+	sourceTypeAnns.add(source);
+	/* Prepare targets */
+	Map<AnnotationType, List<Annotation>> targetsMap = target.getReferencedAnnotationsDeep();
+	Set<Annotation> targets = new HashSet<Annotation>();
+	for (Map.Entry<AnnotationType, List<Annotation>> targetEntry : targetsMap.entrySet()) {
+	    targets.addAll(targetEntry.getValue());
+	}
+	targets.add(target);
+	/* Index all source-target combinations */
+	for (Map.Entry<AnnotationType, TreeSet<Annotation>> sourceEntry : sourcesMap.entrySet()) {
+	    AnnotationType currSourceType = sourceEntry.getKey();
+	    for (Annotation currSource : sourceEntry.getValue()) {
+		for (Annotation currTarget : targets) {
+		    this.unindexAnnotationReference(currSourceType, currSource, currTarget);
+		}
 	    }
 	}
     }
