@@ -438,11 +438,13 @@ public class KAFDocument implements Serializable {
 	}
 	idManager.updateCounter(AnnotationType.MW, id);
 	Term compound = newTerm(id, span);
+	compound.setAnnotationType(AnnotationType.MW);
 	compound.setLemma(lemma);
 	for (Term term : terms) {
 	    compound.addComponent(term);
 	    this.annotationContainer.remove(term, AnnotationType.TERM);
 	}
+	annotationContainer.add(compound, AnnotationType.MW);
 	return compound;
     }
 
@@ -1298,6 +1300,16 @@ public Entity newEntity(List<Span<Term>> references) {
 	newTerm.setMorphofeat(morphofeat);
 	annotationContainer.add(newTerm, AnnotationType.TERM);
 	return newTerm;
+    }
+
+    @Deprecated
+    public Term newTerm(Span<WF> span, boolean isComponent) {
+	return this.newTerm(span);
+    }
+
+    @Deprecated
+    public Term newTerm(String id, Span<WF> span, boolean isComponent) {
+	return this.newTerm(id, span);
     }
 
     /** Deprecated */

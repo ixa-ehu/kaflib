@@ -33,8 +33,9 @@ public class TermTest {
 	testTerm(component1, "t2", null, null, null, null, null, null, new ArrayList<Term>(), null, span, new ArrayList<ExternalRef>(), false, null, "Term created");
 	Term component2 = new Term(annCont, "t3", span);
 	testTerm(component2, "t3", null, null, null, null, null, null, new ArrayList<Term>(), null, span, new ArrayList<ExternalRef>(), false, null, "Term created");
-	Term compound = new Term(annCont, "t4", span2);
-	testTerm(compound, "t4", null, null, null, null, null, null, new ArrayList<Term>(), null, span2, new ArrayList<ExternalRef>(), false, null, "Compund created");
+	Term compound = new Term(annCont, "t.mw4", span2);
+	compound.setAnnotationType(AnnotationType.MW);
+	testTerm(compound, "t.mw4", null, null, null, null, null, null, new ArrayList<Term>(), null, span2, new ArrayList<ExternalRef>(), false, null, "Compund created");
 	List<Term> components = new ArrayList<Term>();
 	/* HAS methods */
 	assertFalse("should have returned false", term.hasType());
@@ -54,12 +55,33 @@ public class TermTest {
 	testTerm(term, "t1", "open", "house", "V", "feat", "case1", sentiment, components, null, span, new ArrayList<ExternalRef>(), false, null, "Term created and several values set");
 	term.setSpan(span2);
 	testTerm(term, "t1", "open", "house", "V", "feat", "case1", sentiment, components, null, span2, new ArrayList<ExternalRef>(), false, null, "Term created and several values set");
-	term.addComponent(component1);
+	compound.addComponent(component1);
 	components.add(component1);
-	testTerm(term, "t1", "open", "house", "V", "feat", "case1", sentiment, components, null, span2, new ArrayList<ExternalRef>(), false, null, "Term created and first component added");
-	term.addComponent(component2, true);
+	compound.addComponent(component2, true);
 	components.add(component2);
-	testTerm(term, "t1", "open", "house", "V", "feat", "case1", sentiment, components, component2, span2, new ArrayList<ExternalRef>(), false, null, "Term created and head component added");
+	testTerm(compound, "t.mw4", null, null, null, null, null, null, components, component2, span2, new ArrayList<ExternalRef>(), false, null, "Components added to compound");
+    }
+    
+    @Test
+    public void testComponents() {
+	AnnotationContainer annCont = new AnnotationContainer();
+	Span<WF> span = WFTest.createWFSpan(annCont);
+	Term component1 = new Term(annCont, "t2", span);
+	Term component2 = new Term(annCont, "t3", span);
+	Term compound = new Term(annCont, "t.mw1", span);
+	compound.setAnnotationType(AnnotationType.MW);
+	compound.addComponent(component1);
+	compound.addComponent(component2, true);
+	Term component3 = compound.newComponent("t3.mw", span, false);
+	Term component4 = compound.newComponent("t.mw1.6", span, false);
+	Term component5 = compound.newComponent(span, false);
+	
+	assertEquals("t.mw1", compound.getId());
+	assertEquals("t.mw1.1", component1.getId());
+	assertEquals("t.mw1.2", component2.getId());
+	assertEquals("t3.mw", component3.getId());
+	assertEquals("t.mw1.6", component4.getId());
+	assertEquals("t.mw1.7", component5.getId());
     }
     
     @Test
@@ -79,13 +101,25 @@ public class TermTest {
     @Test
     public void testGetReferencedAnnotations() {
 	AnnotationContainer annCont = new AnnotationContainer();
-	Span<WF> span = WFTest.createWFSpan(annCont);
-	Term term = new Term(annCont, "t1", span);
+	WF wf1 = new WF(annCont, "w1", 0, 1, "a", 1);
+	WF wf2 = new WF(annCont, "w2", 2, 1, "b", 1);
+	WF wf3 = new WF(annCont, "w3", 4, 1, "c", 1);
+	Span<WF> span1 = new Span<WF>(wf1, wf2);
+	Span<WF> span2 = new Span<WF>(wf3);
+	Span<WF> span3 = new Span<WF>(wf1, wf2, wf3);
+	Term compound = new Term(annCont, "t.mw1", span3);
+	compound.setAnnotationType(AnnotationType.MW);
+	Term component1 = new Term(annCont, "t2", span1);
+	compound.addComponent(component1, false);
+	Term component2 = compound.newComponent(span2, true);
 	Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
-	referenced.put(AnnotationType.WF, (List<Annotation>)(List<?>)span.getTargets());
-	referenced.put(AnnotationType.COMPONENT, new ArrayList<Annotation>());
+	referenced.put(AnnotationType.WF, (List<Annotation>)(List<?>)span3.getTargets());
+	List<Annotation> components = new ArrayList<Annotation>();
+	components.add(component1);
+	components.add(component2);
+	referenced.put(AnnotationType.COMPONENT, components);
 	referenced.put(AnnotationType.SENTIMENT, new ArrayList<Annotation>());
-	assertEquals("Term object did not return the correct referenced WFs", referenced, term.getReferencedAnnotations());
+	assertEquals("Term object did not return the correct referenced WFs", referenced, compound.getReferencedAnnotations());
     }
     
     @Test

@@ -5,6 +5,8 @@ import ixa.kaflib.KAFDocument.AnnotationType;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.HashMap;
 
 
@@ -51,8 +53,9 @@ public class Term extends IdentifiableAnnotation implements SentenceLevelAnnotat
     /** ExternalReferences are used to associate terms to external lexical or semantic resources, such as elements of a Knowledge base: semantic lexicon  (like WordNet) or an ontology (optional) */
     private ExternalReferences externalRefs;
 
-    private boolean isComponent;
+    private AnnotationType annotationType; // Term, Compound or Component
     private Term compound; // Parent compound term of this component
+    private Integer nextIdIndex;
 
     private static final long serialVersionUID = 1L;
 
@@ -62,7 +65,8 @@ public class Term extends IdentifiableAnnotation implements SentenceLevelAnnotat
 	this.components = new ArrayList<Term>();
 	this.setSpan(span);
 	this.externalRefs = new ExternalReferences();
-	this.isComponent = false;
+	this.nextIdIndex = 1;
+	this.annotationType = AnnotationType.TERM;
     }
 
     public boolean hasType() {
@@ -158,19 +162,31 @@ public class Term extends IdentifiableAnnotation implements SentenceLevelAnnotat
     public List<Term> getComponents() {
 	return this.components;
     }
-
-    public void addComponent(Term component) {
-	component.isComponent = true;
-	component.compound = this;
-	components.add(component);
-	this.annotationContainer.indexAnnotationReferences(AnnotationType.TERM, this, component);
+    
+    public Term newComponent(String id, Span<WF> span, Boolean isHead) {
+	this.updateComponentIdIndex(id);
+	Term component = new Term(this.annotationContainer, id, span);
+	this.addToComponents(component, isHead);
+	return component;
+    }
+    
+    public Term newComponent(Span<WF> span, Boolean isHead) {
+	String newId = this.getNextComponentId();
+	Term component = new Term(this.annotationContainer, newId, span);
+	this.addToComponents(component, isHead);
+	return component;
     }
 
-    public void addComponent(Term component, boolean isHead) {
-	this.addComponent(component);
-	if (isHead) {
-	    this.head = component;
-	}
+    public void addComponent(Term term) {
+	term.id = this.getNextComponentId();
+	this.annotationContainer.remove(term, AnnotationType.TERM);
+	this.addToComponents(term, false);
+    }
+
+    public void addComponent(Term term, boolean isHead) {
+	term.id = this.getNextComponentId();
+	this.annotationContainer.remove(term, AnnotationType.TERM);
+	this.addToComponents(term, isHead);
     }
 
     public Span<WF> getSpan() {
@@ -183,7 +199,7 @@ public class Term extends IdentifiableAnnotation implements SentenceLevelAnnotat
     }
 
     boolean isComponent() {
-	return this.isComponent;
+	return this.annotationType == AnnotationType.COMPONENT;
     }
 
     public Term getCompound() {
@@ -207,34 +223,54 @@ public class Term extends IdentifiableAnnotation implements SentenceLevelAnnotat
     
     @Override
     public Integer getOffset() {
-	if (this.isComponent()) {
-	    return this.getCompound().getOffset();
-	} else {
-	    return this.getSpan().getOffset();
-	}
+	return this.span.getOffset();
     }
     
     @Override
     public Integer getSent() {
-	if (this.isComponent()) {
-	    return this.getCompound().getSent();
-	} else {
-	    return this.getSpan().isEmpty() ? null : this.getSpan().getFirstTarget().getSent();
-	}
+	return this.getSpan().isEmpty() ? null : this.getSpan().getFirstTarget().getSent();
     }
     
     @Override
     public Integer getPara() {
-	if (this.isComponent()) {
-	    return this.getCompound().getPara();
-	} else {
-	    return this.getSpan().isEmpty() ? null : this.getSpan().getFirstTarget().getPara();
-	}
+	return this.getSpan().isEmpty() ? null : this.getSpan().getFirstTarget().getPara();
     }
     
     @Override
     public String toString() {
 	return this.span.toString();
+    }
+    
+    
+    AnnotationType getAnnotationType() {
+	return this.annotationType;
+    }
+    
+    void setAnnotationType(AnnotationType type) {
+	this.annotationType = type;
+    }
+    
+    private void addToComponents(Term component, Boolean isHead) {
+	if (this.getAnnotationType() != AnnotationType.MW) {
+	    throw new RuntimeException("Component can only be added to Compound terms. Create compounds with KAFDocument::newCompound(...)");
+	}
+	component.annotationType = AnnotationType.COMPONENT;
+	component.compound = this;
+	components.add(component);
+	this.annotationContainer.indexAnnotationReferences(AnnotationType.TERM, this, component);
+	if (isHead) this.head = component;
+    }
+    
+    private String getNextComponentId() {
+	return this.id + "." + this.nextIdIndex++;
+    }
+
+    private void updateComponentIdIndex(String componentId) {
+	String pattern = "^" + this.id + "\\.(\\d+)$";
+	Matcher matcher = Pattern.compile(pattern).matcher(componentId);
+	if (matcher.find()) {
+	    this.nextIdIndex = Integer.valueOf(matcher.group(1)) + 1;
+	}
     }
     
     
@@ -325,7 +361,7 @@ public class Term extends IdentifiableAnnotation implements SentenceLevelAnnotat
 		Utils.areEquals(this.compound, ann.compound);
     }
     */
-    
+
 
     /** The term layer represents sentiment information which is context-independent and that can be found in a sentiment lexicon.
      * It is related to concepts expressed by words/ terms (e.g. beautiful) or multi-word expressions (e. g. out of order).
