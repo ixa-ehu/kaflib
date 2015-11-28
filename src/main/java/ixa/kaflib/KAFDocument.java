@@ -980,10 +980,9 @@ public Entity newEntity(List<Span<Term>> references) {
     public List<Term> getTerms() {
 	return (List<Term>)(List<?>) this.getAnnotations(AnnotationType.TERM);
     }
-
-    /** Returns a list with all entities in the document */
-    public List<Entity> getEntities() {
-	return (List<Entity>)(List<?>) this.getAnnotations(AnnotationType.ENTITY);
+    
+    public Annotation getAnnotationById(String id) {
+	return this.annotationContainer.getAnnotationById(id);
     }
 
     public List<Chunk> getChunks() {

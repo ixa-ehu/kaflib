@@ -29,6 +29,7 @@ class AnnotationContainer implements Serializable {
     private Set<Element> unknownLayers;
     
     /* Indices */
+    private Map<String, Annotation> idIndex;
     private Map<Annotation, Map<AnnotationType, TreeSet<Annotation>>> invRefIndex; /* (Annotation => (AnnotationType => Annotations)) */
     private Map<AnnotationType, Map<Integer, TreeSet<Annotation>>> sentIndex; /* (AnnotationType => (Sentence => Annotations)) */
     private Map<Integer, TreeSet<Integer>> paraSentIndex; /* Para => List<Sent> */
@@ -45,6 +46,7 @@ class AnnotationContainer implements Serializable {
 	rawText = new String();
 	annotations = new HashMap<AnnotationType, List<Annotation>>();
 	unknownLayers = new HashSet<Element>();
+	idIndex = new HashMap<String, Annotation>();
 	invRefIndex = new HashMap<Annotation, Map<AnnotationType, TreeSet<Annotation>>>();
 	sentIndex = new HashMap<AnnotationType, Map<Integer, TreeSet<Annotation>>>();
 	paraSentIndex = new TreeMap<Integer, TreeSet<Integer>>();
@@ -69,12 +71,15 @@ class AnnotationContainer implements Serializable {
 	return annotations;
     }
     
-
     List<Annotation> getAnnotations(AnnotationType type) {
 	List<Annotation> annotations = this.annotations.get(type);
 	return (annotations == null) ? new ArrayList<Annotation>() : annotations;
     }
 
+    Annotation getAnnotationById(String id) {
+	return this.idIndex.get(id);
+    }
+    
     List<Annotation> getAnnotationsBy(Annotation ann, AnnotationType type) {
 	Map<AnnotationType, TreeSet<Annotation>> annIndex = this.invRefIndex.get(ann);
 	if (annIndex == null) return new ArrayList<Annotation>();
@@ -333,6 +338,9 @@ class AnnotationContainer implements Serializable {
 	List<Annotation> annotations = this.annotations.get(type);
 	if (annotations != null) annotations.remove(ann);
 	/* Unindex */
+	if (ann instanceof IdentifiableAnnotation) {
+	    this.idIndex.remove(((IdentifiableAnnotation)ann).getId());
+	}
 	if (ann instanceof SentenceLevelAnnotation) {
 	    Integer sent = ((SentenceLevelAnnotation) ann).getSent();
 	    Integer para = ((ParagraphLevelAnnotation) ann).getPara();
@@ -391,6 +399,10 @@ class AnnotationContainer implements Serializable {
     }
     
     private void indexAnnotation(Annotation ann, AnnotationType type) {
+	/* Id index */
+	if (ann instanceof IdentifiableAnnotation) {
+	    this.idIndex.put(((IdentifiableAnnotation)ann).getId(), ann);
+	}
 	/* Inverse references index*/
 	Map<AnnotationType, List<Annotation>> invReferences = ann.getReferencedAnnotations();
 	Iterator<Map.Entry<AnnotationType, List<Annotation>>> it = invReferences.entrySet().iterator();
