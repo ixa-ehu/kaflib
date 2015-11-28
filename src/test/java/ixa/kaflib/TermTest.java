@@ -2,7 +2,7 @@ package ixa.kaflib;
 
 import static org.junit.Assert.*;
 import ixa.kaflib.KAFDocument.AnnotationType;
-import ixa.kaflib.Term.Sentiment;
+import ixa.kaflib.TermBase.Sentiment;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,77 +13,83 @@ import java.util.Map;
 import org.junit.Test;
 
 public class TermTest {
-    
+
     @Test
-    public void testConstructor() {
-	AnnotationContainer annCont = new AnnotationContainer();
-	Span<WF> span = WFTest.createWFSpan(annCont);
-	Term term = new Term(annCont, "t12", span);
-	testTerm(term, "t12", null, null, null, null, null, null, new ArrayList<Term>(), null, span, new ArrayList<ExternalRef>(), false, null, "Term created");
-    }
-    
-    @Test
-    public void testBasic() {
+    public void testTermBasic() {
 	AnnotationContainer annCont = new AnnotationContainer();
 	Span<WF> span = WFTest.createWFSpan(annCont);
 	Span<WF> span2 = WFTest.createWFSpan(annCont);
 	Term term = new Term(annCont, "t1", span);
-	testTerm(term, "t1", null, null, null, null, null, null, new ArrayList<Term>(), null, span, new ArrayList<ExternalRef>(), false, null, "Term created");
-	Term component1 = new Term(annCont, "t2", span);
-	testTerm(component1, "t2", null, null, null, null, null, null, new ArrayList<Term>(), null, span, new ArrayList<ExternalRef>(), false, null, "Term created");
-	Term component2 = new Term(annCont, "t3", span);
-	testTerm(component2, "t3", null, null, null, null, null, null, new ArrayList<Term>(), null, span, new ArrayList<ExternalRef>(), false, null, "Term created");
-	Term compound = new Term(annCont, "t.mw4", span2);
-	compound.setAnnotationType(AnnotationType.MW);
-	testTerm(compound, "t.mw4", null, null, null, null, null, null, new ArrayList<Term>(), null, span2, new ArrayList<ExternalRef>(), false, null, "Compund created");
-	List<Term> components = new ArrayList<Term>();
-	/* HAS methods */
-	assertFalse("should have returned false", term.hasType());
-	assertFalse("should have returned false", term.hasLemma());
-	assertFalse("should have returned false", term.hasPos());
-	assertFalse("should have returned false", term.hasMorphofeat());
-	assertFalse("should have returned false", term.hasCase());
-	assertFalse("should have returned false", term.hasSentiment());
-	assertFalse("should have returned false", term.hasHead());	
-	/* SET methods */
+	assertEquals("t1", term.getId());
+	assertEquals(span, term.getSpan());
+	/* SET/HAS/GET methods */
+	assertFalse(term.hasType());
+	assertFalse(term.hasLemma());
+	assertFalse(term.hasPos());
+	assertFalse(term.hasMorphofeat());
+	assertFalse(term.hasCase());
+	assertFalse(term.hasSentiment());
 	term.setType("open");
+	assertEquals("open", term.getType());
+	assertTrue(term.hasType());
 	term.setLemma("house");
+	assertEquals("house", term.getLemma());
+	assertTrue(term.hasLemma());
 	term.setPos("V");
+	assertEquals("V", term.getPos());
+	assertTrue(term.hasPos());
 	term.setMorphofeat("feat");
+	assertEquals("feat", term.getMorphofeat());
+	assertTrue(term.hasMorphofeat());
 	term.setCase("case1");
-	Sentiment sentiment = term.createSentiment();
-	testTerm(term, "t1", "open", "house", "V", "feat", "case1", sentiment, components, null, span, new ArrayList<ExternalRef>(), false, null, "Term created and several values set");
+	assertEquals("case1", term.getCase());
+	assertTrue(term.hasCase());
+	Sentiment sentiment = term.newSentiment();
+	assertEquals(sentiment, term.getSentiment());
+	assertTrue(term.hasSentiment());
 	term.setSpan(span2);
-	testTerm(term, "t1", "open", "house", "V", "feat", "case1", sentiment, components, null, span2, new ArrayList<ExternalRef>(), false, null, "Term created and several values set");
-	compound.addComponent(component1);
-	components.add(component1);
-	compound.addComponent(component2, true);
-	components.add(component2);
-	testTerm(compound, "t.mw4", null, null, null, null, null, null, components, component2, span2, new ArrayList<ExternalRef>(), false, null, "Components added to compound");
+	assertEquals(span2, term.getSpan());
     }
     
     @Test
-    public void testComponents() {
+    public void testCompoundBasic() {
 	AnnotationContainer annCont = new AnnotationContainer();
-	Span<WF> span = WFTest.createWFSpan(annCont);
-	Term component1 = new Term(annCont, "t2", span);
-	Term component2 = new Term(annCont, "t3", span);
-	Term compound = new Term(annCont, "t.mw1", span);
-	compound.setAnnotationType(AnnotationType.MW);
-	compound.addComponent(component1);
-	compound.addComponent(component2, true);
-	Term component3 = compound.newComponent("t3.mw", span, false);
-	Term component4 = compound.newComponent("t.mw1.6", span, false);
-	Term component5 = compound.newComponent(span, false);
-	
+	WF w1 = new WF(annCont, "w1", 0, 1, "a", 1);
+	WF w2 = new WF(annCont, "w2", 2, 1, "b", 1);
+	WF w3 = new WF(annCont, "w3", 4, 1, "c", 1);
+	WF w4 = new WF(annCont, "w4", 6, 1, "d", 1);
+	Span<WF> span = new Span<WF>(w1, w2, w3, w4);
+	Span<WF> span1 = new Span<WF>(w1);
+	Span<WF> span2 = new Span<WF>(w2);
+	Span<WF> span3 = new Span<WF>(w3);
+	Span<WF> span4 = new Span<WF>(w4);
+	Compound compound = new Compound(annCont, "t.mw1");
 	assertEquals("t.mw1", compound.getId());
+	assertEquals(new Span<WF>(), compound.getSpan());
+	/* SET/HAS/GET methods */
+	Term component1 = compound.newComponent(span1, false);
+	assertFalse(compound.hasHead());
+	Term component2 = new Term(annCont, "t7", span2);
+	compound.addComponent(component2, true);
+	assertTrue(compound.hasHead());
+	Term component3 = compound.newComponent("t.mw1.5", span3, true);
+	Term component4 = compound.newComponent(span4, false);
+	assertArrayEquals(new Term[]{component1, component2, component3, component4}, compound.getComponents().toArray());
+	assertEquals(span, compound.getSpan());
+	assertEquals(component3, compound.getHead());
 	assertEquals("t.mw1.1", component1.getId());
 	assertEquals("t.mw1.2", component2.getId());
-	assertEquals("t3.mw", component3.getId());
+	assertEquals("t.mw1.5", component3.getId());
 	assertEquals("t.mw1.6", component4.getId());
-	assertEquals("t.mw1.7", component5.getId());
+	/* Referenced annotations */
+	TermBase.Sentiment sentiment = compound.newSentiment();
+	Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
+	referenced.put(AnnotationType.SENTIMENT, Arrays.asList((Annotation)sentiment));
+	referenced.put(AnnotationType.WF, Arrays.asList((Annotation)w1, w2, w3, w4));
+	referenced.put(AnnotationType.COMPONENT, Arrays.asList((Annotation)component1, component2, component3, component4));
+	assertEquals(referenced, compound.getReferencedAnnotations());
     }
-    
+
     @Test
     public void testExternalReferences() {
 	ExternalRef er1 = new ExternalRef("res1", "ref1");
@@ -99,27 +105,16 @@ public class TermTest {
     }
     
     @Test
-    public void testGetReferencedAnnotations() {
+    public void testTermGetReferencedAnnotations() {
 	AnnotationContainer annCont = new AnnotationContainer();
 	WF wf1 = new WF(annCont, "w1", 0, 1, "a", 1);
 	WF wf2 = new WF(annCont, "w2", 2, 1, "b", 1);
-	WF wf3 = new WF(annCont, "w3", 4, 1, "c", 1);
 	Span<WF> span1 = new Span<WF>(wf1, wf2);
-	Span<WF> span2 = new Span<WF>(wf3);
-	Span<WF> span3 = new Span<WF>(wf1, wf2, wf3);
-	Term compound = new Term(annCont, "t.mw1", span3);
-	compound.setAnnotationType(AnnotationType.MW);
-	Term component1 = new Term(annCont, "t2", span1);
-	compound.addComponent(component1, false);
-	Term component2 = compound.newComponent(span2, true);
+	Term term = new Term(annCont, "t1", span1);
 	Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
-	referenced.put(AnnotationType.WF, (List<Annotation>)(List<?>)span3.getTargets());
-	List<Annotation> components = new ArrayList<Annotation>();
-	components.add(component1);
-	components.add(component2);
-	referenced.put(AnnotationType.COMPONENT, components);
+	referenced.put(AnnotationType.WF, (List<Annotation>)(List<?>)span1.getTargets());
 	referenced.put(AnnotationType.SENTIMENT, new ArrayList<Annotation>());
-	assertEquals("Term object did not return the correct referenced WFs", referenced, compound.getReferencedAnnotations());
+	assertEquals("Term object did not return the correct referenced WFs", referenced, term.getReferencedAnnotations());
     }
     
     @Test
@@ -159,12 +154,20 @@ public class TermTest {
     @Test
     public void testToString() {
 	AnnotationContainer annCont = new AnnotationContainer();
+	/* Term */
 	Span<WF> span = WFTest.createWFSpan(annCont);
 	Term term = new Term(annCont, "t1", span);
 	assertEquals("Term did not return the correct string when calling toString()", "The White House", term.toString());
 	WF wf11 = new WF(annCont, "w11", 15, 4, "area", 3);
 	term.getSpan().addTarget(wf11);
 	assertEquals("Term did not return the correct string when calling toString()", "The White House area", term.toString());
+	/* Compound */
+	WF w1 = new WF(annCont, "w1", 0, 1, "a", 1);
+	WF w2 = new WF(annCont, "w2", 2, 1, "b", 1);
+	Compound compound = new Compound(annCont, "t.mw1");
+	Term component1 = compound.newComponent(new Span<WF>(w1), false);
+	Term component2 = compound.newComponent(new Span<WF>(w2), false);
+	assertEquals("a b", compound.toString());
     }
 
     @Test
@@ -225,8 +228,8 @@ public class TermTest {
 	assertEquals(Arrays.asList(er1, er2), term.getExternalRefs());
     }
     
-    static void testTerm(Term term, String id, String type, String lemma, String pos, String morphofeat, String termCase, Term.Sentiment sentiment,
-	    List<Term> components, Term head, Span<WF> span, List<ExternalRef> externalRefs, Boolean isComponent, Term compound, String msg) {
+    private static void testTermBase(TermBase term, String id, String type, String lemma, String pos, String morphofeat, String termCase, Term.Sentiment sentiment,
+	    Span<WF> span, List<ExternalRef> externalRefs, String msg) {
 	assertEquals(msg + ": ids do not match", id, term.getId());
 	assertEquals(msg + ": types do not match", type, term.getType());
 	assertEquals(msg + ": lemmas do not match", lemma, term.getLemma());
@@ -234,12 +237,22 @@ public class TermTest {
 	assertEquals(msg + ": morphofeats do not match", morphofeat, term.getMorphofeat());
 	assertEquals(msg + ": cases do not match", termCase, term.getCase());
 	assertEquals(msg + ": sentiments do not match", sentiment, term.getSentiment());
-	assertEquals(msg + ": components do not match", components, term.getComponents());
-	assertEquals(msg + ": heads do not match", head, term.getHead());
 	assertEquals(msg + ": spans do not match", span, term.getSpan());
 	assertEquals(msg + ": externalRefs do not match", externalRefs, term.getExternalRefs());
+    }
+    
+    static void testTerm(Term term, String id, String type, String lemma, String pos, String morphofeat, String termCase, Term.Sentiment sentiment,
+	    Span<WF> span, List<ExternalRef> externalRefs, Boolean isComponent, Compound compound, String msg) {
+	testTermBase(term, id, type, lemma, pos, morphofeat, termCase, sentiment, span, externalRefs, msg);
 	assertEquals(msg + ": isComponents do not match", isComponent, term.isComponent());
 	assertEquals(msg + ": compounds do not match", compound, term.getCompound());
+    }
+    
+    static void testCompound(Compound compound, String id, String type, String lemma, String pos, String morphofeat, String termCase, Term.Sentiment sentiment,
+	    List<Term> components, Term head, Span<WF> span, List<ExternalRef> externalRefs, String msg) {
+	testTermBase(compound, id, type, lemma, pos, morphofeat, termCase, sentiment, span, externalRefs, msg);
+	assertEquals(msg + ": components do not match", components, compound.getComponents());
+	assertEquals(msg + ": heads do not match", head, compound.getHead());
     }
     
     static void testSentiment(Sentiment sentiment, String resource, String polarity, String strength, String subjectivity, String sentimentSemanticType,

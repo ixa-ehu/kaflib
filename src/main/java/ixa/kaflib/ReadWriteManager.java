@@ -221,7 +221,7 @@ class ReadWriteManager {
 	if (elem != null) {
 	    List<Element> termElems = elem.getChildren();
 	    for (Element termElem : termElems) {
-		DOMToTerm(termElem, kaf, false, wfIndex, termIndex, null);
+		DOMToTerm(termElem, kaf, false, wfIndex, termIndex, null, false);
 	    }
 	    rootChildrenElems.remove(elem);
 	}
@@ -1069,7 +1069,8 @@ class ReadWriteManager {
 	return kaf;
     }
 
-    private static void DOMToTerm(Element termElem, KAFDocument kaf, boolean isComponent, Map<String, WF> wfIndex, Map<String, Term> termIndex, Term parentTerm) throws KAFNotValidException {
+    private static void DOMToTerm(Element termElem, KAFDocument kaf, boolean isComponent, Map<String, WF> wfIndex, Map<String, Term> termIndex, Compound parentCompound, Boolean compIsHead) throws KAFNotValidException {
+	Boolean isCompound = (termElem.getChildren("component").size() > 0) ? true : false;
 	String tid = getAttribute("id", termElem);
 	Element spanElem = termElem.getChild("span");
 	List<Element> termsWfElems = new ArrayList<Element>();
@@ -1089,7 +1090,19 @@ class ReadWriteManager {
 	    }
 	    span.addTarget(wf, isHead);
 	}
-	Term newTerm = kaf.newTerm(tid, span);
+	TermBase newTerm = null;
+	if (isCompound) {
+	    newTerm = kaf.newCompound(tid);
+	    String headId = getOptAttribute("head", termElem);
+	    List<Element> termsComponentElems = termElem.getChildren("component");
+	    for (Element termsComponentElem : termsComponentElems) {
+		Boolean termsCompIsHead = getAttribute("id", termsComponentElem).equals(headId);
+	        DOMToTerm(termsComponentElem, kaf, true, wfIndex, termIndex, (Compound)newTerm, termsCompIsHead);
+	    }
+	} else {
+	    newTerm = isComponent ? parentCompound.newComponent(tid, span, compIsHead) : kaf.newTerm(tid, span);
+	    termIndex.put(tid, (Term)newTerm);
+	}
 	String type = getOptAttribute("type", termElem);
 	if (type != null) {
 	    newTerm.setType(type);
@@ -1118,19 +1131,15 @@ class ReadWriteManager {
 	}
 	    
 	if (!isComponent) {
-	    List<Element> termsComponentElems = termElem.getChildren("component");
-	    for (Element termsComponentElem : termsComponentElems) {
-	        DOMToTerm(termsComponentElem, kaf, true, wfIndex, termIndex, newTerm);
-	    }
+
 	} else {
-	    parentTerm.addComponent(newTerm);
+	    
 	}
 	List<Element> externalReferencesElems = termElem.getChildren("externalReferences");
 	if (externalReferencesElems.size() > 0) {
 	    List<ExternalRef> externalRefs = getExternalReferences(externalReferencesElems.get(0), kaf);
 	    newTerm.addExternalRefs(externalRefs);
 	}
-	termIndex.put(newTerm.getId(), newTerm);
     }
 
     private static Term.Sentiment DOMToSentiment(Element sentimentElem, KAFDocument kaf) {
@@ -2209,12 +2218,13 @@ class ReadWriteManager {
 	return spanElem;
     }
 
-    private static void termToDOM(Term term, boolean isComponent, Element termsElem) {
+    private static void termToDOM(TermBase term, boolean isComponent, Element termsElem) {
 	String morphofeat;
 	Term head;
 	String termcase;
+	Boolean isCompound = term instanceof Compound;
 	if (!isComponent) {
-	    Comment termComment = new Comment(term.getStr());
+	    Comment termComment = new Comment(term.toString());
 	    termsElem.addContent(termComment);
 	}
 	String tag = (isComponent) ? "component" : "term";
@@ -2232,9 +2242,6 @@ class ReadWriteManager {
 	if (term.hasMorphofeat()) {
 	    termElem.setAttribute("morphofeat", term.getMorphofeat());
 	}
-	if (term.hasHead()) {
-	    termElem.setAttribute("head", term.getHead().getId());
-	}
 	if (term.hasCase()) {
 	    termElem.setAttribute("case", term.getCase());
 	}
@@ -2242,6 +2249,9 @@ class ReadWriteManager {
 	    Term.Sentiment sentiment = term.getSentiment();
 	    Element sentimentElem = sentimentToDOM(sentiment);
 	    termElem.addContent(sentimentElem);
+	}
+	if (isCompound && ((Compound)term).hasHead()) {
+	    termElem.setAttribute("head", ((Compound)term).getHead().getId());
 	}
 	if (!isComponent) {
 	    Element spanElem = new Element("span");
@@ -2256,10 +2266,12 @@ class ReadWriteManager {
 	    }
 	    termElem.addContent(spanElem);
 
-	    List<Term> components = term.getComponents();
-	    if (components.size() > 0) {
-		for (Term component : components) {
-		    termToDOM(component, true, termElem);
+	    if (isCompound) {
+		List<Term> components = ((Compound)term).getComponents();
+		if (components.size() > 0) {
+		    for (Term component : components) {
+			termToDOM(component, true, termElem);
+		    }
 		}
 	    }
 	}

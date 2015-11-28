@@ -431,26 +431,16 @@ public class KAFDocument implements Serializable {
 	return newTerm;
     }
 
-    public Term newCompound(String id, List<Term> terms, String lemma) {
-	Span<WF> span = new Span<WF>();
-	for (Term term : terms) {
-	    span.addTargets(term.getSpan().getTargets()); 
-	}
+    public Compound newCompound(String id) {
 	idManager.updateCounter(AnnotationType.MW, id);
-	Term compound = newTerm(id, span);
-	compound.setAnnotationType(AnnotationType.MW);
-	compound.setLemma(lemma);
-	for (Term term : terms) {
-	    compound.addComponent(term);
-	    this.annotationContainer.remove(term, AnnotationType.TERM);
-	}
+	Compound compound = new Compound(this.annotationContainer, id);
 	annotationContainer.add(compound, AnnotationType.MW);
 	return compound;
     }
 
-    public Term newCompound(List<Term> terms, String lemma) {
+    public Compound newCompound() {
 	String newId = idManager.getNextId(AnnotationType.MW);
-	return this.newCompound(newId, terms, lemma);
+	return this.newCompound(newId);
     }
 
     /** Creates a Sentiment object.
