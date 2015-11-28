@@ -234,7 +234,7 @@ public class KAFDocumentTest {
 	List<WF> wfs = Arrays.asList(wf1, wf2, wf3, wf4, wf5, wf6, wf7, wf8);
 	List<Annotation> queriedWFs = naf1.getAnnotations(AnnotationType.WF);
 	assertEquals("KAFDocument::getAnnotations() did not work correctly with WFs", wfs, queriedWFs);
-	List<Annotation> queriedTextLayer = naf1.getLayer(Layer.TEXT);
+	List<Annotation> queriedTextLayer = naf1.getAnnotations(Layer.TEXT);
 	assertEquals("KAFDocument::getLayer() did not work correctly with TEXT layer", wfs, queriedTextLayer);
 	List<WF> queriedWFs2 = naf1.getWFs();
 	assertEquals("KAFDocument::getWFs() did not return all WFs", wfs, queriedWFs2);
