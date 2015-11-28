@@ -29,24 +29,20 @@ public class Entity extends IdentifiableAnnotation implements Relational, Senten
     private List<Span<Term>> references;
 
     /** External references (optional) */
-    private List<ExternalRef> externalReferences;
+    private ExternalReferences externalReferences;
     
     private static final long serialVersionUID = 1L;
 
     
     Entity(AnnotationContainer annotationContainer, String id, List<Span<Term>> references) {
 	super(annotationContainer, id);
-	if (references.size() < 1) {
-	    throw new IllegalStateException("Entities must contain at least one reference span");
-	}
-	if (references.get(0).size() < 1) {
-	    throw new IllegalStateException("Entities' reference's spans must contain at least one target");
-	}
 	this.references = new ArrayList<Span<Term>>();
-	for (Span<Term> span : references) {
-	    this.addSpan(span);
+	if (references != null) {
+	    for (Span<Term> span : references) {
+		this.addSpan(span);
+	    }
 	}
-	this.externalReferences = new ArrayList<ExternalRef>();
+	this.externalReferences = new ExternalReferences();
     }
 
     public boolean hasType() {
@@ -73,21 +69,6 @@ public class Entity extends IdentifiableAnnotation implements Relational, Senten
 	this.source = source;
     }
 
-    /** Returns the term targets of the first span. When targets of other spans are needed getReferences() method should be used. */ 
-    public List<Term> getTerms() {
-	return this.references.get(0).getTargets();
-    }
-
-    /** Adds a term to the first span. */
-    public void addTerm(Term term) {
-	this.references.get(0).addTarget(term);
-    }
-
-    /** Adds a term to the first span. */
-    public void addTerm(Term term, boolean isHead) {
-	this.references.get(0).addTarget(term, isHead);
-    }
-
     public List<Span<Term>> getSpans() {
 	return this.references;
     }
@@ -96,17 +77,9 @@ public class Entity extends IdentifiableAnnotation implements Relational, Senten
 	span.setOwner(this, AnnotationType.ENTITY, this.annotationContainer);
 	this.references.add(span);
     }
-
-    public List<ExternalRef> getExternalRefs() {
-	return externalReferences;
-    }
-
-    public void addExternalRef(ExternalRef externalRef) {
-	externalReferences.add(externalRef);
-    }
-
-    public void addExternalRefs(List<ExternalRef> externalRefs) {
-	externalReferences.addAll(externalRefs);
+    
+    public ExternalReferences getExternalReferences() {
+	return this.externalReferences;
     }
 
     Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
@@ -152,7 +125,40 @@ public class Entity extends IdentifiableAnnotation implements Relational, Senten
     public void addReference(List<Term> span) {
 	this.references.add(KAFDocument.<Term>list2Span(span));
     } 
-    
+
+    @Deprecated
+    /** Returns the term targets of the first span. When targets of other spans are needed getReferences() method should be used. */ 
+    public List<Term> getTerms() {
+	return this.getSpans().get(0).getTargets();
+    }
+
+    @Deprecated
+    /** Adds a term to the first span. */
+    public void addTerm(Term term) {
+	this.getSpans().get(0).addTarget(term);
+    }
+
+    @Deprecated
+    /** Adds a term to the first span. */
+    public void addTerm(Term term, boolean isHead) {
+	this.getSpans().get(0).addTarget(term, isHead);
+    }
+
+    @Deprecated
+    public List<ExternalRef> getExternalRefs() {
+	return externalReferences.get();
+    }
+
+    @Deprecated
+    public void addExternalRef(ExternalRef externalRef) {
+	externalReferences.add(externalRef);
+    }
+
+    @Deprecated
+    public void addExternalRefs(List<ExternalRef> externalRefs) {
+	externalReferences.add(externalRefs);
+    }
+
     @Deprecated
     public String getSpanStr(Span<Term> span) {
 	String str = "";

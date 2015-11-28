@@ -39,8 +39,10 @@ public class Term extends TermBase {
 	Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
 	referenced.put(AnnotationType.WF, (List<Annotation>)(List<?>) this.getSpan().getTargets());
 	List<Annotation> sentiments = new ArrayList<Annotation>();
-	if (this.hasSentiment()) sentiments.add(this.getSentiment());
-	referenced.put(AnnotationType.SENTIMENT, sentiments);
+	if (this.hasSentiment()) {
+	    sentiments.add(this.getSentiment());
+	    referenced.put(AnnotationType.SENTIMENT, sentiments);
+	}
 	return referenced;
     }
 
