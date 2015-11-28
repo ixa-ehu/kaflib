@@ -24,10 +24,7 @@ public class Chunk extends IdentifiableAnnotation implements SentenceLevelAnnota
     
     Chunk(AnnotationContainer annotationContainer, String id, Span<Term> span) {
 	super(annotationContainer, id);
-	if (span.size() < 1) {
-	    throw new IllegalStateException("Chunks must contain at least one term target");
-	}
-	this.setSpan(span);
+	this.setSpan((span != null) ? span : new Span<Term>());
     }
 
     public boolean hasHead() {
@@ -60,18 +57,6 @@ public class Chunk extends IdentifiableAnnotation implements SentenceLevelAnnota
 
     public void setCase(String chunkcase) {
 	this.chunkcase = chunkcase;
-    }
-
-    public List<Term> getTerms() {
-	return this.span.getTargets();
-    }
-
-    public void addTerm(Term term) {
-	this.span.addTarget(term);
-    }
-
-    public void addTerm(Term term, boolean isHead) {
-	this.span.addTarget(term, isHead);
     }
 
     public Span<Term> getSpan() {
@@ -110,7 +95,22 @@ public class Chunk extends IdentifiableAnnotation implements SentenceLevelAnnota
 	return this.span.toString();
     }
 
-    
+
+    @Deprecated
+    public List<Term> getTerms() {
+	return this.span.getTargets();
+    }
+
+    @Deprecated
+    public void addTerm(Term term) {
+	this.span.addTarget(term);
+    }
+
+    @Deprecated
+    public void addTerm(Term term, boolean isHead) {
+	this.span.addTarget(term, isHead);
+    }
+
     @Deprecated
     public void setHead(Term term) {
         this.span.setHead(term);

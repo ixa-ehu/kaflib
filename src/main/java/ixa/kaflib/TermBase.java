@@ -50,7 +50,7 @@ abstract class TermBase extends IdentifiableAnnotation implements SentenceLevelA
 
     TermBase(AnnotationContainer annotationContainer, String id, Span<WF> span) {
 	super(annotationContainer, id);
-	this.setSpan(span);
+	this.setSpan((span != null) ? span : new Span<WF>());
 	this.externalRefs = new ExternalReferences();
 	this.annotationType = AnnotationType.TERM;
     }
