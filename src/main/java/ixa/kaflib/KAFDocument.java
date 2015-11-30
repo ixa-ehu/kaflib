@@ -215,9 +215,6 @@ public class KAFDocument implements Serializable {
 
     private Public _public;
 
-    /** Identifier manager */
-    private IdManager idManager;
-
     /** Keeps all the annotations of the document */
     private AnnotationContainer annotationContainer;
 
@@ -226,7 +223,6 @@ public class KAFDocument implements Serializable {
 	this.lang = lang;
 	this.version = version;
 	this.lps = new LinkedHashMap<String, List<LinguisticProcessor>>();
-	this.idManager = new IdManager();
 	this.annotationContainer = new AnnotationContainer();
     }
 
@@ -378,12 +374,12 @@ public class KAFDocument implements Serializable {
     }
 
     public WF newWF(int offset, String form, int sent) {
-	String newId = idManager.getNextId(AnnotationType.WF);
+	String newId = annotationContainer.getIdManager().getNextId(AnnotationType.WF);
 	return this.newWF(newId, offset, form, sent);
     }
 
     public WF newWF(String id, int offset, String form, int sent) {
-	idManager.updateCounter(AnnotationType.WF, id);
+	annotationContainer.getIdManager().updateCounter(AnnotationType.WF, id);
 	WF newWF = new WF(this.annotationContainer, id, offset, form.length(), form, sent);
 	annotationContainer.add(newWF, AnnotationType.WF);
 	return newWF;
@@ -397,7 +393,7 @@ public class KAFDocument implements Serializable {
      * @return a new term.
      */
     public Term newTerm(Span<WF> span) {
-	String newId = idManager.getNextId(AnnotationType.TERM);
+	String newId = annotationContainer.getIdManager().getNextId(AnnotationType.TERM);
 	return this.newTerm(newId, span);
     }
 
@@ -410,19 +406,19 @@ public class KAFDocument implements Serializable {
      * @return a new term.
      */
     public Term newTerm(String id, Span<WF> span) {
-	idManager.updateCounter(AnnotationType.TERM, id);
+	annotationContainer.getIdManager().updateCounter(AnnotationType.TERM, id);
 	Term newTerm = new Term(this.annotationContainer, id, span);
 	annotationContainer.add(newTerm, AnnotationType.TERM);
 	return newTerm;
     }
 
     public Compound newCompound() {
-	String newId = idManager.getNextId(AnnotationType.MW);
+	String newId = annotationContainer.getIdManager().getNextId(AnnotationType.MW);
 	return this.newCompound(newId);
     }
 
     public Compound newCompound(String id) {
-	idManager.updateCounter(AnnotationType.MW, id);
+	annotationContainer.getIdManager().updateCounter(AnnotationType.MW, id);
 	Compound compound = new Compound(this.annotationContainer, id);
 	annotationContainer.add(compound, AnnotationType.MW);
 	return compound;
@@ -437,12 +433,12 @@ public class KAFDocument implements Serializable {
     }
 
     public Mark newMark(Span<WF> span) {
-	String newId = idManager.getNextId(AnnotationType.MARK);
+	String newId = annotationContainer.getIdManager().getNextId(AnnotationType.MARK);
 	return this.newMark(newId, span);
     }
     
     public Mark newMark(String id, Span<WF> span) {
-	idManager.updateCounter(AnnotationType.MARK, id);
+	annotationContainer.getIdManager().updateCounter(AnnotationType.MARK, id);
 	Mark newMark = new Mark(this.annotationContainer, id, span);
 	annotationContainer.add(newMark, AnnotationType.MARK);
 	return newMark;
@@ -467,7 +463,7 @@ public class KAFDocument implements Serializable {
      * @return a new chunk.
      */
     public Chunk newChunk(String phrase, Span<Term> span) {
-	String newId = idManager.getNextId(AnnotationType.CHUNK);
+	String newId = annotationContainer.getIdManager().getNextId(AnnotationType.CHUNK);
 	return this.newChunk(newId, phrase, span);
     }
 
@@ -479,7 +475,7 @@ public class KAFDocument implements Serializable {
      * @return a new chunk.
      */
     public Chunk newChunk(String id, String phrase, Span<Term> span) {
-	idManager.updateCounter(AnnotationType.CHUNK, id);
+	annotationContainer.getIdManager().updateCounter(AnnotationType.CHUNK, id);
 	Chunk newChunk = new Chunk(this.annotationContainer, id, span);
 	newChunk.setPhrase(phrase);
 	annotationContainer.add(newChunk, AnnotationType.CHUNK);
@@ -492,7 +488,7 @@ public class KAFDocument implements Serializable {
      * @return a new named entity.
      */
     public Entity newEntity(List<Span<Term>> references) {
-	String newId = idManager.getNextId(AnnotationType.ENTITY);
+	String newId = annotationContainer.getIdManager().getNextId(AnnotationType.ENTITY);
 	return this.newEntity(newId, references);
     }
 
@@ -503,7 +499,7 @@ public class KAFDocument implements Serializable {
      * @return a new named entity.
      */
     public Entity newEntity(String id, List<Span<Term>> references) {
-	idManager.updateCounter(AnnotationType.ENTITY, id);
+	annotationContainer.getIdManager().updateCounter(AnnotationType.ENTITY, id);
 	Entity newEntity = new Entity(this.annotationContainer, id, references);
 	annotationContainer.add(newEntity, AnnotationType.ENTITY);
 	return newEntity;
@@ -514,7 +510,7 @@ public class KAFDocument implements Serializable {
      * @return a new coreference.
      */
     public Coref newCoref(List<Span<Term>> mentions) {
-	String newId = idManager.getNextId(AnnotationType.COREF);
+	String newId = annotationContainer.getIdManager().getNextId(AnnotationType.COREF);
 	return this.newCoref(newId, mentions);
     }
 
@@ -524,7 +520,7 @@ public class KAFDocument implements Serializable {
      * @return a new coreference.
      */
     public Coref newCoref(String id, List<Span<Term>> mentions) {
-	idManager.updateCounter(AnnotationType.COREF, id);
+	annotationContainer.getIdManager().updateCounter(AnnotationType.COREF, id);
 	Coref newCoref = new Coref(this.annotationContainer, id, mentions);
 	annotationContainer.add(newCoref, AnnotationType.COREF);
 	return newCoref;
@@ -535,7 +531,7 @@ public class KAFDocument implements Serializable {
      * @return a new timex3.
      */
     public Timex3 newTimex3(String type) {
-	String newId = idManager.getNextId(AnnotationType.TIMEX3);
+	String newId = annotationContainer.getIdManager().getNextId(AnnotationType.TIMEX3);
 	return this.newTimex3(newId, type);
     }
 
@@ -545,38 +541,38 @@ public class KAFDocument implements Serializable {
      * @return a new timex3.
      */
     public Timex3 newTimex3(String id, String type) {
-	idManager.updateCounter(AnnotationType.TIMEX3, id);
+	annotationContainer.getIdManager().updateCounter(AnnotationType.TIMEX3, id);
 	Timex3 newTimex3 = new Timex3(this.annotationContainer, id, type);
 	annotationContainer.add(newTimex3, AnnotationType.TIMEX3);
 	return newTimex3;
     }
 
     public TLink newTLink(TLinkReferable from, TLinkReferable to, String relType) {
-	String newId = idManager.getNextId(AnnotationType.TLINK);
+	String newId = annotationContainer.getIdManager().getNextId(AnnotationType.TLINK);
 	return this.newTLink(newId, from, to, relType);
     }
 
     public TLink newTLink(String id, TLinkReferable from, TLinkReferable to, String relType) {
-	idManager.updateCounter(AnnotationType.TLINK, id);
+	annotationContainer.getIdManager().updateCounter(AnnotationType.TLINK, id);
 	TLink newTLink = new TLink(this.annotationContainer, id, from, to, relType);
 	annotationContainer.add(newTLink, AnnotationType.TLINK);
 	return newTLink;
     }
 
     public PredicateAnchor newPredicateAnchor(Span<Predicate> span) {
-	String newId = idManager.getNextId(AnnotationType.PREDICATE_ANCHOR);
+	String newId = annotationContainer.getIdManager().getNextId(AnnotationType.PREDICATE_ANCHOR);
 	return this.newPredicateAnchor(newId, span);
     }
     
     public PredicateAnchor newPredicateAnchor(String id, Span<Predicate> span) {
-	idManager.updateCounter(AnnotationType.PREDICATE_ANCHOR, id);
+	annotationContainer.getIdManager().updateCounter(AnnotationType.PREDICATE_ANCHOR, id);
 	PredicateAnchor newPredicateAnchor = new PredicateAnchor(this.annotationContainer, id, span);
 	annotationContainer.add(newPredicateAnchor, AnnotationType.PREDICATE_ANCHOR);
 	return newPredicateAnchor;
     }
     
     public PredicateAnchor newPredicateAnchor(Timex3 anchorTime, Timex3 beginPoint, Timex3 endPoint, Span<Predicate> span) {
-	String newId = idManager.getNextId(AnnotationType.PREDICATE_ANCHOR);
+	String newId = annotationContainer.getIdManager().getNextId(AnnotationType.PREDICATE_ANCHOR);
 	return this.newPredicateAnchor(newId, anchorTime, beginPoint, endPoint, span);
     }
     
@@ -589,24 +585,24 @@ public class KAFDocument implements Serializable {
     }
 
     public CLink newCLink(Predicate from, Predicate to) {
-	String newId = idManager.getNextId(AnnotationType.CLINK);
+	String newId = annotationContainer.getIdManager().getNextId(AnnotationType.CLINK);
 	return this.newCLink(newId, from, to);
     }
     
     public CLink newCLink(String id, Predicate from, Predicate to) {
-	idManager.updateCounter(AnnotationType.CLINK, id);
+	annotationContainer.getIdManager().updateCounter(AnnotationType.CLINK, id);
 	CLink newCLink = new CLink(this.annotationContainer, id, from, to);
 	annotationContainer.add(newCLink, AnnotationType.CLINK);
 	return newCLink;
     }
 
     public Factuality newFactuality(Span<Term> span) {
-	String newId = idManager.getNextId(AnnotationType.FACTUALITY);
+	String newId = annotationContainer.getIdManager().getNextId(AnnotationType.FACTUALITY);
 	return this.newFactuality(newId, span);
     }
 
     public Factuality newFactuality(String id, Span<Term> span) {
-	idManager.updateCounter(AnnotationType.FACTUALITY, id);
+	annotationContainer.getIdManager().updateCounter(AnnotationType.FACTUALITY, id);
 	Factuality newFactuality= new Factuality(this.annotationContainer, id, span);
 	annotationContainer.add(newFactuality, AnnotationType.FACTUALITY);
 	return newFactuality;
@@ -632,7 +628,7 @@ public class KAFDocument implements Serializable {
 	 */
     /*
 	public LinkedEntity newLinkedEntity(Span<WF> span) {
-		String newId = idManager.getNextId(Annotations.LINKED_ENTITY);
+		String newId = annotationContainer.getIdManager().getNextId(Annotations.LINKED_ENTITY);
 		LinkedEntity linkedEntity = new LinkedEntity(newId, span);
 		annotationContainer.add(linkedEntity);
 		return linkedEntity;
@@ -645,7 +641,7 @@ public class KAFDocument implements Serializable {
      * @return a new coreference.
      */
     public Feature newProperty(String lemma, List<Span<Term>> references) {
-	String newId = idManager.getNextId(AnnotationType.PROPERTY);
+	String newId = annotationContainer.getIdManager().getNextId(AnnotationType.PROPERTY);
 	return this.newProperty(newId, lemma, references);
     }
 
@@ -656,7 +652,7 @@ public class KAFDocument implements Serializable {
      * @return a new coreference.
      */
     public Feature newProperty(String id, String lemma, List<Span<Term>> references) {
-	idManager.updateCounter(AnnotationType.PROPERTY, id);
+	annotationContainer.getIdManager().updateCounter(AnnotationType.PROPERTY, id);
 	Feature newProperty = new Feature(this.annotationContainer, id, lemma, references);
 	annotationContainer.add(newProperty, AnnotationType.PROPERTY);
 	return newProperty;
@@ -668,7 +664,7 @@ public class KAFDocument implements Serializable {
      * @return a new coreference.
      */
     public Feature newCategory(String lemma, List<Span<Term>> references) {
-	String newId = idManager.getNextId(AnnotationType.CATEGORY);
+	String newId = annotationContainer.getIdManager().getNextId(AnnotationType.CATEGORY);
 	return this.newCategory(newId, lemma, references);
     }
 
@@ -679,7 +675,7 @@ public class KAFDocument implements Serializable {
      * @return a new coreference.
      */
     public Feature newCategory(String id, String lemma, List<Span<Term>> references) {
-	idManager.updateCounter(AnnotationType.CATEGORY, id);
+	annotationContainer.getIdManager().updateCounter(AnnotationType.CATEGORY, id);
 	Feature newCategory = new Feature(this.annotationContainer, id, lemma, references);
 	annotationContainer.add(newCategory, AnnotationType.CATEGORY);
 	return newCategory;
@@ -689,7 +685,7 @@ public class KAFDocument implements Serializable {
      * @return a new opinion.
      */
     public Opinion newOpinion() {
-	String newId = idManager.getNextId(AnnotationType.OPINION);
+	String newId = annotationContainer.getIdManager().getNextId(AnnotationType.OPINION);
 	return this.newOpinion(newId);
     }
 
@@ -697,7 +693,7 @@ public class KAFDocument implements Serializable {
      * @return a new opinion.
      */
     public Opinion newOpinion(String id) {
-        idManager.updateCounter(AnnotationType.OPINION, id);
+        annotationContainer.getIdManager().updateCounter(AnnotationType.OPINION, id);
 	Opinion newOpinion = new Opinion(this.annotationContainer, id);
 	annotationContainer.add(newOpinion, AnnotationType.OPINION);
 	return newOpinion;
@@ -709,7 +705,7 @@ public class KAFDocument implements Serializable {
      * @return a new relation
      */
     public Relation newRelation(Relational from, Relational to) {
-	String newId = idManager.getNextId(AnnotationType.RELATION);
+	String newId = annotationContainer.getIdManager().getNextId(AnnotationType.RELATION);
 	return this.newRelation(newId, from, to);
     }
     
@@ -720,7 +716,7 @@ public class KAFDocument implements Serializable {
      * @return a new relation
      */
     public Relation newRelation(String id, Relational from, Relational to) {
-	idManager.updateCounter(AnnotationType.RELATION, id);
+	annotationContainer.getIdManager().updateCounter(AnnotationType.RELATION, id);
 	Relation newRelation = new Relation(this.annotationContainer, id, from, to);
 	annotationContainer.add(newRelation, AnnotationType.RELATION);
 	return newRelation;
@@ -731,7 +727,7 @@ public class KAFDocument implements Serializable {
      * @return a new predicate
      */
     public Predicate newPredicate(Span<Term> span) {
-	String newId = idManager.getNextId(AnnotationType.PREDICATE);
+	String newId = annotationContainer.getIdManager().getNextId(AnnotationType.PREDICATE);
 	return this.newPredicate(newId, span);
     }
     
@@ -741,7 +737,7 @@ public class KAFDocument implements Serializable {
      * @return a new predicate
      */
     public Predicate newPredicate(String id, Span<Term> span) {
-	    idManager.updateCounter(AnnotationType.PREDICATE, id);
+	    annotationContainer.getIdManager().updateCounter(AnnotationType.PREDICATE, id);
 	Predicate newPredicate = new Predicate(this.annotationContainer, id, span);
 	annotationContainer.add(newPredicate, AnnotationType.PREDICATE);
 	return newPredicate;
@@ -754,7 +750,7 @@ public class KAFDocument implements Serializable {
      * @return a new role.
      */
     public Predicate.Role newRole(Predicate predicate, String semRole, Span<Term> span) {
-	String newId = idManager.getNextId(AnnotationType.ROLE);
+	String newId = annotationContainer.getIdManager().getNextId(AnnotationType.ROLE);
 	return this.newRole(newId, predicate, semRole, span);
     }
 
@@ -766,7 +762,7 @@ public class KAFDocument implements Serializable {
      * @return a new role.
      */
     public Predicate.Role newRole(String id, Predicate predicate, String semRole, Span<Term> span) {
-	idManager.updateCounter(AnnotationType.ROLE, id);
+	annotationContainer.getIdManager().updateCounter(AnnotationType.ROLE, id);
 	Predicate.Role newRole = new Predicate.Role(this.annotationContainer, id, semRole, span);
 	return newRole;
     }
@@ -799,25 +795,25 @@ public class KAFDocument implements Serializable {
     }
     
     public NonTerminal newNonTerminal(String label) {
-	String newId = idManager.getNextId(AnnotationType.NON_TERMINAL);
+	String newId = annotationContainer.getIdManager().getNextId(AnnotationType.NON_TERMINAL);
 	return this.newNonTerminal(newId, label);
     }
     
     public NonTerminal newNonTerminal(String id, String label) {
 	NonTerminal tn = new NonTerminal(this.annotationContainer, id, label);
-	String newEdgeId = idManager.getNextId(AnnotationType.EDGE);
+	String newEdgeId = annotationContainer.getIdManager().getNextId(AnnotationType.EDGE);
 	tn.setEdgeId(newEdgeId);
 	return tn;
     }
 
     public Terminal newTerminal(Span<Term> span) {
-	String newId = idManager.getNextId(AnnotationType.TERMINAL);
+	String newId = annotationContainer.getIdManager().getNextId(AnnotationType.TERMINAL);
 	return this.newTerminal(newId, span);
     }
 
     public Terminal newTerminal(String id, Span<Term> span) {
 	Terminal tn = new Terminal(this.annotationContainer, id, span);
-	String newEdgeId = idManager.getNextId(AnnotationType.EDGE);
+	String newEdgeId = annotationContainer.getIdManager().getNextId(AnnotationType.EDGE);
 	tn.setEdgeId(newEdgeId);
 	return tn;
     }
@@ -829,12 +825,12 @@ public class KAFDocument implements Serializable {
     }
     
     public Statement newStatement(Statement.StatementTarget target) {
-	String newId = idManager.getNextId(AnnotationType.STATEMENT);
+	String newId = annotationContainer.getIdManager().getNextId(AnnotationType.STATEMENT);
 	return this.newStatement(newId, target);
     }
     
     public Statement newStatement(String id, Statement.StatementTarget target) {
-        idManager.updateCounter(AnnotationType.STATEMENT, id);
+        annotationContainer.getIdManager().updateCounter(AnnotationType.STATEMENT, id);
 	Statement newStatement = new Statement(this.annotationContainer, id, target);
 	annotationContainer.add(newStatement, AnnotationType.STATEMENT);
 	return newStatement;
@@ -1032,7 +1028,7 @@ public class KAFDocument implements Serializable {
 
     public void addExistingAnnotation(Annotation ann, AnnotationType type) {
 	if (isIdentifiableAnnotationType(type)) {
-	    String newId = idManager.getNextId(type);
+	    String newId = annotationContainer.getIdManager().getNextId(type);
 	    ((IdentifiableAnnotation) ann).setId(newId);
 	}
 	annotationContainer.add(ann, type);
@@ -1097,7 +1093,7 @@ public class KAFDocument implements Serializable {
 
     @Deprecated
     public WF newWF(String id, int offset, int length, String form, int sent) {
-	idManager.updateCounter(AnnotationType.WF, id);
+	annotationContainer.getIdManager().updateCounter(AnnotationType.WF, id);
 	WF newWF = new WF(this.annotationContainer, id, offset, length, form, sent);
 	annotationContainer.add(newWF, AnnotationType.WF);
 	return newWF;
@@ -1105,7 +1101,7 @@ public class KAFDocument implements Serializable {
 
     @Deprecated
     public WF newWF(int offset, Integer length, String form, int sent) {
-	String newId = idManager.getNextId(AnnotationType.WF);
+	String newId = annotationContainer.getIdManager().getNextId(AnnotationType.WF);
 	WF newWF = new WF(this.annotationContainer, newId, offset, length, form, sent);
 	annotationContainer.add(newWF, AnnotationType.WF);
 	return newWF;
@@ -1155,7 +1151,7 @@ public class KAFDocument implements Serializable {
 
     @Deprecated
     public Term newTerm(String id, Span<WF> span, Integer position) {
-	idManager.updateCounter(AnnotationType.TERM, id);
+	annotationContainer.getIdManager().updateCounter(AnnotationType.TERM, id);
 	Term newTerm = new Term(this.annotationContainer, id, span);
 	annotationContainer.addAt(newTerm, AnnotationType.TERM, position);
 	return newTerm;
@@ -1163,7 +1159,7 @@ public class KAFDocument implements Serializable {
 
     @Deprecated
     public Term newTermOptions(String morphofeat, Span<WF> span) {
-	String newId = idManager.getNextId(AnnotationType.TERM);
+	String newId = annotationContainer.getIdManager().getNextId(AnnotationType.TERM);
 	Term newTerm = new Term(this.annotationContainer, newId, span);
 	newTerm.setMorphofeat(morphofeat);
 	annotationContainer.add(newTerm, AnnotationType.TERM);
@@ -1249,7 +1245,7 @@ public class KAFDocument implements Serializable {
 
     @Deprecated
     public Mark newMark(String id, String source, Span<WF> span) {
-	idManager.updateCounter(AnnotationType.MARK, id);
+	annotationContainer.getIdManager().updateCounter(AnnotationType.MARK, id);
 	Mark newMark = new Mark(this.annotationContainer, id, span);
 	newMark.setSource(source);
 	annotationContainer.add(newMark, AnnotationType.MARK);

@@ -5,6 +5,7 @@ import ixa.kaflib.KAFDocument.Layer;
 
 import java.io.Serializable;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
@@ -22,6 +23,9 @@ import org.jdom2.Element;
 
 /** A container to keep all annotations of a document (word forms, terms, dependencies, chunks, entities and coreferences). There are different hash maps to index annotations by different properties as ID, sentence... It enables to retrieve annotations by different properties in an effective way. Performance is very important. */
 class AnnotationContainer implements Serializable {
+    
+    /* ID manager */
+    private IdManager idManager;
 
     /* Annotation containers */
     private String rawText;
@@ -43,6 +47,7 @@ class AnnotationContainer implements Serializable {
 
     /** This creates a new AnnotationContainer object */
     AnnotationContainer() {
+	idManager = new IdManager();
 	rawText = new String();
 	annotations = new HashMap<AnnotationType, List<Annotation>>();
 	unknownLayers = new HashSet<Element>();
@@ -52,6 +57,10 @@ class AnnotationContainer implements Serializable {
 	paraSentIndex = new TreeMap<Integer, TreeSet<Integer>>();
 	paraSentIndexInfo = new HashMap<Integer, Map<Integer, Integer>>();
 	paraSentIndexUpToDate = true;
+    }
+    
+    IdManager getIdManager() {
+	return this.idManager;
     }
 
     Integer getNextCreationOrderId() {
