@@ -56,10 +56,20 @@ public class Tree extends Annotation implements SentenceLevelAnnotation {
     public Integer getOffset() {
 	return this.root.getOffset();
     }
+
+    @Override
+    public Integer getSent() {
+	return this.root.getSent();
+    }
+
+    @Override
+    public Integer getPara() {
+	return this.root.getPara();
+    }
     
     @Override
     public String toString() {
-	return null;
+	return this.root.toString();
     }
 
 
@@ -300,14 +310,6 @@ public class Tree extends Annotation implements SentenceLevelAnnotation {
 	return tag.substring(0, tag.length() - HEAD_MARK.length());
     }
 
-    public Integer getSent() {
-	return this.root.getSent();
-    }
-    
-    public Integer getPara() {
-	return this.root.getPara();
-    }
-    
     /*
     @Override
     public boolean equals(Object o) {

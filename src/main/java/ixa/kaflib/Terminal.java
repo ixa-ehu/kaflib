@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Terminal extends TreeNode implements SentenceLevelAnnotation {
+public class Terminal extends TreeNode {
 
     /** The term referenced by this terminal */
     private Span<Term> span;
@@ -15,7 +15,7 @@ public class Terminal extends TreeNode implements SentenceLevelAnnotation {
 
     
     Terminal(AnnotationContainer annotationContainer, String id, Span<Term> span) {
-	super(annotationContainer, id, false, true);
+	super(annotationContainer, id, false);
 	this.setSpan(span);
     }
 
@@ -31,6 +31,11 @@ public class Terminal extends TreeNode implements SentenceLevelAnnotation {
 
     public void addChild(TreeNode tn) throws Exception {
 	throw new Exception("It is not possible to add child nodes to Terminal nodes.");
+    }
+    
+    public void addChild(TreeNode tn, Boolean isHead) throws Exception {
+	this.addChild(tn);
+	tn.setHead(isHead);
     }
 
     public List<TreeNode> getChildren() {

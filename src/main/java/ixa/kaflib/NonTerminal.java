@@ -3,12 +3,13 @@ package ixa.kaflib;
 import ixa.kaflib.KAFDocument.AnnotationType;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 
 
-public class NonTerminal extends TreeNode implements SentenceLevelAnnotation {
+public class NonTerminal extends TreeNode {
 
     /** Label */
     private String label;
@@ -20,7 +21,7 @@ public class NonTerminal extends TreeNode implements SentenceLevelAnnotation {
 
 
     NonTerminal(AnnotationContainer annotationContainer, String id, String label) {
-	super(annotationContainer, id, false, false);
+	super(annotationContainer, id, false);
 	this.label = label;
 	this.children = new ArrayList<TreeNode>();
     }
@@ -38,6 +39,11 @@ public class NonTerminal extends TreeNode implements SentenceLevelAnnotation {
 	this.annotationContainer.indexAnnotationReferences(AnnotationType.NON_TERMINAL, this, tn);
     }
 
+    public void addChild(TreeNode tn, Boolean isHead) {
+	this.addChild(tn);
+	tn.setHead(isHead);
+    }
+
     public List<TreeNode> getChildren() {
 	return this.children;
     }
@@ -50,8 +56,12 @@ public class NonTerminal extends TreeNode implements SentenceLevelAnnotation {
 	    if (child instanceof NonTerminal) nonTerminals.add(child);
 	    else terminals.add(child);
 	}
-	referenced.put(AnnotationType.NON_TERMINAL, nonTerminals);
-	referenced.put(AnnotationType.TERMINAL, terminals);
+	if (!nonTerminals.isEmpty()) {
+	    referenced.put(AnnotationType.NON_TERMINAL, nonTerminals);
+	}
+	if (!terminals.isEmpty()) {
+	    referenced.put(AnnotationType.TERMINAL, terminals);
+	}
 	return referenced;
     }
     
@@ -71,7 +81,13 @@ public class NonTerminal extends TreeNode implements SentenceLevelAnnotation {
     
     @Override
     public String toString() {
-	return null;
+	String str = "";
+	Iterator<TreeNode> it = this.getChildren().iterator();
+	while (it.hasNext()) {
+	    str += it.next().toString();
+	    if (it.hasNext()) str += " ";
+	}
+	return str;
     }
     
     /*
