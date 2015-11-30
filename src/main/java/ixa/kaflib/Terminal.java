@@ -15,7 +15,7 @@ public class Terminal extends TreeNode {
 
     
     Terminal(AnnotationContainer annotationContainer, String id, Span<Term> span) {
-	super(annotationContainer, id, false);
+	super(annotationContainer, id);
 	this.setSpan(span);
     }
 
@@ -29,19 +29,6 @@ public class Terminal extends TreeNode {
 	this.span = span;
     }
 
-    public void addChild(TreeNode tn) throws Exception {
-	throw new Exception("It is not possible to add child nodes to Terminal nodes.");
-    }
-    
-    public void addChild(TreeNode tn, Boolean isHead) throws Exception {
-	this.addChild(tn);
-	tn.setHead(isHead);
-    }
-
-    public List<TreeNode> getChildren() {
-	return null;
-    }
-    
     Map<AnnotationType, List<Annotation>> getReferencedAnnotations() {
 	Map<AnnotationType, List<Annotation>> referenced = new HashMap<AnnotationType, List<Annotation>>();
 	referenced.put(AnnotationType.TERM, (List<Annotation>)(List<?>) this.getSpan().getTargets());

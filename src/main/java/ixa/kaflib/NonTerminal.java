@@ -21,7 +21,7 @@ public class NonTerminal extends TreeNode {
 
 
     NonTerminal(AnnotationContainer annotationContainer, String id, String label) {
-	super(annotationContainer, id, false);
+	super(annotationContainer, id);
 	this.label = label;
 	this.children = new ArrayList<TreeNode>();
     }
@@ -35,13 +35,25 @@ public class NonTerminal extends TreeNode {
     }
 
     public void addChild(TreeNode tn) {
-	this.children.add(tn);
-	this.annotationContainer.indexAnnotationReferences(AnnotationType.NON_TERMINAL, this, tn);
+	String newEdgeId = this.annotationContainer.getIdManager().getNextId(AnnotationType.EDGE);
+	this.addChild(tn, newEdgeId, false);
+    }
+
+    public void addChild(TreeNode tn, String edgeId) {
+	this.addChild(tn, edgeId, false);
     }
 
     public void addChild(TreeNode tn, Boolean isHead) {
-	this.addChild(tn);
-	tn.setHead(isHead);
+	String newEdgeId = this.annotationContainer.getIdManager().getNextId(AnnotationType.EDGE);
+	this.addChild(tn, newEdgeId, isHead);
+    }
+
+    public void addChild(TreeNode tn, String edgeId, Boolean isHead) {
+	this.annotationContainer.getIdManager().updateCounter(AnnotationType.EDGE, edgeId);
+	tn.edgeId = edgeId;
+	tn.head = isHead;
+	this.children.add(tn);
+	this.annotationContainer.indexAnnotationReferences(AnnotationType.NON_TERMINAL, this, tn);
     }
 
     public List<TreeNode> getChildren() {

@@ -26,18 +26,12 @@ public class TreeTest {
 	
 	assertEquals("ter1", terminal.getId());
 	assertTrue(terminal.isTerminal());
+	assertFalse(terminal.isNonTerminal());
 	assertEquals(new Span<Term>(t1, t2), terminal.getSpan());
 	
 	assertFalse(terminal.hasEdgeId());
-	terminal.setEdgeId("edge1");
-	assertTrue(terminal.hasEdgeId());
-	assertEquals("edge1", terminal.getEdgeId());
-	
 	assertFalse(terminal.isHead());
-	terminal.setHead(true);
-	assertTrue(terminal.isHead());
 	
-	assertNull(terminal.getChildren());
 	assertEquals("a b", terminal.toString());
 	assertEquals(new Integer(3), terminal.getOffset());
 	assertEquals(new Integer(2), terminal.getSent());
@@ -62,6 +56,7 @@ public class TreeTest {
 	
 	assertEquals("nter1", nter.getId());
 	assertFalse(nter.isTerminal());
+	assertTrue(nter.isNonTerminal());
 	assertFalse(nter.isHead());
 	assertFalse(nter.hasEdgeId());
 	
@@ -98,11 +93,36 @@ public class TreeTest {
 	NonTerminal root = new NonTerminal(container, "nter1", "ROOT");
 	NonTerminal nter1 = new NonTerminal(container, "nter2", "NP");
 	NonTerminal nter2 = new NonTerminal(container, "nter3", "VP");
-	nter1.addChild(ter1);
-	nter2.addChild(ter2);
-	root.addChild(nter1);
-	root.addChild(nter2, true);
 	Tree tree = new Tree(container, root, "type1");
+
+	assertFalse(ter1.isHead());
+	assertFalse(ter2.isHead());
+	assertFalse(nter1.isHead());
+	assertFalse(nter2.isHead());
+	
+	assertFalse(nter1.hasEdgeId());
+	assertFalse(nter2.hasEdgeId());
+	assertFalse(ter1.hasEdgeId());
+	assertFalse(ter2.hasEdgeId());
+	
+	nter1.addChild(ter1, "tre5", true);
+	nter2.addChild(ter2);
+	root.addChild(nter1, "edge10");
+	root.addChild(nter2, true);
+
+	assertTrue(ter1.isHead());
+	assertFalse(ter2.isHead());
+	assertFalse(nter1.isHead());
+	assertTrue(nter2.isHead());
+	
+	assertTrue(nter1.hasEdgeId());
+	assertTrue(nter2.hasEdgeId());
+	assertTrue(ter1.hasEdgeId());
+	assertTrue(ter2.hasEdgeId());
+	assertEquals("tre5", ter1.getEdgeId());
+	assertEquals("tre6", ter2.getEdgeId());
+	assertEquals("edge10", nter1.getEdgeId());
+	assertEquals("tre11", nter2.getEdgeId());
 	
 	assertEquals("type1", tree.getType());
 	assertEquals(root, tree.getRoot());

@@ -1,22 +1,20 @@
 package ixa.kaflib;
 
-import java.util.List;
-
 
 public abstract class TreeNode extends IdentifiableAnnotation implements SentenceLevelAnnotation {
 
     /** The id of the edge between this node and its parent. */
-    private String edgeId;
+    protected String edgeId;
 
     /** Wether the edge between this node and its parent is the "head" or not. */
-    private boolean head;
+    protected boolean head;
 
     private static final long serialVersionUID = 1L;
 
 
-    public TreeNode(AnnotationContainer annotationContainer, String id, boolean head) {
+    public TreeNode(AnnotationContainer annotationContainer, String id) {
         super(annotationContainer, id);
-	this.head = head;
+	this.head = false;
     }
 
     public boolean hasEdgeId() {
@@ -27,32 +25,27 @@ public abstract class TreeNode extends IdentifiableAnnotation implements Sentenc
 	return this.edgeId;
     }
 
-    public void setEdgeId(String edgeId) {
-	this.edgeId = edgeId;
-    }
-    
     public Boolean isHead() {
 	return this.head;
-    }
-
-    public void setHead(boolean head) {
-	this.head = head;
     }
 
     public boolean isTerminal() {
 	return this instanceof Terminal;
     }
 
-    public abstract void addChild(TreeNode tn) throws Exception;
-    
-    public abstract void addChild(TreeNode tn, Boolean isHead) throws Exception;
-
-    public abstract List<TreeNode> getChildren();
+    public boolean isNonTerminal() {
+	return this instanceof NonTerminal;
+    }
 
     
     @Deprecated
     public boolean getHead() {
 	return this.isHead();
+    }
+
+    @Deprecated
+    public void setHead(boolean head) {
+	this.head = head;
     }
 
     /*

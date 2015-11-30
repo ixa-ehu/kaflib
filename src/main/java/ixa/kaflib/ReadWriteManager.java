@@ -316,13 +316,12 @@ class ReadWriteManager {
 		    if ((parentNode == null) || (childNode == null)) {
 			throw new KAFNotValidException("There is a problem with the edge(" + fromId + ", " + toId + "). One of its targets doesn't exist.");
 		    }
-		    try {
-			((NonTerminal) parentNode).addChild(childNode);
-		    } catch(Exception e) {}
-		    rootNodes.put(fromId, false);
 		    if (edgeId != null) {
-			childNode.setEdgeId(edgeId);
+			((NonTerminal) parentNode).addChild(childNode, edgeId);
+		    } else {
+			((NonTerminal) parentNode).addChild(childNode);
 		    }
+		    rootNodes.put(fromId, false);
 		    if (isHead) {
 			((NonTerminal) childNode).setHead(isHead);
 		    }

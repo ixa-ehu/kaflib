@@ -801,8 +801,6 @@ public class KAFDocument implements Serializable {
     
     public NonTerminal newNonTerminal(String id, String label) {
 	NonTerminal tn = new NonTerminal(this.annotationContainer, id, label);
-	String newEdgeId = annotationContainer.getIdManager().getNextId(AnnotationType.EDGE);
-	tn.setEdgeId(newEdgeId);
 	return tn;
     }
 
@@ -813,8 +811,6 @@ public class KAFDocument implements Serializable {
 
     public Terminal newTerminal(String id, Span<Term> span) {
 	Terminal tn = new Terminal(this.annotationContainer, id, span);
-	String newEdgeId = annotationContainer.getIdManager().getNextId(AnnotationType.EDGE);
-	tn.setEdgeId(newEdgeId);
 	return tn;
     }
 
