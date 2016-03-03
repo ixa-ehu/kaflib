@@ -79,7 +79,7 @@ class ReadWriteManager {
 
     /** Returns a string containing the XML content of a KAFDocument object. */
     static String kafToStr(KAFDocument kaf) {
-	XMLOutputter out = new XMLOutputter(Format.getRawFormat().setLineSeparator(LineSeparator.UNIX));
+	XMLOutputter out = new XMLOutputter(Format.getPrettyFormat().setLineSeparator(LineSeparator.UNIX).setTextMode(Format.TextMode.TRIM_FULL_WHITE));
 	Document jdom = KAFToDOM(kaf);
 	return out.outputString(jdom);
     }
