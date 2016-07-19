@@ -1452,7 +1452,7 @@ class ReadWriteManager {
 	if (marks.size() > 0) {
 	    Element marksElem = new Element("markables");
 	    for (Mark mark : marks) {
-		Comment markComment = new Comment(mark.getStr());
+		Comment markComment = new Comment(cleanUnicode(mark.getStr()));
 		marksElem.addContent(markComment);
 		Element markElem = new Element("mark");
 		markElem.setAttribute("id", mark.getId());
@@ -1502,7 +1502,7 @@ class ReadWriteManager {
 	if (deps.size() > 0) {
 	    Element depsElem = new Element("deps");
 	    for (Dep dep : deps) {
-		Comment depComment = new Comment(dep.getStr());
+		Comment depComment = new Comment(cleanUnicode(dep.getStr()));
 		depsElem.addContent(depComment);
 		Element depElem = new Element("dep");
 		depElem.setAttribute("from", dep.getFrom().getId());
@@ -1520,7 +1520,7 @@ class ReadWriteManager {
 	if (chunks.size() > 0) {
 	    Element chunksElem = new Element("chunks");
 	    for (Chunk chunk : chunks) {
-		Comment chunkComment = new Comment(chunk.getStr());
+		Comment chunkComment = new Comment(cleanUnicode(chunk.getStr()));
 		chunksElem.addContent(chunkComment);
 		Element chunkElem = new Element("chunk");
 		chunkElem.setAttribute("id", chunk.getId());
@@ -1557,7 +1557,7 @@ class ReadWriteManager {
 		}
 		Element referencesElem = new Element("references");
 		for (Span<Term> span : entity.getSpans()) {
-		    Comment spanComment = new Comment(entity.getSpanStr(span));
+		    Comment spanComment = new Comment(cleanUnicode(entity.getSpanStr(span)));
 		    referencesElem.addContent(spanComment);
 		    Element spanElem = new Element("span");
 		    for (Term term : span.getTargets()) {
@@ -1591,7 +1591,7 @@ class ReadWriteManager {
 		    corefElem.setAttribute("type", coref.getType());
 		}
 		for (Span<Term> span : coref.getSpans()) {
-		    Comment spanComment = new Comment(coref.getSpanStr(span));
+		    Comment spanComment = new Comment(cleanUnicode(coref.getSpanStr(span)));
 		    corefElem.addContent(spanComment);
 		    Element spanElem = new Element("span");
 		    for (Term target : span.getTargets()) {
@@ -1657,7 +1657,7 @@ class ReadWriteManager {
 		}
 		if (timex3.hasSpan()) {
 		    Span<WF> span = timex3.getSpan();
-		    Comment spanComment = new Comment(timex3.getSpanStr(span));
+		    Comment spanComment = new Comment(cleanUnicode(timex3.getSpanStr(span)));
 		    timex3Elem.addContent(spanComment);
 		    Element spanElem = new Element("span");
 		    for (WF target : span.getTargets()) {
@@ -1672,7 +1672,7 @@ class ReadWriteManager {
 		}
 		/*
 		for (Span<WF> span : timex3.getSpans()) {
-		    Comment spanComment = new Comment(timex3.getSpanStr(span));
+		    Comment spanComment = new Comment(cleanUnicode(timex3.getSpanStr(span)));
 		    timex3Elem.addContent(spanComment);
 		    Element spanElem = new Element("span");
 		    for (WF target : span.getTargets()) {
@@ -1698,7 +1698,7 @@ class ReadWriteManager {
 			Element factElem = new Element("factuality");
 			factElem.setAttribute("id", f.getId());
 			Span<Term> span = f.getSpan();
-			Comment spanComment = new Comment(f.getSpanStr(span));
+			Comment spanComment = new Comment(cleanUnicode(f.getSpanStr(span)));
 			factElem.addContent(spanComment);
 			Element spanElem = new Element("span");
 			for (Term term : span.getTargets()) {
@@ -1750,7 +1750,7 @@ class ReadWriteManager {
 			lEnt.setAttribute("reference", e.getReference());
 			lEnt.setAttribute("confidence", Double.toString(e.getConfidence()));
 
-			Comment spanComment = new Comment(e.getSpanStr());
+			Comment spanComment = new Comment(cleanUnicode(e.getSpanStr()));
 			lEnt.addContent(spanComment);
 			Element spanElem = new Element("span");
 			for (WF target : e.getWFs().getTargets()) {
@@ -1776,7 +1776,7 @@ class ReadWriteManager {
 		List<Span<Term>> references = property.getSpans();
 		Element referencesElem = new Element("references");
 		for (Span<Term> span : references) {
-		    Comment spanComment = new Comment(property.getSpanStr(span));
+		    Comment spanComment = new Comment(cleanUnicode(property.getSpanStr(span)));
 		    referencesElem.addContent(spanComment);
 		    Element spanElem = new Element("span");
 		    for (Term term : span.getTargets()) {
@@ -1804,7 +1804,7 @@ class ReadWriteManager {
 		List<Span<Term>> references = category.getSpans();
 		Element referencesElem = new Element("references");
 		for (Span<Term> span : references) {
-		    Comment spanComment = new Comment(category.getSpanStr(span));
+		    Comment spanComment = new Comment(cleanUnicode(category.getSpanStr(span)));
 		    referencesElem.addContent(spanComment);
 		    Element spanElem = new Element("span");
 		    for (Term term : span.getTargets()) {
@@ -1838,7 +1838,7 @@ class ReadWriteManager {
 		    if (holder.hasType()) {
 			opinionHolderElem.setAttribute("type", holder.getType());
 		    }
-		    Comment comment = new Comment(opinion.getSpanStr(opinion.getOpinionHolder().getSpan()));
+		    Comment comment = new Comment(cleanUnicode(opinion.getSpanStr(opinion.getOpinionHolder().getSpan())));
 		    opinionHolderElem.addContent(comment);
 		    List<Term> targets = holder.getTerms();
 		    Span<Term> span = holder.getSpan();
@@ -1859,7 +1859,7 @@ class ReadWriteManager {
 		Opinion.OpinionTarget opTarget = opinion.getOpinionTarget();
 		if (opTarget != null) {
 		    Element opinionTargetElem = new Element("opinion_target");
-		    Comment comment = new Comment(opinion.getSpanStr(opinion.getOpinionTarget().getSpan()));
+		    Comment comment = new Comment(cleanUnicode(opinion.getSpanStr(opinion.getOpinionTarget().getSpan())));
 		    opinionTargetElem.addContent(comment);
 		    List<Term> targets = opTarget.getTerms();
 		    Span<Term> span = opTarget.getSpan();
@@ -1880,7 +1880,7 @@ class ReadWriteManager {
 		Opinion.OpinionExpression expression = opinion.getOpinionExpression();
 		if (expression != null) {
 		    Element opinionExpressionElem = new Element("opinion_expression");
-		    Comment comment = new Comment(opinion.getSpanStr(opinion.getOpinionExpression().getSpan()));
+		    Comment comment = new Comment(cleanUnicode(opinion.getSpanStr(opinion.getOpinionExpression().getSpan())));
 		    opinionExpressionElem.addContent(comment);
 		    if (expression.hasPolarity()) {
 			opinionExpressionElem.setAttribute("polarity", expression.getPolarity());
@@ -1923,7 +1923,7 @@ class ReadWriteManager {
 	if (relations.size() > 0) {
 	    Element relationsElem = new Element("relations");
 	    for (Relation relation : relations) {
-		Comment comment = new Comment(relation.getStr());
+		Comment comment = new Comment(cleanUnicode(relation.getStr()));
 		relationsElem.addContent(comment);
 		Element relationElem = new Element("relation");
 		relationElem.setAttribute("id", relation.getId());
@@ -1941,7 +1941,7 @@ class ReadWriteManager {
 	if (predicates.size() > 0) {
 	    Element predicatesElem = new Element("srl");
 	    for (Predicate predicate : predicates) {
-		Comment predicateComment = new Comment(predicate.getStr());
+		Comment predicateComment = new Comment(cleanUnicode(predicate.getStr()));
 		predicatesElem.addContent(predicateComment);
 		Element predicateElem = new Element("predicate");
 		predicateElem.setAttribute("id", predicate.getId());
@@ -1953,7 +1953,7 @@ class ReadWriteManager {
 		}
 		Span<Term> span = predicate.getSpan();
 		if (span.getTargets().size() > 0) {
-		    Comment spanComment = new Comment(predicate.getSpanStr());
+		    Comment spanComment = new Comment(cleanUnicode(predicate.getSpanStr()));
 		    Element spanElem = new Element("span");
 		    predicateElem.addContent(spanComment);
 		    predicateElem.addContent(spanElem);
@@ -1977,7 +1977,7 @@ class ReadWriteManager {
 		    roleElem.setAttribute("semRole", role.getSemRole());
 		    Span<Term> roleSpan = role.getSpan();
 		    if (roleSpan.getTargets().size() > 0) {
-			Comment spanComment = new Comment(role.getStr());
+			Comment spanComment = new Comment(cleanUnicode(role.getStr()));
 			Element spanElem = new Element("span");
 			roleElem.addContent(spanComment);
 			roleElem.addContent(spanElem);
@@ -2055,7 +2055,7 @@ class ReadWriteManager {
 			nodeElem.setAttribute("id", node.getId());
 			nodeElem.addContent(createTermSpanElem(node.getSpan()));
 			// Comment
-			Comment tStrCom = new Comment(node.getStr());
+			Comment tStrCom = new Comment(cleanUnicode(node.getStr()));
 			treeElem.addContent(tStrCom);
 			treeElem.addContent(nodeElem);
 		    }
@@ -2085,7 +2085,7 @@ class ReadWriteManager {
 		if (tempRel instanceof TLink) {
 		    TLink tLink = (TLink)tempRel;
 		    Comment tLinkComment = new Comment
-			    (tLink.getRelType() + "(" + tLink.getFrom().getId() + ", " + tLink.getTo().getId() + ")");
+			(cleanUnicode(tLink.getRelType() + "(" + tLink.getFrom().getId() + ", " + tLink.getTo().getId() + ")"));
 		    tempRelsElem.addContent(tLinkComment);
 		    Element tLinkElem = new Element("tlink");
 		    tLinkElem.setAttribute("id", tLink.getId());
@@ -2128,7 +2128,7 @@ class ReadWriteManager {
 		    commentStr += cLink.getRelType();
 		}
 		commentStr += "(" + cLink.getFrom().getId() + ", " + cLink.getTo().getId() + ")";
-		Comment cLinkComment = new Comment(commentStr);
+		Comment cLinkComment = new Comment(cleanUnicode(commentStr));
 		cLinksElem.addContent(cLinkComment);
 		Element cLinkElem = new Element("clink");
 		cLinkElem.setAttribute("id", cLink.getId());
@@ -2221,7 +2221,7 @@ class ReadWriteManager {
 	Term head;
 	String termcase;
 	if (!isComponent) {
-	    Comment termComment = new Comment(term.getStr());
+	    Comment termComment = new Comment(cleanUnicode(term.getStr()));
 	    termsElem.addContent(termComment);
 	}
 	String tag = (isComponent) ? "component" : "term";
@@ -2389,5 +2389,12 @@ class ReadWriteManager {
 	    throw new IllegalStateException("IdManager doesn't recognise the given id's (" + id  + ") format. Should be [a-z]*_?[0-9]+");
 	}
 	return Integer.valueOf(matcher.group(1));
+    }
+
+    /**
+     * Removes unicode chars greater than u10000 (Java comments don't allow them).
+     */
+    private static String cleanUnicode(String str) {
+	return str.replaceAll("[\\x{02710}-\\x{FFFFF}]", "");
     }
 }
