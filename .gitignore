@@ -21,3 +21,4 @@ octave-core
 /src/test/
 /release.sh
 /generate_javadoc.sh
+/bin/
