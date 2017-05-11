@@ -21,6 +21,7 @@ public class Entity extends IdentifiableAnnotation implements Relational, Senten
      * - Money
      * - Percent
      * - Misc
+     * - GPE (stands for Geo-Political Entity)
      */ 
     private String type;
     
