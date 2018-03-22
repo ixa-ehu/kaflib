@@ -2235,8 +2235,7 @@ class ReadWriteManager {
 	    termElem.setAttribute("type", term.getType());
 	}
 	if (term.hasLemma()) {
-		//System.err.println(StringEscapeUtils.escapeHtml4(term.getLemma())+" "+StringEscapeUtils.escapeXml11(term.getLemma()));
-	    termElem.setAttribute("lemma", StringEscapeUtils.escapeXml11(term.getLemma()));
+	    termElem.setAttribute("lemma", term.getLemma());
 	}
 	if (term.hasPos()) {
 	    termElem.setAttribute("pos", term.getPos());
